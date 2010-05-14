@@ -16,7 +16,6 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#include "webexscheduler.h"
 #include <QtCore/QMutexLocker>
 #include <QtCore/QDateTime>
 #include <QtCore/QTimer>
@@ -24,6 +23,8 @@
 #include <KDebug>
 #include <Soprano/Model>
 #include <Nepomuk/ResourceManager>
+#include "webexscheduler.h"
+#include "webexschedulerimpl.h"
 
 namespace NW = Nepomuk::WebExtractor;
 
@@ -35,13 +36,11 @@ Nepomuk::WebExtractorScheduler::WebExtractorScheduler(const QString & category_q
     m_speed(FullSpeed),
     m_reducedSpeedDelay(500),
     m_snailPaceDelay(3000),
-    m_query(category_query),
-    m_respWaits(0),
-    m_maxResSimult(5),
-    m_currentResProc(0)
+    m_impl(0),
+    m_query(category_query)
 {;
-    m_factory = new Nepomuk::WebExtractor::ResourceAnalyzerFactory(this);
 }
+
 
 Nepomuk::WebExtractorScheduler::~WebExtractorScheduler()
 {
@@ -53,6 +52,7 @@ Nepomuk::WebExtractorScheduler::~WebExtractorScheduler()
         m_resumeStopWc.wakeAll();
 	wait();
     }
+    delete m_impl;
 }
 
 void Nepomuk::WebExtractorScheduler::suspend()
@@ -144,45 +144,10 @@ bool Nepomuk::WebExtractorScheduler::isExtracting() const
     return m_extracting;
 }
 
-void Nepomuk::WebExtractorScheduler::launchNext()
-{
-    NW::ResourceAnalyzer * resanal = m_factory->newAnalyzer();
-    Nepomuk::Resource res;
-    connect(resanal, SIGNAL(analyzingFinished(ResourceAnalyzer *)), this, SLOT(resourceProcessed()));
-    m_currentResProc++;
-    resanal->analyze(res);
-
-}
-
-void Nepomuk::WebExtractorScheduler::resourceProcessed()
-{
-    m_currentResProc--;
-    NW::ResourceAnalyzer * res = qobject_cast< NW::ResourceAnalyzer *>(sender() );
-    if (!res) {
-	kDebug() << "Recive signal not from ResourceAnalyzer";
-    }
-    m_factory->deleteAnalyzer(res);
-    if (m_finishing) {
-	// No launches more
-	// Just wait untill all already launched
-	// resource finishing and exit
-	if (m_currentResProc == 0)
-	    quit();
-    }
-    else {
-	if (waitForContinue() ) {
-	    // launch new resource
-	    emit launchPls();
-	}
-	else {
-	    // Finishing
-	    m_finishing = true;
-	}
-    }
-}
 
 void Nepomuk::WebExtractorScheduler::run()
 {
+    m_impl = new WebExtractorSchedulerImpl(m_query, this);
     // set lowest priority for this thread
     setPriority( QThread::IdlePriority );
 
@@ -195,10 +160,10 @@ void Nepomuk::WebExtractorScheduler::run()
 	    );
 	    */
 
-    connect(this, SIGNAL(launchPls()), this, SLOT(launchNext()), Qt::QueuedConnection );
+    connect(this->m_impl, SIGNAL(launchPls()), this->m_impl, SLOT(launchNext()), Qt::QueuedConnection );
 
-    for ( int i = 0; i < m_maxResSimult; i++)
-	emit launchPls();
+    for ( int i = 0; i < m_impl->m_maxResSimult; i++)
+	m_impl->launchNext();
 
 
 #if 0
@@ -223,16 +188,18 @@ void Nepomuk::WebExtractorScheduler::run()
     // reset state
     m_suspended = false;
     m_stopped = false;
-    m_finishing = false;
+    m_impl->m_finishing = false;
 }
 
 bool Nepomuk::WebExtractorScheduler::waitForContinue( bool disableDelay )
 {
     QMutexLocker locker( &m_resumeStopMutex );
     if ( m_suspended ) {
+	kDebug() << "Suspended";
         setExtractingStarted( false );
         m_resumeStopWc.wait( &m_resumeStopMutex );
         setExtractingStarted( true );
+	kDebug() << "Resumed";
     }
     else if ( !disableDelay && m_speed != FullSpeed ) {
         msleep( m_speed == ReducedSpeed ? m_reducedSpeedDelay : m_snailPaceDelay );
@@ -240,3 +207,4 @@ bool Nepomuk::WebExtractorScheduler::waitForContinue( bool disableDelay )
 
     return !m_stopped;
 }
+

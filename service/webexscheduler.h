@@ -30,6 +30,7 @@
 
 namespace Nepomuk{
     namespace WE = WebExtractor;
+    class WebExtractorSchedulerImpl;
     class WebExtractorScheduler : public QThread
     {
 	Q_OBJECT;
@@ -90,12 +91,6 @@ namespace Nepomuk{
 	    void extractingFolder( const QString& );
 	    void extractingSuspended( bool suspended );
 
-	private Q_SLOTS:
-	    void resourceProcessed();
-	    void launchNext();
-
-	Q_SIGNALS:
-	    void launchPls();
 	private:
 	    void run();
 	    // emits indexingStarted or indexingStopped based on parameter. Makes sure
@@ -109,25 +104,16 @@ namespace Nepomuk{
 	    bool m_suspended;
 	    bool m_stopped;
 	    bool m_extracting;
-	    // This variable has same meaning as m_stopped
-	    // but it is internal and can not be modificated
-	    // by another thread
-	    bool m_finishing;
 	    int m_reducedSpeedDelay ; // ms
 	    int m_snailPaceDelay ;   // ms
 	    QString m_query;
-	    int m_respWaits;
-	    // Maximum number of resources that can be processed simultaneously
-	    int m_maxResSimult;
-	    // Number of currently processed resources
-	    int m_currentResProc;
-	    Soprano::QueryResultIterator it;
 
 	    QMutex m_resumeStopMutex;
 	    QWaitCondition m_resumeStopWc;
 
 	    ExtractingSpeed m_speed;
-	    WebExtractor::ResourceAnalyzerFactory * m_factory;
+	    WebExtractorSchedulerImpl * m_impl;
+	    friend class WebExtractorSchedulerImpl;
     };
 }
 

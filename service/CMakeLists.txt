@@ -38,6 +38,7 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 set( webexservice_SRCS 
     webexservice.cpp
     webexscheduler.cpp
+    webexschedulerimpl.cpp
     priority.cpp
     useractivitymonitor.cpp
     webextractor_settings.cpp
