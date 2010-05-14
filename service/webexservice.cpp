@@ -78,11 +78,18 @@ void Nepomuk::WebExtractorService::setSuspended(bool suspend)
 
 void Nepomuk::WebExtractorService::finishInitialization()
 {
+    // TODO Using UserActivityMonitor cause segfault in Qt Code (
+    // Program received signal SIGSEGV, Segmentation fault.
+    // 0x00007ffff5ad80f6 in QCursor::pos () at kernel/qcursor_x11.cpp:153
+    // 153         Display* dpy = X11->display;
+    // Fix it or force somebody to fix it
+    /*
     UserActivityMonitor* userActivityMonitor = new UserActivityMonitor( this );
     connect( userActivityMonitor, SIGNAL( userActive( bool ) ),
              m_extractScheduler, SLOT( setReducedExtractingSpeed( bool ) ) );
     userActivityMonitor->start();
     ;
+    */
 }
 
 #include <kpluginfactory.h>
