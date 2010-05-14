@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+<kcfgfile name="webextractorrc"/>
+<include>kglobalsettings.h</include>
+
+<group name="webextractorcore">
+    <entry name="categories" type="StringList">
+	<label> List of enabled categories </label>
+	<whatsthis> This is the list of enabled categories of resources. Each resource in each category will be parsed by WebExtractor. Plugins can be specifieg in per-category manner </whatsthis>
+    </entry>
+
+</group>
+</kcfg>
+
+

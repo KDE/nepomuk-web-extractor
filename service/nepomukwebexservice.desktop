@@ -1,0 +1,10 @@
+[Desktop Entry]
+ Type=Service
+ X-KDE-ServiceTypes=NepomukService
+ X-KDE-Library=nepomukwebexservice
+ X-KDE-Nepomuk-autostart=true
+ X-KDE-Nepomuk-start-on-demand=false
+ # Dependencies default to 'nepomukstorage'
+ Name =Web Extractor Nepomuk Service
+ Comment=A Nepomuk service that does fancy things
+

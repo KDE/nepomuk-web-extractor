@@ -1,6 +1,15 @@
 project(webextractor)
 
-set (QT_MIN_VERSION "4.6.0")
-find_package(KDE4 4.4.0 REQUIRED)
-include(KDE4Defaults)
-include(MacroLibrary)
+cmake_minimum_required(VERSION 2.6)
+
+
+add_subdirectory( libwebextractor )
+
+include_directories(
+    ${libwebextractor_SOURCE_DIR}/include
+    )
+
+add_subdirectory( service )
+add_subdirectory( tests )
+
+

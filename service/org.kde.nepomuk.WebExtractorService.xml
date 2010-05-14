@@ -1,0 +1,14 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.kde.nepomuk.WebExtractorService">
+    <method name="isIdle">
+      <arg type="b" direction="out"/>
+    </method>
+    <method name="setSuspended">
+      <arg type="b" direction="in"/>
+    </method>
+    <method name="isSuspended">
+      <arg type="b" direction="out"/>
+    </method>
+  </interface>
+</node>

@@ -1,0 +1,4 @@
+File=webexcategory.kcfg
+ClassName=WebExCategory
+NameSpace=Nepomuk::WebExtractor
+
