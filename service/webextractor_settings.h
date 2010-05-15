@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at kde.org>
+   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal@gmail.com>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,26 +19,29 @@
 #define _NEPOMUK_WEBEXTRCT_CONFIG_H_
 #include "webexconfigbase.h"
 #include "webexcategory.h"
-#include <QtCore/QMap>
+#include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QtDebug>
 
 namespace Nepomuk {
-    namespace WebExtractor {
 	class WebExtractorConfig : public WebExConfigBase
 	{
 	    Q_OBJECT;
 	    public:
 		WebExtractorConfig();
+		const QHash<QString,WebExCategory*> & categories() const { return m_categories ;}
+		int maxPluginsLaunched( const QString & categoryName);
+		int maxResSimult( const QString & categoryName);
+
 	    private:
-		QMap<QString,WebExCategory*> m_categories;
+		QHash<QString,WebExCategory*> m_categories;
+		friend QDebug operator<<( QDebug dbg,  const WebExtractorConfig & cat);
 
 	};
-	//QDebug operator<<( QDebug dbg,  const WebExCategory & cat);
-	//QDebug operator<<( QDebug dbg,  const WebExtractorConfig & conf);
+	QDebug operator<<( QDebug dbg,  const WebExCategory & cat);
+	QDebug operator<<( QDebug dbg,  const WebExtractorConfig & conf);
 
 
-    }
 }
 
 #endif

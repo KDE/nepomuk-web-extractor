@@ -1,5 +1,4 @@
 /*
-   Copyright (c) 2008-2010 Sebastian Trueg <trueg@kde.org>
    Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
 
    This program is free software; you can redistribute it and/or modify
@@ -17,33 +16,47 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_CORE_IMPL_H_
-#define _NEPOMUK_WEBEXTRCT_CORE_IMPL_H_
+#ifndef _NEPOMUK_WEBEXTRCT_CORE_CAT_IMPL_H_
+#define _NEPOMUK_WEBEXTRCT_CORE_CAT_IMPL_H_
 
 #include <QtCore/QString>
+#include <QtCore/QUrl>
+#include <QtCore/QQueue>
 #include <QtCore/QDateTime>
 #include <Soprano/QueryResultIterator>
 #include <webextractor/resourceanalyzerfactory.h>
-#include "webexscheduler.h"
+#include "webexcatscheduler.h"
 
 namespace Nepomuk{
     namespace WE = WebExtractor;
-    class WebExtractorSchedulerImpl : public QObject
+    class WebExtractorCategorySchedulerImpl : public QObject
     {
 	Q_OBJECT;
 	public:
-	WebExtractorSchedulerImpl(const QString & category_query,WebExtractorScheduler * par);
+	WebExtractorCategorySchedulerImpl(const QString & category_query,WebExtractorCategoryScheduler * par, int maxResSimult, int cacheSize = 5);
 
 	public Q_SLOTS:
+	    /*! \brief Called when resource processing fineshed
+	     */
 	    void resourceProcessed();
-	    void launch();
+	    /*! \brief Called when resource processing aborted
+	     */
+	    void resourceProcessingAborted();
+	    void launch(const QUrl & resourceUri);
 
 	Q_SIGNALS:
-	    void launchPls();
+	    void launchPls(QUrl);
+	    //void launchingResourceAborted();
 
 	public:
 	    bool launchNext();
-	    WebExtractorScheduler * m_par;
+	    void launchOrFinish();
+	    bool start();
+	    // Add new urls to cache
+	    void cacheUrls();
+
+	    bool checkQuery();
+	    WebExtractorCategoryScheduler * m_par;
 	    // This variable has same meaning as m_stopped
 	    // but it is internal and can not be modificated
 	    // by another thread
@@ -54,10 +67,11 @@ namespace Nepomuk{
 	    int m_maxResSimult;
 	    // Number of currently processed resources
 	    int m_currentResProc;
-	    int tmp_count;
-	    Soprano::QueryResultIterator it;
+	    int m_cacheSize;
+	    //int tmp_count;
+	    //Soprano::QueryResultIterator it;
 	    WebExtractor::ResourceAnalyzerFactory * m_factory;
-	    void launchFirst();
+	    QQueue<QUrl> m_urlQueue;
     };
 }
 #endif

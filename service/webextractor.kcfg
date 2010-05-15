@@ -3,14 +3,35 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
-<kcfgfile name="webextractorrc"/>
+<kcfgfile name="webextractor/webextractorrc"/>
 <include>kglobalsettings.h</include>
+<include>algorithm</include>
+<include>QtCore/QThread</include>
 
 <group name="webextractorcore">
     <entry name="categories" type="StringList">
 	<label> List of enabled categories </label>
 	<whatsthis> This is the list of enabled categories of resources. Each resource in each category will be parsed by WebExtractor. Plugins can be specifieg in per-category manner </whatsthis>
     </entry>
+    <entry key="max_categories_simult" name="maxCategoriesSimult" type="UInt">
+	<label> Max number of simultaneously processed categories </label>
+	<whatsthis> This is number maximum of simultaneously processed categories. It affect number of threads. Generaly if each category is processed with one thread then this parameter is maximum number of spawned threads </whatsthis>
+	<min>1</min>
+	<default code="true"> std::max(QThread::idealThreadCount(),1) </default>
+    </entry>
+    <entry name="max_plugins_launched" key="max_plugins_launched" type="UInt">
+	<default>0</default>
+    </entry>
+    <entry name="max_plugins_launched_per_category" key="max_plugins_launched_per_category" type="UInt">
+	<default>0</default>
+    </entry>
+    <entry name="maxResSimult" key="max_res_simult" type="UInt">
+	<default>0</default>
+    </entry>
+    <entry name="maxResSimultPerCategory" key="max_res_simult_per_category" type="UInt">
+	<default>0</default>
+    </entry>
+
 
 </group>
 </kcfg>

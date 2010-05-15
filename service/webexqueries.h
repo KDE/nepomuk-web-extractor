@@ -1,5 +1,4 @@
 /*
-   Copyright (c) 2008-2010 Sebastian Trueg <trueg@kde.org>
    Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal@gmail.com>
 
    This program is free software; you can redistribute it and/or modify
@@ -16,39 +15,22 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef _NEPOMUK_WEBEXTRCT_SERVICE_H_
-#define _NEPOMUK_WEBEXTRCT_SERVICE_H_
 
-#include <Nepomuk/Service>
+#ifndef _NEPOMUK_WEBEXTRCT_QUERIES_H_
+#define _NEPOMUK_WEBEXTRCT_QUERIES_H_
 #include <QtCore/QString>
-
-namespace Nepomuk{
-
-    class WebExtractorScheduler;
-
-    class WebExtractorService : public Nepomuk::Service {
-        //private
-        Q_OBJECT;
-	Q_CLASSINFO("D-Bus Interface", "org.kde.nepomuk.WebExtractorService");
-
-        public:
-            WebExtractorService(QObject * parent, const QList<QVariant> &);
-	    ~WebExtractorService();
-
-	private Q_SLOTS:
-	    void finishInitialization();
-
-	public Q_SLOTS:
-	    bool isIdle() const;
-	    void setSuspended( bool );
-	    bool isSuspended() const;
-	    void reconfigure();
-
-
+namespace Nepomuk {
+    // Provide static members 
+    class WebExtractorQueries 
+    {
+	public:
+	    static QString ask_query(const QString & prefix, const QString & query);
+	    static QString select_query(const QString & prefix, const QString & query);
+	    static const QString & resourceVariableName(); 
 	private:
-	    Nepomuk::WebExtractorScheduler* m_extractScheduler;
-
+	    static const QString & ask_template() ;
+	    static const QString & select_template() ;
     };
+}
 
-};
 #endif

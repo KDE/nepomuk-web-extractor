@@ -1,0 +1,4 @@
+[category]
+queryPrefix=
+query=?r nao:hasTag ?tag. ?tag nao:prefLabel 'tag1'^^xsd:string .
+description=Select files

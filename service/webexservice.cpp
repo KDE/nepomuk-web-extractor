@@ -1,6 +1,6 @@
 /*
    Copyright (c) 2008-2010 Sebastian Trueg <trueg@kde.org>
-   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at kde.org>
+   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal@gmail.com>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -31,10 +31,9 @@ Nepomuk::WebExtractorService::WebExtractorService( QObject * parent, const QList
     Nepomuk::Service(parent,true)
 {
     (void)new  WebExtractorServiceAdaptor(this); 
-    QTimer::singleShot( 2*60*1000, this, SLOT( finishInitialization() ) );
-    setServiceInitialized(true);
-
-    Nepomuk::WebExtractor::WebExtractorConfig * config = new Nepomuk::WebExtractor::WebExtractorConfig();
+    //QTimer::singleShot( 2*60*1000, this, SLOT( finishInitialization() ) );
+    // For debuging purpose use less timer interval
+    QTimer::singleShot( 2, this, SLOT( finishInitialization() ) );
 
     // lower process priority - we do not want to spoil KDE usage
     // ==============================================================
@@ -45,15 +44,12 @@ Nepomuk::WebExtractorService::WebExtractorService( QObject * parent, const QList
     if ( !lowerIOPriority() )
         kDebug() << "Failed to lower io priority.";
 
-    m_extractScheduler = new Nepomuk::WebExtractorScheduler("select ?r where { ?r nao:hasTag ?tag }", this);
-    m_extractScheduler->start();
 
 }
 
 Nepomuk::WebExtractorService::~WebExtractorService()
 {
     m_extractScheduler->stop();
-    m_extractScheduler->wait();
     delete m_extractScheduler;
 }
 
@@ -64,6 +60,11 @@ bool Nepomuk::WebExtractorService::isIdle() const
 bool Nepomuk::WebExtractorService::isSuspended() const
 {
     return ( m_extractScheduler->isSuspended() );
+}
+
+void Nepomuk::WebExtractorService::reconfigure() 
+{
+    m_extractScheduler->reconfigure();
 }
 
 void Nepomuk::WebExtractorService::setSuspended(bool suspend)
@@ -78,19 +79,32 @@ void Nepomuk::WebExtractorService::setSuspended(bool suspend)
 
 void Nepomuk::WebExtractorService::finishInitialization()
 {
+
+    Nepomuk::WebExtractorConfig * config = new Nepomuk::WebExtractorConfig();
+    m_extractScheduler = new Nepomuk::WebExtractorScheduler(config,this);
+    
+    if ( !m_extractScheduler->isInitialized() ) {
+	// Initialization failed
+	setServiceInitialized(false);
+	return;
+    }
+    setServiceInitialized(true);
+    //m_extractScheduler = new Nepomuk::WebExtractorCategoryScheduler("select ?r where { ?r nao:hasTag ?tag }", this);
+    m_extractScheduler->start();
     // TODO Using UserActivityMonitor cause segfault in Qt Code (
     // Program received signal SIGSEGV, Segmentation fault.
     // 0x00007ffff5ad80f6 in QCursor::pos () at kernel/qcursor_x11.cpp:153
     // 153         Display* dpy = X11->display;
     // Fix it or force somebody to fix it
-    /*
     UserActivityMonitor* userActivityMonitor = new UserActivityMonitor( this );
+    /*
     connect( userActivityMonitor, SIGNAL( userActive( bool ) ),
              m_extractScheduler, SLOT( setReducedExtractingSpeed( bool ) ) );
     userActivityMonitor->start();
     ;
     */
 }
+
 
 #include <kpluginfactory.h>
 #include <kpluginloader.h>

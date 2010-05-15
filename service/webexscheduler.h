@@ -1,6 +1,5 @@
 /*
-   Copyright (c) 2008-2010 Sebastian Trueg <trueg@kde.org>
-   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal@gmail.com>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,103 +16,63 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_CORE_H_
-#define _NEPOMUK_WEBEXTRCT_CORE_H_
-
-#include <QtCore/QThread>
-#include <QtCore/QMutex>
-#include <QtCore/QWaitCondition>
+#ifndef _NEPOMUK_WEBEXTRCT_SCH_H_
+#define _NEPOMUK_WEBEXTRCT_SCH_H_
+#include <QtCore/QObject>
+#include <QtCore/QTimer>
+#include <QtCore/QSignalMapper>
+#include <QtCore/QHash>
 #include <QtCore/QSet>
-#include <QtCore/QDateTime>
-#include <Soprano/QueryResultIterator>
-#include <webextractor/resourceanalyzerfactory.h>
+#include "webextractor_settings.h"
+#include "webexcatscheduler.h"
 
-namespace Nepomuk{
-    namespace WE = WebExtractor;
-    class WebExtractorSchedulerImpl;
-    class WebExtractorScheduler : public QThread
+namespace Nepomuk {
+    class WebExtractorScheduler:public QObject
     {
 	Q_OBJECT;
-
 	public:
-	    WebExtractorScheduler( const QString & category_query, QObject * parent);
-	    ~WebExtractorScheduler();
+	    WebExtractorScheduler(Nepomuk::WebExtractorConfig * conf, QObject * parent=0);
+	    // Return true if initialized successfully
+	    bool isInitialized() const { return m_success; };
+	    void start();
 
-	    bool isSuspended() const;
-	    bool isExtracting() const;
-
-	    enum ExtractingSpeed {
-		/**
-		 * Index at full speed, i.e. do not use any artificial
-		 * delays.
-		 *
-		 * This is the mode used if the user is "away".
-		 */
-		FullSpeed = 0,
-
-		/**
-		 * Reduce the extracting speed mildly. This is the normal
-		 * mode used while the user works. The indexer uses small
-		 * delay between extracting two files in order to keep the
-		 * load on CPU and IO down.
-		 */
-		ReducedSpeed,
-
-		/**
-		 * Like ReducedSpeed delays are used but they are much longer
-		 * to get even less CPU and IO load. This mode is used for the
-		 * first 2 minutes after startup to give the KDE session manager
-		 * time to start up the KDE session rapidly.
-		 */
-		SnailPace
-	    };
-
-	    ExtractingSpeed currentSpeed() const { return m_speed; }
-	public Q_SLOTS:
+	public :
+	    bool isIdle() const;
 	    void suspend();
 	    void resume();
+	    void reconfigure();
 	    void stop();
-	    void restart();
+	    bool isExtracting() const ;
+	    bool isSuspended() const ;
 
-	    void setExtractingSpeed( ExtractingSpeed speed );
 
-	    /**
-	     * A convinience slot which calls setExtractingSpeed
-	     * with either FullSpeed or ReducedSpeed, based on the
-	     * value of \p reduced.
-	     */
-	    void setReducedExtractingSpeed( bool reduced = false );
-
-	    void setSuspended( bool );
-	Q_SIGNALS:
-	    void extractingStarted();
-	    void extractingStopped();
-	    void extractingFolder( const QString& );
-	    void extractingSuspended( bool suspended );
-
+	private Q_SLOTS:
+	    void readConfig();
+	    void categoryFinished(const QString &);
+	    void launchNext();
+	    bool addToQueue(const QString &);
+	    // TODO Should reloading config occur
+	    // void configChanged();
 	private:
-	    void run();
-	    // emits indexingStarted or indexingStopped based on parameter. Makes sure
-	    // no signal is emitted twice
-	    void setExtractingStarted( bool started );
-	    // Return true if thread is not stopped
-	    bool waitForContinue( bool disableDelay = false );
-
-	    // Start extracting for next resource in query
-
-	    bool m_suspended;
-	    bool m_stopped;
-	    bool m_extracting;
-	    int m_reducedSpeedDelay ; // ms
-	    int m_snailPaceDelay ;   // ms
-	    QString m_query;
-
-	    QMutex m_resumeStopMutex;
-	    QWaitCondition m_resumeStopWc;
-
-	    ExtractingSpeed m_speed;
-	    WebExtractorSchedulerImpl * m_impl;
-	    friend class WebExtractorSchedulerImpl;
+	    // Remove finished categories from m_launchedQueries
+	    void clearLaunched() const;
+	    bool m_success;
+	    int m_maxCatSimult;
+	    // Amount of categories enabled. 
+	    // Cached for perfomance
+	    //int m_queries;
+	    WebExtractorConfig * m_conf;
+	    QHash<QString,QString> m_askQueries;
+	    QHash<QString,QString> m_selectQueries;
+	    QHash<QString,QTimer*> m_timers;
+	    QHash<QString,WebExtractorCategoryScheduler*> m_categories;
+	    mutable QHash<QString,WebExtractorCategoryScheduler*> m_launchedQueries;
+	    QSignalMapper * m_sm;
+	    QSignalMapper * m_timerSM;
+	    QTimer * m_launchTimer;
+	    // This is queu of categories that is ready to launch
+	    // (has data they will work on)
+	    QSet<QString> m_launchQueue;
     };
 }
 

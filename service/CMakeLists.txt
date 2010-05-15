@@ -37,12 +37,20 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
 set( webexservice_SRCS 
     webexservice.cpp
+    webexcatscheduler.cpp
     webexscheduler.cpp
-    webexschedulerimpl.cpp
+    webexqueries.cpp
+    webexcatschedulerimpl.cpp
     priority.cpp
     useractivitymonitor.cpp
     webextractor_settings.cpp
     )
+
+FILE( GLOB 
+    webexservice_categories_CFG
+    config/categories/*rc
+    )
+
 
 qt4_add_dbus_adaptor(webexservice_SRCS  org.kde.nepomuk.WebExtractorService.xml webexservice.h Nepomuk::WebExtractorService )
 
@@ -62,7 +70,14 @@ target_link_libraries(nepomukwebexservice
   )
 
 kde4_add_executable( test_launch2 test_launch2.cpp ${webexservice_SRCS} )
+
+kde4_add_executable( test_config test_config.cpp ${webexservice_SRCS} )
+
 target_link_libraries( test_launch2 
+    ${LIBWEBEXTRACTOR_LIBRARIES}
+    )
+
+target_link_libraries( test_config 
     ${LIBWEBEXTRACTOR_LIBRARIES}
     )
 
@@ -79,4 +94,14 @@ install(
   DESTINATION ${PLUGIN_INSTALL_DIR})
 
 install(
-    FILES webextractor.kcfg DESTINATION ${KCFG_INSTALL_DIR})
+    FILES webextractor.kcfg DESTINATION ${KCFG_INSTALL_DIR}
+    )
+
+install (
+    FILES config/webextractorrc DESTINATION ${CONFIG_INSTALL_DIR}/webextractor 
+    )
+
+install (
+    FILES ${webexservice_categories_CFG} DESTINATION ${CONFIG_INSTALL_DIR}/webextractor/categories 
+    )
+
