@@ -103,8 +103,16 @@ void Nepomuk::WebExtractorService::finishInitialization()
     userActivityMonitor->start();
     ;
     */
+    int exit_time = 30;
+    kDebug() << "ATTENTION! SERVICE WILL EXIT IN "<<exit_time<<" SECONDS";
+    QTimer::singleShot( 1000*exit_time, this, SLOT( __stop() ) );
 }
 
+void Nepomuk::WebExtractorService::__stop()
+{
+    m_extractScheduler->stop();
+    QCoreApplication::quit();
+}
 
 #include <kpluginfactory.h>
 #include <kpluginloader.h>

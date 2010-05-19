@@ -7,6 +7,8 @@ set( webextractor_SRCS
     decisionlist.cpp
     datappreply.cpp
     datapp.cpp
+    debug_datapp.cpp
+    parameters.cpp
     )
 
 #set ( webextractor_MOC    webextractor_settings.h    )
@@ -14,6 +16,7 @@ set ( webextractor_MOC
     ${libwebextractor_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 
     ${libwebextractor_SOURCE_DIR}/include/webextractor/resourceanalyzer.h
     ${libwebextractor_SOURCE_DIR}/include/webextractor/datappreply.h
+    ${libwebextractor_SOURCE_DIR}/include/webextractor/debug_datapp.h
     resourceanalyzerimpl.h
     )
 

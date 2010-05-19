@@ -60,9 +60,10 @@ void Nepomuk::WebExtractorScheduler::readConfig()
     kDebug()<<"Max categories simultaneously"<<m_maxCatSimult;
     if (m_maxCatSimult < 1)
 	m_maxCatSimult = 1;
-    const QHash<QString,WebExCategory*> & cats = m_conf->categories();
+    // const QHash<QString,WebExCategory*> & cats = m_conf->categories();
     //m_queries = cats.size();
-    QHash<QString,WebExCategory*>::const_iterator it = cats.begin();
+    //QHash<QString,WebExCategory*>::const_iterator it = cats.begin();
+    /*
     for(; it != cats.end(); ++it)
     {
 	m_askQueries[it.key()] = Nepomuk::WebExtractorQueries::ask_query(
@@ -73,6 +74,42 @@ void Nepomuk::WebExtractorScheduler::readConfig()
 		it.value()->queryPrefix(),
 		it.value()->query()
 		);
+    }
+    */
+    QStringList cats = m_conf->categories();
+    QString q, qp;
+    foreach(QString catname, cats)
+    {
+	// Check that this category has any assigned DataPP.
+	// If it has not, then ignore it.
+	if (!m_conf->extractParameters(catname)->hasAnyDataPP() ) {
+	    kDebug() << "Category "<<catname<<" has no assigned DataPP";
+	    continue;
+	}
+
+	q = m_conf->queryPrefix(catname);
+	qp = m_conf->query(catname);
+
+	QString aq = Nepomuk::WebExtractorQueries::ask_query(
+		q,qp
+		);
+
+	Soprano::QueryResultIterator it = 
+	    Nepomuk::ResourceManager::instance()->mainModel()->executeQuery( 
+	    aq, Soprano::Query::QueryLanguageSparql 
+	    );
+
+	if (!it.isValid() ) {
+	    kDebug() << "Query \" " << catname << " has invalid syntax";
+	    continue;
+	}
+
+	m_askQueries[catname] = aq;
+
+	m_selectQueries[catname] = Nepomuk::WebExtractorQueries::select_query(
+		q,qp
+		);
+
     }
     m_success = true;
 }
@@ -107,7 +144,7 @@ bool Nepomuk::WebExtractorScheduler::addToQueue(const QString & name)
 	QHash<QString, QTimer*>::iterator tit = m_timers.find(name);
 	if (tit != m_timers.end()) {
 	    // launch timer
-	    tit.value()->start(m_conf->categories()[name]->interval());
+	    tit.value()->start(m_conf->interval(name));
 	}
     }
     return false;
@@ -208,6 +245,12 @@ void Nepomuk::WebExtractorScheduler::start()
     if (!m_success)
 	return;
 
+    // If there is no category, then quit
+    if (!m_askQueries.size()) {
+	kDebug() << "There is no category enabled and without mistakes.";
+	return;
+    }
+
     //qDebug() << m_askQueries;
 
     // Fill launch queue with category schedulers
@@ -218,20 +261,14 @@ void Nepomuk::WebExtractorScheduler::start()
 	if (m_categories.contains(qit.key()))
 		continue;
 
-	Soprano::QueryResultIterator it = 
-	    Nepomuk::ResourceManager::instance()->mainModel()->executeQuery( 
-	    qit.value(),Soprano::Query::QueryLanguageSparql 
-	    );
-
-	if (!it.isValid() ) {
-	    kDebug() << "Query \" " << qit.key() << " has invalid syntax";
-	    // Remove this query from all lists
-	    m_selectQueries.remove(qit.key());
-	    qit = m_askQueries.erase(qit);
-	    continue;
-	}
 	
-	Nepomuk::WebExtractorCategoryScheduler * sh = new Nepomuk::WebExtractorCategoryScheduler(m_selectQueries[name],this);
+	// Create scheduler for category
+	Nepomuk::WebExtractorCategoryScheduler * sh = 
+	    new Nepomuk::WebExtractorCategoryScheduler(
+		m_selectQueries[name],
+		this, 
+		m_conf->extractParameters(name)
+		);
 	sh->setMaxResSimult(m_conf->maxResSimult(name));
 	connect( sh, SIGNAL(finished()), this->m_sm, SLOT(map()), Qt::QueuedConnection );
 	m_sm->setMapping(sh,name);
@@ -243,6 +280,12 @@ void Nepomuk::WebExtractorScheduler::start()
 	connect( ttm, SIGNAL(timeout()), this->m_timerSM, SLOT(map()));
 	m_timerSM->setMapping(ttm,name);
 
+
+	// If category is ready, then add it to launch queue
+	Soprano::QueryResultIterator it = 
+	    Nepomuk::ResourceManager::instance()->mainModel()->executeQuery( 
+	    qit.value(), Soprano::Query::QueryLanguageSparql 
+	    );
 	if (it.boolValue() ) {
 	    // add scheduler to queue
 	    kDebug() << "Category "<< name << " ready for extracting";
@@ -297,14 +340,18 @@ void Nepomuk::WebExtractorScheduler::stop()
     QHash<QString,WebExtractorCategoryScheduler *>::iterator qit; 
     for(qit = m_launchedQueries.begin(); qit != m_launchedQueries.end(); ++qit)
     {
+	kDebug() << "Stopping "<<qit.key();
 	qit.value()->stop();
     }
     for(qit = m_launchedQueries.begin(); qit != m_launchedQueries.end(); ++qit)
     {
+	kDebug() << "Waiting for "<<qit.key();
 	qit.value()->wait();
     }
     for(qit = m_categories.begin(); qit != m_categories.end(); ++qit)
     {
+	kDebug() << "Deleting for "<<qit.key();
+	assert(qit.value()->isRunning());
 	delete qit.value();
     }
 
@@ -371,7 +418,7 @@ void Nepomuk::WebExtractorScheduler::categoryFinished(const QString & name)
     QHash<QString, QTimer*>::iterator tit = m_timers.find(name);
     if (tit != m_timers.end()) {
 	// launch timer
-	tit.value()->start(m_conf->categories()[name]->interval());
+	tit.value()->start(m_conf->interval(name));
     }
     //QHash<QString,QString>::iterator it = m_launchedQueries.find(name);
     // If stop was called then all data are already cleared. 

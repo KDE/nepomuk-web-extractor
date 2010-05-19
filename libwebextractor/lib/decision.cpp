@@ -44,7 +44,7 @@ double Nepomuk::WebExtractor::Decision::rank() const
 
 Nepomuk::WebExtractor::Decision::Decision()
 {
-    this->d = QSharedPointer<Private>( 
+    this->d = QSharedDataPointer<Private>( 
 	    new Nepomuk::WebExtractor::Decision::Private()
 	    );
 }

@@ -33,7 +33,13 @@ namespace Nepomuk{
     {
 	Q_OBJECT;
 	public:
-	WebExtractorCategorySchedulerImpl(const QString & category_query,WebExtractorCategoryScheduler * par, int maxResSimult, int cacheSize = 5);
+	WebExtractorCategorySchedulerImpl(
+		const QString & category_query,
+		WebExtractorCategoryScheduler * par,
+		QSharedPointer< const WE::ExtractParameters > extractParams,
+	       	int maxResSimult,
+	       	int cacheSize = 5
+		);
 
 	public Q_SLOTS:
 	    /*! \brief Called when resource processing fineshed
@@ -72,6 +78,7 @@ namespace Nepomuk{
 	    //Soprano::QueryResultIterator it;
 	    WebExtractor::ResourceAnalyzerFactory * m_factory;
 	    QQueue<QUrl> m_urlQueue;
+	    WebExtractor::ExtractParametersPtr m_extractParams;
     };
 }
 #endif

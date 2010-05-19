@@ -40,10 +40,10 @@ namespace Nepomuk {
 		DataPPKeeper::const_iterator it;
 		DecisionFactory * m_fact;
 		QMap< DataPPReply*, double > m_replyAndRanks;
-		ResourceAnalyzer::LaunchPolitics m_launchPolitics;
+		WE::LaunchPolitics m_launchPolitics;
 		unsigned int m_step;
 		DecisionList m_decisions;
-		DecisionList::MergePolitics m_mergePolitics;
+		WE::MergePolitics m_mergePolitics;
 		double m_mergeCoff;
 		Nepomuk::Resource m_res;
 		double m_acrit;
@@ -53,7 +53,7 @@ namespace Nepomuk {
 		void pluginFinished();
 		//void pluginError();
 		bool launchNext();
-		//void launchOrFinish();
+		void launchOrFinish();
 	};
     }
 }

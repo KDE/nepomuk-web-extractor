@@ -22,6 +22,7 @@
 #include <webextractor/decision.h>
 #include <KDebug>
 #include <webextractor/webextractor_export.h>
+#include <webextractor/global.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
@@ -30,10 +31,9 @@ namespace Nepomuk {
 	    public:
 		friend class ResourceAnalyzerImpl;
 		friend class DecisionFactory;
-		enum MergePolitics { Lowest,Average,Highest, Adjust };
 		void addDecision( const Decision & );
-		void addDecision( const Decision & , MergePolitics politics, double coff = 1);
-		void mergeWith( const DecisionList & rhs, double scale, MergePolitics policis = Highest, double coff = 1);
+		void addDecision( const Decision & , WE::MergePolitics politics, double coff = 1);
+		void mergeWith( const DecisionList & rhs, double scale, WE::MergePolitics policis = WE::Highest, double coff = 1);
 		void scale( double coff);
 		/*
 		using QList<Decision>::size;
@@ -44,7 +44,7 @@ namespace Nepomuk {
 	    private:
 		// Leave only unique instances
 		DecisionList(double threshold = 0);
-		void unique( MergePolitics policis = Highest, double coff = 1 );
+		void unique( WE::MergePolitics policis = WE::Highest, double coff = 1 );
 		void sort();
 		bool hasAutoApplicable() const;
 		double m_threshold;

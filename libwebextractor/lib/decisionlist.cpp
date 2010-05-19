@@ -10,7 +10,7 @@ Nepomuk::WebExtractor::DecisionList::DecisionList(double threshold ):
 {;}
 
 
-void Nepomuk::WebExtractor::DecisionList::mergeWith( const DecisionList & rhs, double scale, MergePolitics politics, double coff )
+void Nepomuk::WebExtractor::DecisionList::mergeWith( const DecisionList & rhs, double scale, WE::MergePolitics politics, double coff )
 {
     if (&rhs == this)
 	return;
@@ -30,7 +30,7 @@ void Nepomuk::WebExtractor::DecisionList::mergeWith( const DecisionList & rhs, d
     }
 }
 
-void Nepomuk::WebExtractor::DecisionList::unique( MergePolitics policis , double coff )
+void Nepomuk::WebExtractor::DecisionList::unique( WE::MergePolitics policis , double coff )
 {
     kDebug() << "Not realized yet";
 }
@@ -54,7 +54,7 @@ void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec )
 	this->push_back(dec);
 }
 
-void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, MergePolitics politics, double coff )
+void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, WE::MergePolitics politics, double coff )
 {
     if ( dec.rank() >= m_threshold) {
 	this->push_back(dec);

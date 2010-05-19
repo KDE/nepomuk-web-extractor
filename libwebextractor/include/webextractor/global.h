@@ -16,28 +16,28 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_DATA_PP_H_
-#define _NEPOMUK_WEBEXTRCT_DATA_PP_H_
-
-#include <QtCore/QObject>
-#include <Nepomuk/Resource>
-#include <Soprano/Statement>
-#include <webextractor/datappreply.h>
-#include <webextractor/decisionfactory.h>
-#include <webextractor/webextractor_export.h>
+#ifndef _WEBEXTRCT_GLOBALS
+#define _WEBEXTRCT_GLOBALS
 
 namespace Nepomuk {
     namespace WebExtractor {
-	/*! \brief MUST be reentrant and thread safe
-	 */
-	class WEBEXTRACTOR_EXPORT DataPP /*: public QOb*/
+	class WE 
 	{
 	    public:
-		virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res) = 0;
-		virtual ~DataPP();
+		enum MergePolitics { 
+		    Lowest = 1, 
+		    Average = 2, 
+		    Highest = 3, 
+		    Adjust = 4, 
+		    MergePolitics_MAX = 4, MergePolitics_MIN = 1 
+		};
+
+		enum LaunchPolitics {
+		    All = 1, 
+		    StepWise = 2, 
+		    LaunchPolitics_MIN = 1, LaunchPolitics_MAX = 2
+		};
 	};
-	typedef QList< QPair < DataPP *, double > > DataPPKeeper;
     }
 }
 #endif
-

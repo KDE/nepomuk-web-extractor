@@ -23,6 +23,7 @@
 #include <webextractor/resourceanalyzer.h>
 #include <webextractor/webextractor_export.h>
 #include <webextractor/datapp.h>
+#include <webextractor/parameters.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
@@ -31,20 +32,22 @@ namespace Nepomuk {
 	    Q_OBJECT;
 	    public:
 		ResourceAnalyzerFactory(
-			const DataPPKeeper & dataPPKeeper,
+			ExtractParametersPtr extractParams,
+			/*
 		       	ResourceAnalyzer::LaunchPolitics,
 			DecisionList::MergePolitics,
 			unsigned int step,
 			double acrit,
 			double ucrit,
+			*/
 			QObject * parent = 0
 			);
 		ResourceAnalyzer * newAnalyzer();
 		void deleteAnalyzer(ResourceAnalyzer * res);
 	    private:
-		 const DataPPKeeper & dataPPKeeper;
-		 ResourceAnalyzer::LaunchPolitics m_launchPolitics;
-		 DecisionList::MergePolitics m_mergePolitics;
+		 DataPPKeeper  m_dataPPKeeper;
+		 WE::LaunchPolitics m_launchPolitics;
+		 WE::MergePolitics m_mergePolitics;
 		 unsigned int m_step;
 		 double m_acrit;
 		 double m_ucrit;

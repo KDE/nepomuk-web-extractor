@@ -21,7 +21,10 @@
 #include "webexcategory.h"
 #include <QtCore/QHash>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 #include <QtCore/QtDebug>
+#include <webextractor/parameters.h>
+#include <webextractor/parameters.h>
 
 namespace Nepomuk {
 	class WebExtractorConfig : public WebExConfigBase
@@ -29,12 +32,25 @@ namespace Nepomuk {
 	    Q_OBJECT;
 	    public:
 		WebExtractorConfig();
-		const QHash<QString,WebExCategory*> & categories() const { return m_categories ;}
+		//const QHash<QString,WebExCategory*> & categories() const { return m_categories ;}
 		int maxPluginsLaunched( const QString & categoryName);
 		int maxResSimult( const QString & categoryName);
 
+		int interval( const QString & categoryName);
+
+		QStringList categories() const;
+		WebExtractor::ExtractParametersPtr  extractParameters(const QString categoryName) const;
+
+		QString query( const QString categoryName);
+		QString queryPrefix( const QString categoryName);
+
+		//WebExtractor::DataPPKeeper & datapp( const QString categoryName);
+
+		void update();
 	    private:
 		QHash<QString,WebExCategory*> m_categories;
+		//QHash< QString, QSharedPointer<WebExtractor::ExtractParameters> > m_parameters; 
+		QHash< QString, WebExtractor::ExtractParametersPtr > m_parameters; 
 		friend QDebug operator<<( QDebug dbg,  const WebExtractorConfig & cat);
 
 	};

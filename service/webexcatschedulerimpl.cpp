@@ -25,10 +25,17 @@
 #include <Soprano/Node>
 #include <Nepomuk/ResourceManager>
 #include "webexqueries.h"
+#include <webextractor/parameters.h>
 
 namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::WebExtractorCategorySchedulerImpl::WebExtractorCategorySchedulerImpl(const QString & category_query, WebExtractorCategoryScheduler * parent, int maxResSimult, int cacheSize):
+Nepomuk::WebExtractorCategorySchedulerImpl::WebExtractorCategorySchedulerImpl(
+	const QString & category_query, 
+	WebExtractorCategoryScheduler * parent, 
+	QSharedPointer< const WE::ExtractParameters > extractParams,
+	int maxResSimult, 
+	int cacheSize
+	):
     // DO not pass parent as QObject parent - 
     //  QThread( and WebExtractorCategoryScheduler is a
     //  sublcass of QThread) 
@@ -38,7 +45,8 @@ Nepomuk::WebExtractorCategorySchedulerImpl::WebExtractorCategorySchedulerImpl(co
     m_respWaits(0),
     m_maxResSimult(maxResSimult),
     m_currentResProc(0),
-    m_cacheSize(cacheSize)
+    m_cacheSize(cacheSize),
+    m_extractParams(extractParams)
     //tmp_count(100)
 {
     // Restore defaults if incorrect caches size was passed
@@ -47,7 +55,7 @@ Nepomuk::WebExtractorCategorySchedulerImpl::WebExtractorCategorySchedulerImpl(co
 	m_cacheSize = 5;
     }
 
-    m_factory = new Nepomuk::WebExtractor::ResourceAnalyzerFactory(this);
+    m_factory = new Nepomuk::WebExtractor::ResourceAnalyzerFactory(m_extractParams,this);
     m_par = parent;
     connect(this, SIGNAL(launchPls(QUrl)), this, SLOT(launch(const QUrl &)), Qt::QueuedConnection );
 
@@ -83,6 +91,12 @@ void Nepomuk::WebExtractorCategorySchedulerImpl::cacheUrls()
 }
 bool Nepomuk::WebExtractorCategorySchedulerImpl::start()
 {
+    kDebug() << "Starting category.";
+    /*
+    kDebug() << *(
+	    const_cast<Nepomuk::WebExtractor::ExtractParameters*>(m_extractParams.data())
+	    );
+	    */
     int i = 0;
     while ( i < m_maxResSimult) {
 	if (!launchNext())
@@ -100,6 +114,7 @@ bool Nepomuk::WebExtractorCategorySchedulerImpl::start()
 void Nepomuk::WebExtractorCategorySchedulerImpl::launchOrFinish()
 {
     if (m_finishing) {
+	kDebug()<<"Fihishing. "<<m_currentResProc << " responces left";
 	// No launches more
 	// Just wait untill all already launched
 	// resource finishing and exit
@@ -116,6 +131,9 @@ void Nepomuk::WebExtractorCategorySchedulerImpl::launchOrFinish()
 	    }
 	    else {
 		m_finishing = true;
+		kDebug()<<"Fihishing. "<<m_currentResProc << " responces left";
+		if (m_currentResProc == 0)
+		    m_par->quit();
 	    }
     }
 }
@@ -172,6 +190,8 @@ void Nepomuk::WebExtractorCategorySchedulerImpl::resourceProcessed()
     if (!res) {
 	kDebug() << "Recive signal not from ResourceAnalyzer";
     }
-    m_factory->deleteAnalyzer(res);
+    else {
+	m_factory->deleteAnalyzer(res);
+    }
     launchOrFinish();
 }

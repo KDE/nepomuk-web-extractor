@@ -21,7 +21,7 @@ include_directories(
 
 link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
-add_executable( test_launch test_launch.cpp)
-target_link_libraries( test_launch 
-    ${LIBWEBEXTRACTOR_LIBRARIES}
-    )
+#add_executable( test_launch test_launch.cpp)
+#target_link_libraries( test_launch 
+#    ${LIBWEBEXTRACTOR_LIBRARIES}
+#    )

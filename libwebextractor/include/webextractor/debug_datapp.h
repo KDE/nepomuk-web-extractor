@@ -16,45 +16,47 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_DESICION_H_
-#define _NEPOMUK_WEBEXTRCT_DESICION_H_
+#ifndef _NEPOMUK_WEBEXTRCT_DEBUG_DATA_PP_H_
+#define _NEPOMUK_WEBEXTRCT_DEBUG_DATA_PP_H_
 
-#include <QtCore/QObject>
-#include <QtCore/QSharedPointer>
-#include <Nepomuk/Resource>
-#include <Soprano/Statement>
+#include <webextractor/datapp.h>
 #include <webextractor/webextractor_export.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class ResourceAnalyzer;
-	class DecisionFactory;
-
-	class WEBEXTRACTOR_EXPORT Decision /*: public QOb*/
+	/*! \brief MUST be reentrant and thread safe
+	 */
+	class WEBEXTRACTOR_EXPORT DebugDataPP: public DataPP
 	{
 	    public:
-		double rank() const; 
-		void setRank(double rank);
-		void addStatement(const Soprano::Statement &, double rank);
-		void addStatementGroup(const QList<Soprano::Statement> &, double rank);
-		Decision();
-		~Decision();
-		const Decision & operator=( const Decision & rhs);
-		Decision( const Decision & );
-		friend class ResourceAnalyzer;
-		friend class DecisionFactory;
-	    private:
-		/*! \brief Apply Decision
-		 * Write all statements back to model
-		 */
-		void apply();
-		/*! \brief Add statements to the discretion of the user
-		 */
-		void addToUserDiscretion();
-		class Private;
-		QSharedDataPointer<Private> d;
+		DebugDataPP();
+		virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
+	};
 
+	class WEBEXTRACTOR_EXPORT DebugDataPPReply : public DataPPReply
+	{
+	    Q_OBJECT;
+	    public:
+		DebugDataPPReply(const DecisionFactory *);
+		virtual const DecisionList & decisions() const { return m_decisions; }
+		virtual ~DebugDataPPReply();
+	    public Q_SLOTS:
+		/*! \brief Abort execution 
+		 */
+		virtual void abort() ;
+	    	virtual bool isValid() ;
+		/*
+	    Q_SIGNALS:
+		void finished();
+		void error();
+		*/
+	    private Q_SLOTS:
+		void ready();
+	    private:
+	    	DecisionList m_decisions;
+		const DecisionFactory * m_fact;
 	};
     }
 }
 #endif
+

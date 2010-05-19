@@ -27,6 +27,7 @@
 #include <QtCore/QDateTime>
 #include <Soprano/QueryResultIterator>
 #include <webextractor/resourceanalyzerfactory.h>
+#include <webextractor/parameters.h>
 
 namespace Nepomuk{
     namespace WE = WebExtractor;
@@ -36,7 +37,12 @@ namespace Nepomuk{
 	Q_OBJECT;
 
 	public:
-	    WebExtractorCategoryScheduler( const QString & category_query, QObject * parent, int maxResSimult = 5);
+	    WebExtractorCategoryScheduler( 
+		    const QString & category_query,
+		    QObject * parent, 
+		    WebExtractor::ExtractParametersPtr params,
+		    int maxResSimult = 5
+		    );
 	    ~WebExtractorCategoryScheduler();
 
 	    bool isSuspended() const;
@@ -110,6 +116,7 @@ namespace Nepomuk{
 	    int m_snailPaceDelay ;   // ms
 	    int m_maxResSimult; // Used for construcing pimpl
 	    QString m_query;
+	    WebExtractor::ExtractParametersPtr  m_extractParams;
 
 	    QMutex m_resumeStopMutex;
 	    QWaitCondition m_resumeStopWc;

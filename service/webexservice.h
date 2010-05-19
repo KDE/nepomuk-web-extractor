@@ -37,6 +37,8 @@ namespace Nepomuk{
 
 	private Q_SLOTS:
 	    void finishInitialization();
+	    // Debug purpos only
+	    void __stop();
 
 	public Q_SLOTS:
 	    bool isIdle() const;

@@ -21,34 +21,32 @@
 #include <KDebug>
 
 Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
-	const DataPPKeeper & dataPPKeeper, 
+	ExtractParametersPtr extractParams,
+	/*
 	ResourceAnalyzer::LaunchPolitics launchPolitics,
 	DecisionList::MergePolitics mergePolitics,
 	unsigned int step,
 	double acrit,
 	double ucrit,
+	*/
 	QObject * parent
 	):
     QObject(parent),
-    dataPPKeeper(dataPPKeeper),
-    m_step(step),
-    m_launchPolitics(launchPolitics),
-    m_mergePolitics(mergePolitics)
+    m_launchPolitics(WE::StepWise),
+    m_mergePolitics(WE::Highest),
+    m_step(10)
 {
-    if (m_step < 1)
-       m_step = 1;
-
-    if (ucrit < 0)
-	ucrit = 0;
-    else if ( ucrit > 1)
-	ucrit = 0.99;
-    m_ucrit = ucrit;
-
-    if (acrit < 0)
-	acrit = 0;
-    else if ( acrit > 1)
-	acrit = 1;
-    m_acrit = acrit;
+    if ( extractParams.isNull() ) {
+	kDebug() << "Parameters are null. Reseting to defaults";
+    }
+    else {
+	m_dataPPKeeper = extractParams->plugins();
+	m_step = extractParams->pluginSelectStep();
+	m_launchPolitics = extractParams->launchPolitics();
+	m_mergePolitics = extractParams->mergePolitics() ;
+	m_ucrit = extractParams->uCrit() ;
+	m_acrit = extractParams->aCrit() ;
+    }
 }
 
 Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyzerFactory::newAnalyzer()
@@ -56,7 +54,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyze
     DecisionFactory * fct = new DecisionFactory();
     fct->setThreshold(m_ucrit);
     return new Nepomuk::WebExtractor::ResourceAnalyzer(
-	    dataPPKeeper,
+	    m_dataPPKeeper,
 	    fct,
 	    this->m_mergePolitics,
 	    this->m_launchPolitics,

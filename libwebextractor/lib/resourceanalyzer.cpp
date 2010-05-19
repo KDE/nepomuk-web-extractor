@@ -47,8 +47,8 @@ namespace Nepomuk {
 Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
 	const DataPPKeeper & dataPPKeeper,
        	DecisionFactory * fac,
-       	DecisionList::MergePolitics mergePolitics,
-       	ResourceAnalyzer::LaunchPolitics launchPolitics,
+       	WE::MergePolitics mergePolitics,
+       	WE::LaunchPolitics launchPolitics,
 	double acrit,
 	double ucrit,
 	unsigned int step,
@@ -81,9 +81,9 @@ Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::ResourceAnaly
     m_dataPPKeeper(dataPPKeeper),
     m_step(10),
     m_fact(fact),
-    m_mergePolitics(DecisionList::Average),
+    m_mergePolitics(WE::Average),
     m_mergeCoff(1),
-    m_launchPolitics(ResourceAnalyzer::StepWise),
+    m_launchPolitics(WE::StepWise),
     m_decisions(fact->newDecisionList())
 {
     this->it = m_dataPPKeeper.begin();
@@ -94,10 +94,11 @@ Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::ResourceAnaly
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::analyze(Nepomuk::Resource & res)
 {
     // Make some work here
+    m_res = res;
     
     // start processing
     kDebug() << "Extracting data from resource";
-    launchNext();
+    launchOrFinish();
 }
 
 bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::launchNext()
@@ -107,11 +108,12 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::launchNe
     //	return false;
 
     kDebug() << "Launching next portion of plugins";
+    kDebug() << "Total plugins: "<<m_dataPPKeeper.size();
 
     int substop = 0;
-    if (m_launchPolitics == ResourceAnalyzer::All )
+    if (m_launchPolitics == WE::All )
 	substop = m_dataPPKeeper.size();
-    else if (m_launchPolitics == ResourceAnalyzer::StepWise) 
+    else if (m_launchPolitics == WE::StepWise) 
 	substop = m_step;
 
     int i = 0;
@@ -136,16 +138,24 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::launchNe
 
     }
 
+    if ( i == 0 )
+	return false;
+
 
     //tmp_count -= c;
     return true;
 }
 
-/*
 void Nepomuk::WebExtractor::ResourceAnalyzerImpl::launchOrFinish()
 {
+	if ( !launchNext() ) {
+	    // No more plugins to launch and all plugins launched before
+	    // returned their data
+	    kDebug() << "Extracting for resource finished";
+	    kDebug() << "Total decisions count: "<<m_decisions.size();
+	    emit analyzingFinished();
+	}
 }
-*/
 
 
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::pluginFinished()
@@ -186,13 +196,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::pluginFi
 
 
 	// Launching other plugins if necessary
-	if ( !launchNext() ) {
-	    // No more plugins to launch and all plugins launched before
-	    // returned their data
-	    kDebug() << "Extracting for resource finished";
-	    kDebug() << "Total decisions count: "<<m_decisions.size();
-	    emit analyzingFinished();
-	}
+	launchOrFinish();
     }
     /*
     else {

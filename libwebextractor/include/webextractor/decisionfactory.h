@@ -29,8 +29,8 @@ namespace Nepomuk {
 	class WEBEXTRACTOR_EXPORT DecisionFactory
 	{
 	    public:
-		Decision newDecision();
-		DecisionList  newDecisionList();
+		Decision newDecision() const;
+		DecisionList  newDecisionList() const;
 		void setThreshold(double);
 		friend class ResourceAnalyzerFactory;
 	    private:

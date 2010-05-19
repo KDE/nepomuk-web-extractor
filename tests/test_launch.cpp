@@ -8,6 +8,7 @@ using namespace std;
 using namespace Nepomuk::WebExtractor;
 int main(int argc, char ** argv)
 {
+#if 0
     QCoreApplication app(argc,argv);
     QList<QVariant> noth;
     ResourceAnalyzerFactory factory;
@@ -16,5 +17,5 @@ int main(int argc, char ** argv)
     resanal->analyze(res);
     QObject::connect(resanal, SIGNAL(analyzingFinished()), &app, SLOT(quit()));
     return app.exec();
-
+#endif
 }

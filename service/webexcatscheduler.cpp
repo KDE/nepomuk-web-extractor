@@ -29,7 +29,12 @@
 
 namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::WebExtractorCategoryScheduler::WebExtractorCategoryScheduler(const QString & category_query, QObject * parent, int maxResSimult):
+Nepomuk::WebExtractorCategoryScheduler::WebExtractorCategoryScheduler(
+	const QString & category_query,
+       	QObject * parent,
+	NW::ExtractParametersPtr params,
+       	int maxResSimult
+	):
     QThread(parent),
     m_suspended(false),
     m_stopped(false),
@@ -40,7 +45,9 @@ Nepomuk::WebExtractorCategoryScheduler::WebExtractorCategoryScheduler(const QStr
     m_impl(0),
     m_query(category_query),
     m_maxResSimult(maxResSimult)
-{;
+{
+    m_extractParams = params;
+    //kDebug() << *m_extractParams;
 }
 
 
@@ -158,8 +165,14 @@ void Nepomuk::WebExtractorCategoryScheduler::run()
     
     if (m_impl)
 	delete m_impl;
+
+    if (m_extractParams.isNull() ) {
+	kDebug() << "Extracting parameters is null. Ignoring launch";
+    }
+
+    //kDebug() << *m_extractParams;
     
-    m_impl = new (std::nothrow) WebExtractorCategorySchedulerImpl(m_query,this,m_maxResSimult);
+    m_impl = new (std::nothrow) WebExtractorCategorySchedulerImpl(m_query,this,m_extractParams, m_maxResSimult);
     if (!m_impl)
 	return;
     // set lowest priority for this thread
@@ -223,6 +236,10 @@ bool Nepomuk::WebExtractorCategoryScheduler::waitForContinue( bool disableDelay 
     }
     else if ( !disableDelay && m_speed != FullSpeed ) {
         msleep( m_speed == ReducedSpeed ? m_reducedSpeedDelay : m_snailPaceDelay );
+    }
+
+    if (m_stopped) {
+	kDebug() << "Stopped";
     }
 
     return !m_stopped;

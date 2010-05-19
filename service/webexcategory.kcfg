@@ -51,6 +51,19 @@
 	<min>1</min>
     </entry>
 
+    <entry name="uCrit" key="ucrit" type="Double">
+	<default>0.5</default>
+	<min>0</min>
+	<max>0.999</max>
+    </entry>
+
+    <entry name="aCrit" key="acrit" type="Double">
+	<default>0.9</default>
+	<min>0</min>
+	<max>1</max>
+    </entry>
+
+
 </group>
 </kcfg>
 
