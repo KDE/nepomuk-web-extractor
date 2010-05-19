@@ -20,12 +20,51 @@
 #include "resourceanalyzerfactory.h"
 #include <KDebug>
 
-Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(QObject * parent):
-    QObject(parent)
-{;}
+Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
+	const DataPPKeeper & dataPPKeeper, 
+	ResourceAnalyzer::LaunchPolitics launchPolitics,
+	DecisionList::MergePolitics mergePolitics,
+	unsigned int step,
+	double acrit,
+	double ucrit,
+	QObject * parent
+	):
+    QObject(parent),
+    dataPPKeeper(dataPPKeeper),
+    m_step(step),
+    m_launchPolitics(launchPolitics),
+    m_mergePolitics(mergePolitics)
+{
+    if (m_step < 1)
+       m_step = 1;
+
+    if (ucrit < 0)
+	ucrit = 0;
+    else if ( ucrit > 1)
+	ucrit = 0.99;
+    m_ucrit = ucrit;
+
+    if (acrit < 0)
+	acrit = 0;
+    else if ( acrit > 1)
+	acrit = 1;
+    m_acrit = acrit;
+}
 
 Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyzerFactory::newAnalyzer()
-{return new Nepomuk::WebExtractor::ResourceAnalyzer(this);}
+{
+    DecisionFactory * fct = new DecisionFactory();
+    fct->setThreshold(m_ucrit);
+    return new Nepomuk::WebExtractor::ResourceAnalyzer(
+	    dataPPKeeper,
+	    fct,
+	    this->m_mergePolitics,
+	    this->m_launchPolitics,
+	    m_acrit,
+	    m_ucrit,
+	    this->m_step
+	    );
+}
 
 void Nepomuk::WebExtractor::ResourceAnalyzerFactory::deleteAnalyzer(Nepomuk::WebExtractor::ResourceAnalyzer * res)
 {if (res) res->deleteLater();}

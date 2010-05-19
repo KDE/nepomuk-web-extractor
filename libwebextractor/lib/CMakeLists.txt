@@ -2,12 +2,18 @@ add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 set( webextractor_SRCS 
     resourceanalyzerfactory.cpp
     resourceanalyzer.cpp
+    decision.cpp
+    decisionfactory.cpp
+    decisionlist.cpp
+    datappreply.cpp
+    datapp.cpp
     )
 
 #set ( webextractor_MOC    webextractor_settings.h    )
 set ( webextractor_MOC    
     ${libwebextractor_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 
     ${libwebextractor_SOURCE_DIR}/include/webextractor/resourceanalyzer.h
+    ${libwebextractor_SOURCE_DIR}/include/webextractor/datappreply.h
     resourceanalyzerimpl.h
     )
 

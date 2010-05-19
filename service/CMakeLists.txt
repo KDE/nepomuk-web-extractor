@@ -35,6 +35,12 @@ include_directories(
 link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
 
+set( webexsettings_SRCS
+    webextractor_settings.cpp
+    )
+kde4_add_kcfg_files(webexsettings_SRCS webexconfigbase.kcfgc)
+kde4_add_kcfg_files(webexsettings_SRCS webexcategory.kcfgc)
+
 set( webexservice_SRCS 
     webexservice.cpp
     webexcatscheduler.cpp
@@ -43,7 +49,7 @@ set( webexservice_SRCS
     webexcatschedulerimpl.cpp
     priority.cpp
     useractivitymonitor.cpp
-    webextractor_settings.cpp
+    ${webexsettings_SRCS}
     )
 
 FILE( GLOB 
@@ -56,11 +62,18 @@ qt4_add_dbus_adaptor(webexservice_SRCS  org.kde.nepomuk.WebExtractorService.xml 
 
 
 
-kde4_add_kcfg_files(webexservice_SRCS webexconfigbase.kcfgc)
-kde4_add_kcfg_files(webexservice_SRCS webexcategory.kcfgc)
+#kde4_add_library( webexsettings STATIC 
+#    ${webexsettings_SRCS}
+#    )
 
 
+#building
+
+#service
 kde4_add_plugin(nepomukwebexservice ${webexservice_SRCS})
+
+#kcm
+#add_subdirectory(kcm)
 
 
 target_link_libraries(nepomukwebexservice 

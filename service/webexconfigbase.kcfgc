@@ -1,3 +1,5 @@
 File=webextractor.kcfg
 ClassName=WebExConfigBase
 NameSpace=Nepomuk
+ItemAccessors=true
+SetUserText=true

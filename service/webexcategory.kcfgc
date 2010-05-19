@@ -1,4 +1,6 @@
 File=webexcategory.kcfg
 ClassName=WebExCategory
 NameSpace=Nepomuk
+ItemAccessors=true
+SetUserText=true
 

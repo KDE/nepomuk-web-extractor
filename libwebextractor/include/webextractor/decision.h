@@ -16,46 +16,45 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_H_
-#define _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_H_
+#ifndef _NEPOMUK_WEBEXTRCT_DESICION_H_
+#define _NEPOMUK_WEBEXTRCT_DESICION_H_
 
 #include <QtCore/QObject>
+#include <QtCore/QSharedPointer>
 #include <Nepomuk/Resource>
+#include <Soprano/Statement>
 #include <webextractor/webextractor_export.h>
-#include <webextractor/datapp.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class ResourceAnalyzerFactory;
-	class ResourceAnalyzerImpl;
-	class WEBEXTRACTOR_EXPORT ResourceAnalyzer : public QObject
+	class ResourceAnalyzer;
+	class DecisionFactory;
+
+	class WEBEXTRACTOR_EXPORT Decision /*: public QOb*/
 	{
-	    Q_OBJECT;
 	    public:
-		void analyze(Nepomuk::Resource & res);
-		enum LaunchPolitics {All, StepWise};
-	    Q_SIGNALS:
-		void analyzingFinished();
+		double rank() const; 
+		void setRank(double rank);
+		void addStatement(const Soprano::Statement &, double rank);
+		void addStatementGroup(const QList<Soprano::Statement> &, double rank);
+		Decision();
+		~Decision();
+		const Decision & operator=( const Decision & rhs);
+		Decision( const Decision & );
+		friend class ResourceAnalyzer;
+		friend class DecisionFactory;
 	    private:
-		Nepomuk::WebExtractor::ResourceAnalyzerImpl * m_analyzer;
-		ResourceAnalyzer(
-			const DataPPKeeper & ,
-		       	DecisionFactory * fact,
-			DecisionList::MergePolitics mergePolitics,
-			ResourceAnalyzer::LaunchPolitics launchPolitics,
-			double acrit,
-			double ucrit,
-			unsigned int step,
-		       	QObject * parent = 0
-			);
-		// Only defenition, no implementation.
-		// Copying is forbidden
-		ResourceAnalyzer(const ResourceAnalyzer &);
-		const ResourceAnalyzer & operator=( const ResourceAnalyzer &);
-	    public:
-		friend class ResourceAnalyzerFactory;
+		/*! \brief Apply Decision
+		 * Write all statements back to model
+		 */
+		void apply();
+		/*! \brief Add statements to the discretion of the user
+		 */
+		void addToUserDiscretion();
+		class Private;
+		QSharedPointer<Private> d;
+
 	};
     }
 }
-
 #endif

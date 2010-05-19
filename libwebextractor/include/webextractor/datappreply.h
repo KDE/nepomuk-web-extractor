@@ -16,46 +16,32 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_H_
-#define _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_H_
+#ifndef _NEPOMUK_WEBEXTRCT_DATA_PP_REPL_H_
+#define _NEPOMUK_WEBEXTRCT_DATA_PP_REPL_H_
 
 #include <QtCore/QObject>
-#include <Nepomuk/Resource>
+#include <webextractor/decisionlist.h>
 #include <webextractor/webextractor_export.h>
-#include <webextractor/datapp.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class ResourceAnalyzerFactory;
-	class ResourceAnalyzerImpl;
-	class WEBEXTRACTOR_EXPORT ResourceAnalyzer : public QObject
+	class WEBEXTRACTOR_EXPORT DataPPReply : public QObject
 	{
 	    Q_OBJECT;
 	    public:
-		void analyze(Nepomuk::Resource & res);
-		enum LaunchPolitics {All, StepWise};
+		virtual const DecisionList & decisions() const = 0;
+		virtual ~DataPPReply();
+	    public Q_SLOTS:
+		/*! \brief Abort execution 
+		 */
+		virtual void abort() = 0;
+	    	virtual bool isValid() = 0;
 	    Q_SIGNALS:
-		void analyzingFinished();
-	    private:
-		Nepomuk::WebExtractor::ResourceAnalyzerImpl * m_analyzer;
-		ResourceAnalyzer(
-			const DataPPKeeper & ,
-		       	DecisionFactory * fact,
-			DecisionList::MergePolitics mergePolitics,
-			ResourceAnalyzer::LaunchPolitics launchPolitics,
-			double acrit,
-			double ucrit,
-			unsigned int step,
-		       	QObject * parent = 0
-			);
-		// Only defenition, no implementation.
-		// Copying is forbidden
-		ResourceAnalyzer(const ResourceAnalyzer &);
-		const ResourceAnalyzer & operator=( const ResourceAnalyzer &);
-	    public:
-		friend class ResourceAnalyzerFactory;
+		void finished();
+		void error();
 	};
     }
 }
 
 #endif
+

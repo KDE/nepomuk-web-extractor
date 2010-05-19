@@ -44,10 +44,24 @@ namespace Nepomuk {
 
 */
 
-Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(QObject * parent):
+Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
+	const DataPPKeeper & dataPPKeeper,
+       	DecisionFactory * fac,
+       	DecisionList::MergePolitics mergePolitics,
+       	ResourceAnalyzer::LaunchPolitics launchPolitics,
+	double acrit,
+	double ucrit,
+	unsigned int step,
+       	QObject * parent
+	):
     QObject(parent)
 {
-    m_analyzer = new Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl(this);
+    m_analyzer = new Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl(dataPPKeeper, fac, this);
+    m_analyzer->m_mergePolitics = mergePolitics;
+    m_analyzer->m_launchPolitics = launchPolitics;
+    m_analyzer->m_step = step;
+    m_analyzer->m_acrit = acrit;
+    m_analyzer->m_ucrit = ucrit;
     connect(m_analyzer,SIGNAL(analyzingFinished()),this, SIGNAL(analyzingFinished()));
 }
 
@@ -56,11 +70,26 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::analyze( Nepomuk::Resource & res)
     m_analyzer->analyze(res);
 }
 
-Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::ResourceAnalyzerImpl(QObject * parent):
+Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::ResourceAnalyzerImpl(
+	const DataPPKeeper & dataPPKeeper,
+       	DecisionFactory * fact,
+       	QObject * parent
+	):
     QObject(parent),
     tmp_count(15),
-    m_respWaits(0)
-{;}
+    m_respWaits(0),
+    m_dataPPKeeper(dataPPKeeper),
+    m_step(10),
+    m_fact(fact),
+    m_mergePolitics(DecisionList::Average),
+    m_mergeCoff(1),
+    m_launchPolitics(ResourceAnalyzer::StepWise),
+    m_decisions(fact->newDecisionList())
+{
+    this->it = m_dataPPKeeper.begin();
+    //DataPPKeeper::const_iterator it = m_dataPPKeeper.begin();
+    
+}
 
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::analyze(Nepomuk::Resource & res)
 {
@@ -70,38 +99,98 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::analyze(
     kDebug() << "Extracting data from resource";
     launchNext();
 }
+
 bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::launchNext()
 {
     assert(m_respWaits == 0);
-    if (!tmp_count)
-	return false;
+    //if (!tmp_count)
+    //	return false;
 
     kDebug() << "Launching next portion of plugins";
 
-    int c = std::min(5,tmp_count);
-    for (int i = 0; i < c; i++)
-	QTimer::singleShot((i+1)*(i+1)*1000,this, SLOT(pluginFinished()));
+    int substop = 0;
+    if (m_launchPolitics == ResourceAnalyzer::All )
+	substop = m_dataPPKeeper.size();
+    else if (m_launchPolitics == ResourceAnalyzer::StepWise) 
+	substop = m_step;
 
-    m_respWaits = c;
-    tmp_count -= c;
+    int i = 0;
+
+    for( ; ( (it != m_dataPPKeeper.end() ) and (i < substop) ); it++,i++ )
+    {
+	    
+	// launch 
+	DataPPReply * repl = it->first->requestDecisions(m_fact, m_res);
+
+	if (!repl) {
+	    kDebug() << "DataPP return 0 as reply. How should I handle it? Ignoring.";
+	    continue;
+	}
+
+	// Save this reply
+	connect( repl, SIGNAL(finished()), this, SLOT( pluginFinished() ) );
+	connect( repl, SIGNAL(error()), this, SLOT( pluginFinished() ) );
+
+	m_replyAndRanks[repl] = it->second;
+	m_respWaits++;;
+
+    }
+
+
+    //tmp_count -= c;
     return true;
 }
+
+/*
+void Nepomuk::WebExtractor::ResourceAnalyzerImpl::launchOrFinish()
+{
+}
+*/
+
+
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::pluginFinished()
 {
     m_respWaits--;
     kDebug() << "Recived answer from plugin.";
 
     // Process data plugin has returned
+    DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender() );
+    if (repl) {
+	// Delete it from map and call deleteLater
+	if (!m_replyAndRanks.contains(repl)) {
+		kDebug() << "Recived answer from unregistred DataPPReply";
+		}
+	double repl_rank = m_replyAndRanks[repl];
+
+	repl->deleteLater();
+	
+	if (repl->isValid()) {
+	    // Process Decision list
+	    m_decisions.mergeWith(repl->decisions(), repl_rank,m_mergePolitics, m_mergeCoff );
+	}
+    }
+    else {
+	kDebug() << "Recive answer not from DataPPReply object";
+    }
+
+
+
     
     if (m_respWaits == 0) {
 	// All launched plugins return data
 	// Process it
-	// <bzzzzz>
+	// If there is any Decision that is applied automaticaly
+	// then trancate list by acrit and change parameters of decisionfactory
+	if ( m_decisions.hasAutoApplicable() )
+	    m_fact->setThreshold(m_acrit);
+
+
 	// Launching other plugins if necessary
 	if ( !launchNext() ) {
 	    // No more plugins to launch and all plugins launched before
 	    // returned their data
 	    kDebug() << "Extracting for resource finished";
+	    kDebug() << "Total decisions count: "<<m_decisions.size();
 	    emit analyzingFinished();
 	}
     }

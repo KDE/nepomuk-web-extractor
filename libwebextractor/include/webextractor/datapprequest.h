@@ -16,41 +16,28 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_FACTORY_H_
-#define _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_FACTORY_H_
+#ifndef _NEPOMUK_WEBEXTRCT_DATA_PP_REPL_H_
+#define _NEPOMUK_WEBEXTRCT_DATA_PP_REPL_H_
 
 #include <QtCore/QObject>
-#include <webextractor/resourceanalyzer.h>
-#include <webextractor/webextractor_export.h>
-#include <webextractor/datapp.h>
+#include <webextractor/decision.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class WEBEXTRACTOR_EXPORT ResourceAnalyzerFactory: public QObject
+	class DataPPReply 
 	{
-	    Q_OBJECT;
 	    public:
-		ResourceAnalyzerFactory(
-			const DataPPKeeper & dataPPKeeper,
-		       	ResourceAnalyzer::LaunchPolitics,
-			DecisionList::MergePolitics,
-			unsigned int step,
-			double acrit,
-			double ucrit,
-			QObject * parent = 0
-			);
-		ResourceAnalyzer * newAnalyzer();
-		void deleteAnalyzer(ResourceAnalyzer * res);
-	    private:
-		 const DataPPKeeper & dataPPKeeper;
-		 ResourceAnalyzer::LaunchPolitics m_launchPolitics;
-		 DecisionList::MergePolitics m_mergePolitics;
-		 unsigned int m_step;
-		 double m_acrit;
-		 double m_ucrit;
-
+		const QList<Decision> & decisions() const;
+	    public Q_SLOTS:
+		/*! \brief Abort execution 
+		 */
+		void abort();
+	    Q_SIGNALS:
+		void finished();
+		void error();
 	};
     }
 }
 
 #endif
+

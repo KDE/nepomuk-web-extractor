@@ -16,46 +16,28 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_H_
-#define _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_H_
+#ifndef _NEPOMUK_WEBEXTRCT_DATA_PP_H_
+#define _NEPOMUK_WEBEXTRCT_DATA_PP_H_
 
 #include <QtCore/QObject>
 #include <Nepomuk/Resource>
+#include <Soprano/Statement>
+#include <webextractor/datappreply.h>
+#include <webextractor/decisionfactory.h>
 #include <webextractor/webextractor_export.h>
-#include <webextractor/datapp.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class ResourceAnalyzerFactory;
-	class ResourceAnalyzerImpl;
-	class WEBEXTRACTOR_EXPORT ResourceAnalyzer : public QObject
+	/*! \brief MUST be reentrant and thread safe
+	 */
+	class WEBEXTRACTOR_EXPORT DataPP /*: public QOb*/
 	{
-	    Q_OBJECT;
 	    public:
-		void analyze(Nepomuk::Resource & res);
-		enum LaunchPolitics {All, StepWise};
-	    Q_SIGNALS:
-		void analyzingFinished();
-	    private:
-		Nepomuk::WebExtractor::ResourceAnalyzerImpl * m_analyzer;
-		ResourceAnalyzer(
-			const DataPPKeeper & ,
-		       	DecisionFactory * fact,
-			DecisionList::MergePolitics mergePolitics,
-			ResourceAnalyzer::LaunchPolitics launchPolitics,
-			double acrit,
-			double ucrit,
-			unsigned int step,
-		       	QObject * parent = 0
-			);
-		// Only defenition, no implementation.
-		// Copying is forbidden
-		ResourceAnalyzer(const ResourceAnalyzer &);
-		const ResourceAnalyzer & operator=( const ResourceAnalyzer &);
-	    public:
-		friend class ResourceAnalyzerFactory;
+		virtual DataPPReply * requestDecisions(DecisionFactory * factory, const Nepomuk::Resource & res) = 0;
+		virtual ~DataPP();
 	};
+	typedef QList< QPair < DataPP *, double > > DataPPKeeper;
     }
 }
-
 #endif
+

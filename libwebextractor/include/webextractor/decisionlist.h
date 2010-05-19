@@ -16,38 +16,38 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_FACTORY_H_
-#define _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_FACTORY_H_
+#ifndef _NEPOMUK_WEBEXTRCT_DESICION_LIST_H
+#define _NEPOMUK_WEBEXTRCT_DESICION_LIST_H
 
-#include <QtCore/QObject>
-#include <webextractor/resourceanalyzer.h>
+#include <webextractor/decision.h>
+#include <KDebug>
 #include <webextractor/webextractor_export.h>
-#include <webextractor/datapp.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class WEBEXTRACTOR_EXPORT ResourceAnalyzerFactory: public QObject
+	class WEBEXTRACTOR_EXPORT DecisionList : private QList<Decision>
 	{
-	    Q_OBJECT;
 	    public:
-		ResourceAnalyzerFactory(
-			const DataPPKeeper & dataPPKeeper,
-		       	ResourceAnalyzer::LaunchPolitics,
-			DecisionList::MergePolitics,
-			unsigned int step,
-			double acrit,
-			double ucrit,
-			QObject * parent = 0
-			);
-		ResourceAnalyzer * newAnalyzer();
-		void deleteAnalyzer(ResourceAnalyzer * res);
+		friend class ResourceAnalyzerImpl;
+		friend class DecisionFactory;
+		enum MergePolitics { Lowest,Average,Highest, Adjust };
+		void addDecision( const Decision & );
+		void addDecision( const Decision & , MergePolitics politics, double coff = 1);
+		void mergeWith( const DecisionList & rhs, double scale, MergePolitics policis = Highest, double coff = 1);
+		void scale( double coff);
+		/*
+		using QList<Decision>::size;
+		
+		using QList<Decision>::iterator;
+		using QList<Decision>::begin;
+		*/
 	    private:
-		 const DataPPKeeper & dataPPKeeper;
-		 ResourceAnalyzer::LaunchPolitics m_launchPolitics;
-		 DecisionList::MergePolitics m_mergePolitics;
-		 unsigned int m_step;
-		 double m_acrit;
-		 double m_ucrit;
+		// Leave only unique instances
+		DecisionList(double threshold = 0);
+		void unique( MergePolitics policis = Highest, double coff = 1 );
+		void sort();
+		bool hasAutoApplicable() const;
+		double m_threshold;
 
 	};
     }
