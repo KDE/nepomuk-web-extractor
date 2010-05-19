@@ -111,7 +111,7 @@ void Nepomuk::WebExtractorService::finishInitialization()
 void Nepomuk::WebExtractorService::__stop()
 {
     m_extractScheduler->stop();
-    QCoreApplication::quit();
+    //QCoreApplication::quit();
 }
 
 #include <kpluginfactory.h>

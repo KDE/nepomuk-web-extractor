@@ -30,7 +30,8 @@
 
 Nepomuk::WebExtractorScheduler::WebExtractorScheduler(WebExtractorConfig * conf, QObject * parent):
     QObject(parent),
-    m_success(false)
+    m_success(false),
+    m_stopped(false)
 {
     m_conf=conf;
     readConfig();
@@ -337,6 +338,7 @@ void Nepomuk::WebExtractorScheduler::start()
 void Nepomuk::WebExtractorScheduler::stop()
 {
     //clearLaunched();
+    m_launchTimer->stop();
     QHash<QString,WebExtractorCategoryScheduler *>::iterator qit; 
     for(qit = m_launchedQueries.begin(); qit != m_launchedQueries.end(); ++qit)
     {
@@ -348,10 +350,12 @@ void Nepomuk::WebExtractorScheduler::stop()
 	kDebug() << "Waiting for "<<qit.key();
 	qit.value()->wait();
     }
+#if 0
+    kDebug() << "All cats finished";
     for(qit = m_categories.begin(); qit != m_categories.end(); ++qit)
     {
 	kDebug() << "Deleting for "<<qit.key();
-	assert(qit.value()->isRunning());
+	assert(!qit.value()->isRunning());
 	delete qit.value();
     }
 
@@ -374,6 +378,7 @@ void Nepomuk::WebExtractorScheduler::stop()
     m_timers.clear();
     m_askQueries.clear();
     m_selectQueries.clear();
+#endif
 }
 
 void Nepomuk::WebExtractorScheduler::suspend()

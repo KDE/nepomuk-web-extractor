@@ -46,7 +46,7 @@ set( webexservice_SRCS
     webexcatscheduler.cpp
     webexscheduler.cpp
     webexqueries.cpp
-    webexcatschedulerimpl.cpp
+    #webexcatschedulerimpl.cpp
     priority.cpp
     useractivitymonitor.cpp
     ${webexsettings_SRCS}

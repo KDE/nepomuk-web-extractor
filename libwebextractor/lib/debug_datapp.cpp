@@ -38,13 +38,16 @@ NW::DebugDataPPReply::DebugDataPPReply(const DecisionFactory * factory):
     m_decisions(factory->newDecisionList())
 {
     kDebug() << "New DebugDataPPReply created. ID: "<<uintptr_t(this);
-    QTimer::singleShot(2*1000,this, SLOT(ready()));
+    m_timer = new QTimer(this);
+    m_timer->setSingleShot(true);
+    connect(m_timer, SIGNAL(timeout()),this, SLOT(ready()) );
     for ( double r = 0; r < 0.8; r+= 0.1 )
     {
 	Decision d = m_fact->newDecision();
 	d.setRank(r);
 	m_decisions.addDecision(d);
     }
+    m_timer->start(2*1000);
 }
 
 void NW::DebugDataPPReply::abort()
@@ -62,4 +65,6 @@ bool NW::DebugDataPPReply::isValid()
 {return true;}
 
 NW::DebugDataPPReply::~DebugDataPPReply()
-{;}
+{
+    delete m_timer;
+}

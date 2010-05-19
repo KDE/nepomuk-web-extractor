@@ -24,6 +24,11 @@
 #include <new>
 #include <Soprano/Model>
 #include <Nepomuk/ResourceManager>
+#include <Soprano/Vocabulary/NAO>
+#include <Soprano/Vocabulary/NRL>
+#include <Soprano/Node>
+#include <Nepomuk/ResourceManager>
+#include "webexqueries.h"
 #include "webexcatscheduler.h"
 #include "webexcatschedulerimpl.h"
 
@@ -36,18 +41,37 @@ Nepomuk::WebExtractorCategoryScheduler::WebExtractorCategoryScheduler(
        	int maxResSimult
 	):
     QThread(parent),
+    m_query(category_query),
+    m_respWaits(0),
+    m_maxResSimult(maxResSimult),
+    m_currentResProc(0),
+    m_cacheSize(5),
     m_suspended(false),
     m_stopped(false),
     m_extracting(false),
-    m_speed(FullSpeed),
     m_reducedSpeedDelay(500),
     m_snailPaceDelay(3000),
-    m_impl(0),
-    m_query(category_query),
-    m_maxResSimult(maxResSimult)
+    m_speed(FullSpeed)
 {
     m_extractParams = params;
     //kDebug() << *m_extractParams;
+
+    // Restore defaults if incorrect caches size was passed
+    if (m_cacheSize < 1) {
+	kDebug() << "Cache size ("<<m_cacheSize<<") is incorrect. Use 5 instead";
+	m_cacheSize = 5;
+    }
+
+    m_factory = new Nepomuk::WebExtractor::ResourceAnalyzerFactory(m_extractParams,this);
+    connect(this, SIGNAL(launchPls(QUrl)), this, SLOT(launch(const QUrl &)), Qt::QueuedConnection );
+
+    // Wrap into section.
+    if (!checkQuery())
+	    kDebug() << "select query is invalid";
+    // Because somebody thinks that locking a model while iterating over
+    // it is a good idea, it is necessary to cash results into queue 
+    // and delete iterator to unlock model
+    //void cacheUrls();
 }
 
 
@@ -61,9 +85,145 @@ Nepomuk::WebExtractorCategoryScheduler::~WebExtractorCategoryScheduler()
         m_resumeStopWc.wakeAll();
 	wait();
     }
-    delete m_impl;
 }
 
+bool Nepomuk::WebExtractorCategoryScheduler::checkQuery()
+{
+	Soprano::QueryResultIterator it =  
+	    Nepomuk::ResourceManager::instance()->mainModel()->executeQuery( 
+	    m_query,Soprano::Query::QueryLanguageSparql 
+	    );
+
+	return it.isValid();
+}
+void Nepomuk::WebExtractorCategoryScheduler::cacheUrls()
+{
+	Soprano::QueryResultIterator it =  
+	    Nepomuk::ResourceManager::instance()->mainModel()->executeQuery( 
+	    m_query,Soprano::Query::QueryLanguageSparql 
+	    );
+    while( it.next() and ( m_urlQueue.size() < m_cacheSize) )
+    {
+	m_urlQueue.enqueue(it.binding( Nepomuk::WebExtractorQueries::resourceVariableName() ).uri());
+    }
+}
+bool Nepomuk::WebExtractorCategoryScheduler::startLaunch()
+{
+    kDebug() << "Starting category.";
+    /*
+    kDebug() << *(
+	    const_cast<Nepomuk::WebExtractor::ExtractParameters*>(m_extractParams.data())
+	    );
+	    */
+    int i = 0;
+    while ( i < m_maxResSimult) {
+	if (!launchNext())
+	    break;
+	i++;
+    }
+
+    if ( i == 0)
+       return false;
+    else 
+	return true;
+    
+}
+
+void Nepomuk::WebExtractorCategoryScheduler::launchOrFinish()
+{
+    kDebug()<<m_currentResProc << " responces left";
+    bool stp;
+    //QMutexLocker locker(&m_resumeStopMutex);
+    stp = m_stopped;
+    //locker.unlock();
+
+    if (stp) {
+	kDebug()<<"Fihishing. "<<m_currentResProc << " responces left";
+	// No launches more
+	// Just wait untill all already launched
+	// resource finishing and exit
+	if (m_currentResProc == 0)
+	    this->quit();
+    }
+    else {
+	    if (waitForContinue() ) {
+		// launch new resource
+		if (!launchNext()){
+		    // Finishing
+	//	    m_finishing = true;
+		    kDebug()<<"Fihishing. "<<m_currentResProc << " responces left";
+		    if (m_currentResProc == 0)
+			this->quit();
+		}
+	    }
+	    else {
+	//	m_finishing = true;
+		kDebug()<<"Fihishing. "<<m_currentResProc << " responces left";
+		if (m_currentResProc == 0)
+		    this->quit();
+	    }
+    }
+}
+
+bool Nepomuk::WebExtractorCategoryScheduler::launchNext()
+{
+    // if queue is empty then try to fill it
+    if (!m_urlQueue.size()) {
+	cacheUrls();
+	// if queue is still empty then there are no more
+	// resource to process
+	if (!m_urlQueue.size()) 
+	    return false;
+    }
+
+    // Now there are elements in queue
+
+    emit launchPls(m_urlQueue.dequeue());
+
+
+    return true;
+
+}
+
+void Nepomuk::WebExtractorCategoryScheduler::launch(const QUrl & resourceUri)
+{
+    Nepomuk::Resource res(resourceUri);
+    // If resource doesn't exist(has already removed)
+    if (!res.isValid()) {
+	kDebug() << "Resource "<<resourceUri<<" doesn't exist any more and will be skiped";
+	launchOrFinish();
+	return;
+    }
+
+    NW::ResourceAnalyzer * resanal = m_factory->newAnalyzer();
+
+    kDebug() << "Start extracting for resource: " << 
+	resourceUri;
+	
+
+    connect(resanal, SIGNAL(analyzingFinished()), this, SLOT(resourceProcessed()));
+    //QTimer::singleShot(3*1000, this, SLOT(resourceProcessed()));
+    m_currentResProc++;
+    resanal->analyze(res);
+    kDebug() << "Exit";
+}
+
+void Nepomuk::WebExtractorCategoryScheduler::resourceProcessingAborted()
+{
+    launchOrFinish();
+}
+void Nepomuk::WebExtractorCategoryScheduler::resourceProcessed()
+{
+    m_currentResProc--;
+    NW::ResourceAnalyzer * res = qobject_cast< NW::ResourceAnalyzer *>(sender() );
+    if (!res) {
+	kDebug() << "Recive signal not from ResourceAnalyzer";
+    }
+    else {
+	m_factory->deleteAnalyzer(res);
+    }
+    launchOrFinish();
+}
 void Nepomuk::WebExtractorCategoryScheduler::suspend()
 {
     if ( isRunning() )  {
@@ -163,8 +323,10 @@ void Nepomuk::WebExtractorCategoryScheduler::setMaxResSimult(int new_mrsm)
 void Nepomuk::WebExtractorCategoryScheduler::run()
 {
     
+    /*
     if (m_impl)
 	delete m_impl;
+	*/
 
     if (m_extractParams.isNull() ) {
 	kDebug() << "Extracting parameters is null. Ignoring launch";
@@ -172,9 +334,11 @@ void Nepomuk::WebExtractorCategoryScheduler::run()
 
     //kDebug() << *m_extractParams;
     
-    m_impl = new (std::nothrow) WebExtractorCategorySchedulerImpl(m_query,this,m_extractParams, m_maxResSimult);
+    //m_impl = new (std::nothrow) WebExtractorCategorySchedulerImpl(m_query,this,m_extractParams, m_maxResSimult);
+    /*
     if (!m_impl)
 	return;
+	*/
     // set lowest priority for this thread
     setPriority( QThread::IdlePriority );
 
@@ -207,7 +371,10 @@ void Nepomuk::WebExtractorCategoryScheduler::run()
     // and false otherwise. If event loop is started when
     // start returned false then it will never end,
     // because nothing will call quit();
-    if ( m_impl->start()) {
+    QTimer * t = new QTimer();
+    connect(t,SIGNAL(timeout()), this, SLOT(mseg()));
+    t->start(1000*5);
+    if ( startLaunch()) {
 	kDebug() << "Starting scheduler main loop";
 	exec();
 	kDebug() << "Scheduler main loop finished";
@@ -221,11 +388,16 @@ void Nepomuk::WebExtractorCategoryScheduler::run()
     // reset state
     m_suspended = false;
     m_stopped = false;
-    m_impl->m_finishing = false;
+}
+
+void Nepomuk::WebExtractorCategoryScheduler::mseg()
+{
+    kDebug() << "Timer message";
 }
 
 bool Nepomuk::WebExtractorCategoryScheduler::waitForContinue( bool disableDelay )
 {
+    kDebug()<<"enter";
     QMutexLocker locker( &m_resumeStopMutex );
     if ( m_suspended ) {
 	kDebug() << "Suspended";

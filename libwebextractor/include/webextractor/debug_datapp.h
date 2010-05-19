@@ -21,6 +21,7 @@
 
 #include <webextractor/datapp.h>
 #include <webextractor/webextractor_export.h>
+#include <QtCore/QTimer>
 
 namespace Nepomuk {
     namespace WebExtractor {
@@ -55,6 +56,7 @@ namespace Nepomuk {
 	    private:
 	    	DecisionList m_decisions;
 		const DecisionFactory * m_fact;
+		QTimer * m_timer;
 	};
     }
 }

@@ -24,6 +24,8 @@
 #include <QtCore/QMutex>
 #include <QtCore/QWaitCondition>
 #include <QtCore/QSet>
+#include <QtCore/QUrl>
+#include <QtCore/QQueue>
 #include <QtCore/QDateTime>
 #include <Soprano/QueryResultIterator>
 #include <webextractor/resourceanalyzerfactory.h>
@@ -31,7 +33,7 @@
 
 namespace Nepomuk{
     namespace WE = WebExtractor;
-    class WebExtractorCategorySchedulerImpl;
+   // class WebExtractorCategorySchedulerImpl;
     class WebExtractorCategoryScheduler : public QThread
     {
 	Q_OBJECT;
@@ -93,11 +95,22 @@ namespace Nepomuk{
 
 	    void setSuspended( bool );
 	    void setMaxResSimult(int new_mrsm);
+
+	    /*! \brief Called when resource processing fineshed
+	     */
+	    void resourceProcessed();
+	    /*! \brief Called when resource processing aborted
+	     */
+	    void resourceProcessingAborted();
+	    void launch(const QUrl & resourceUri);
+	    // Debug only
+	    void mseg();
 	Q_SIGNALS:
 	    void extractingStarted();
 	    void extractingStopped();
 	    void extractingFolder( const QString& );
 	    void extractingSuspended( bool suspended );
+	    void launchPls(QUrl);
 
 	private:
 	    void run();
@@ -109,21 +122,42 @@ namespace Nepomuk{
 
 	    // Start extracting for next resource in query
 
+
+	    bool launchNext();
+	    void launchOrFinish();
+	    bool startLaunch();
+	    // Add new urls to cache
+	    void cacheUrls();
+
+	    bool checkQuery();
+
+
+	    // This variable has same meaning as m_stopped
+	    // but it is internal and can not be modificated
+	    // by another thread
+	    //bool m_finishing;
+	    QString m_query;
+	    int m_respWaits;
+	    // Maximum number of resources that can be processed simultaneously
+	    int m_maxResSimult;
+	    // Number of currently processed resources
+	    int m_currentResProc;
+	    int m_cacheSize;
+	    //Soprano::QueryResultIterator it;
+	    WebExtractor::ResourceAnalyzerFactory * m_factory;
+	    QQueue<QUrl> m_urlQueue;
+	    WebExtractor::ExtractParametersPtr m_extractParams;
+
 	    bool m_suspended;
 	    bool m_stopped;
 	    bool m_extracting;
-	    int m_reducedSpeedDelay ; // ms
-	    int m_snailPaceDelay ;   // ms
-	    int m_maxResSimult; // Used for construcing pimpl
-	    QString m_query;
-	    WebExtractor::ExtractParametersPtr  m_extractParams;
-
 	    QMutex m_resumeStopMutex;
 	    QWaitCondition m_resumeStopWc;
 
+	    int m_reducedSpeedDelay ; // ms
+	    int m_snailPaceDelay ;   // ms
 	    ExtractingSpeed m_speed;
-	    WebExtractorCategorySchedulerImpl * m_impl;
-	    friend class WebExtractorCategorySchedulerImpl;
+	    //friend class WebExtractorCategorySchedulerImpl;
     };
 }
 

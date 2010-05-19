@@ -57,6 +57,7 @@ namespace Nepomuk {
 	    // Remove finished categories from m_launchedQueries
 	    void clearLaunched() const;
 	    bool m_success;
+	    bool m_stopped;
 	    int m_maxCatSimult;
 	    // Amount of categories enabled. 
 	    // Cached for perfomance

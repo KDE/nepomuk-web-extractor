@@ -123,6 +123,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::launchNe
 	    
 	// launch 
 	DataPPReply * repl = it->first->requestDecisions(m_fact, m_res);
+	repl->setParent(this);
 
 	if (!repl) {
 	    kDebug() << "DataPP return 0 as reply. How should I handle it? Ignoring.";
