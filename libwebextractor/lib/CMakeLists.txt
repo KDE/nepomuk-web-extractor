@@ -17,7 +17,7 @@ set ( webextractor_MOC
     ${libwebextractor_SOURCE_DIR}/include/webextractor/resourceanalyzer.h
     ${libwebextractor_SOURCE_DIR}/include/webextractor/datappreply.h
     ${libwebextractor_SOURCE_DIR}/include/webextractor/debug_datapp.h
-    resourceanalyzerimpl.h
+    #    resourceanalyzerimpl.h
     )
 
 QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )

@@ -29,7 +29,7 @@ namespace Nepomuk {
 	class WEBEXTRACTOR_EXPORT DecisionList : private QList<Decision>
 	{
 	    public:
-		friend class ResourceAnalyzerImpl;
+		friend class ResourceAnalyzer;
 		friend class DecisionFactory;
 		void addDecision( const Decision & );
 		void addDecision( const Decision & , WE::MergePolitics politics, double coff = 1);

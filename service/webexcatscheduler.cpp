@@ -30,7 +30,6 @@
 #include <Nepomuk/ResourceManager>
 #include "webexqueries.h"
 #include "webexcatscheduler.h"
-#include "webexcatschedulerimpl.h"
 
 namespace NW = Nepomuk::WebExtractor;
 
@@ -63,7 +62,7 @@ Nepomuk::WebExtractorCategoryScheduler::WebExtractorCategoryScheduler(
     }
 
     m_factory = new Nepomuk::WebExtractor::ResourceAnalyzerFactory(m_extractParams,this);
-    connect(this, SIGNAL(launchPls(QUrl)), this, SLOT(launch(const QUrl &)), Qt::QueuedConnection );
+    //connect(this, SIGNAL(launchPls(QUrl)), this, SLOT(launch(const QUrl &)), Qt::QueuedConnection );
 
     // Wrap into section.
     if (!checkQuery())
@@ -168,17 +167,18 @@ void Nepomuk::WebExtractorCategoryScheduler::launchOrFinish()
 bool Nepomuk::WebExtractorCategoryScheduler::launchNext()
 {
     // if queue is empty then try to fill it
-    if (!m_urlQueue.size()) {
+    if (m_urlQueue.isEmpty()) {
 	cacheUrls();
 	// if queue is still empty then there are no more
 	// resource to process
-	if (!m_urlQueue.size()) 
+	if (m_urlQueue.isEmpty()) 
 	    return false;
     }
 
     // Now there are elements in queue
 
-    emit launchPls(m_urlQueue.dequeue());
+    //emit launchPls(m_urlQueue.dequeue());
+    launch(m_urlQueue.dequeue());
 
 
     return true;
@@ -261,9 +261,12 @@ void Nepomuk::WebExtractorCategoryScheduler::setSuspended( bool suspended )
 void Nepomuk::WebExtractorCategoryScheduler::stop()
 {
     if ( isRunning() ) {
+	/*
         QMutexLocker locker( &m_resumeStopMutex );
         m_stopped = true;
         m_suspended = false;
+	*/
+	this->quit();
         m_resumeStopWc.wakeAll();
     }
 }

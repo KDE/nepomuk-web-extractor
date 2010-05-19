@@ -110,7 +110,7 @@ namespace Nepomuk{
 	    void extractingStopped();
 	    void extractingFolder( const QString& );
 	    void extractingSuspended( bool suspended );
-	    void launchPls(QUrl);
+	    //void launchPls(QUrl);
 
 	private:
 	    void run();

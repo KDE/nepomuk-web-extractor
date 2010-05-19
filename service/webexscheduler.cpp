@@ -79,7 +79,7 @@ void Nepomuk::WebExtractorScheduler::readConfig()
     */
     QStringList cats = m_conf->categories();
     QString q, qp;
-    foreach(QString catname, cats)
+    foreach(const QString  & catname, cats)
     {
 	// Check that this category has any assigned DataPP.
 	// If it has not, then ignore it.
@@ -154,7 +154,7 @@ bool Nepomuk::WebExtractorScheduler::addToQueue(const QString & name)
 bool Nepomuk::WebExtractorScheduler::isSuspended() const
 {
     clearLaunched();
-    if (!m_launchedQueries.size())
+    if (m_launchedQueries.isEmpty())
 	return false;
 
     QHash<QString,WebExtractorCategoryScheduler*>::iterator qit = m_launchedQueries.begin();
@@ -171,7 +171,7 @@ bool Nepomuk::WebExtractorScheduler::isSuspended() const
 bool Nepomuk::WebExtractorScheduler::isExtracting() const
 {
     clearLaunched();
-    if (!m_launchedQueries.size())
+    if (m_launchedQueries.isEmpty())
 	return false;
     QHash<QString,WebExtractorCategoryScheduler*>::iterator qit = m_launchedQueries.begin();
     for(; qit != m_launchedQueries.end(); ++qit)
@@ -204,10 +204,10 @@ void Nepomuk::WebExtractorScheduler::launchNext()
     clearLaunched();
 
     // If there is nothing in launchQueue
-    if (!m_launchQueue.size())
+    if (m_launchQueue.isEmpty())
 	return;
 
-    //int stop = std::min(m_launchQueue.size(),m_maxCatSimult - m_launchedQueries.size());
+    //int stop = qMin(m_launchQueue.size(),m_maxCatSimult - m_launchedQueries.size());
     int stop = m_maxCatSimult - m_launchedQueries.size();
     
     assert(stop >= 0);
@@ -247,7 +247,7 @@ void Nepomuk::WebExtractorScheduler::start()
 	return;
 
     // If there is no category, then quit
-    if (!m_askQueries.size()) {
+    if (m_askQueries.isEmpty()) {
 	kDebug() << "There is no category enabled and without mistakes.";
 	return;
     }
@@ -300,40 +300,6 @@ void Nepomuk::WebExtractorScheduler::start()
     // Start first portion of categories
     launchNext();
 }
-/*
-void Nepomuk::WebExtractorScheduler::start()
-{
-    
-    int stop = std::min(m_queries,m_maxCatSimult);
-    int i = m_launchedQueries.size();
-    QHash<QString,QString>::iterator qit = m_askQueries.begin();
-    for(; (qit != m_askQueries.end()) and (i < stop); ++qit;)
-    {
-	if (m_launchedQueries.contains(qit.key()))
-		continue;
-
-	QueryResultIterator it = 
-	    Nepomuk::ResourceManager::instance()->mainModel()->executeQuery( 
-	    qit.value(),Soprano::Query::QueryLanguageSparql 
-	    );
-
-	if (!is.isValid() ) {
-	    kDebug() << "Query \" " << qit.key() << " has invalid syntax";
-	    continue;
-	}
-
-	if (it.boolValue() ) {
-	    // launch scheduler
-	    i++;
-	    kDebug() << "Start extracting for category:"<< qit.key();
-	    WebExtractorCategoryScheduler * sh = new WebExtractorCategoryScheduler(m_selectQueries[qit.key()],this);
-	    connect( sh, SIGNAL(), this->m_sm, SLOT(map), Qt::QueuedConnection );
-	    m_sm.setMapping(sh,qit.key());
-	    sh->start();
-	}
-    }
-}
-*/
 
 void Nepomuk::WebExtractorScheduler::stop()
 {

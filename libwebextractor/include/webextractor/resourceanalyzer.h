@@ -52,8 +52,15 @@ namespace Nepomuk {
 		// Copying is forbidden
 		ResourceAnalyzer(const ResourceAnalyzer &);
 		const ResourceAnalyzer & operator=( const ResourceAnalyzer &);
+	    private Q_SLOTS:
+		void pluginFinished();
+		//void pluginError();
+		bool launchNext();
+		void launchOrFinish();
 	    public:
 		friend class ResourceAnalyzerFactory;
+		class Private;
+		Private * d;
 	};
     }
 }

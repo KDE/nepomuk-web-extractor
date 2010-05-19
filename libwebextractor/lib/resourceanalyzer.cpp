@@ -19,16 +19,15 @@
 #include <KDebug>
 #include <QtCore/QTimer>
 #include <assert.h>
-#include "resourceanalyzerimpl.h"
 
 /*
 namespace Nepomuk {
     namespace WebExtractor {
-	class ResourceAnalyzerImpl : public QObject
+	class ResourceAnalyzer : public QObject
 	{
 	    Q_OBJECT;
 	    public:
-		ResourceAnalyzerImpl(QObject * parent = 0);
+		ResourceAnalyzer(QObject * parent = 0);
 		void analyze( Nepomuk::Resource & res);
 	    Q_SIGNALS:
 		void analyzingFinished();
@@ -44,6 +43,28 @@ namespace Nepomuk {
 
 */
 
+class Nepomuk::WebExtractor::ResourceAnalyzer::Private 
+{
+    public:
+	Private(const DataPPKeeper & dataPPKeeper, DecisionFactory * fact);
+    public:
+	//int tmp_count;
+	int m_respWaits;
+	const DataPPKeeper & m_dataPPKeeper;
+	DataPPKeeper::const_iterator it;
+	DecisionFactory * m_fact;
+	QMap< DataPPReply*, double > m_replyAndRanks;
+	WE::LaunchPolitics m_launchPolitics;
+	unsigned int m_step;
+	DecisionList m_decisions;
+	WE::MergePolitics m_mergePolitics;
+	double m_mergeCoff;
+	Nepomuk::Resource m_res;
+	double m_acrit;
+	double m_ucrit;
+
+};
+
 Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
 	const DataPPKeeper & dataPPKeeper,
        	DecisionFactory * fac,
@@ -56,73 +77,62 @@ Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
 	):
     QObject(parent)
 {
-    m_analyzer = new Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl(dataPPKeeper, fac, this);
-    m_analyzer->m_mergePolitics = mergePolitics;
-    m_analyzer->m_launchPolitics = launchPolitics;
-    m_analyzer->m_step = step;
-    m_analyzer->m_acrit = acrit;
-    m_analyzer->m_ucrit = ucrit;
-    connect(m_analyzer,SIGNAL(analyzingFinished()),this, SIGNAL(analyzingFinished()));
+    d = new Nepomuk::WebExtractor::ResourceAnalyzer::Private(dataPPKeeper, fac);
+    d->m_mergePolitics = mergePolitics;
+    d->m_launchPolitics = launchPolitics;
+    d->m_step = step;
+    d->m_acrit = acrit;
+    d->m_ucrit = ucrit;
+    d->m_decisions = fac->newDecisionList();
+    d->it = d->m_dataPPKeeper.begin();
 }
 
-void Nepomuk::WebExtractor::ResourceAnalyzer::analyze( Nepomuk::Resource & res)
-{
-    m_analyzer->analyze(res);
-}
 
-Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::ResourceAnalyzerImpl(
+Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::Private::Private(
 	const DataPPKeeper & dataPPKeeper,
-       	DecisionFactory * fact,
-       	QObject * parent
+       	DecisionFactory * fact
 	):
-    QObject(parent),
-    tmp_count(15),
     m_respWaits(0),
     m_dataPPKeeper(dataPPKeeper),
-    m_step(10),
     m_fact(fact),
-    m_mergePolitics(WE::Average),
-    m_mergeCoff(1),
-    m_launchPolitics(WE::StepWise),
-    m_decisions(fact->newDecisionList())
+    m_mergeCoff(1)
 {
-    this->it = m_dataPPKeeper.begin();
     //DataPPKeeper::const_iterator it = m_dataPPKeeper.begin();
     
 }
 
-void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::analyze(Nepomuk::Resource & res)
+void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepomuk::Resource & res)
 {
     // Make some work here
-    m_res = res;
+    d->m_res = res;
     
     // start processing
     kDebug() << "Extracting data from resource";
     launchOrFinish();
 }
 
-bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::launchNext()
+bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 {
-    assert(m_respWaits == 0);
+    assert(d->m_respWaits == 0);
     //if (!tmp_count)
     //	return false;
 
     kDebug() << "Launching next portion of plugins";
-    kDebug() << "Total plugins: "<<m_dataPPKeeper.size();
+    kDebug() << "Total plugins: "<<d->m_dataPPKeeper.size();
 
     int substop = 0;
-    if (m_launchPolitics == WE::All )
-	substop = m_dataPPKeeper.size();
-    else if (m_launchPolitics == WE::StepWise) 
-	substop = m_step;
+    if (d->m_launchPolitics == WE::All )
+	substop = d->m_dataPPKeeper.size();
+    else if (d->m_launchPolitics == WE::StepWise) 
+	substop = d->m_step;
 
     int i = 0;
 
-    for( ; ( (it != m_dataPPKeeper.end() ) and (i < substop) ); it++,i++ )
+    for( ; ( (d->it != d->m_dataPPKeeper.end() ) and (i < substop) ); d->it++,i++ )
     {
 	    
 	// launch 
-	DataPPReply * repl = it->first->requestDecisions(m_fact, m_res);
+	DataPPReply * repl = d->it->first->requestDecisions(d->m_fact, d->m_res);
 	repl->setParent(this);
 
 	if (!repl) {
@@ -134,8 +144,8 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::launchNe
 	connect( repl, SIGNAL(finished()), this, SLOT( pluginFinished() ) );
 	connect( repl, SIGNAL(error()), this, SLOT( pluginFinished() ) );
 
-	m_replyAndRanks[repl] = it->second;
-	m_respWaits++;;
+	d->m_replyAndRanks[repl] = d->it->second;
+	d->m_respWaits++;;
 
     }
 
@@ -147,37 +157,37 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::launchNe
     return true;
 }
 
-void Nepomuk::WebExtractor::ResourceAnalyzerImpl::launchOrFinish()
+void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 {
 	if ( !launchNext() ) {
 	    // No more plugins to launch and all plugins launched before
 	    // returned their data
 	    kDebug() << "Extracting for resource finished";
-	    kDebug() << "Total decisions count: "<<m_decisions.size();
+	    kDebug() << "Total decisions count: "<<d->m_decisions.size();
 	    emit analyzingFinished();
 	}
 }
 
 
-void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::pluginFinished()
+void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinished()
 {
-    m_respWaits--;
+    d->m_respWaits--;
     kDebug() << "Recived answer from plugin.";
 
     // Process data plugin has returned
     DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender() );
     if (repl) {
 	// Delete it from map and call deleteLater
-	if (!m_replyAndRanks.contains(repl)) {
+	if (!d->m_replyAndRanks.contains(repl)) {
 		kDebug() << "Recived answer from unregistred DataPPReply";
 		}
-	double repl_rank = m_replyAndRanks[repl];
+	double repl_rank = d->m_replyAndRanks[repl];
 
 	repl->deleteLater();
 	
 	if (repl->isValid()) {
 	    // Process Decision list
-	    m_decisions.mergeWith(repl->decisions(), repl_rank,m_mergePolitics, m_mergeCoff );
+	    d->m_decisions.mergeWith(repl->decisions(), repl_rank,d->m_mergePolitics, d->m_mergeCoff );
 	}
     }
     else {
@@ -187,13 +197,13 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzerImpl::pluginFi
 
 
     
-    if (m_respWaits == 0) {
+    if (d->m_respWaits == 0) {
 	// All launched plugins return data
 	// Process it
 	// If there is any Decision that is applied automaticaly
 	// then trancate list by acrit and change parameters of decisionfactory
-	if ( m_decisions.hasAutoApplicable() )
-	    m_fact->setThreshold(m_acrit);
+	if ( d->m_decisions.hasAutoApplicable() )
+	    d->m_fact->setThreshold(d->m_acrit);
 
 
 	// Launching other plugins if necessary

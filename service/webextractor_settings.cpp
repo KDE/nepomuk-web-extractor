@@ -40,7 +40,7 @@ void Nepomuk::WebExtractorConfig::update()
     m_categories.clear();
 
     QStringList cats = WebExConfigBase::categories();
-    foreach( QString cat, cats)
+    foreach( const QString &  cat, cats)
     {
 	// If it was not loaded before
 	if (!m_categories.contains(cat)) {
@@ -64,7 +64,7 @@ void Nepomuk::WebExtractorConfig::update()
 	    }
 
 
-	    foreach( QString pluginName, groups) 
+	    foreach( const QString & pluginName, groups) 
 	    {
 		/*Load plugin with this name and parse it config*/
 		NW::DataPP * dpp = 0 ;
@@ -121,7 +121,7 @@ int Nepomuk::WebExtractorConfig::maxPluginsLaunched( const QString & categoryNam
 		return 0;
 	else {
 	    int s2 = c->pluginSelectStep();
-	    return std::min(s,s2);
+	    return qMin(s,s2);
 	}
 
 }
@@ -133,7 +133,7 @@ int Nepomuk::WebExtractorConfig::maxResSimult( const QString & categoryName)
     WebExCategory * c = m_categories[categoryName];
     Q_CHECK_PTR(c);
     int s2 = c->maxResSimult();
-    return std::min(s,s2);
+    return qMin(s,s2);
 
 }
 
@@ -207,7 +207,7 @@ QDebug Nepomuk::operator<<( QDebug dbg,  const WebExtractorConfig & conf)
     QStringList cats = conf.categories();
     if (conf.m_categories.size() > 0) {
 	dbg<<conf.m_categories.size()<<" Categories:";
-	foreach( QString cat, cats)
+	foreach( const QString & cat, cats)
 	//foreach( WebExCategory* cat, conf.m_categories)
 	{
 	    dbg<<*(conf.m_parameters[cat]);

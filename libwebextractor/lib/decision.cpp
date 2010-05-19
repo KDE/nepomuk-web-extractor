@@ -87,9 +87,9 @@ void Nepomuk::WebExtractor::Decision::addStatementGroup( const QList<Soprano::St
 void Nepomuk::WebExtractor::Decision::apply()
 {
     kDebug() << "Write statements to storage";
-    foreach ( QList< Soprano::Statement >  lst, d->data )
+    foreach ( const QList< Soprano::Statement > & lst, d->data )
     {
-	foreach( Soprano::Statement  st, lst )
+	foreach( const Soprano::Statement  & st, lst )
 	{
 	    kDebug() << st;
 	}
@@ -99,9 +99,9 @@ void Nepomuk::WebExtractor::Decision::apply()
 void Nepomuk::WebExtractor::Decision::addToUserDiscretion()
 {
     kDebug() << "Write Decision to user discretion list";
-    foreach ( QList< Soprano::Statement >  lst, d->data )
+    foreach ( const QList< Soprano::Statement >  &  lst, d->data )
     {
-	foreach( Soprano::Statement  st, lst )
+	foreach( const Soprano::Statement  & st, lst )
 	{
 	    kDebug() << st;
 	}
