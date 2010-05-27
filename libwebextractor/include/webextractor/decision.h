@@ -31,6 +31,7 @@ namespace Nepomuk {
 	class ResourceAnalyzer;
 	class DecisionFactory;
 	class DecisionList;
+	class DataPP;
 
 	class WEBEXTRACTOR_EXPORT Decision /*: public QOb*/
 	{
@@ -39,11 +40,11 @@ namespace Nepomuk {
 		void setRank(double rank);
 		void addStatement(const Soprano::Statement &, double rank);
 		void addStatementGroup(const QList<Soprano::Statement> &, double rank);
-		bool isEmpty();
+		bool isEmpty() const;
+		bool isValid() const;
 		const QString & pluginName() const;
 		const QString  & pluginVersion() const;
-		const QHash<QString,QString> & pluginsInformation() const;
-		QStringList  pluginsNames() const;
+		const QSet<DataPP*> & pluginsInformation() const;
 		~Decision();
 		const Decision & operator=( const Decision & rhs);
 		bool operator==( const Decision & rhs);
@@ -54,8 +55,7 @@ namespace Nepomuk {
 		friend class DecisionList;
 	    private:
 		Decision(
-			const QString & pluginName,
-			const QString & pluginVersion
+			const DataPP * parent
 			);
 		/*! \brief Apply Decision
 		 * Write all statements back to model
@@ -64,6 +64,7 @@ namespace Nepomuk {
 		/*! \brief Add statements to the discretion of the user
 		 */
 		void addToUserDiscretion();
+		void addAuthor(const DataPP * author);
 		class Private;
 		QSharedDataPointer<Private> d;
 

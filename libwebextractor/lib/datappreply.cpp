@@ -4,49 +4,37 @@
 class Nepomuk::WebExtractor::DataPPReply::Private
 {
     public:
-	QString m_pluginName;
-	QString m_pluginVersion;
-	DecisionFactory * m_fact;
+	const DataPP * m_parent;
 };
 
 Nepomuk::WebExtractor::DataPPReply::DataPPReply(
-//	const QString & pluginName
-	//const QString & pluginVersion
-	DataPP * parent,
-	DecisionFactory * fact;
+	const DataPP * parent
 	)
 {
     d = new Private();
     Q_CHECK_PTR(parent);
-    Q_CHECK_PTR(fact);
-    d->m_pluginVersion = parent->pluginVersion();
-    d->m_pluginName = parent->pluginName();
-    d->m_fact = fact;
+    d->m_parent = parent;
 }
 
+/*
 void Nepomuk::WebExtractor::DataPPReply::setPluginName(const QString & pluginName)
 {
     d->m_pluginName = pluginName;
 }
+*/
 
 Nepomuk::WebExtractor::DataPPReply::~DataPPReply()
 {
     delete d;
 }
 
+const Nepomuk::WebExtractor::DataPP * Nepomuk::WebExtractor::DataPPReply::parent() const
+{ return d->m_parent;}
+
+
 const QString & Nepomuk::WebExtractor::DataPPReply::pluginName() const 
-{ return d->m_pluginName; }
+{ return d->m_parent->pluginName(); }
 
-Decison Nepomuk::WebExtractor::DataPPReply::newDecision()
-{
-    Decison d = m_fact->newDecision(d->m_pluginName, d->m_pluginVersion);
-    return d;
-}
-
-DecisonList Nepomuk::WebExtractor::DataPPReply::newDecisionList()
-{
-    return m_fact->newDecisionList();
-}
 
 /*
 const QString & Nepomuk::WebExtractor::DataPPReply::pluginVersion() const 

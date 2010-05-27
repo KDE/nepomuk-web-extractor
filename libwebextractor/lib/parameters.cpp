@@ -9,7 +9,6 @@ class Nepomuk::WebExtractor::ExtractParameters::Private : public QSharedData
 	WE::LaunchPolitics m_launchPolitics;
 	unsigned int m_pss;
 	double acrit, ucrit;
-	QHash<DataPP*,double> coffs;
 	DataPPKeeper dataPPlugins;
 
 };
@@ -117,11 +116,12 @@ const Nepomuk::WebExtractor::DataPPKeeper & Nepomuk::WebExtractor::ExtractParame
     return d->dataPPlugins;
 }
 
-void Nepomuk::WebExtractor::ExtractParameters::addDataPP( DataPP * pp , double rank )
+void Nepomuk::WebExtractor::ExtractParameters::addDataPP( DataPPWrapper * pp )
 { 
-    return d->dataPPlugins.push_back(QPair<DataPP*,double>(pp,rank));
+    d->dataPPlugins.insert(pp->data(), pp);
 }
 
+/*
 double Nepomuk::WebExtractor::ExtractParameters::scaleCoff(DataPP* pp)  const
 {
     if (!d->coffs.contains(pp) ) {
@@ -142,6 +142,8 @@ void Nepomuk::WebExtractor::ExtractParameters::setScaleCoff(DataPP* pp, double c
 	 d->coffs[pp] = coff;;
     }
 } 
+*/
+
 QDebug Nepomuk::WebExtractor::operator<<( QDebug dbg,  const Nepomuk::WebExtractor::ExtractParameters & p)
 {
     dbg<<"Extract parameters:\n";

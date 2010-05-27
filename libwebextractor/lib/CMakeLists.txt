@@ -9,6 +9,8 @@ set( webextractor_SRCS
     datapp.cpp
     debug_datapp.cpp
     parameters.cpp
+    global.cpp
+    datappwrapper.cpp
     )
 
 #set ( webextractor_MOC    webextractor_settings.h    )

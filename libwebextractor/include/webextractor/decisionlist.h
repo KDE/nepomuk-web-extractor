@@ -23,9 +23,11 @@
 #include <KDebug>
 #include <webextractor/webextractor_export.h>
 #include <webextractor/global.h>
+#include <QtCore/QSet>
 
 namespace Nepomuk {
     namespace WebExtractor {
+	class DataPP;
 	class WEBEXTRACTOR_EXPORT DecisionList : private QList<Decision>
 	{
 	    public:
@@ -49,7 +51,7 @@ namespace Nepomuk {
 		void unique( WE::MergePolitics policis = WE::Highest, double coff = 1 );
 		void sort();
 		bool hasAutoApplicable() const;
-		QStringList filterObsolete();
+		QSet<const DataPP*> filterObsolete();
 		void filter( double threshold);
 		void addToUserDiscretion() const;
 		const Decision & best() const;

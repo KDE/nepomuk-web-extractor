@@ -31,10 +31,11 @@ namespace Nepomuk {
 	{
 	    Q_OBJECT;
 	    public:
-		DataPPReply(DataPP *, DecisionFactory * /*const QString &, const QString &*/);
+		DataPPReply(const DataPP * );
 		virtual const DecisionList & decisions() const = 0;
 		virtual ~DataPPReply();
 		virtual const QString & pluginName() const; 
+		const DataPP * parent() const;
 	    public Q_SLOTS:
 		/*! \brief Abort execution 
 		 */
@@ -45,7 +46,7 @@ namespace Nepomuk {
 		void finished();
 		void error();
 	    private:
-		void setPluginName(const QString & pluginName);
+		//void setPluginName(const QString & pluginName);
 		class Private;
 		Private * d;
 	};

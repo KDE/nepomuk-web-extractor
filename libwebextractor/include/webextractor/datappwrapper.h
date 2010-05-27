@@ -20,9 +20,10 @@
 #define _NEPOMUK_WEBEXTRCT_DATA_PP_PROXY_H_
 
 #include <webextractor/datapp.h>
+#include <webextractor/webextractor_export.h>
 namespace Nepomuk {
     namespace WebExtractor {
-	class DataPPWrapper {
+	class WEBEXTRACTOR_EXPORT DataPPWrapper {
 	    public:
 		DataPPWrapper(DataPP*,const QString & , double);
 		DataPP * data() const { return m_data; }
@@ -30,12 +31,12 @@ namespace Nepomuk {
 		void setRank(double val) { m_rank = val; }
 		const QString & pluginName() const { return m_data->pluginName();}
 		const QString  & pluginVersion() const { return m_data->pluginVersion();}
-		DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
+		DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)const;
 	    private:
 		DataPP * m_data;
 		double m_rank;
 	};
-    typedef QHash< QString, DataPPWrapper* > DataPPKeeper;
+    typedef QHash< const DataPP*, DataPPWrapper* > DataPPKeeper;
     }
 }
 

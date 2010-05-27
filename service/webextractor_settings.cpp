@@ -20,6 +20,8 @@
 #include <KDebug>
 #include <QtGlobal>
 #include <webextractor/debug_datapp.h>
+#include <webextractor/datapp.h>
+#include <webextractor/datappwrapper.h>
 #include <webextractor/global.h>
 #include <webextractor/parameters.h>
 
@@ -29,15 +31,39 @@ Nepomuk::WebExtractorConfig::WebExtractorConfig():
 {
     update();
 }
-void Nepomuk::WebExtractorConfig::update()
+
+void Nepomuk::WebExtractorConfig::clear()
 {
+    // Free all dataPP
+    foreach( NW::DataPP * pp, m_datapp)
+    {
+	delete pp;
+    }
+    m_datapp.clear();
+
+    // Free all DataPPWrappers
+    foreach ( NW::ExtractParametersPtr ptr, m_parameters)
+    {
+	const NW::DataPPKeeper &  plugins = ptr->plugins();
+	foreach( NW::DataPPWrapper * dppw, plugins)
+	{
+	    delete dppw;
+	}
+    }
     m_parameters.clear();
+
     foreach(WebExCategory * ctg, m_categories)
     {
 	if (ctg)
 	    delete ctg;
     }
     m_categories.clear();
+}
+
+void Nepomuk::WebExtractorConfig::update()
+{
+
+    clear();
 
     QStringList cats = WebExConfigBase::categories();
     foreach( const QString &  cat, cats)
@@ -68,25 +94,37 @@ void Nepomuk::WebExtractorConfig::update()
 	    {
 		/*Load plugin with this name and parse it config*/
 		NW::DataPP * dpp = 0 ;
+		NW::DataPPWrapper * dppw = 0 ;
 		double rank;
-		KConfigGroup pluginConfigGroup = catconfig->group(pluginName);
 
-
-		if (pluginName == "debug" ) {
-		    //This is predefined plugin
-		    dpp = new NW::DebugDataPP();
-
-		    rank = pluginConfigGroup.readEntry("coff",1.0);
+		// If plugin(datapp) with this name exist then skip loading
+		if (m_datapp.contains(pluginName) ) {
+		    dpp = m_datapp[pluginName];
 		}
 		else {
-		    kDebug() << "Not realized yet";
+		    KConfigGroup pluginConfigGroup = catconfig->group(pluginName);
+		    if (pluginName == "debug" ) {
+			//This is predefined plugin
+			dpp = new NW::DebugDataPP();
 
-		    // Save it to m_datapp;
-		    // m_datapp.insert(dpp,
-		    continue;
+			rank = pluginConfigGroup.readEntry("coff",1.0);
+		    }
+		    else {
+			kDebug() << "Not realized yet";
+
+			// Save it to m_datapp;
+			// m_datapp.insert(dpp,
+			continue;
+		    }
+		    if (dpp) {
+			kDebug() << "Loaded plugin "<<pluginName << "version: "<<dpp->pluginVersion();
+		    }
 		}
-		if (dpp)
-		    p->addDataPP(dpp,rank);
+		if (dpp) {
+		    dppw = new NW::DataPPWrapper(dpp,pluginName, rank);
+		    p->addDataPP(dppw);
+		    //m_datappwrappers.insert(pluginName,dppw);
+		}
 
 	    }
 

@@ -19,11 +19,11 @@
 #define _NEPOMUK_WEBEXTRCT_CONFIG_H_
 #include "webexconfigbase.h"
 #include "webexcategory.h"
+#include "plugin_interface.h"
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QtDebug>
-#include <webextractor/parameters.h>
 #include <webextractor/parameters.h>
 
 namespace Nepomuk {
@@ -47,10 +47,15 @@ namespace Nepomuk {
 		//WebExtractor::DataPPKeeper & datapp( const QString categoryName);
 
 		void update();
+		void clear();
 	    private:
 		QHash<QString,WebExCategory*> m_categories;
 		//QHash< QString, QSharedPointer<WebExtractor::ExtractParameters> > m_parameters; 
 		QHash< QString, WebExtractor::ExtractParametersPtr > m_parameters; 
+		QHash< QString, WebExtractorPlugin *> m_plugins;
+		QHash< QString, Nepomuk::WebExtractor::DataPP*> m_datapp;
+		//QHash< QString, DataPPWrapper*> m_datappwrappers;
+
 		friend QDebug operator<<( QDebug dbg,  const WebExtractorConfig & cat);
 
 	};

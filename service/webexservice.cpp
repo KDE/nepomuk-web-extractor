@@ -49,6 +49,7 @@ Nepomuk::WebExtractorService::WebExtractorService( QObject * parent, const QList
 
 Nepomuk::WebExtractorService::~WebExtractorService()
 {
+    delete m_conf;
     m_extractScheduler->stop();
     delete m_extractScheduler;
 }

@@ -374,9 +374,6 @@ void Nepomuk::WebExtractorCategoryScheduler::run()
     // and false otherwise. If event loop is started when
     // start returned false then it will never end,
     // because nothing will call quit();
-    QTimer * t = new QTimer();
-    connect(t,SIGNAL(timeout()), this, SLOT(mseg()));
-    t->start(1000*5);
     if ( startLaunch()) {
 	kDebug() << "Starting scheduler main loop";
 	exec();
@@ -393,10 +390,12 @@ void Nepomuk::WebExtractorCategoryScheduler::run()
     m_stopped = false;
 }
 
+/*
 void Nepomuk::WebExtractorCategoryScheduler::mseg()
 {
     kDebug() << "Timer message";
 }
+*/
 
 bool Nepomuk::WebExtractorCategoryScheduler::waitForContinue( bool disableDelay )
 {

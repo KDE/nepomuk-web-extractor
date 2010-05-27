@@ -46,6 +46,8 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
 	m_mergePolitics = extractParams->mergePolitics() ;
 	m_ucrit = extractParams->uCrit() ;
 	m_acrit = extractParams->aCrit() ;
+	kDebug() << "ACrit: "<<m_acrit;
+	kDebug() << "UCrit: "<<m_ucrit;
     }
 }
 

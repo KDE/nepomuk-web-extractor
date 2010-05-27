@@ -22,3 +22,6 @@ void Nepomuk::WebExtractor::DataPP::setPluginName( const QString & name)
 }
 const QString & Nepomuk::WebExtractor::DataPP::pluginName() const 
 { return d->m_name;}
+
+const QString & Nepomuk::WebExtractor::DataPP::pluginVersion() const 
+{ return d->m_version;}

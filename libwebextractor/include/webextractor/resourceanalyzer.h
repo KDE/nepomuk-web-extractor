@@ -40,7 +40,7 @@ namespace Nepomuk {
 	    private:
 		ResourceAnalyzer(
 			const DataPPKeeper & ,
-		       	DecisionFactory * fact,
+		       	DecisionFactory * fact, // Take ownership
 			WE::MergePolitics mergePolitics,
 			WE::LaunchPolitics launchPolitics,
 			double acrit,
@@ -48,6 +48,7 @@ namespace Nepomuk {
 			unsigned int step,
 		       	QObject * parent = 0
 			);
+		~ResourceAnalyzer();
 		// Only defenition, no implementation.
 		// Copying is forbidden
 		ResourceAnalyzer(const ResourceAnalyzer &);

@@ -104,7 +104,7 @@ namespace Nepomuk{
 	    void resourceProcessingAborted();
 	    void launch(const QUrl & resourceUri);
 	    // Debug only
-	    void mseg();
+	    //void mseg();
 	Q_SIGNALS:
 	    void extractingStarted();
 	    void extractingStopped();

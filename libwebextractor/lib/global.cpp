@@ -35,6 +35,8 @@ double Nepomuk::WebExtractor::WE::boundACrit(double val)
 	return maxACrit();
     }
 
+    return val;
+
 }
 
 double Nepomuk::WebExtractor::WE::boundUCrit(double val)
@@ -47,6 +49,8 @@ double Nepomuk::WebExtractor::WE::boundUCrit(double val)
 	kDebug() << "UCrit value is greater than maximum. Fixing";
 	return maxUCrit();
     }
+
+    return val;
 
 }
 

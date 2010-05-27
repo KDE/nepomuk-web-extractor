@@ -25,7 +25,7 @@
 #include <QtCore/QSharedDataPointer>
 #include <webextractor/global.h>
 #include <webextractor/webextractor_export.h>
-#include <webextractor/datapp.h>
+#include <webextractor/datappwrapper.h>
 
 
 namespace Nepomuk {
@@ -54,11 +54,13 @@ namespace Nepomuk {
 		double uCrit() const;
 		void setUCrit(double);
 
+		/*
 		double scaleCoff(DataPP*)  const;
 		void setScaleCoff(DataPP*, double) ;
+		*/
 
 		const DataPPKeeper & plugins() const;
-		void addDataPP( DataPP *, double rank ) ;
+		void addDataPP( DataPPWrapper * ) ;
 
 		bool hasAnyDataPP() const;
 

@@ -75,10 +75,10 @@ bool Nepomuk::WebExtractor::DecisionList::hasAutoApplicable() const
 }
 
 
-QStringList Nepomuk::WebExtractor::DecisionList::filterObsolete()
+QSet<const Nepomuk::WebExtractor::DataPP *> Nepomuk::WebExtractor::DecisionList::filterObsolete()
 {
     kDebug() << "Not realzed yet";
-    return QStringList();
+    return QSet<const DataPP *>();
 }
 
 void Nepomuk::WebExtractor::DecisionList::filter(double threshold)
@@ -89,4 +89,11 @@ void Nepomuk::WebExtractor::DecisionList::filter(double threshold)
 void Nepomuk::WebExtractor::DecisionList::addToUserDiscretion() const
 {
     kDebug() << "Not realzed yet";
+}
+
+const Nepomuk::WebExtractor::Decision &  Nepomuk::WebExtractor::DecisionList::best() const
+{
+    static Decision d = Decision(0);
+    kDebug() << "Not realzed yet";
+    return d;
 }

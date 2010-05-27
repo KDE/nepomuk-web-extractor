@@ -16,6 +16,7 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #include <webextractor/decision.h>
+#include <webextractor/datapp.h>
 #include <QtCore/QSharedData>
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>
@@ -27,7 +28,7 @@ class Nepomuk::WebExtractor::Decision::Private : public QSharedData
 	// TODO move rank to upper class because it it modificated frequently
 	double rank;
 	QMultiMap< double, QList<Soprano::Statement> > data;
-	QHash<QString,QString>  authorsData;
+	QSet<const DataPP*>  authorsData;
 	//QString pluginName;
 	//QString pluginVersion;
 	static inline double truncateRank(double );
@@ -49,24 +50,25 @@ double Nepomuk::WebExtractor::Decision::rank() const
 const QString  & Nepomuk::WebExtractor::Decision::pluginVersion() const
 {
    Q_ASSERT(!d->authorsData.isEmpty());
-   return d->authorsData.begin().value();
+   return (*(d->authorsData.begin()))->pluginVersion();
 }
 
 const QString  & Nepomuk::WebExtractor::Decision::pluginName() const
 { 
    Q_ASSERT(!d->authorsData.isEmpty());
-   return d->authorsData.begin().key();
+   return (*(d->authorsData.begin()))->pluginName();
 }
 
 Nepomuk::WebExtractor::Decision::Decision(
-			const QString & pluginName,
-			const QString & pluginVersion
+	const DataPP * parent
 			)
 {
     this->d = QSharedDataPointer<Private>( 
 	    new Nepomuk::WebExtractor::Decision::Private()
 	    );
-    d->authorsData[pluginName] = pluginVersion;
+    // If parent == 0 then this is invalid Decision
+    if (parent)
+	d->authorsData.insert(parent);
 }
 
 Nepomuk::WebExtractor::Decision::~Decision()
@@ -83,9 +85,14 @@ const Nepomuk::WebExtractor::Decision & Nepomuk::WebExtractor::Decision::operato
     return *this;
 }
 
-bool Nepomuk::WebExtractor::Decision::isEmpty()
+bool Nepomuk::WebExtractor::Decision::isEmpty() const
 {
     return d->data.isEmpty();
+}
+
+bool Nepomuk::WebExtractor::Decision::isValid() const
+{
+    return !d->authorsData.isEmpty();
 }
 
 void Nepomuk::WebExtractor::Decision::setRank(double rank)
@@ -136,3 +143,9 @@ void Nepomuk::WebExtractor::Decision::addToUserDiscretion()
 	}
     }
 }
+
+void Nepomuk::WebExtractor::Decision::addAuthor(const DataPP * author)
+{
+    d->authorsData.insert(author);
+}
+

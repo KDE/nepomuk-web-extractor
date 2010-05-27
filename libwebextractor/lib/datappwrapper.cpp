@@ -16,32 +16,26 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_DESICION_FACTORY_H_
-#define _NEPOMUK_WEBEXTRCT_DESICION_FACTORY_H_
+#include <webextractor/datappwrapper.h>
 
-#include <webextractor/webextractor_export.h>
-#include <webextractor/decision.h>
-#include <webextractor/decisionlist.h>
+namespace NW=Nepomuk::WebExtractor;
 
-namespace Nepomuk {
-    namespace  WebExtractor {
-	class ResourceAnalyzerFactory;
-	class DataPPReply;
-	class WEBEXTRACTOR_EXPORT DecisionFactory
-	{
-	    public:
-		friend class ResourceAnalyzerFactory;
-		friend class ResourceAnalyzer;
-		friend class DataPPReply;
-		Decision newDecision(const DataPP * author) const;
-		DecisionList  newDecisionList() const;
-	    private:
-		void setThreshold(double);
-		DecisionFactory(double ucrit, double acrit);
-		double m_threshold; // ucrit;
-		double m_acrit;
-	};
-    }
+NW::DataPPWrapper::DataPPWrapper(DataPP * dpp,const QString & name, double rank)
+{
+    Q_CHECK_PTR(dpp);
+    m_data = dpp;
+    dpp->setPluginName(name);
+    m_rank = rank;
 }
 
-#endif
+NW::DataPPReply * NW::DataPPWrapper::DataPPWrapper::requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res) const
+{
+    DataPPReply * answer = m_data->requestDecisions(factory,res);
+    /*
+    if (!answer)
+	return answer;
+
+    answer->setPluginName(d->pluginName());
+    */
+    return answer;
+}

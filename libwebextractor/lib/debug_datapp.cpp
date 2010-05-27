@@ -48,7 +48,7 @@ NW::DataPPReply * NW::DebugDataPP::requestDecisions(const NW::DecisionFactory * 
 }
 
 NW::DebugDataPPReply::DebugDataPPReply(DebugDataPP* parent, const DecisionFactory * factory):
-    DataPPReply(parent,factory),
+    DataPPReply(parent),
     //m_fact(factory),
     m_decisions(factory->newDecisionList())
 {
@@ -58,7 +58,7 @@ NW::DebugDataPPReply::DebugDataPPReply(DebugDataPP* parent, const DecisionFactor
     connect(m_timer, SIGNAL(timeout()),this, SLOT(ready()) );
     for ( double r = 0; r < 0.8; r+= 0.1 )
     {
-	Decision d = newDecision();
+	Decision d = factory->newDecision(parent);
 	d.setRank(r);
 	m_decisions.addDecision(d);
     }

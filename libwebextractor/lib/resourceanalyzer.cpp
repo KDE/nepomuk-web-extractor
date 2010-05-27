@@ -46,7 +46,8 @@ namespace Nepomuk {
 class Nepomuk::WebExtractor::ResourceAnalyzer::Private 
 {
     public:
-	Private(const DataPPKeeper & dataPPKeeper, DecisionFactoryBase * fact);
+	Private(const DataPPKeeper & dataPPKeeper, DecisionFactory * fact);
+	~Private();
     public:
 	//int tmp_count;
 	int m_respWaits;
@@ -63,15 +64,33 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private
 	double m_acrit;
 	double m_ucrit;
 	QQueue<DataPPWrapper*> m_queue;
-	void enqueue(const QStringList &);
+	void enqueue(const QSet<const DataPP*> &);
 
 };
 
-void Nepomuk::WebExtractor::ResourceAnalyzer::Private::enqueue(const QStringList & targets)
+Nepomuk::WebExtractor::ResourceAnalyzer::Private::Private(
+	const DataPPKeeper & dataPPKeeper,
+       	DecisionFactory * fact
+	):
+    m_respWaits(0),
+    m_dataPPKeeper(dataPPKeeper),
+    m_fact(fact),
+    m_mergeCoff(1)
 {
-    foreach( const QString & name, targets)
+    //DataPPKeeper::const_iterator it = m_dataPPKeeper.begin();
+    
+}
+
+Nepomuk::WebExtractor::ResourceAnalyzer::Private::~Private()
+{
+    delete m_fact;
+}
+
+void Nepomuk::WebExtractor::ResourceAnalyzer::Private::enqueue(const QSet<const DataPP*> & targets)
+{
+    foreach( const DataPP* pp, targets)
     {
-	DataPPWrapper * dpp = m_dataPPKeeper[name];
+	DataPPWrapper * dpp = m_dataPPKeeper[pp];
 	Q_CHECK_PTR(dpp);
 	m_queue.enqueue(dpp);
     }
@@ -100,24 +119,22 @@ Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
     d->it = d->m_dataPPKeeper.begin();
 }
 
-
-Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::Private::Private(
-	const DataPPKeeper & dataPPKeeper,
-       	DecisionFactory * fact
-	):
-    m_respWaits(0),
-    m_dataPPKeeper(dataPPKeeper),
-    m_fact(fact),
-    m_mergeCoff(1)
+Nepomuk::WebExtractor::ResourceAnalyzer::~ResourceAnalyzer()
 {
-    //DataPPKeeper::const_iterator it = m_dataPPKeeper.begin();
-    
+    delete d;
 }
+
 
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepomuk::Resource & res)
 {
     // Make some work here
     d->m_res = res;
+
+    // Add all datapp to queue
+    foreach( DataPPWrapper * dppw, d->m_dataPPKeeper)
+    {
+	d->m_queue.enqueue(dppw);
+    }
     
     // start processing
     kDebug() << "Extracting data from resource";
@@ -145,7 +162,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 
     for( ; ( ( d->m_queue.size() ) and (i < substop) ); i++ )
     {
-	DataPPWrapper * dpp = d->m_queue.dequeue();
+	const DataPPWrapper * dpp = d->m_queue.dequeue();
 	    
 	// launch 
 	DataPPReply * repl = dpp->requestDecisions(d->m_fact, d->m_res);
@@ -203,12 +220,12 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     // Process data plugin has returned
     DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender() );
     if (repl) {
-	const QString pname = repl->pluginName();
+	const DataPP * parent = repl->parent();
 	// Delete it from map and call deleteLater
 	//if (!d->m_replyAndRanks.contains(repl)) {
-	if (d->m_dataPPKeeper.contains(pname)) {
+	if (d->m_dataPPKeeper.contains(parent)) {
 	    //double repl_rank = d->m_replyAndRanks[repl];
-	    double repl_rank = d->m_dataPPKeeper[pname]->rank();
+	    double repl_rank = d->m_dataPPKeeper[parent]->rank();
 
 	    repl->deleteLater();
 	    
@@ -231,9 +248,9 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     if (d->m_respWaits == 0) {
 	// All launched plugins return data
 	// Process it
-	QStringList lst = d->m_decisions.filterObsolete();
-	if (lst.size()) {
-	    d->enqueue(lst);
+	QSet< const DataPP*> set = d->m_decisions.filterObsolete();
+	if (set.size()) {
+	    d->enqueue(set);
 	}
 
 	// Launching other plugins if necessary
