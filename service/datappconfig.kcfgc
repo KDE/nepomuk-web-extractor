@@ -1,0 +1,7 @@
+File=datappconfig.kcfg
+ClassName=DataPPConfig
+NameSpace=Nepomuk
+ItemAccessors=true
+SetUserText=true
+Mutators=true
+
