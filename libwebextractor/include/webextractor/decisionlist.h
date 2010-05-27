@@ -31,10 +31,12 @@ namespace Nepomuk {
 	    public:
 		friend class ResourceAnalyzer;
 		friend class DecisionFactory;
-		void addDecision( const Decision & );
-		void addDecision( const Decision & , WE::MergePolitics politics, double coff = 1);
+		void addDecision( const Decision &, bool noAuto = false );
+		void addDecision( const Decision & , WE::MergePolitics politics, double coff = 1, bool noAuto = false);
 		void mergeWith( const DecisionList & rhs, double scale, WE::MergePolitics policis = WE::Highest, double coff = 1);
 		void scale( double coff);
+		/*! \brief return names of plugins that produce obsolete decisions
+		 */
 		/*
 		using QList<Decision>::size;
 		
@@ -47,7 +49,12 @@ namespace Nepomuk {
 		void unique( WE::MergePolitics policis = WE::Highest, double coff = 1 );
 		void sort();
 		bool hasAutoApplicable() const;
+		QStringList filterObsolete();
+		void filter( double threshold);
+		void addToUserDiscretion() const;
+		const Decision & best() const;
 		double m_threshold;
+		double m_acrit;
 
 	};
     }

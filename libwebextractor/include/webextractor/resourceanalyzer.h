@@ -20,15 +20,16 @@
 #define _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_H_
 
 #include <QtCore/QObject>
+#include <QtCore/QQueue>
 #include <Nepomuk/Resource>
 #include <webextractor/webextractor_export.h>
-#include <webextractor/datapp.h>
+#include <webextractor/datappwrapper.h>
+#include <webextractor/datappwrapper.h>
 #include <webextractor/global.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
 	class ResourceAnalyzerFactory;
-	class ResourceAnalyzerImpl;
 	class WEBEXTRACTOR_EXPORT ResourceAnalyzer : public QObject
 	{
 	    Q_OBJECT;
@@ -37,7 +38,6 @@ namespace Nepomuk {
 	    Q_SIGNALS:
 		void analyzingFinished();
 	    private:
-		Nepomuk::WebExtractor::ResourceAnalyzerImpl * m_analyzer;
 		ResourceAnalyzer(
 			const DataPPKeeper & ,
 		       	DecisionFactory * fact,

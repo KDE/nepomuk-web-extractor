@@ -23,18 +23,33 @@
 #include <stdlib.h>
 
 namespace NW = Nepomuk::WebExtractor;
-NW::DebugDataPP::DebugDataPP()
+
+const QString & NW::DebugDataPP::name()
+{
+    static QString name = QString("debug");
+    return name;
+}
+
+const QString & NW::DebugDataPP::version()
+{
+    static QString version = QString("0.0.1");
+    return version;
+}
+
+NW::DebugDataPP::DebugDataPP():
+    DataPP(DebugDataPP::version())
 {
     kDebug() << "New DebugDataPP created. ID: "<<uintptr_t(this);
 }
 
 NW::DataPPReply * NW::DebugDataPP::requestDecisions(const NW::DecisionFactory * factory, const Nepomuk::Resource & res)
 {
-    return new DebugDataPPReply(factory);
+    return new DebugDataPPReply(this,factory);
 }
 
-NW::DebugDataPPReply::DebugDataPPReply(const DecisionFactory * factory):
-    m_fact(factory),
+NW::DebugDataPPReply::DebugDataPPReply(DebugDataPP* parent, const DecisionFactory * factory):
+    DataPPReply(parent,factory),
+    //m_fact(factory),
     m_decisions(factory->newDecisionList())
 {
     kDebug() << "New DebugDataPPReply created. ID: "<<uintptr_t(this);
@@ -43,7 +58,7 @@ NW::DebugDataPPReply::DebugDataPPReply(const DecisionFactory * factory):
     connect(m_timer, SIGNAL(timeout()),this, SLOT(ready()) );
     for ( double r = 0; r < 0.8; r+= 0.1 )
     {
-	Decision d = m_fact->newDecision();
+	Decision d = newDecision();
 	d.setRank(r);
 	m_decisions.addDecision(d);
     }

@@ -24,8 +24,12 @@
 class Nepomuk::WebExtractor::Decision::Private : public QSharedData
 {
     public:
+	// TODO move rank to upper class because it it modificated frequently
 	double rank;
 	QMultiMap< double, QList<Soprano::Statement> > data;
+	QHash<QString,QString>  authorsData;
+	//QString pluginName;
+	//QString pluginVersion;
 	static inline double truncateRank(double );
 };
 
@@ -42,11 +46,27 @@ double Nepomuk::WebExtractor::Decision::Private::truncateRank( double rank )
 double Nepomuk::WebExtractor::Decision::rank() const
 { return d->rank; }
 
-Nepomuk::WebExtractor::Decision::Decision()
+const QString  & Nepomuk::WebExtractor::Decision::pluginVersion() const
+{
+   Q_ASSERT(!d->authorsData.isEmpty());
+   return d->authorsData.begin().value();
+}
+
+const QString  & Nepomuk::WebExtractor::Decision::pluginName() const
+{ 
+   Q_ASSERT(!d->authorsData.isEmpty());
+   return d->authorsData.begin().key();
+}
+
+Nepomuk::WebExtractor::Decision::Decision(
+			const QString & pluginName,
+			const QString & pluginVersion
+			)
 {
     this->d = QSharedDataPointer<Private>( 
 	    new Nepomuk::WebExtractor::Decision::Private()
 	    );
+    d->authorsData[pluginName] = pluginVersion;
 }
 
 Nepomuk::WebExtractor::Decision::~Decision()
@@ -63,6 +83,11 @@ const Nepomuk::WebExtractor::Decision & Nepomuk::WebExtractor::Decision::operato
     return *this;
 }
 
+bool Nepomuk::WebExtractor::Decision::isEmpty()
+{
+    return d->data.isEmpty();
+}
+
 void Nepomuk::WebExtractor::Decision::setRank(double rank)
 {
     rank = Private::truncateRank(rank);
@@ -72,19 +97,23 @@ void Nepomuk::WebExtractor::Decision::setRank(double rank)
 
 void Nepomuk::WebExtractor::Decision::addStatement(const Soprano::Statement & statement, double rank)
 {
-    rank = Private::truncateRank(rank);
     QList<Soprano::Statement> lst;
     lst.push_back(statement);
-    d->data.insert(rank,lst);
+    addStatementGroup(lst,rank);
 }
 
 void Nepomuk::WebExtractor::Decision::addStatementGroup( const QList<Soprano::Statement> & statements, double rank)
 {
     rank = Private::truncateRank(rank);
+
+    // Check that none of this statemnt's exist in model.
+    // Those that's exist - ignore
+    
+    // Add statements
     d->data.insert(rank,statements);
 }
 
-void Nepomuk::WebExtractor::Decision::apply()
+void Nepomuk::WebExtractor::Decision::apply() const
 {
     kDebug() << "Write statements to storage";
     foreach ( const QList< Soprano::Statement > & lst, d->data )

@@ -20,22 +20,25 @@
 #define _NEPOMUK_WEBEXTRCT_DESICION_FACTORY_H_
 
 #include <webextractor/webextractor_export.h>
-#include <webextractor/decision.h>
-#include <webextractor/decisionlist.h>
+#include <webextractor/decisionfactorybase.h>
 
 namespace Nepomuk {
     namespace  WebExtractor {
-	class ResourceAnalyzer;
+	class ResourceAnalyzerFactory;
+	class DataPPReply;
 	class WEBEXTRACTOR_EXPORT DecisionFactory
 	{
 	    public:
+		friend class ResourceAnalyzerFactory;
+		friend class DataPPReply;
 		Decision newDecision() const;
 		DecisionList  newDecisionList() const;
-		void setThreshold(double);
-		friend class ResourceAnalyzerFactory;
 	    private:
-		DecisionFactory();
-		double m_threshold;
+		void setThreshold(double);
+		DecisionFactory(const QString & name, const QString & version, DecisionFactoryBase * base);
+		DecisionFactory * m_base;
+		QString m_name;
+		QString m_version;
 	};
     }
 }

@@ -51,7 +51,7 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
 
 Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyzerFactory::newAnalyzer()
 {
-    DecisionFactory * fct = new DecisionFactory();
+    DecisionFactory * fct = new DecisionFactory(m_ucrit, m_acrit);
     fct->setThreshold(m_ucrit);
     return new Nepomuk::WebExtractor::ResourceAnalyzer(
 	    m_dataPPKeeper,

@@ -20,6 +20,7 @@
 #define _NEPOMUK_WEBEXTRCT_DATA_PP_H_
 
 #include <QtCore/QObject>
+#include <QtCore/QString>
 #include <Nepomuk/Resource>
 #include <Soprano/Statement>
 #include <webextractor/datappreply.h>
@@ -28,6 +29,7 @@
 
 namespace Nepomuk {
     namespace WebExtractor {
+	class DataPPWrapper;
 	/*! \brief MUST be reentrant and thread safe
 	 */
 	class WEBEXTRACTOR_EXPORT DataPP /*: public QOb*/
@@ -35,8 +37,22 @@ namespace Nepomuk {
 	    public:
 		virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res) = 0;
 		virtual ~DataPP();
+		DataPP(
+			const QString & pluginVersion
+			);
+		const QString  & pluginVersion() const;
+		const QString & pluginName() const; 
+		// Force uncopyable
+		// No implementation
+		DataPP(const DataPP &);
+		const DataPP& operator=(const DataPP&);
+
+		friend class DataPPWrapper;
+	    private:
+		void setPluginName( const QString & );
+		class Private;
+		Private * d;
 	};
-	typedef QList< QPair < DataPP *, double > > DataPPKeeper;
     }
 }
 #endif

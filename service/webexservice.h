@@ -21,6 +21,7 @@
 
 #include <Nepomuk/Service>
 #include <QtCore/QString>
+#include "webextractor_settings.h"
 
 namespace Nepomuk{
 
@@ -49,6 +50,7 @@ namespace Nepomuk{
 
 	private:
 	    Nepomuk::WebExtractorScheduler* m_extractScheduler;
+	    Nepomuk::WebExtractorConfig * m_conf;
 
     };
 

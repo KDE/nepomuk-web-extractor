@@ -5,6 +5,7 @@
                           http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
 <kcfgfile arg="true"/>
 <include>kglobalsettings.h</include>
+<include>webextractor/global.h</include>
 
 <group name="category">
     <entry name="query" type="String">
@@ -53,7 +54,7 @@
 
     <entry name="uCrit" key="ucrit" type="Double">
 	<default>0.5</default>
-	<min>0</min>
+	<min code="true" >0</min>
 	<max>0.999</max>
     </entry>
 

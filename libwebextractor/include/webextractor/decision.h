@@ -20,6 +20,7 @@
 #define _NEPOMUK_WEBEXTRCT_DESICION_H_
 
 #include <QtCore/QObject>
+#include <QtCore/QString>
 #include <QtCore/QSharedPointer>
 #include <Nepomuk/Resource>
 #include <Soprano/Statement>
@@ -29,6 +30,7 @@ namespace Nepomuk {
     namespace WebExtractor {
 	class ResourceAnalyzer;
 	class DecisionFactory;
+	class DecisionList;
 
 	class WEBEXTRACTOR_EXPORT Decision /*: public QOb*/
 	{
@@ -37,17 +39,28 @@ namespace Nepomuk {
 		void setRank(double rank);
 		void addStatement(const Soprano::Statement &, double rank);
 		void addStatementGroup(const QList<Soprano::Statement> &, double rank);
-		Decision();
+		bool isEmpty();
+		const QString & pluginName() const;
+		const QString  & pluginVersion() const;
+		const QHash<QString,QString> & pluginsInformation() const;
+		QStringList  pluginsNames() const;
 		~Decision();
 		const Decision & operator=( const Decision & rhs);
+		bool operator==( const Decision & rhs);
+		bool operator!=( const Decision & rhs);
 		Decision( const Decision & );
 		friend class ResourceAnalyzer;
 		friend class DecisionFactory;
+		friend class DecisionList;
 	    private:
+		Decision(
+			const QString & pluginName,
+			const QString & pluginVersion
+			);
 		/*! \brief Apply Decision
 		 * Write all statements back to model
 		 */
-		void apply();
+		void apply() const;
 		/*! \brief Add statements to the discretion of the user
 		 */
 		void addToUserDiscretion();

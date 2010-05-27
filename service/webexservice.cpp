@@ -80,8 +80,8 @@ void Nepomuk::WebExtractorService::setSuspended(bool suspend)
 void Nepomuk::WebExtractorService::finishInitialization()
 {
 
-    Nepomuk::WebExtractorConfig * config = new Nepomuk::WebExtractorConfig();
-    m_extractScheduler = new Nepomuk::WebExtractorScheduler(config,this);
+    m_conf =  new Nepomuk::WebExtractorConfig();
+    m_extractScheduler = new Nepomuk::WebExtractorScheduler(m_conf,this);
     
     if ( !m_extractScheduler->isInitialized() ) {
 	// Initialization failed
@@ -110,6 +110,7 @@ void Nepomuk::WebExtractorService::finishInitialization()
 
 void Nepomuk::WebExtractorService::__stop()
 {
+    delete m_conf;
     m_extractScheduler->stop();
     QCoreApplication::quit();
 }

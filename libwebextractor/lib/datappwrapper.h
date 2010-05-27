@@ -16,37 +16,26 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _WEBEXTRCT_GLOBALS
-#define _WEBEXTRCT_GLOBALS
+#include <webextractor/datappwrapper.h>
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	class WE 
-	{
-	    public:
-		enum MergePolitics { 
-		    Lowest = 1, 
-		    Average = 2, 
-		    Highest = 3, 
-		    Adjust = 4, 
-		    MergePolitics_MAX = 4, MergePolitics_MIN = 1 
-		};
+namespace NW=Nepomuk::WebExtractor;
 
-		enum LaunchPolitics {
-		    All = 1, 
-		    StepWise = 2, 
-		    LaunchPolitics_MIN = 1, LaunchPolitics_MAX = 2
-		};
-
-		static double minACrit();
-		static double maxACrit();
-
-		static double minUCrit();
-		static double maxUCrit();
-
-		static double boundACrit(double val);
-		static double boundUCrit(double val);
-	};
-    }
+NW::DataPPWrapper::DataPPWrapper(DataPP * dpp,const QString & name, double rank)
+{
+    Q_CHECK_PTR(dpp);
+    m_data = dpp;
+    m_rank = rank;
+    m_name = name;
 }
-#endif
+
+DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)
+{
+    DataPPReply * answer = m_data->requestDecisions(factory,res);
+    /*
+    if (!answer)
+	return answer;
+
+    answer->setPluginName(d->pluginName());
+    */
+    return answer;
+}

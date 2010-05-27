@@ -16,37 +16,27 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _WEBEXTRCT_GLOBALS
-#define _WEBEXTRCT_GLOBALS
+#ifndef _NEPOMUK_WEBEXTRCT_DATA_PP_PROXY_H_
+#define _NEPOMUK_WEBEXTRCT_DATA_PP_PROXY_H_
 
+#include <webextractor/datapp.h>
 namespace Nepomuk {
     namespace WebExtractor {
-	class WE 
-	{
+	class DataPPWrapper {
 	    public:
-		enum MergePolitics { 
-		    Lowest = 1, 
-		    Average = 2, 
-		    Highest = 3, 
-		    Adjust = 4, 
-		    MergePolitics_MAX = 4, MergePolitics_MIN = 1 
-		};
-
-		enum LaunchPolitics {
-		    All = 1, 
-		    StepWise = 2, 
-		    LaunchPolitics_MIN = 1, LaunchPolitics_MAX = 2
-		};
-
-		static double minACrit();
-		static double maxACrit();
-
-		static double minUCrit();
-		static double maxUCrit();
-
-		static double boundACrit(double val);
-		static double boundUCrit(double val);
+		DataPPWrapper(DataPP*,const QString & , double);
+		DataPP * data() const { return m_data; }
+		double rank() const { return m_rank;}
+		void setRank(double val) { m_rank = val; }
+		const QString & pluginName() const { return m_data->pluginName();}
+		const QString  & pluginVersion() const { return m_data->pluginVersion();}
+		DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
+	    private:
+		DataPP * m_data;
+		double m_rank;
 	};
+    typedef QHash< QString, DataPPWrapper* > DataPPKeeper;
     }
 }
+
 #endif

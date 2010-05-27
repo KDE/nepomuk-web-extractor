@@ -1,22 +1,22 @@
 #include <webextractor/decisionfactory.h>
+//#include <webextractor/datapp.h>
+#include <webextractor/global.h>
 
-Nepomuk::WebExtractor::DecisionFactory::DecisionFactory():
-    m_threshold(0)
-{;}
-
-void Nepomuk::WebExtractor::DecisionFactory::setThreshold(double threshold)
+Nepomuk::WebExtractor::DecisionFactory::DecisionFactory(const QString & name, const QString & version, DecisionFactoryBase * base):
+    m_name(name),
+    m_version(version),
+    m_base(base)
 {
-    m_threshold = threshold;
+    Q_CHECK_PTR(m_base);
 }
+
 Nepomuk::WebExtractor::Decision Nepomuk::WebExtractor::DecisionFactory::newDecision() const
 {
-     return Decision();
+     return m_base->newDecision(m_name,m_version);
 }
 
 Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::newDecisionList() const
 {
-    Nepomuk::WebExtractor::DecisionList lst;
-    lst.m_threshold = m_threshold;
-    return lst;
+    return m_base->newDecisionList();
 }
 

@@ -32,13 +32,15 @@ namespace Nepomuk {
 	    public:
 		DebugDataPP();
 		virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
+		static const QString & name();
+		static const QString & version();
 	};
 
 	class WEBEXTRACTOR_EXPORT DebugDataPPReply : public DataPPReply
 	{
 	    Q_OBJECT;
 	    public:
-		DebugDataPPReply(const DecisionFactory *);
+		DebugDataPPReply( DebugDataPP*, const DecisionFactory *);
 		virtual const DecisionList & decisions() const { return m_decisions; }
 		virtual ~DebugDataPPReply();
 	    public Q_SLOTS:
@@ -55,7 +57,7 @@ namespace Nepomuk {
 		void ready();
 	    private:
 	    	DecisionList m_decisions;
-		const DecisionFactory * m_fact;
+		//const DecisionFactory * m_fact;
 		QTimer * m_timer;
 	};
     }

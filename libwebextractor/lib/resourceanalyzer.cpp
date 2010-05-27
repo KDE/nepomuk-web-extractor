@@ -46,14 +46,14 @@ namespace Nepomuk {
 class Nepomuk::WebExtractor::ResourceAnalyzer::Private 
 {
     public:
-	Private(const DataPPKeeper & dataPPKeeper, DecisionFactory * fact);
+	Private(const DataPPKeeper & dataPPKeeper, DecisionFactoryBase * fact);
     public:
 	//int tmp_count;
 	int m_respWaits;
 	const DataPPKeeper & m_dataPPKeeper;
 	DataPPKeeper::const_iterator it;
 	DecisionFactory * m_fact;
-	QMap< DataPPReply*, double > m_replyAndRanks;
+	//QMap< DataPPReply*, double > m_replyAndRanks;
 	WE::LaunchPolitics m_launchPolitics;
 	unsigned int m_step;
 	DecisionList m_decisions;
@@ -62,8 +62,21 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private
 	Nepomuk::Resource m_res;
 	double m_acrit;
 	double m_ucrit;
+	QQueue<DataPPWrapper*> m_queue;
+	void enqueue(const QStringList &);
 
 };
+
+void Nepomuk::WebExtractor::ResourceAnalyzer::Private::enqueue(const QStringList & targets)
+{
+    foreach( const QString & name, targets)
+    {
+	DataPPWrapper * dpp = m_dataPPKeeper[name];
+	Q_CHECK_PTR(dpp);
+	m_queue.enqueue(dpp);
+    }
+}
+
 
 Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
 	const DataPPKeeper & dataPPKeeper,
@@ -128,11 +141,14 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 
     int i = 0;
 
-    for( ; ( (d->it != d->m_dataPPKeeper.end() ) and (i < substop) ); d->it++,i++ )
+    
+
+    for( ; ( ( d->m_queue.size() ) and (i < substop) ); i++ )
     {
+	DataPPWrapper * dpp = d->m_queue.dequeue();
 	    
 	// launch 
-	DataPPReply * repl = d->it->first->requestDecisions(d->m_fact, d->m_res);
+	DataPPReply * repl = dpp->requestDecisions(d->m_fact, d->m_res);
 	repl->setParent(this);
 
 	if (!repl) {
@@ -144,7 +160,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 	connect( repl, SIGNAL(finished()), this, SLOT( pluginFinished() ) );
 	connect( repl, SIGNAL(error()), this, SLOT( pluginFinished() ) );
 
-	d->m_replyAndRanks[repl] = d->it->second;
+	//d->m_replyAndRanks[repl] = d->it->second;
 	d->m_respWaits++;;
 
     }
@@ -162,6 +178,16 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 	if ( !launchNext() ) {
 	    // No more plugins to launch and all plugins launched before
 	    // returned their data
+
+	    // Process data
+	    if (d->m_decisions.hasAutoApplicable()) {
+		d->m_decisions.best().apply();
+		d->m_decisions.clear();
+	    }
+	    else {
+		d->m_decisions.addToUserDiscretion();
+	    }
+
 	    kDebug() << "Extracting for resource finished";
 	    kDebug() << "Total decisions count: "<<d->m_decisions.size();
 	    emit analyzingFinished();
@@ -177,17 +203,22 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     // Process data plugin has returned
     DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender() );
     if (repl) {
+	const QString pname = repl->pluginName();
 	// Delete it from map and call deleteLater
-	if (!d->m_replyAndRanks.contains(repl)) {
-		kDebug() << "Recived answer from unregistred DataPPReply";
-		}
-	double repl_rank = d->m_replyAndRanks[repl];
+	//if (!d->m_replyAndRanks.contains(repl)) {
+	if (d->m_dataPPKeeper.contains(pname)) {
+	    //double repl_rank = d->m_replyAndRanks[repl];
+	    double repl_rank = d->m_dataPPKeeper[pname]->rank();
 
-	repl->deleteLater();
-	
-	if (repl->isValid()) {
-	    // Process Decision list
-	    d->m_decisions.mergeWith(repl->decisions(), repl_rank,d->m_mergePolitics, d->m_mergeCoff );
+	    repl->deleteLater();
+	    
+	    if (repl->isValid()) {
+		// Process Decision list
+		d->m_decisions.mergeWith(repl->decisions(), repl_rank,d->m_mergePolitics, d->m_mergeCoff );
+	    }
+	}
+	else {
+		kDebug() << "Recived answer from unregistred DataPP";
 	}
     }
     else {
@@ -200,11 +231,10 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     if (d->m_respWaits == 0) {
 	// All launched plugins return data
 	// Process it
-	// If there is any Decision that is applied automaticaly
-	// then trancate list by acrit and change parameters of decisionfactory
-	if ( d->m_decisions.hasAutoApplicable() )
-	    d->m_fact->setThreshold(d->m_acrit);
-
+	QStringList lst = d->m_decisions.filterObsolete();
+	if (lst.size()) {
+	    d->enqueue(lst);
+	}
 
 	// Launching other plugins if necessary
 	launchOrFinish();

@@ -20,11 +20,10 @@ void Nepomuk::WebExtractor::DecisionList::mergeWith( const DecisionList & rhs, d
     this->unique(politics, coff);
     */
 
-    Decision d;
     for( DecisionList::const_iterator it = rhs.begin(); it != rhs.end(); it++)
     //foreach( Decision d, rhs)
     {
-	d = *it;
+	Decision d = Decision(*it);
 	d.setRank(scale * d.rank() );
 	addDecision( d, politics, coff);
     }
@@ -48,15 +47,22 @@ void Nepomuk::WebExtractor::DecisionList::sort()
     kDebug() << "Not realized yet";
 }
 
-void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec )
+void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, bool noAuto )
 {
-    if ( dec.rank() < m_threshold )
-	this->push_back(dec);
+    addDecision( dec, WE::Highest, 1.0, noAuto );
 }
 
-void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, WE::MergePolitics politics, double coff )
+void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, WE::MergePolitics politics, double coff, bool noAuto )
 {
-    if ( dec.rank() >= m_threshold) {
+    Decision d(dec);
+    // Correct rank if necessary
+    if (!noAuto) {
+	// Then this decision must not has auto applicable rank
+	if ( d.rank() > m_acrit )
+	    d.setRank(m_acrit);
+    }
+    // Ignore decision with low rank and empty decisions
+    if ( ( d.rank() < m_threshold ) and (!d.isEmpty()) ) {
 	this->push_back(dec);
     }
     kDebug() << "Not realized yet";
@@ -69,3 +75,18 @@ bool Nepomuk::WebExtractor::DecisionList::hasAutoApplicable() const
 }
 
 
+QStringList Nepomuk::WebExtractor::DecisionList::filterObsolete()
+{
+    kDebug() << "Not realzed yet";
+    return QStringList();
+}
+
+void Nepomuk::WebExtractor::DecisionList::filter(double threshold)
+{
+    kDebug() << "Not realzed yet";
+}
+
+void Nepomuk::WebExtractor::DecisionList::addToUserDiscretion() const
+{
+    kDebug() << "Not realzed yet";
+}
