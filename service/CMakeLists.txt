@@ -36,10 +36,10 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
 
 set( webexsettings_SRCS
-    webextractor_settings.cpp
     )
 kde4_add_kcfg_files(webexsettings_SRCS webexconfigbase.kcfgc)
 kde4_add_kcfg_files(webexsettings_SRCS webexcategory.kcfgc)
+kde4_add_kcfg_files(webexsettings_SRCS datappconfig.kcfgc)
 
 set( webexservice_SRCS 
     webexservice.cpp
@@ -49,7 +49,8 @@ set( webexservice_SRCS
     #webexcatschedulerimpl.cpp
     priority.cpp
     useractivitymonitor.cpp
-    ${webexsettings_SRCS}
+    webextractor_settings.cpp
+    #${webexsettings_SRCS}
     )
 
 FILE( GLOB 
@@ -62,9 +63,16 @@ qt4_add_dbus_adaptor(webexservice_SRCS  org.kde.nepomuk.WebExtractorService.xml 
 
 
 
-#kde4_add_library( webexsettings STATIC 
-#    ${webexsettings_SRCS}
-#    )
+kde4_add_library( webexsettings STATIC 
+    ${webexsettings_SRCS}
+    )
+
+
+IF(UNIX AND NOT WIN32)
+IF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+      SET_TARGET_PROPERTIES(webexsettings PROPERTIES COMPILE_FLAGS "-fPIC")
+ENDIF( CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64" )
+ENDIF(UNIX AND NOT WIN32)
 
 
 #building
@@ -73,13 +81,14 @@ qt4_add_dbus_adaptor(webexservice_SRCS  org.kde.nepomuk.WebExtractorService.xml 
 kde4_add_plugin(nepomukwebexservice ${webexservice_SRCS})
 
 #kcm
-#add_subdirectory(kcm)
+add_subdirectory(kcm)
 
 
 target_link_libraries(nepomukwebexservice 
     ${NEPOMUK_LIBRARIES}
     ${KDE4_NEPOMUK_LIBS}
     ${LIBWEBEXTRACTOR_LIBRARIES}
+    webexsettings
   )
 
 kde4_add_executable( test_launch2 test_launch2.cpp ${webexservice_SRCS} )
@@ -88,16 +97,23 @@ kde4_add_executable( test_config test_config.cpp ${webexservice_SRCS} )
 
 target_link_libraries( test_launch2 
     ${LIBWEBEXTRACTOR_LIBRARIES}
+    webexsettings
     )
 
 target_link_libraries( test_config 
     ${LIBWEBEXTRACTOR_LIBRARIES}
+    webexsettings
     )
 
 install(
   FILES nepomukwebexservice.desktop
-  DESTINATION ${SERVICES_INSTALL_DIR})
+  DESTINATION ${SERVICES_INSTALL_DIR}
+  )
 
+#install(
+#  FILES webextractordatapp.desktop
+#  DESTINATION ${SERVICETYPES_INSTALL_DIR}
+#  )
 #install(
 #  FILES nepomukstrigiservice.notifyrc
 #  DESTINATION ${DATA_INSTALL_DIR}/nepomukstrigiservice)

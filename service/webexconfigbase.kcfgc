@@ -3,3 +3,4 @@ ClassName=WebExConfigBase
 NameSpace=Nepomuk
 ItemAccessors=true
 SetUserText=true
+Mutators=true

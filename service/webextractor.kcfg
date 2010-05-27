@@ -17,6 +17,7 @@
 	<label> Max number of simultaneously processed categories </label>
 	<whatsthis> This is number maximum of simultaneously processed categories. It affect number of threads. Generaly if each category is processed with one thread then this parameter is maximum number of spawned threads </whatsthis>
 	<min>1</min>
+	<max>10000</max>
 	<default code="true"> qMax(QThread::idealThreadCount(),1) </default>
     </entry>
     <entry name="max_plugins_launched" key="max_plugins_launched" type="UInt">
@@ -27,8 +28,12 @@
     </entry>
     <entry name="maxResSimult" key="max_res_simult" type="UInt">
 	<default>0</default>
+	<min>0</min>
+	<max>10000</max>
     </entry>
     <entry name="maxResSimultPerCategory" key="max_res_simult_per_category" type="UInt">
+	<min>0</min>
+	<max>10000</max>
 	<default>0</default>
     </entry>
 

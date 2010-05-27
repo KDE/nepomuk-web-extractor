@@ -21,9 +21,6 @@
 	<whatsthis> This is additional prefix part of the query. Put things like "PREFIX foo: ... there. All standard prefixes( nao, nrl, nie etc) are defined"
 	   here.</whatsthis>
     </entry>
-    <entry name="plugins" type="StringList">
-	<label> List of plugins to process this queue </label>
-    </entry>
     <entry name="description" type="String">
 	<label> Description of this query </label>
 	<whatsthis> This is a human-readable description of the query </whatsthis>

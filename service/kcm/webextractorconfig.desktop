@@ -1,0 +1,13 @@
+[Desktop Entry]
+Exec=kcmshell4 webextractorconfig
+#Exec=kcmshell4 powerdevilconfig
+
+Type=Service
+X-KDE-ServiceTypes=KCModule
+
+X-KDE-Library=kcm_webexconfig
+#X-KDE-Library=kcm_powerdevilconfig
+X-KDE-ParentApp=kcontrol
+
+X-KDE-System-Settings-Parent-Category=hardware
+Name=Web Extractor Settings
