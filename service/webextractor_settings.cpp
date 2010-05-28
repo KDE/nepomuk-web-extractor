@@ -26,13 +26,18 @@
 #include <webextractor/parameters.h>
 
 namespace NW = Nepomuk::WebExtractor;
-Nepomuk::WebExtractorConfig::WebExtractorConfig():
-    WebExConfigBase()
+Nepomuk::WebExtractorSettings::WebExtractorSettings():
+    WebExtractorConfig()
 {
     update();
 }
 
-void Nepomuk::WebExtractorConfig::clear()
+Nepomuk::WebExtractorSettings::~WebExtractorSettings()
+{
+    clear();
+}
+
+void Nepomuk::WebExtractorSettings::clear()
 {
     // Free all dataPP
     foreach( NW::DataPP * pp, m_datapp)
@@ -52,62 +57,41 @@ void Nepomuk::WebExtractorConfig::clear()
     }
     m_parameters.clear();
 
-    foreach(WebExCategory * ctg, m_categories)
-    {
-	if (ctg)
-	    delete ctg;
-    }
-    m_categories.clear();
 }
 
-void Nepomuk::WebExtractorConfig::update()
+void Nepomuk::WebExtractorSettings::update()
 {
 
     clear();
 
+    WebExtractorConfig::update();
+
     QStringList cats = WebExConfigBase::categories();
     foreach( const QString &  cat, cats)
     {
-	// If it was not loaded before
-	if (!m_categories.contains(cat)) {
-	    kDebug() << "Loading category "<<cat;
-	    WebExCategory * ctg = new WebExCategory(KSharedConfig::openConfig(QString("webextractor/categories/") + cat +"rc"));
-	    // Get config and parse it
-	    KConfig * catconfig = ctg->config();
-	    QStringList groups = catconfig->groupList();
+	    WebExCategoryConfig * cfg = m_categories[cat];
+
 	    NW::ExtractParameters * p  = new NW::ExtractParameters;
-	    for( 
-		    QStringList::iterator it = groups.begin();
-		    it != groups.end();
-		    it++
-	       )
-	    {
-		if (*it == "category") {
-		    groups.erase(it);
-		    break;
-		}
-
-	    }
 
 
-	    foreach( const QString & pluginName, groups) 
+	    foreach( const DataPPDescr & dppdescr, cfg->plugins()) 
 	    {
 		/*Load plugin with this name and parse it config*/
 		NW::DataPP * dpp = 0 ;
 		NW::DataPPWrapper * dppw = 0 ;
-		double rank;
+		double rank = dppdescr.rank;
+		double coff = dppdescr.coff;
+		const QString & pluginName = dppdescr.name;
 
 		// If plugin(datapp) with this name exist then skip loading
 		if (m_datapp.contains(pluginName) ) {
 		    dpp = m_datapp[pluginName];
 		}
 		else {
-		    KConfigGroup pluginConfigGroup = catconfig->group(pluginName);
 		    if (pluginName == "debug" ) {
 			//This is predefined plugin
 			dpp = new NW::DebugDataPP();
 
-			rank = pluginConfigGroup.readEntry("coff",1.0);
 		    }
 		    else {
 			kDebug() << "Not realized yet";
@@ -128,12 +112,12 @@ void Nepomuk::WebExtractorConfig::update()
 
 	    }
 
-	    Q_CHECK_PTR(ctg);
-	    p->setUCrit(ctg->uCrit());
-	    p->setACrit(ctg->aCrit());
-	    p->setPluginSelectStep(ctg->pluginSelectStep());
+	    Q_CHECK_PTR(cfg);
+	    p->setUCrit(cfg->uCrit());
+	    p->setACrit(cfg->aCrit());
+	    p->setPluginSelectStep(cfg->pluginSelectStep());
 	    NW::WE::LaunchPolitics pol;
-	    switch ( ctg->pluginSelectType() )
+	    switch ( cfg->pluginSelectType() )
 	    {
 		case (WebExCategory::EnumPluginSelectType::stepwise) : {pol = NW::WE::StepWise; break;} 
 		case (WebExCategory::EnumPluginSelectType::all) : {pol = NW::WE::All; break;} 
@@ -141,18 +125,16 @@ void Nepomuk::WebExtractorConfig::update()
 	    p->setLaunchPolitics(pol);
 	    p->setMergePolitics(NW::WE::Highest);
 	    this->m_parameters.insert(cat,NW::ExtractParametersPtr(p));
-	    this->m_categories[cat] = ctg;
 	}
-    }
 }
 
-int Nepomuk::WebExtractorConfig::maxPluginsLaunched( const QString & categoryName)
+int Nepomuk::WebExtractorSettings::maxPluginsLaunched( const QString & categoryName)
 {
 
     int s =  max_plugins_launched_per_category();
-	WebExCategory * c = m_categories[categoryName];
+	WebExCategoryConfig * c = m_categories[categoryName];
 	Q_CHECK_PTR(c);
-	if (c->pluginSelectType() == WebExCategory::EnumPluginSelectType::all)
+	if (c->pluginSelectType() == WebExCategoryConfig::EnumPluginSelectType::all)
 	    if ( s)
 		return s;
 	    else
@@ -164,18 +146,18 @@ int Nepomuk::WebExtractorConfig::maxPluginsLaunched( const QString & categoryNam
 
 }
 
-int Nepomuk::WebExtractorConfig::maxResSimult( const QString & categoryName)
+int Nepomuk::WebExtractorSettings::maxResSimult( const QString & categoryName)
 {
 
     int s =  maxResSimultPerCategory();
-    WebExCategory * c = m_categories[categoryName];
+    WebExCategoryConfig * c = m_categories[categoryName];
     Q_CHECK_PTR(c);
     int s2 = c->maxResSimult();
     return qMin(s,s2);
 
 }
 
-int Nepomuk::WebExtractorConfig::interval( const QString & categoryName)
+int Nepomuk::WebExtractorSettings::interval( const QString & categoryName)
 {
 
     /*
@@ -187,17 +169,13 @@ int Nepomuk::WebExtractorConfig::interval( const QString & categoryName)
 	Q_CHECK_PTR(c);
 	return c->maxResSimult();
     }*/
-    WebExCategory * c = m_categories[categoryName];
+    WebExCategoryConfig * c = m_categories[categoryName];
     Q_CHECK_PTR(c);
     return c->interval();
 
 }
-QStringList Nepomuk::WebExtractorConfig::categories() const
-{
-    return m_categories.keys();
-}
 
-NW::ExtractParametersPtr  Nepomuk::WebExtractorConfig::extractParameters(const QString categoryName) const
+NW::ExtractParametersPtr  Nepomuk::WebExtractorSettings::extractParameters(const QString categoryName) const
 {
     //return NW::ExtractParametersPtr(m_parameters[categoryName].data());
     if (!m_parameters.contains(categoryName)) {
@@ -208,7 +186,7 @@ NW::ExtractParametersPtr  Nepomuk::WebExtractorConfig::extractParameters(const Q
 }
 
 #if 0
-DataPPKeeper & Nepomuk::WebExtractorConfig::datapp( const QString categoryName)
+DataPPKeeper & Nepomuk::WebExtractorSettings::datapp( const QString categoryName)
 {
     /*
     WebExCategory * c = m_categories[categoryName];
@@ -218,33 +196,26 @@ DataPPKeeper & Nepomuk::WebExtractorConfig::datapp( const QString categoryName)
 }
 #endif
 
-QString Nepomuk::WebExtractorConfig::query( const QString categoryName)
+QString Nepomuk::WebExtractorSettings::query( const QString categoryName)
 {
-    WebExCategory * c = m_categories[categoryName];
+    WebExCategoryConfig * c = m_categories[categoryName];
     Q_CHECK_PTR(c);
     return c->query();
 }
 
-QString Nepomuk::WebExtractorConfig::queryPrefix( const QString categoryName)
+QString Nepomuk::WebExtractorSettings::queryPrefix( const QString categoryName)
 {
-    WebExCategory * c = m_categories[categoryName];
+    WebExCategoryConfig * c = m_categories[categoryName];
     Q_CHECK_PTR(c);
     return c->queryPrefix();
 }
 
-QDebug Nepomuk::operator<<( QDebug dbg,  const WebExCategory & cat)
-{
-    dbg<<"Description: "<<cat.description();
-    dbg<<"Query: "<<cat.query();
-    dbg<<"Update interval: "<<cat.interval();
-    return dbg;
-}
 
-QDebug Nepomuk::operator<<( QDebug dbg,  const WebExtractorConfig & conf)
+QDebug Nepomuk::operator<<( QDebug dbg,  const WebExtractorSettings & conf)
 {
     QStringList cats = conf.categories();
-    if (conf.m_categories.size() > 0) {
-	dbg<<conf.m_categories.size()<<" Categories:";
+    if (cats.size() > 0) {
+	dbg<<cats.size()<<" Categories:";
 	foreach( const QString & cat, cats)
 	//foreach( WebExCategory* cat, conf.m_categories)
 	{

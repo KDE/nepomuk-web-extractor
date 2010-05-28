@@ -20,8 +20,14 @@
 #ifndef _kcm_config_h_
 #define _kcm_config_h_
 
-#define CONFIG_DIR "@CONFIG_INSTALL_DIR@/webextractor/plugins"
-
-#define CATEGORY_CONFIG_GROUP "category"
+enum DataPPItemsRoles { 
+    // Data roles
+	 CoffRole = Qt::UserRole+1, 
+	 TrustedRole, 
+	 IsClassRole , 
+	 CategoryRole,
+	 // Display roles
+	 DescriptionToggledRole
+};
 
 #endif

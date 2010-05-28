@@ -28,7 +28,7 @@
 #include "webexqueries.h"
 
 
-Nepomuk::WebExtractorScheduler::WebExtractorScheduler(WebExtractorConfig * conf, QObject * parent):
+Nepomuk::WebExtractorScheduler::WebExtractorScheduler(WebExtractorSettings * conf, QObject * parent):
     QObject(parent),
     m_success(false),
     m_stopped(false)

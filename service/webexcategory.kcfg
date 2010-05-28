@@ -16,6 +16,9 @@
 	    operator, only conditions.
 	</whatsthis>
     </entry>
+    <entry name="plugins" type="StringList">
+    </entry>
+
     <entry name="queryPrefix" type="String">
 	<label> Additional queury prefix </label>
 	<whatsthis> This is additional prefix part of the query. Put things like "PREFIX foo: ... there. All standard prefixes( nao, nrl, nie etc) are defined"

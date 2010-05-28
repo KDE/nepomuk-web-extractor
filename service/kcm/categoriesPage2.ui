@@ -15,270 +15,278 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QSplitter" name="splitter_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <widget class="QWidget" name="layoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Categories</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="KListWidget" name="enabled_categories_listwidget"/>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="layoutWidget_2">
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
-       <item>
-        <widget class="QToolButton" name="toolButton">
-         <property name="text">
-          <string>...</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="KPushButton" name="kpushbutton">
-         <property name="text">
-          <string>Add</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <widget class="KPushButton" name="kpushbutton_3">
-         <property name="text">
-          <string>Remove</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="KTabWidget" name="category_tabwidget">
+    <widget class="QStackedWidget" name="stackedWidget">
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Category plugins</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
+     <widget class="QWidget" name="mainPage">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="KActionSelector" name="plugins_selector"/>
-       </item>
-       <item>
-        <widget class="KListWidgetSearchLine" name="klistwidgetsearchline"/>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab">
-      <attribute name="title">
-       <string>Category settings</string>
-      </attribute>
-      <layout class="QHBoxLayout" name="horizontalLayout_11">
-       <item>
-        <widget class="QScrollArea" name="scrollArea">
-         <property name="widgetResizable">
-          <bool>true</bool>
+        <widget class="QSplitter" name="splitter_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <widget class="QWidget" name="scrollAreaWidgetContents">
-          <property name="geometry">
-           <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>380</width>
-            <height>414</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_7">
+         <widget class="QWidget" name="layoutWidget">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <layout class="QGridLayout" name="gridLayout_2">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_6">
-               <property name="text">
-                <string>Query</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="KPushButton" name="query_show_button">
-               <property name="text">
-                <string>show&gt;&gt;</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="3">
-              <widget class="KTextEdit" name="query_edit">
-               <property name="documentTitle">
-                <string/>
-               </property>
-               <property name="acceptRichText">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <spacer name="horizontalSpacer_5">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>Categories</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <layout class="QGridLayout" name="gridLayout_4">
-             <item row="0" column="0">
-              <widget class="QLabel" name="label_9">
-               <property name="text">
-                <string>Query prefix</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="KPushButton" name="prefix_show_button">
-               <property name="text">
-                <string>show&gt;&gt;</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <spacer name="horizontalSpacer_7">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="1" column="0" colspan="3">
-              <widget class="KTextEdit" name="query_prefix_edit">
-               <property name="documentTitle">
-                <string/>
-               </property>
-               <property name="acceptRichText">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
+            <widget class="KListWidget" name="enabled_categories_listwidget"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="layoutWidget_2">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <item>
+            <widget class="QToolButton" name="toolButton">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_5">
-             <item>
-              <widget class="QLabel" name="label_7">
-               <property name="text">
-                <string>Polling interval</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_8">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="KIntSpinBox" name="interval_spinbox"/>
-             </item>
-            </layout>
+            <widget class="KPushButton" name="kpushbutton">
+             <property name="text">
+              <string>Add</string>
+             </property>
+            </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_13">
-             <item>
-              <widget class="QLabel" name="label_16">
-               <property name="text">
-                <string>Plugin select algorithm</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_15">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="KComboBox" name="plugin_algo_combobox">
-               <property name="autoCompletion">
-                <bool>false</bool>
-               </property>
-               <item>
-                <property name="text">
-                 <string>All</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Stepwise</string>
-                </property>
-               </item>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <spacer name="verticalSpacer">
+            <spacer name="horizontalSpacer_3">
              <property name="orientation">
-              <enum>Qt::Vertical</enum>
+              <enum>Qt::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>20</width>
-               <height>40</height>
+               <width>40</width>
+               <height>20</height>
               </size>
              </property>
             </spacer>
+           </item>
+           <item>
+            <widget class="KPushButton" name="kpushbutton_3">
+             <property name="text">
+              <string>Remove</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="KTabWidget" name="category_tabwidget">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="plugins_tab">
+          <attribute name="title">
+           <string>Category plugins</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="KListWidgetSearchLine" name="klistwidgetsearchline"/>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab">
+          <attribute name="title">
+           <string>Category settings</string>
+          </attribute>
+          <layout class="QHBoxLayout" name="horizontalLayout_11">
+           <item>
+            <widget class="QScrollArea" name="scrollArea">
+             <property name="widgetResizable">
+              <bool>true</bool>
+             </property>
+             <widget class="QWidget" name="scrollAreaWidgetContents">
+              <property name="geometry">
+               <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>294</width>
+                <height>406</height>
+               </rect>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_7">
+               <item>
+                <layout class="QGridLayout" name="gridLayout_2">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_6">
+                   <property name="text">
+                    <string>Query</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="KPushButton" name="query_show_button">
+                   <property name="text">
+                    <string>show&gt;&gt;</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" colspan="3">
+                  <widget class="KTextEdit" name="query_edit">
+                   <property name="documentTitle">
+                    <string/>
+                   </property>
+                   <property name="acceptRichText">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <spacer name="horizontalSpacer_5">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QGridLayout" name="gridLayout_4">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_9">
+                   <property name="text">
+                    <string>Query prefix</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="2">
+                  <widget class="KPushButton" name="prefix_show_button">
+                   <property name="text">
+                    <string>show&gt;&gt;</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <spacer name="horizontalSpacer_7">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="1" column="0" colspan="3">
+                  <widget class="KTextEdit" name="query_prefix_edit">
+                   <property name="documentTitle">
+                    <string/>
+                   </property>
+                   <property name="acceptRichText">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_5">
+                 <item>
+                  <widget class="QLabel" name="label_7">
+                   <property name="text">
+                    <string>Polling interval</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_8">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="KIntSpinBox" name="interval_spinbox"/>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_13">
+                 <item>
+                  <widget class="QLabel" name="label_16">
+                   <property name="text">
+                    <string>Plugin select algorithm</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <spacer name="horizontalSpacer_15">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <widget class="KComboBox" name="plugin_algo_combobox">
+                   <property name="autoCompletion">
+                    <bool>false</bool>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>All</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Stepwise</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </widget>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -286,6 +294,19 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="managePage">
+      <widget class="KActionSelector" name="kactionselector">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>20</y>
+         <width>584</width>
+         <height>371</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="page_2"/>
     </widget>
    </item>
   </layout>

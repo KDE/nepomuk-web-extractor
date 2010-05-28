@@ -22,17 +22,21 @@
 
 #include <QWidget>
 #include <QHash>
+#include <QAbstractItemDelegate>
+#include <QStandardItemModel>
 
 #include "ui_categoriesPage.h"
-#include "webexconfigbase.h"
+#include "webextractor_config.h"
 #include "webexcategory.h"
+#include "pluginItemDelegate.h"
+#include "pluginselector.h"
 
 class CategoriesPage : public QWidget, private Ui_categoriesPage
 {
     Q_OBJECT;
 
 public:
-    CategoriesPage(Nepomuk::WebExConfigBase* cfg,QWidget *parent = 0);
+    CategoriesPage(Nepomuk::WebExtractorConfig* cfg,QWidget *parent = 0);
     ~CategoriesPage();
     public Q_SLOTS:
 	virtual void load();
@@ -55,9 +59,16 @@ public:
 	    void removeCategory(const QString & name);
 	    //void addCategory();
     private:
-    Nepomuk::WebExConfigBase* m_config;
-    QHash< QString, Nepomuk::WebExCategory *> m_categories;
-    bool m_categoryEdited;
+	enum CategoriItemRole { EnabledRole = Qt::UserRole + 1 };
+	Nepomuk::WebExtractorConfig* m_config;
+	QHash< QString, Nepomuk::WebExCategoryConfig *> m_categories;
+	QSet< QString > m_enabledCategories;
+	QAbstractItemDelegate * m_oldDelegate;
+	CategoryPluginItemDelegate * m_newDelegate;
+	bool m_categoryEdited;
+	QStandardItemModel * m_selectedPlugins;
+	QStandardItemModel * m_availablePlugins;
+	PluginSelector * plugins_selector;
 
 };
 

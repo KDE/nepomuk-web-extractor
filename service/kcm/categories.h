@@ -16,26 +16,24 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _KCM_WEBEXTRCT
-#define _KCM_WEBEXTRCT
-#include <kcmodule.h>
-#include "webextractor_config.h"
-#include "ConfigWidget.h"
-//#include "
+#ifndef _kcm_categories_h_
+#define _kcm_categories_h_
 
+#include "datappconfig.h"
+#include <QStringList> 
 
-class WebExtractorKCM : public KCModule
+class Categories: public QObject
 {
     public:
-	WebExtractorKCM(QWidget * parent, const QVariantList &args);
-	virtual void load();
-        void save();
-        void defaults();
-
+	Categories();
+	void init();
+	static const QStringList &  categories();
+	static const Categories * self() { return m_self; }
+    Q_SIGNALS:
+	void categoriesChanged();
     private:
-	ConfigWidget * m_configWidget;
-	Nepomuk::WebExtractorConfig* m_config;
-	QVBoxLayout *m_layout;
-}; 
+	QStringList m_categories;
+	static Categories * m_self;
+};
 
 #endif

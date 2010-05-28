@@ -15,25 +15,11 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __webexcatconfig_h_
-#define __webexcatconfig_h_
 
-#include "webexcategory.h"
+#ifndef __plugin_cat_view_h_
+#define __plugin_cat_view_h_
 
-class WebExCategoryConfig : public WebExCategory
+class PluginCategorizedView : public KCategorizedView
 {
-    Q_OBJECT;
-    public:
-    WebExCategoryConfig(const QString & name);
-    WebExCategoryConfig( KSharedConfigPtr ptr);
-    void clearPluginList();
-    const QSet<QString> & plugins() const;
-    void addPlugin( const QString & pluginName, double rank, double coff, bool trusted = true);
-    double rank( const QString & pluginName);
-    double coff( const QString & pluginName);
-    bool trusted( const QString & pluginName);
-    private:
-    void init();
-    static QString path;
-    QSet<QString> m_plugins;
 };
+#endif

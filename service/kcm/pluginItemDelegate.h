@@ -21,15 +21,15 @@
 #define __pluginItemDelegate_h_
 
 #include <kwidgetitemdelegate.h>
+#include "kcm_config.h"
 
+class Ui_pluginDelegate;
 class CategoryPluginItemDelegate : public KWidgetItemDelegate
 {
     Q_OBJECT;
     public:
-        CategoryPluginItemDelegate(QAbstractItemView *itemView, QObject *parent = 0):
-	    KWidgetItemDelegate(itemView, parent)
-	  {;}
-	virtual ~CategoryPluginItemDelegate() {;}
+        CategoryPluginItemDelegate(QAbstractItemView *itemView, QObject * parent );
+	virtual ~CategoryPluginItemDelegate(); 
 	QList<QWidget*> createItemWidgets() const;
 	 virtual void updateItemWidgets(
 				const QList<QWidget*> widgets,
@@ -42,8 +42,15 @@ class CategoryPluginItemDelegate : public KWidgetItemDelegate
 		  const QModelIndex &index
 		  ) const;
 
-	  virtual QSize sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const
-	  {return QSize(1000, 200); }
+	  virtual QSize sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const;
+      private Q_SLOTS:
+	  void descriptionToggled();
+	  void coffChanged(double);
+
+    private:
+	  mutable QSize m_sizeHint;
+	  //mutable int m_height;
+	  Ui_pluginDelegate * ui;
 };
 #endif
 

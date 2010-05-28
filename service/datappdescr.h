@@ -16,26 +16,18 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _KCM_WEBEXTRCT
-#define _KCM_WEBEXTRCT
-#include <kcmodule.h>
-#include "webextractor_config.h"
-#include "ConfigWidget.h"
-//#include "
+#ifndef __datappdescr_h_
+#define __datappdescr_h_
 
-
-class WebExtractorKCM : public KCModule
+class DataPPDescr
 {
     public:
-	WebExtractorKCM(QWidget * parent, const QVariantList &args);
-	virtual void load();
-        void save();
-        void defaults();
-
-    private:
-	ConfigWidget * m_configWidget;
-	Nepomuk::WebExtractorConfig* m_config;
-	QVBoxLayout *m_layout;
-}; 
-
+	DataPPDescr(const QString & name = QString()):name(name),rank(1.0), coff(1.0),trusted(true) 
+	{;}
+	QString name;
+	double rank;
+	double coff;
+	bool trusted;
+	bool isValid() const { return !name.isEmpty(); }
+};
 #endif

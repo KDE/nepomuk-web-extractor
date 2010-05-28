@@ -50,7 +50,7 @@ namespace Nepomuk{
 
 	private:
 	    Nepomuk::WebExtractorScheduler* m_extractScheduler;
-	    Nepomuk::WebExtractorConfig * m_conf;
+	    Nepomuk::WebExtractorSettings * m_conf;
 
     };
 

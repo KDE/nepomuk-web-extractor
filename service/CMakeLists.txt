@@ -21,6 +21,8 @@ else(WEBEXTRACTOR_VERSION_STRING)
 	find_package(LibWebextractor REQUIRED)
 endif(WEBEXTRACTOR_VERSION_STRING)
 
+configure_file(settings_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/settings_config.h )
+
 include_directories(
   ${SOPRANO_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}
@@ -36,6 +38,8 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
 
 set( webexsettings_SRCS
+    webextractor_config.cpp
+    webexcatconfig.cpp
     )
 kde4_add_kcfg_files(webexsettings_SRCS webexconfigbase.kcfgc)
 kde4_add_kcfg_files(webexsettings_SRCS webexcategory.kcfgc)

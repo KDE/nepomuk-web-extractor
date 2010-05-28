@@ -11,13 +11,17 @@ set( webexkcm_SRCS
     GeneralPage.cpp
     CategoriesPage.cpp
     plugins.cpp
+    categories.cpp
     pluginItemDelegate.cpp
+    pluginselector.cpp
     
     )
 
 kde4_add_ui_files(webexkcm_SRCS 
     generalPage.ui
     categoriesPage.ui
+    pluginSelector.ui
+    pluginDelegate.ui
     )
 
 kde4_add_plugin( kcm_webexconfig

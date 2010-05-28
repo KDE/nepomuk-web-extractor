@@ -31,7 +31,7 @@ namespace Nepomuk {
     {
 	Q_OBJECT;
 	public:
-	    WebExtractorScheduler(Nepomuk::WebExtractorConfig * conf, QObject * parent=0);
+	    WebExtractorScheduler(Nepomuk::WebExtractorSettings*, QObject * parent=0);
 	    // Return true if initialized successfully
 	    bool isInitialized() const { return m_success; };
 	    void start();
@@ -62,7 +62,7 @@ namespace Nepomuk {
 	    // Amount of categories enabled. 
 	    // Cached for perfomance
 	    //int m_queries;
-	    WebExtractorConfig * m_conf;
+	    WebExtractorSettings * m_conf;
 	    QHash<QString,QString> m_askQueries;
 	    QHash<QString,QString> m_selectQueries;
 	    QHash<QString,QTimer*> m_timers;

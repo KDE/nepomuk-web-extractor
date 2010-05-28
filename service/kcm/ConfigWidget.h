@@ -24,7 +24,7 @@
 
 #include "GeneralPage.h"
 #include "CategoriesPage.h"
-#include "webexconfigbase.h"
+#include "webextractor_config.h"
 //#include "EditPage.h"
 //#include "CapabilitiesPage.h"
 
@@ -33,7 +33,7 @@ class ConfigWidget : public KPageWidget
     Q_OBJECT;
 
 public:
-    ConfigWidget(Nepomuk::WebExConfigBase*,QWidget *parent = 0);
+    ConfigWidget(Nepomuk::WebExtractorConfig*,QWidget *parent = 0);
     ~ConfigWidget();
     public Q_SLOTS:
 	virtual void load();

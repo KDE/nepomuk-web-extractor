@@ -81,7 +81,7 @@ void Nepomuk::WebExtractorService::setSuspended(bool suspend)
 void Nepomuk::WebExtractorService::finishInitialization()
 {
 
-    m_conf =  new Nepomuk::WebExtractorConfig();
+    m_conf =  new Nepomuk::WebExtractorSettings();
     m_extractScheduler = new Nepomuk::WebExtractorScheduler(m_conf,this);
     
     if ( !m_extractScheduler->isInitialized() ) {

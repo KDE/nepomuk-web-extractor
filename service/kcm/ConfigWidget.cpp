@@ -18,7 +18,7 @@
  */
 #include "ConfigWidget.h"
 
-ConfigWidget::ConfigWidget(Nepomuk::WebExConfigBase* cfg,QWidget *parent)
+ConfigWidget::ConfigWidget(Nepomuk::WebExtractorConfig* cfg,QWidget *parent)
         : KPageWidget(parent),
         m_generalPage(new GeneralPage(cfg,this)),
         m_categoriesPage(new CategoriesPage(cfg,this))

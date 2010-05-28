@@ -37,7 +37,7 @@ WebExtractorKCM::WebExtractorKCM(QWidget * parent, const QVariantList &args):
     about->addAuthor(ki18n("Serebriyskiy Artem"), KLocalizedString(), "v.for.vandal@gmail.com");
     setAboutData(about);
 
-    m_config = new Nepomuk::WebExConfigBase();
+    m_config = new Nepomuk::WebExtractorConfig();
 
     m_configWidget = new ConfigWidget(m_config, this);
     connect(m_configWidget, SIGNAL(changed(bool)), this, SIGNAL(changed(bool)));
