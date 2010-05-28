@@ -21,6 +21,7 @@
 #include "categories.h"
 #include "settings_config.h"
 #include <KMessageBox>
+#include <kinputdialog.h>
 #include <QSet>
 #include <QStringList>
 #include <QStandardItem>
@@ -50,6 +51,9 @@ CategoriesPage::CategoriesPage(Nepomuk::WebExtractorConfig* cfg,QWidget * parent
     connect(enabled_categories_listwidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
                     SLOT(switchCategory(QListWidgetItem*, QListWidgetItem*)));
 
+    connect( Categories::self(), SIGNAL(categoriesChanged()),
+	    this, SLOT(reloadAvailableCategoriesList()));
+
     // Initialize machine
     m_machine = new QStateMachine();
     s1 = new QState();
@@ -68,6 +72,11 @@ CategoriesPage::CategoriesPage(Nepomuk::WebExtractorConfig* cfg,QWidget * parent
     s1->assignProperty(stackedWidget, "currentIndex", 0);
     s2->assignProperty(stackedWidget, "currentIndex", 1);
 
+    // Initialize validator
+    m_catvalidator = new CategoryNameValidator(this);
+
+    // Inilialize buttons
+    connect(this->add_button, SIGNAL(clicked()), this, SLOT(addButton()));
 
 }
 
@@ -261,6 +270,8 @@ void CategoriesPage::reloadEnabledCategoriesList()
     disconnect(enabled_categories_listwidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
 	       this, SLOT(switchCategory(QListWidgetItem*, QListWidgetItem*)));
     this->enabled_categories_listwidget->clear();
+
+    // Delete categories config for categories that is no longer enabled
     for( 
 	    QHash< QString, Nepomuk::WebExCategoryConfig*>::iterator it = m_categories.begin();
 	    it != m_categories.end();
@@ -277,7 +288,7 @@ void CategoriesPage::reloadEnabledCategoriesList()
     //const QStringList & categories = Categories::categories();
     
 
-    
+    // Fill listwidget and open config for newly enabled categories
     foreach( const QString & cat, m_enabledCategories)
     {
 	QListWidgetItem * item = new QListWidgetItem(cat);
@@ -328,8 +339,7 @@ void CategoriesPage::reloadAvailableCategoriesList()
     this->category_selector->availableListWidget()->clear();
 
     // Fill lists
-    QStringList categories = Categories::categories();
-    foreach( const QString & cat, categories) 
+    foreach( const QString & cat, Categories::categories()) 
     {
 	// If enabled add to selected
 	if ( m_enabledCategories.contains(cat) ) {
@@ -343,24 +353,50 @@ void CategoriesPage::reloadAvailableCategoriesList()
 
 void CategoriesPage::removeButton()
 {
+    /*
     if ( enabled_categories_listwidget->currentItem() )
 	removeCategory(enabled_categories_listwidget->currentItem()->text());
+	*/
 }
 
 void CategoriesPage::addButton()
 {
+    bool answer;
+    
+    QString catname = KInputDialog::getText(i18n("New category name"),i18n("Enter new category name"),QString(),&answer,this, this->m_catvalidator );
+
+    if (!answer)
+	return;
+
+    // Create and add new category
+    m_enabledCategories.insert(catname);
+    //m_categories.insert(catname, new Nepomuk::WebExCategoryConfig(catname));
+    Categories::addCategory(catname);
+
+    // Add to the list of selected
+    category_selector->selectedListWidget()->addItem(catname);
 }
 
 void CategoriesPage::syncEnabledCategoriesList()
 {
+    QSet< QString > bckp = m_enabledCategories;
     m_enabledCategories.clear();
     int stp = category_selector->selectedListWidget()->count();
+    bool modified = false;
     for ( int i = 0; i < stp; i++ )
     {
+	const QString & name = 
+		category_selector->selectedListWidget()->item(i)->text();
 	m_enabledCategories.insert( 
-		category_selector->selectedListWidget()->item(i)->text()
+		name
 		);
+	if (!modified) {
+	    if (!bckp.contains(name))
+		modified = true;
+	}
     }	
+    if (modified)
+	emit changed(true);
 }
 /*
 void CategoriesPage::selectCategory( QListWidgetItem * category)

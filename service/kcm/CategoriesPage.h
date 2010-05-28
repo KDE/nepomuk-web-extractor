@@ -31,6 +31,7 @@
 #include "webexcategory.h"
 #include "pluginItemDelegate.h"
 #include "pluginselector.h"
+#include "catnamevalidator.h"
 
 class CategoriesPage : public QWidget, private Ui_categoriesPage
 {
@@ -67,7 +68,7 @@ public:
     private Q_SLOTS:
 	void syncEnabledCategoriesList();
     private:
-	enum CategoriItemRole { EnabledRole = Qt::UserRole + 1 };
+	enum CategoryItemRole { EnabledRole = Qt::UserRole + 1 };
 	Nepomuk::WebExtractorConfig* m_config;
 	QHash< QString, Nepomuk::WebExCategoryConfig *> m_categories;
 	QSet< QString > m_enabledCategories;
@@ -81,6 +82,7 @@ public:
 	QState * s1;
 	QState * s2;
 	QState * s3;
+	CategoryNameValidator * m_catvalidator;
 
 };
 

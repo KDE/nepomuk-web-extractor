@@ -10,10 +10,16 @@
 
 Categories::Categories()
 {
-    init();
+    update();
+    foreach(const QString & dirName, KGlobal::dirs()->findDirs("config",CATEGORY_CONFIG_DIR))
+    {
+	kDebug() << "Watching dir "<< dirName;
+	wc.addDir(dirName);
+    }
+    connect(&wc,SIGNAL(dirty(const QString &)),this,SLOT(update()));
 }
 
-void Categories::init()
+void Categories::update()
 {
     /*
     KService::List services;
@@ -31,7 +37,7 @@ void Categories::init()
     filters.push_back(QString("*rc"));
     QStringList list = myDir.entryList(filters, QDir::Files);
     */
-    kDebug() << "Looking at: "CATEGORY_CONFIG_DIR;
+    kDebug() << "Looking at: " << CATEGORY_CONFIG_DIR;
     QStringList list = KGlobal::dirs()->findAllResources("config",CATEGORY_CONFIG_DIR"/*rc");
     if ( list.isEmpty() ) {
 	kDebug() << "No category detected";
@@ -50,15 +56,30 @@ void Categories::init()
 	}
     }
 
-    m_categories = cats.toList();
+    m_categories = cats;
+
+    emit categoriesChanged();
 
     //m_init = true;
 }
 
-const QStringList & Categories::categories()
+const QSet<QString> & Categories::categories()
 {
     return self()->m_categories;
 }
 
+void Categories::EmitCatChanged()
+{
+    emit categoriesChanged();
+}
+
+void Categories::addCategory(const QString & name)
+{
+    if ( self()->m_categories.contains(name))
+	return;
+
+    self()->m_categories << name;
+    self()->EmitCatChanged();
+}
 
 Categories *  Categories::m_self = new Categories();

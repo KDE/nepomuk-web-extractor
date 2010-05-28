@@ -16,31 +16,26 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _kcm_categories_h_
-#define _kcm_categories_h_
+#include "catnamevalidator.h"
+#include "categories.h"
 
-#include "datappconfig.h"
-#include <QStringList> 
-#include <KDirWatch> 
-
-class Categories: public QObject
+CategoryNameValidator::CategoryNameValidator(QObject * parent):
+    QValidator(parent)
 {
-    Q_OBJECT;
-    public:
-	Categories();
-	void init();
-	static const QSet< QString> &  categories();
-	static Categories * self() { return m_self; }
-	static void addCategory(const QString & name);
-    Q_SIGNALS:
-	void categoriesChanged();
-    private Q_SLOTS:
-	void update();
-    private:
-    	void EmitCatChanged();
-	QSet< QString > m_categories;
-	static Categories * m_self;
-	KDirWatch wc;
-};
+    update();
+    connect(Categories::self(), SIGNAL(categoriesChanged()),
+	    this, SLOT(update()));
+}
 
-#endif
+void CategoryNameValidator::update()
+{
+    m_categories = Categories::categories();
+}
+
+QValidator::State CategoryNameValidator::validate( QString & str, int & pos) const
+{
+    if (m_categories.contains(str))
+	return Intermediate;
+    else 
+	return Acceptable;
+}

@@ -12,6 +12,7 @@ set( webexkcm_SRCS
     CategoriesPage.cpp
     plugins.cpp
     categories.cpp
+    catnamevalidator.cpp
     pluginItemDelegate.cpp
     pluginselector.cpp
     
@@ -33,6 +34,7 @@ target_link_libraries(kcm_webexconfig
      ${KDE4_KDECORE_LIBS}
      ${KDE4_KDEUI_LIBRARY}
      ${KDE4_KNOTIFYCONFIG_LIBRARY}
+     ${KDE4_KIO_LIBS}
      webexsettings
      )
 
