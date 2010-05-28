@@ -23,6 +23,7 @@
 #include <QWidget>
 #include <QHash>
 #include <QAbstractItemDelegate>
+#include <QStateMachine>
 #include <QStandardItemModel>
 
 #include "ui_categoriesPage.h"
@@ -45,10 +46,15 @@ public:
         void emitChanged();
 	void setCategoryChanged();
 	void switchCategory(QListWidgetItem *current, QListWidgetItem *previous);
-	void reloadCategoriesList();
-	void saveCategoriesList();
+	void reloadEnabledCategoriesList();
+	void reloadAvailableCategoriesList();
+	void saveEnabledCategoriesList();
 	void removeButton();
 	void addButton();
+	/*
+	void selectCategory( QListWidgetItem * category);
+	void deselectCategory( QListWidgetItem * category);
+	*/
     Q_SIGNALS:
 	void changed(bool);
 
@@ -58,6 +64,8 @@ public:
 	    void createCategory(const QString & name);
 	    void removeCategory(const QString & name);
 	    //void addCategory();
+    private Q_SLOTS:
+	void syncEnabledCategoriesList();
     private:
 	enum CategoriItemRole { EnabledRole = Qt::UserRole + 1 };
 	Nepomuk::WebExtractorConfig* m_config;
@@ -69,6 +77,10 @@ public:
 	QStandardItemModel * m_selectedPlugins;
 	QStandardItemModel * m_availablePlugins;
 	PluginSelector * plugins_selector;
+	QStateMachine * m_machine;
+	QState * s1;
+	QState * s2;
+	QState * s3;
 
 };
 

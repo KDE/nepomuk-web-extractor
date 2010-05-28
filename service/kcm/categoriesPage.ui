@@ -29,6 +29,13 @@
          <widget class="QWidget" name="layoutWidget">
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
+            <widget class="KPushButton" name="manageButton">
+             <property name="text">
+              <string>Manage</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QLabel" name="label_4">
              <property name="text">
               <string>Categories</string>
@@ -41,42 +48,7 @@
           </layout>
          </widget>
          <widget class="QWidget" name="layoutWidget_2">
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QToolButton" name="toolButton">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="KPushButton" name="kpushbutton">
-             <property name="text">
-              <string>Add</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="KPushButton" name="kpushbutton_3">
-             <property name="text">
-              <string>Remove</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <layout class="QHBoxLayout" name="horizontalLayout_4"/>
          </widget>
         </widget>
        </item>
@@ -295,16 +267,36 @@
       </layout>
      </widget>
      <widget class="QWidget" name="managePage">
-      <widget class="KActionSelector" name="kactionselector">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>20</y>
-         <width>584</width>
-         <height>371</height>
-        </rect>
-       </property>
-      </widget>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="KPushButton" name="returnButton">
+         <property name="text">
+          <string>Return</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="3">
+        <widget class="KActionSelector" name="category_selector">
+         <property name="showUpDownButtons">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="KPushButton" name="kpushbutton_4">
+         <property name="text">
+          <string>Add</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="KPushButton" name="kpushbutton_2">
+         <property name="text">
+          <string>Remove</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="page_2"/>
     </widget>

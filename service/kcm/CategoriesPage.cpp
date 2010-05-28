@@ -37,8 +37,8 @@ CategoriesPage::CategoriesPage(Nepomuk::WebExtractorConfig* cfg,QWidget * parent
     this->plugins_selector = new PluginSelector(this);
     this->verticalLayout->insertWidget(0,this->plugins_selector);
     m_oldDelegate = this->plugins_selector->selectedView()->itemDelegate();
-    m_newDelegate = new CategoryPluginItemDelegate(this->plugins_selector->selectedView(),this);
-    this->plugins_selector->selectedView()->setItemDelegate(m_newDelegate);
+    //m_newDelegate = new CategoryPluginItemDelegate(this->plugins_selector->selectedView(),this);
+    //this->plugins_selector->selectedView()->setItemDelegate(m_newDelegate);
     //this->plugins_selector->selectedListWidget()->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     connect( this->query_edit,SIGNAL(textChanged()), this, SLOT(setCategoryChanged()));
     connect( this->query_prefix_edit,SIGNAL(textChanged()), this, SLOT(setCategoryChanged()));
@@ -49,25 +49,49 @@ CategoriesPage::CategoriesPage(Nepomuk::WebExtractorConfig* cfg,QWidget * parent
     connect( this->plugins_selector,SIGNAL(movedDown()), this, SLOT(setCategoryChanged()));
     connect(enabled_categories_listwidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
                     SLOT(switchCategory(QListWidgetItem*, QListWidgetItem*)));
+
+    // Initialize machine
+    m_machine = new QStateMachine();
+    s1 = new QState();
+    s2 = new QState();
+    s3 = new QState();
+
+    s1->addTransition(manageButton, SIGNAL(clicked()), s2);
+    s2->addTransition(returnButton, SIGNAL(clicked()), s1);
+
+    m_machine->addState(s1);
+    m_machine->addState(s2);
+    m_machine->setInitialState(s1);
+
+    connect(s1, SIGNAL(entered()), this, SLOT(reloadEnabledCategoriesList()));
+    connect(s2, SIGNAL(exited()), this, SLOT(syncEnabledCategoriesList()));
+    s1->assignProperty(stackedWidget, "currentIndex", 0);
+    s2->assignProperty(stackedWidget, "currentIndex", 1);
+
+
 }
 
 CategoriesPage::~CategoriesPage()
 {
     
-    this->plugins_selector->selectedView()->setItemDelegate(m_oldDelegate);
-    delete m_newDelegate;
+    //this->plugins_selector->selectedView()->setItemDelegate(m_oldDelegate);
+    //delete m_newDelegate;
     
 }
 
 void CategoriesPage::load()
 {
-    reloadCategoriesList();
+    m_enabledCategories = m_config->categories().toSet();
+    reloadEnabledCategoriesList();
+    reloadAvailableCategoriesList();
+    if (!m_machine->isRunning())
+        m_machine->start();
 }
 
 void CategoriesPage::save()
 {
     saveCategory();
-    saveCategoriesList();
+    saveEnabledCategoriesList();
 }
 void CategoriesPage::defaults()
 {
@@ -155,7 +179,7 @@ void CategoriesPage::switchCategory(QListWidgetItem *current, QListWidgetItem *p
              // Pass by, the profile has probably been deleted
             loadCategory();
             return;
-        } else if (!m_config->categories().contains(previous->text())) {
+        } else if (!m_enabledCategories.contains(previous->text())) {
             // Pass by, the profile has probably been deleted
             loadCategory();
             return;
@@ -171,7 +195,7 @@ void CategoriesPage::switchCategory(QListWidgetItem *current, QListWidgetItem *p
             loadCategory();
         } else if (result == KMessageBox::Cancel) {
             disconnect(enabled_categories_listwidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
-                       this, SLOT(switchProfile(QListWidgetItem*, QListWidgetItem*)));
+                       this, SLOT(switchCategory(QListWidgetItem*, QListWidgetItem*)));
             enabled_categories_listwidget->setCurrentItem(previous);
             connect(enabled_categories_listwidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
                     SLOT(switchCategory(QListWidgetItem*, QListWidgetItem*)));
@@ -198,8 +222,8 @@ void CategoriesPage::createCategory( const QString & name)
 
     m_categories.insert(name,category);
 
-    saveCategoriesList();
-    reloadCategoriesList();
+    saveEnabledCategoriesList();
+    reloadEnabledCategoriesList();
 
 }
 
@@ -215,14 +239,15 @@ void CategoriesPage::removeCategory( const QString & name)
 
     delete m_categories[name];
     m_categories.remove(name);
-    saveCategoriesList();
-    reloadCategoriesList();
+    saveEnabledCategoriesList();
+    reloadEnabledCategoriesList();
 }
 
-void CategoriesPage::reloadCategoriesList()
+void CategoriesPage::reloadEnabledCategoriesList()
 {
     // Create set of already enabled categories
     
+    /*
     QSet< QString > enabledCategories;
     for ( int i = 0; i < enabled_categories_listwidget->count(); i++)
     {
@@ -231,41 +256,58 @@ void CategoriesPage::reloadCategoriesList()
 	    enabledCategories.insert(item->text());
 	}
     }
+    */
+
+    disconnect(enabled_categories_listwidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+	       this, SLOT(switchCategory(QListWidgetItem*, QListWidgetItem*)));
     this->enabled_categories_listwidget->clear();
-
-    foreach( Nepomuk::WebExCategoryConfig * c, m_categories)
+    for( 
+	    QHash< QString, Nepomuk::WebExCategoryConfig*>::iterator it = m_categories.begin();
+	    it != m_categories.end();
+	    it++
+       )
     {
-	delete c;
+	if ( !m_enabledCategories.contains(it.key()) ) {
+		delete it.value();
+	    it = m_categories.erase(it);
+	}
+
     }
-    m_categories.clear();
 
-    const QStringList & categories = Categories::categories();
+    //const QStringList & categories = Categories::categories();
     
 
     
-    foreach( const QString & cat, categories)
+    foreach( const QString & cat, m_enabledCategories)
     {
 	QListWidgetItem * item = new QListWidgetItem(cat);
 
+	/*
 	if (enabledCategories.contains(cat) ) {
 	    item->setData(EnabledRole,true);
 	}
 	else {
 	    item->setData( EnabledRole, false);
 	}
+	*/
 
 	this->enabled_categories_listwidget->addItem(item);
 
-	m_categories.insert(
-		cat, 
-		new Nepomuk::WebExCategoryConfig(cat)
-		);
+	if (!m_categories.contains(cat)) {
+	    m_categories.insert(
+		    cat, 
+		    new Nepomuk::WebExCategoryConfig(cat)
+		    );
+	}
 	    
     }
+    connect(enabled_categories_listwidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
+	    SLOT(switchCategory(QListWidgetItem*, QListWidgetItem*)));
 }
 
-void CategoriesPage::saveCategoriesList()
+void CategoriesPage::saveEnabledCategoriesList()
 {
+    /*
     QSet< QString > enabledCategories;
     for ( int i = 0; i < enabled_categories_listwidget->count(); i++)
     {
@@ -274,9 +316,29 @@ void CategoriesPage::saveCategoriesList()
 	    enabledCategories.insert(item->text());
 	}
     }
+    */
     // Select only enabled categories
-    QStringList lst = enabledCategories.toList();
+    QStringList lst = m_enabledCategories.toList();
     m_config->setCategories(lst);
+}
+
+void CategoriesPage::reloadAvailableCategoriesList()
+{
+    this->category_selector->selectedListWidget()->clear();
+    this->category_selector->availableListWidget()->clear();
+
+    // Fill lists
+    QStringList categories = Categories::categories();
+    foreach( const QString & cat, categories) 
+    {
+	// If enabled add to selected
+	if ( m_enabledCategories.contains(cat) ) {
+	    category_selector->selectedListWidget()->addItem(cat);
+	}
+	else {
+	    category_selector->availableListWidget()->addItem(cat);
+	}
+    }
 }
 
 void CategoriesPage::removeButton()
@@ -288,3 +350,26 @@ void CategoriesPage::removeButton()
 void CategoriesPage::addButton()
 {
 }
+
+void CategoriesPage::syncEnabledCategoriesList()
+{
+    m_enabledCategories.clear();
+    int stp = category_selector->selectedListWidget()->count();
+    for ( int i = 0; i < stp; i++ )
+    {
+	m_enabledCategories.insert( 
+		category_selector->selectedListWidget()->item(i)->text()
+		);
+    }	
+}
+/*
+void CategoriesPage::selectCategory( QListWidgetItem * category)
+{
+    QString catname = category->text();
+    m_enabledCategories.insert(catname);
+}
+
+void CategoriesPage::deselectCategory( QListWidgetItem * category)
+{
+}
+*/

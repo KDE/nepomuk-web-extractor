@@ -77,10 +77,14 @@ void Nepomuk::WebExCategoryConfig::addPlugin( const QString & pluginName, double
     addPlugin(d);
 }
 
-void Nepomuk::WebExCategoryConfig::addPlugin( const DataPPDescr & pluginDescr)
+void Nepomuk::WebExCategoryConfig::addPlugin( const DataPPDescr & dppd)
 {
-    KConfig * cfg = this->config();
-    //cfg->
+	KConfigGroup grp = this->config()->group(dppd.name);
+	grp.writeEntry("rank", dppd.rank);
+	grp.writeEntry("coff", dppd.coff);
+	grp.writeEntry("trusted", dppd.trusted);
+	m_plugins.insert(dppd.name,dppd); 
+	m_pluginsNames.insert(dppd.name);
 }
 QDebug Nepomuk::operator<<( QDebug dbg,  const WebExCategory & cat)
 {
