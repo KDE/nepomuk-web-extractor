@@ -11,3 +11,4 @@ X-KDE-ParentApp=kcontrol
 
 X-KDE-System-Settings-Parent-Category=hardware
 Name=Web Extractor Settings
+Name[x-test]=xxWeb Extractor Settingsxx
