@@ -11,6 +11,7 @@ X-KDE-ParentApp=kcontrol
 
 X-KDE-System-Settings-Parent-Category=hardware
 Name=Web Extractor Settings
+Name[en_GB]=Web Extractor Settings
 Name[pt]=Configuração da Extracção da Web
 Name[pt_BR]=Configurações do extrator da Web
 Name[sv]=Inställningar av webbextrahering
