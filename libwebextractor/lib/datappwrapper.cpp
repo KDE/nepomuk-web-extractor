@@ -20,12 +20,13 @@
 
 namespace NW=Nepomuk::WebExtractor;
 
-NW::DataPPWrapper::DataPPWrapper(DataPP * dpp,const QString & name, double rank)
+NW::DataPPWrapper::DataPPWrapper(DataPP * dpp,const QString & name, double rank, double scaleCoff)
 {
     Q_CHECK_PTR(dpp);
     m_data = dpp;
     dpp->setPluginName(name);
     m_rank = rank;
+    m_scaleCoff = scaleCoff;
 }
 
 NW::DataPPReply * NW::DataPPWrapper::DataPPWrapper::requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res) const

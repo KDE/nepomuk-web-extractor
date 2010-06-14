@@ -50,7 +50,7 @@ NW::DataPPReply * NW::DebugDataPP::requestDecisions(const NW::DecisionFactory * 
 NW::DebugDataPPReply::DebugDataPPReply(DebugDataPP* parent, const DecisionFactory * factory):
     DataPPReply(parent),
     //m_fact(factory),
-    m_decisions(factory->newDecisionList())
+    m_decisions(factory->newDecisionList(parent))
 {
     kDebug() << "New DebugDataPPReply created. ID: "<<uintptr_t(this);
     m_timer = new QTimer(this);

@@ -25,9 +25,10 @@ namespace Nepomuk {
     namespace WebExtractor {
 	class WEBEXTRACTOR_EXPORT DataPPWrapper {
 	    public:
-		DataPPWrapper(DataPP*,const QString & , double);
+		DataPPWrapper(DataPP*,const QString & , double, double);
 		DataPP * data() const { return m_data; }
 		double rank() const { return m_rank;}
+		double coff() const { return m_scaleCoff;}
 		void setRank(double val) { m_rank = val; }
 		const QString & pluginName() const { return m_data->pluginName();}
 		const QString  & pluginVersion() const { return m_data->pluginVersion();}
@@ -35,6 +36,7 @@ namespace Nepomuk {
 	    private:
 		DataPP * m_data;
 		double m_rank;
+		double m_scaleCoff;
 	};
     typedef QHash< const DataPP*, DataPPWrapper* > DataPPKeeper;
     }

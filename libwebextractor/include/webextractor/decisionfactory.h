@@ -34,8 +34,9 @@ namespace Nepomuk {
 		friend class ResourceAnalyzer;
 		friend class DataPPReply;
 		Decision newDecision(const DataPP * author) const;
-		DecisionList  newDecisionList() const;
+		DecisionList  newDecisionList( const DataPP * ) const;
 	    private:
+		DecisionList  newDecisionList( ) const;
 		void setThreshold(double);
 		DecisionFactory(double ucrit, double acrit);
 		double m_threshold; // ucrit;

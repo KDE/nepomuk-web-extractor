@@ -105,7 +105,7 @@ void Nepomuk::WebExtractorSettings::update()
 		    }
 		}
 		if (dpp) {
-		    dppw = new NW::DataPPWrapper(dpp,pluginName, rank);
+		    dppw = new NW::DataPPWrapper(dpp,pluginName, rank,coff);
 		    p->addDataPP(dppw);
 		    //m_datappwrappers.insert(pluginName,dppw);
 		}

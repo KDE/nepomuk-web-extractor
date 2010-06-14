@@ -20,7 +20,7 @@ Nepomuk::WebExtractor::Decision Nepomuk::WebExtractor::DecisionFactory::newDecis
      return Decision(parent);
 }
 
-Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::newDecisionList() const
+Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::newDecisionList(const DataPP*) const
 {
     Nepomuk::WebExtractor::DecisionList lst;
     lst.m_threshold = m_threshold;
@@ -28,3 +28,10 @@ Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::new
     return lst;
 }
 
+Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::newDecisionList() const
+{
+    Nepomuk::WebExtractor::DecisionList lst;
+    lst.m_threshold = m_threshold;
+    lst.m_acrit = m_acrit;
+    return lst;
+}

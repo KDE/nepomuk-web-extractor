@@ -57,6 +57,9 @@ namespace Nepomuk {
 		const Decision & best() const;
 		double m_threshold;
 		double m_acrit;
+		bool m_trusted;
+		double m_scaleCoff;
+
 
 	};
     }
