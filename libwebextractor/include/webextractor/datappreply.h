@@ -31,16 +31,16 @@ namespace Nepomuk {
 	{
 	    Q_OBJECT;
 	    public:
-		DataPPReply(const DataPP * );
+		DataPPReply(DataPP * );
 		virtual const DecisionList & decisions() const = 0;
 		virtual ~DataPPReply();
 		virtual const QString & pluginName() const; 
-		const DataPP * parent() const;
+		DataPP * parent() const;
 	    public Q_SLOTS:
 		/*! \brief Abort execution 
 		 */
 		virtual void abort() = 0;
-	    	virtual bool isValid() = 0;
+	    	virtual bool isValid() const = 0;
 		//const QString & pluginVersion() const; 
 	    Q_SIGNALS:
 		void finished();

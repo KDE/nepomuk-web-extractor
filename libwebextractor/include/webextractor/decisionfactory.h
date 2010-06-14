@@ -35,6 +35,12 @@ namespace Nepomuk {
 		friend class DataPPReply;
 		Decision newDecision(const DataPP * author) const;
 		DecisionList  newDecisionList( const DataPP * ) const;
+		/*! \brief Debugging function
+		 * Return DecisionFactory that can be used for debugging propose
+		 * to avoid creation on unnecessary 
+		 * ResourceAnalyzers/ResourceAnalyzerFactory instances
+		 */
+		static DecisionFactory * debugFactory(double ucrit = 0, double acrit = 1);
 	    private:
 		DecisionList  newDecisionList( ) const;
 		void setThreshold(double);

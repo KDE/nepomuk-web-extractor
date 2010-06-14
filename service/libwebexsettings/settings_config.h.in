@@ -16,26 +16,17 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "catnamevalidator.h"
-#include "categoriespool.h"
 
-CategoryNameValidator::CategoryNameValidator(QObject * parent):
-    QValidator(parent)
-{
-    update();
-    connect(Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()),
-	    this, SLOT(update()));
-}
+#ifndef _we_settings_config_h_
+#define _we_settings_config_h_
 
-void CategoryNameValidator::update()
-{
-    m_categories = Nepomuk::CategoriesPool::categories();
-}
+#define CATEGORY_CONFIG_DIR "webextractor/categories/"
+#define PLUGIN_CONFIG_DIR "webextractor/plugins/"
 
-QValidator::State CategoryNameValidator::validate( QString & str, int & pos) const
-{
-    if (m_categories.contains(str))
-	return Intermediate;
-    else 
-	return Acceptable;
-}
+#define CATEGORY_CONFIG_GROUP "category"
+#define CATEGORY_PLUGINS_CONFIG_GROUP "plugins"
+
+#define WE_PLUGIN_NAME_KEY "X-WebExtractor-Name"
+#define WE_PLUGIN_SERVICE_TYPE "Nepomuk/WebExtractorPlugin"
+
+#endif

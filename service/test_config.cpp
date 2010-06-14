@@ -6,6 +6,7 @@
 #include <QtDBus/QDBusConnection>
 #include <Nepomuk/Resource>
 #include <webexservice.h>
+#include "datapppool.h"
 #include <webextractor_settings.h>
 #include <KDebug>
 #include <QtDebug>
@@ -25,9 +26,10 @@ int main(int argc, char ** argv)
     dbus.registerService("org.kde.webexserviceexample");
 #endif
     //((int __s = QThread::idealThreadCount()) > 0)?__s:1;
-    WebExtractorConfig c;
+    WebExtractorSettings c;
     //Nepomuk::WebExtractor::operator<<( qDebug(),  c);
     kDebug() << c;
+    kDebug() << *(DataPPPool::self());
     //return app.exec();
 
 }

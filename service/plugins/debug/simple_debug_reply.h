@@ -15,34 +15,25 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#ifndef __webexcatconfig_h_
-#define __webexcatconfig_h_
 
-#include "webexcategory.h"
-#include <QMap>
-#include <QSet>
-#include "datappdescr.h"
+#ifndef __simple_debug_reply_h_
+#define __simple_debug_reply_h_
 
+#include <webextractor/simple_reply.h>
 namespace Nepomuk {
-    class WebExCategoryConfig : public WebExCategory
+    class SimpleDebugReply : public Nepomuk::WebExtractor::SimpleDataPPReply
     {
-	Q_OBJECT;
 	public:
-	    WebExCategoryConfig(const QString & name);
-	    WebExCategoryConfig( KSharedConfigPtr ptr);
-	    void clearPluginList();
-	    const QMap<QString,DataPPDescr> & plugins() const;
-	    const QSet<QString> & pluginsNames() const;
-	    void addPlugin( const QString & pluginName, double rank, double coff, bool trusted = true);
-	    void addPlugin( const DataPPDescr & pluginDescr);
-	private:
-	    void init();
-	    static QString path;
-	    QMap<QString,DataPPDescr> m_plugins;
-	    QSet<QString> m_pluginsNames;
+	    SimpleDebugReply(Nepomuk::WebExtractor::SimpleDataPP * parent , const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
+	    virtual void step();
+	    virtual bool isValid() const { return true; }
+	    virtual const WebExtractor::DecisionList & decisions() const { return m_decisions; } 
+	    virtual void abort() {;}
+	protected:
+	    int m_state;
+	    WebExtractor::DecisionList m_decisions;
     };
-    QDebug operator<<( QDebug dbg,  const WebExCategory & cat);
-
 }
-
 #endif
+
+

@@ -16,42 +16,35 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_DATA_PP_H_
-#define _NEPOMUK_WEBEXTRCT_DATA_PP_H_
+#ifndef __simple_datareply_factory_h_
+#define __simple_datareply_factory_h_
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <Nepomuk/Resource>
-#include <Soprano/Statement>
-#include <webextractor/datappreply.h>
-#include <webextractor/decisionfactory.h>
 #include <webextractor/webextractor_export.h>
+#include <Nepomuk/Resource>
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class DataPPWrapper;
-	/*! \brief MUST be reentrant and thread safe
-	 */
-	class WEBEXTRACTOR_EXPORT DataPP 
+
+	class SimpleDataPPReply;
+	class SimpleDataPP;
+	class DecisionFactory;
+
+	class WEBEXTRACTOR_EXPORT SimpleReplyFactory 
 	{
 	    public:
-		virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res) = 0;
-		virtual ~DataPP();
-		DataPP(
-			const QString & pluginVersion
-			);
-		const QString  & pluginVersion() const;
-		const QString & pluginName() const; 
-		// Force uncopyable
-		// No implementation
-		DataPP(const DataPP &);
-		const DataPP& operator=(const DataPP&);
+		virtual SimpleDataPPReply * newReply(SimpleDataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource  & res) = 0;
+		virtual ~SimpleReplyFactory();
+	};
 
-		friend class DataPPWrapper;
-	    private:
-		void setPluginName( const QString & );
-		class Private;
-		Private * d;
+	template < typename T >
+	class SimpleReplyFactoryTemplate : public SimpleReplyFactory
+	{
+	    public:
+		virtual SimpleDataPPReply * newReply(SimpleDataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource  & res)
+		{
+		    return new T(parent, factory, res);
+		}
+		virtual ~SimpleReplyFactoryTemplate() {;}
 	};
     }
 }

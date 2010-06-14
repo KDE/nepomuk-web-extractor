@@ -2,6 +2,8 @@
 //#include <webextractor/datapp.h>
 #include <webextractor/global.h>
 
+namespace NW=Nepomuk::WebExtractor;
+
 Nepomuk::WebExtractor::DecisionFactory::DecisionFactory(double ucrit, double acrit):
     m_threshold(0)
 {
@@ -34,4 +36,10 @@ Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::new
     lst.m_threshold = m_threshold;
     lst.m_acrit = m_acrit;
     return lst;
+}
+
+Nepomuk::WebExtractor::DecisionFactory * NW::DecisionFactory::debugFactory(double ucrit, double acrit)
+{
+    static DecisionFactory * m_factory = new DecisionFactory(ucrit,acrit);
+    return m_factory;
 }

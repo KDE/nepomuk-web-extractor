@@ -16,31 +16,11 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _kcm_categories_h_
-#define _kcm_categories_h_
+#include <webextractor/simple_reply.h>
+#include "simple_datapp.h"
 
-#include "datappconfig.h"
-#include <QStringList> 
-#include <KDirWatch> 
+namespace NW=Nepomuk::WebExtractor;
 
-class Categories: public QObject
-{
-    Q_OBJECT;
-    public:
-	Categories();
-	void init();
-	static const QSet< QString> &  categories();
-	static Categories * self() { return m_self; }
-	static void addCategory(const QString & name);
-    Q_SIGNALS:
-	void categoriesChanged();
-    private Q_SLOTS:
-	void update();
-    private:
-    	void EmitCatChanged();
-	QSet< QString > m_categories;
-	static Categories * m_self;
-	KDirWatch wc;
-};
-
-#endif
+NW::SimpleDataPPReply::SimpleDataPPReply( SimpleDataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource & res):
+    DataPPReply(parent)
+{;}

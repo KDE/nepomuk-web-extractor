@@ -6,6 +6,6 @@ max_res_simult=2
 acrit=0.6
 ucrit=0.85
 
-[debug]
+[plugins][debug]
 rank = 0.85
 coff = 1.0

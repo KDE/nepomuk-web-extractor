@@ -11,6 +11,9 @@ set( webextractor_SRCS
     parameters.cpp
     global.cpp
     datappwrapper.cpp
+    #simple_datapp.cpp
+    #simple_reply_factory.cpp
+    #simple_reply.cpp
     )
 
 #set ( webextractor_MOC    webextractor_settings.h    )
@@ -19,6 +22,9 @@ set ( webextractor_MOC
     ${libwebextractor_SOURCE_DIR}/include/webextractor/resourceanalyzer.h
     ${libwebextractor_SOURCE_DIR}/include/webextractor/datappreply.h
     ${libwebextractor_SOURCE_DIR}/include/webextractor/debug_datapp.h
+    #${libwebextractor_SOURCE_DIR}/include/webextractor/simple_datapp.h
+    #${libwebextractor_SOURCE_DIR}/include/webextractor/simple_reply.h
+    #${libwebextractor_SOURCE_DIR}/include/webextractor/simple_reply_factory.h
     #    resourceanalyzerimpl.h
     )
 
@@ -38,10 +44,13 @@ set_target_properties(webextractor PROPERTIES
 	DEFINE_SYMBOL MAKE_WEBEXTRACTOR_LIB
 )
 
+#message(STATUS "(NOT) Found Qt network library ${QT_LIBRARIES} ")
 
 target_link_libraries( webextractor 
   ${NEPOMUK_LIBRARIES}
   ${KDE4_NEPOMUK_LIBS}
+  ${QT_LIBRARIES}
+  ${QT_QTNETWORK_LIBRARY}
   )
 
 install(TARGETS webextractor

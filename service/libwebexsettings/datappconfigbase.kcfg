@@ -8,6 +8,8 @@
 <group name="webextractor">
     <entry name="plugin" type="String">
     </entry>
+    <entry name="categories" type="StringList">
+    </entry>
 </group>
 
 </kcfg>

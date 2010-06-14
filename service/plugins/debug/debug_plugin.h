@@ -16,26 +16,21 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "catnamevalidator.h"
-#include "categoriespool.h"
+#ifndef __debug_plugin_h_
+#define __debug_plugin_h_
 
-CategoryNameValidator::CategoryNameValidator(QObject * parent):
-    QValidator(parent)
-{
-    update();
-    connect(Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()),
-	    this, SLOT(update()));
+#include <webextractor_plugin.h>
+#include <webextractor/simple_datapp.h>
+namespace Nepomuk {
+    class DebugPlugin : public WebExtractorPlugin
+    {
+	public:
+	    DebugPlugin(QObject*, const QList<QVariant>&);
+	    virtual Nepomuk::WebExtractor::DataPP * getDataPP( KSharedConfigPtr configFile );
+	    static const QString & version();
+	protected:
+	    static WebExtractor::SimpleDataPP * m_dataPP;
+	    static QString m_version;
+    };  
 }
-
-void CategoryNameValidator::update()
-{
-    m_categories = Nepomuk::CategoriesPool::categories();
-}
-
-QValidator::State CategoryNameValidator::validate( QString & str, int & pos) const
-{
-    if (m_categories.contains(str))
-	return Intermediate;
-    else 
-	return Acceptable;
-}
+#endif

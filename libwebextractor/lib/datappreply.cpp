@@ -4,11 +4,11 @@
 class Nepomuk::WebExtractor::DataPPReply::Private
 {
     public:
-	const DataPP * m_parent;
+	DataPP * m_parent;
 };
 
 Nepomuk::WebExtractor::DataPPReply::DataPPReply(
-	const DataPP * parent
+	DataPP * parent
 	)
 {
     d = new Private();
@@ -28,7 +28,7 @@ Nepomuk::WebExtractor::DataPPReply::~DataPPReply()
     delete d;
 }
 
-const Nepomuk::WebExtractor::DataPP * Nepomuk::WebExtractor::DataPPReply::parent() const
+Nepomuk::WebExtractor::DataPP * Nepomuk::WebExtractor::DataPPReply::parent() const
 { return d->m_parent;}
 
 

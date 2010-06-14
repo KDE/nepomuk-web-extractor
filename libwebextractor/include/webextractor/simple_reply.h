@@ -16,13 +16,31 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#ifndef __simple_datareply_h_
+#define __simple_datareply_h_
 
-#ifndef _kcm_config_h_
-#define _kcm_config_h_
+#include <webextractor/datappreply.h>
+#include <webextractor/webextractor_export.h>
+#include <Nepomuk/Resource>
 
-#define CATEGORY_CONFIG_DIR "webextractor/categories/"
-#define PLUGIN_CONFIG_DIR "webextractor/plugins/"
-
-#define CATEGORY_CONFIG_GROUP "category"
-
+namespace Nepomuk {
+    namespace WebExtractor {
+	class SimpleDataPP;
+	class DecisionFactory;
+	class WEBEXTRACTOR_EXPORT SimpleDataPPReply : public DataPPReply
+	{
+	    Q_OBJECT;
+	    public:
+		SimpleDataPPReply(SimpleDataPP * parent , const DecisionFactory * factory, const Nepomuk::Resource & res);
+		/*! \brief main function for Reply. All work should be done here
+		 * This methon must return 0 when all work is finished,
+		 * and non-zero otherwise. The method will be called untill it
+		 * return 0.
+		 */
+		virtual int step() = 0;
+	};
+    }
+}
 #endif
+
+

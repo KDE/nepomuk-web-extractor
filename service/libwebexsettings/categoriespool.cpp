@@ -1,4 +1,4 @@
-#include "categories.h"
+#include "categoriespool.h"
 #include "settings_config.h"
 #include <QDir> 
 #include <QFileInfo> 
@@ -8,7 +8,7 @@
 #include <KGlobal> 
 #include <kstandarddirs.h>
 
-Categories::Categories()
+Nepomuk::CategoriesPool::CategoriesPool()
 {
     update();
     foreach(const QString & dirName, KGlobal::dirs()->findDirs("config",CATEGORY_CONFIG_DIR))
@@ -19,7 +19,7 @@ Categories::Categories()
     connect(&wc,SIGNAL(dirty(const QString &)),this,SLOT(update()));
 }
 
-void Categories::update()
+void Nepomuk::CategoriesPool::update()
 {
     /*
     KService::List services;
@@ -63,17 +63,17 @@ void Categories::update()
     //m_init = true;
 }
 
-const QSet<QString> & Categories::categories()
+const QSet<QString> & Nepomuk::CategoriesPool::categories()
 {
     return self()->m_categories;
 }
 
-void Categories::EmitCatChanged()
+void Nepomuk::CategoriesPool::EmitCatChanged()
 {
     emit categoriesChanged();
 }
 
-void Categories::addCategory(const QString & name)
+void Nepomuk::CategoriesPool::addCategory(const QString & name)
 {
     if ( self()->m_categories.contains(name))
 	return;
@@ -82,4 +82,9 @@ void Categories::addCategory(const QString & name)
     self()->EmitCatChanged();
 }
 
-Categories *  Categories::m_self = new Categories();
+Nepomuk::CategoriesPool* Nepomuk::CategoriesPool::self()
+{
+   static Nepomuk::CategoriesPool * m_self = new Nepomuk::CategoriesPool(); 
+    return m_self; 
+}
+

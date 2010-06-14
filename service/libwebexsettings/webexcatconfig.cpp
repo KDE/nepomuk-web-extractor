@@ -21,24 +21,32 @@
 
 
 Nepomuk::WebExCategoryConfig::WebExCategoryConfig(const QString & name):
-    WebExCategory(KSharedConfig::openConfig(path.arg(name)))
+    WebExCategory(KSharedConfig::openConfig(path.arg(name))),
+    m_name(name)
 {
     init();
 }
 
 Nepomuk::WebExCategoryConfig::WebExCategoryConfig( KSharedConfigPtr ptr):
-    WebExCategory(ptr)
+    WebExCategory(ptr),
+    m_name(ptr->name())
 {
     init();
 }
 
 void Nepomuk::WebExCategoryConfig::init()
 {
-    QSet<QString> gset = this->config()->groupList().toSet();
-    gset.remove(CATEGORY_CONFIG_GROUP);
+    readPluginsList();
+}
+
+void Nepomuk::WebExCategoryConfig::readPluginsList()
+{
+    KConfigGroup pluginsGroup = this->config()->group(CATEGORY_PLUGINS_CONFIG_GROUP);
+    QSet<QString> gset = pluginsGroup.groupList().toSet();
+    //gset.remove(CATEGORY_CONFIG_GROUP);
     foreach( const QString & pluginName, gset)
     {
-	KConfigGroup grp = this->config()->group(pluginName);
+	KConfigGroup grp = pluginsGroup.group(pluginName);
 	DataPPDescr dppd(pluginName);
 	dppd.rank = grp.readEntry("rank", 1.0);
 	dppd.coff = grp.readEntry("coff", 1.0);
@@ -48,13 +56,26 @@ void Nepomuk::WebExCategoryConfig::init()
     }
 }
 
+void Nepomuk::WebExCategoryConfig::addPlugin( const DataPPDescr & dppd)
+{
+	KConfigGroup pluginsGroup = this->config()->group(CATEGORY_PLUGINS_CONFIG_GROUP);
+	KConfigGroup grp = pluginsGroup.group(dppd.name);
+	grp.writeEntry("rank", dppd.rank);
+	grp.writeEntry("coff", dppd.coff);
+	grp.writeEntry("trusted", dppd.trusted);
+	m_plugins.insert(dppd.name,dppd); 
+	m_pluginsNames.insert(dppd.name);
+}
+
+
 void Nepomuk::WebExCategoryConfig::clearPluginList()
 {
     KConfig * cfg = this->config();
+    KConfigGroup pluginsGroup = cfg->group(CATEGORY_PLUGINS_CONFIG_GROUP);
     foreach(const DataPPDescr & dppd, m_plugins)
     {
 	const QString & pluginName = dppd.name;
-	cfg->deleteGroup(pluginName);
+	pluginsGroup.deleteGroup(pluginName);
     }
     m_plugins.clear();
 }
@@ -77,21 +98,19 @@ void Nepomuk::WebExCategoryConfig::addPlugin( const QString & pluginName, double
     addPlugin(d);
 }
 
-void Nepomuk::WebExCategoryConfig::addPlugin( const DataPPDescr & dppd)
+QDebug Nepomuk::operator<<( QDebug dbg,  const WebExCategoryConfig & cat)
 {
-	KConfigGroup grp = this->config()->group(dppd.name);
-	grp.writeEntry("rank", dppd.rank);
-	grp.writeEntry("coff", dppd.coff);
-	grp.writeEntry("trusted", dppd.trusted);
-	m_plugins.insert(dppd.name,dppd); 
-	m_pluginsNames.insert(dppd.name);
-}
-QDebug Nepomuk::operator<<( QDebug dbg,  const WebExCategory & cat)
-{
-    dbg<<"Description: "<<cat.description();
-    dbg<<"Query: "<<cat.query();
-    dbg<<"Update interval: "<<cat.interval();
+    dbg<< "Category name(filename)" << cat.m_name<<'\n';
+    dbg<<"Description: "<<cat.description()<<'\n';
+    dbg<<"Query: "<<cat.query()<<'\n';
+    dbg<<"Update interval: "<<cat.interval()<<'\n';
+    dbg<<"Plugins:("<<cat.m_pluginsNames.size()<<")"<<'\n';
+    foreach( const QString & plg, cat.m_pluginsNames)
+    {
+	const DataPPDescr descr = cat.m_plugins[plg];
+	dbg << plg << ((descr.trusted)?" [trusted]":" [untrusted]") << " rank: "<<descr.rank<<" scale coff "<<descr.coff<<'\n';
+    }
     return dbg;
 }
 
-QString Nepomuk::WebExCategoryConfig::path = "webextractor/categories/%1""rc";
+QString Nepomuk::WebExCategoryConfig::path = CATEGORY_CONFIG_DIR"%1""rc";

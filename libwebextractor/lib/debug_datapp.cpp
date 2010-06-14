@@ -76,7 +76,7 @@ void NW::DebugDataPPReply::ready()
     emit finished();
 }
 
-bool NW::DebugDataPPReply::isValid()
+bool NW::DebugDataPPReply::isValid() const
 {return true;}
 
 NW::DebugDataPPReply::~DebugDataPPReply()

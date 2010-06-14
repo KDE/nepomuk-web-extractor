@@ -1,5 +1,5 @@
-File=datappconfig.kcfg
-ClassName=DataPPConfig
+File=datappconfigbase.kcfgc
+ClassName=DataPPConfigBase
 NameSpace=Nepomuk
 ItemAccessors=true
 SetUserText=true

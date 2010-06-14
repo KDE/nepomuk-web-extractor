@@ -28,8 +28,9 @@ namespace Nepomuk {
     {
 	Q_OBJECT;
 	public:
-	    virtual Nepomuk::WebExtractor::DataPP * getDataPP( KSharedConfigPtr configFile );
-	    virtual ~WebExtractorPlugin(){;}
+	    WebExtractorPlugin(QObject *);	
+	    virtual Nepomuk::WebExtractor::DataPP * getDataPP( KSharedConfigPtr configFile ) = 0;
+	    virtual ~WebExtractorPlugin() = 0;
 	// QWidget * 
 	//
     };

@@ -6,6 +6,7 @@
 #include <QtDBus/QDBusConnection>
 #include <Nepomuk/Resource>
 #include <webexservice.h>
+#include "datapppool.h"
 #include <KDebug>
 
 using namespace std;
@@ -15,6 +16,7 @@ int main(int argc, char ** argv)
     QCoreApplication app(argc,argv);
     QList<QVariant> noth;
     kDebug() << "Main thread. I am"<< QThread::currentThreadId();
+    kDebug() << *(DataPPPool::self());
     Nepomuk::WebExtractorService *srv  = new Nepomuk::WebExtractorService(0,noth);
     QDBusConnection dbus = QDBusConnection::sessionBus();
     dbus.registerObject("/webexservice", srv);

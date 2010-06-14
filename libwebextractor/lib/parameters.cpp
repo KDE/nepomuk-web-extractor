@@ -2,6 +2,8 @@
 #include <KDebug>
 #include <QtCore/QSharedData>
 
+namespace NW=Nepomuk::WebExtractor;
+
 class Nepomuk::WebExtractor::ExtractParameters::Private : public QSharedData
 {
     public:
@@ -38,6 +40,10 @@ const Nepomuk::WebExtractor::ExtractParameters & Nepomuk::WebExtractor::ExtractP
 bool Nepomuk::WebExtractor::ExtractParameters::hasAnyDataPP() const
 {return (d->dataPPlugins.size() != 0);}
 
+int NW::ExtractParameters::dataPPCount() const
+{
+    return d->dataPPlugins.size();
+}
 
 Nepomuk::WebExtractor::WE::MergePolitics Nepomuk::WebExtractor::ExtractParameters::mergePolitics() const
 {
@@ -155,6 +161,10 @@ QDebug Nepomuk::WebExtractor::operator<<( QDebug dbg,  const Nepomuk::WebExtract
     else {
 	dbg << "All launch politics\n";
     }
-    dbg<<"Plugins: "<<p.d->dataPPlugins.size()<<'\n';
+    dbg<<"DataPP:( "<<p.d->dataPPlugins.size()<<')'<<'\n';
+    foreach( DataPPWrapper* w, p.d->dataPPlugins)
+    {
+	dbg << w->pluginName() << w->pluginVersion() << '\n';
+    }
     return dbg;
 }

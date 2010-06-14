@@ -3,8 +3,10 @@ project(libwebextractor)
 cmake_minimum_required(VERSION 2.6)
 
 set (QT_MIN_VERSION "4.6.0")
+set (QT_USE_QTNETWORK true)
 
 
+find_package(Qt4  REQUIRED)
 find_package(KDE4  REQUIRED)
 find_package(Nepomuk REQUIRED)
 include(KDE4Defaults)

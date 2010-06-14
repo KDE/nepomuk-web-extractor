@@ -22,7 +22,9 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QtDebug>
+#include <KPluginFactory>
 #include "webextractor_config.h"
+#include "datappconfig.h"
 namespace Nepomuk {
     class WebExtractorSettings : public WebExtractorConfig
     {
@@ -42,6 +44,8 @@ namespace Nepomuk {
 	protected:
 	    QHash< QString, WebExtractor::ExtractParametersPtr > m_parameters; 
 	    QHash< QString, Nepomuk::WebExtractor::DataPP*> m_datapp;
+	    QHash< QString, Nepomuk::DataPPConfig*> m_datappConfig;
+	    QHash< QString, WebExtractorPlugin* > m_plugins;
     };
 	QDebug operator<<( QDebug dbg,  const WebExtractorSettings & conf);
 }

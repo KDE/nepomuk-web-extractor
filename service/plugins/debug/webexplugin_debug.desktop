@@ -1,0 +1,8 @@
+[Desktop Entry]
+ Type=Service
+ X-KDE-ServiceTypes=Nepomuk/WebExtractorPlugin
+ X-KDE-Library=webexplugin_debug
+ X-WebExtractor-Name=debug
+ Name=Web Extractor Debug Plugin
+ Comment=A Nepomuk WebExtractor Plugin that serves debugging proposes
+

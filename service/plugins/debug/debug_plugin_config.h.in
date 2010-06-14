@@ -1,0 +1,6 @@
+#ifndef __debug_plugin_config_h_
+#define __debug_plugin_config_h_
+
+#define DEBUG_PLUGIN_VERSION "@DEBUG_PLUGIN_VERSION@"
+
+#endif

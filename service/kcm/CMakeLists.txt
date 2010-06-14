@@ -10,8 +10,6 @@ set( webexkcm_SRCS
     ConfigWidget.cpp
     GeneralPage.cpp
     CategoriesPage.cpp
-    plugins.cpp
-    categories.cpp
     catnamevalidator.cpp
     pluginItemDelegate.cpp
     pluginselector.cpp

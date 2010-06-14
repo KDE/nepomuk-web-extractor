@@ -18,12 +18,17 @@
 #include "webextractor_settings.h"
 #include <QtCore/QString>
 #include <KDebug>
+#include <KService>
+#include <KServiceTypeTrader>
+#include <KPluginFactory>
+#include <KPluginLoader>
 #include <QtGlobal>
 #include <webextractor/debug_datapp.h>
 #include <webextractor/datapp.h>
 #include <webextractor/datappwrapper.h>
 #include <webextractor/global.h>
 #include <webextractor/parameters.h>
+#include "datapppool.h"
 
 namespace NW = Nepomuk::WebExtractor;
 Nepomuk::WebExtractorSettings::WebExtractorSettings():
@@ -57,6 +62,8 @@ void Nepomuk::WebExtractorSettings::clear()
     }
     m_parameters.clear();
 
+    m_plugins.clear();
+
 }
 
 void Nepomuk::WebExtractorSettings::update()
@@ -66,66 +73,120 @@ void Nepomuk::WebExtractorSettings::update()
 
     WebExtractorConfig::update();
 
+    //
+
     QStringList cats = WebExConfigBase::categories();
     foreach( const QString &  cat, cats)
     {
-	    WebExCategoryConfig * cfg = m_categories[cat];
+	WebExCategoryConfig * cfg = m_categories[cat];
 
-	    NW::ExtractParameters * p  = new NW::ExtractParameters;
+	NW::ExtractParameters * p  = new NW::ExtractParameters;
 
 
-	    foreach( const DataPPDescr & dppdescr, cfg->plugins()) 
-	    {
-		/*Load plugin with this name and parse it config*/
-		NW::DataPP * dpp = 0 ;
-		NW::DataPPWrapper * dppw = 0 ;
-		double rank = dppdescr.rank;
-		double coff = dppdescr.coff;
-		const QString & pluginName = dppdescr.name;
+	foreach( const DataPPDescr & dppdescr, cfg->plugins()) 
+	{
+	    /*Load plugin with this name and parse it config*/
+	    NW::DataPP * dpp = 0 ;
+	    NW::DataPPWrapper * dppw = 0 ;
+	    double rank = dppdescr.rank;
+	    double coff = dppdescr.coff;
+	    const QString & dataPPName = dppdescr.name;
 
-		// If plugin(datapp) with this name exist then skip loading
-		if (m_datapp.contains(pluginName) ) {
-		    dpp = m_datapp[pluginName];
+	    // If plugin(datapp) with this name exist then skip loading
+	    if (m_datapp.contains(dataPPName) ) {
+		dpp = m_datapp[dataPPName];
+	    }
+	    else {
+		if (dataPPName == "debug" ) {
+		    //This is predefined plugin
+		    dpp = new NW::DebugDataPP();
+		    m_datapp.insert("debug",dpp);
 		}
 		else {
-		    if (pluginName == "debug" ) {
-			//This is predefined plugin
-			dpp = new NW::DebugDataPP();
-
-		    }
-		    else {
-			kDebug() << "Not realized yet";
-
-			// Save it to m_datapp;
-			// m_datapp.insert(dpp,
+		    DataPPConfig * dppcfg = new DataPPConfig(dataPPName);
+		    QString sourceName = dppcfg->plugin();
+		    if (sourceName.isEmpty()) {
+			kError() << "DataPP "<<dataPPName<<" has no source plugin set.Ignoring";
 			continue;
 		    }
+
+		    
+		    // Get source plugin name from dataPP settings
+
+		    // If plugin already loaded
+		    if (!m_plugins.contains(sourceName)) {
+			// Load plugin
+
+			KService::List offers = KServiceTypeTrader::self()->query(pluginServiceType(),queryByName(sourceName));
+			if (offers.begin() == offers.end() ) {
+			    kError() << "Plugin "<<sourceName<< " was not found. All it's DataPP will be ignored";
+			    continue;
+			}
+
+
+			QString error;
+			KService::Ptr service = *(offers.begin());
+			KPluginFactory *factory = KPluginLoader(service->library()).factory();
+			if (!factory) {
+			    //KMessageBox::error(0, i18n("<html><p>KPluginFactory could not load the plugin:<br/><i>%1</i></p></html>",
+			      //                         service->library()));
+			    kError(5001) << "KPluginFactory could not load the plugin:" << service->library();
+			    continue;
+			}
+
+			WebExtractorPlugin *plugin = factory->create<WebExtractorPlugin>(this);
+
+			if (plugin) {
+			   kDebug() << "Load plugin:" << service->name();
+			   m_plugins.insert(sourceName,plugin);
+			} else {
+			   kDebug() << "Some error when loading plugin";
+			   continue;
+			}
+
+			// clear
+			delete factory;
+			delete dppcfg;
+
+		    // Save it to m_datapp;
+		    // m_datapp.insert(dpp,
+		    }
+
+		    // Create new DataPP
+		    dpp = m_plugins[sourceName]->getDataPP(DataPPConfig::config(dataPPName));
 		    if (dpp) {
-			kDebug() << "Loaded plugin "<<pluginName << "version: "<<dpp->pluginVersion();
+			kDebug() << "Loaded DataPP "<<dataPPName << "version: "<<dpp->pluginVersion();
+			m_datapp.insert(dataPPName,dpp);
+		    }
+		    else {
+			kError() << "Error while generating DataPP "<<dataPPName;
 		    }
 		}
-		if (dpp) {
-		    dppw = new NW::DataPPWrapper(dpp,pluginName, rank,coff);
-		    p->addDataPP(dppw);
-		    //m_datappwrappers.insert(pluginName,dppw);
-		}
-
 	    }
 
-	    Q_CHECK_PTR(cfg);
-	    p->setUCrit(cfg->uCrit());
-	    p->setACrit(cfg->aCrit());
-	    p->setPluginSelectStep(cfg->pluginSelectStep());
-	    NW::WE::LaunchPolitics pol;
-	    switch ( cfg->pluginSelectType() )
-	    {
-		case (WebExCategory::EnumPluginSelectType::stepwise) : {pol = NW::WE::StepWise; break;} 
-		case (WebExCategory::EnumPluginSelectType::all) : {pol = NW::WE::All; break;} 
+	    // Add DataPP to category parameters 
+	    if (dpp) {
+		dppw = new NW::DataPPWrapper(dpp,dataPPName, rank,coff);
+		p->addDataPP(dppw);
+		//m_datappwrappers.insert(pluginName,dppw);
 	    }
-	    p->setLaunchPolitics(pol);
-	    p->setMergePolitics(NW::WE::Highest);
-	    this->m_parameters.insert(cat,NW::ExtractParametersPtr(p));
+
 	}
+
+	Q_CHECK_PTR(cfg);
+	p->setUCrit(cfg->uCrit());
+	p->setACrit(cfg->aCrit());
+	p->setPluginSelectStep(cfg->pluginSelectStep());
+	NW::WE::LaunchPolitics pol;
+	switch ( cfg->pluginSelectType() )
+	{
+	    case (WebExCategory::EnumPluginSelectType::stepwise) : {pol = NW::WE::StepWise; break;} 
+	    case (WebExCategory::EnumPluginSelectType::all) : {pol = NW::WE::All; break;} 
+	}
+	p->setLaunchPolitics(pol);
+	p->setMergePolitics(NW::WE::Highest);
+	this->m_parameters.insert(cat,NW::ExtractParametersPtr(p));
+    }
 }
 
 int Nepomuk::WebExtractorSettings::maxPluginsLaunched( const QString & categoryName)
@@ -213,6 +274,9 @@ QString Nepomuk::WebExtractorSettings::queryPrefix( const QString categoryName)
 
 QDebug Nepomuk::operator<<( QDebug dbg,  const WebExtractorSettings & conf)
 {
+    dbg << static_cast<const WebExtractorConfig &>(conf);
+    
+#if 0
     QStringList cats = conf.categories();
     if (cats.size() > 0) {
 	dbg<<cats.size()<<" Categories:";
@@ -226,6 +290,21 @@ QDebug Nepomuk::operator<<( QDebug dbg,  const WebExtractorSettings & conf)
     }
     else {
 	dbg << "Config has no category enabled";
+    }
+#endif
+    dbg << "Total plugins loaded: "<<conf.m_plugins.size() << '\n';
+    dbg << "Total DataPP loaded: "<<conf.m_datapp.size() << '\n';
+    if (conf.categories().size() > 0) {
+	dbg << "Parameters per category" << '\n';
+	for(
+		QHash< QString, WebExtractor::ExtractParametersPtr >::const_iterator it = conf.m_parameters.begin();
+		it != conf.m_parameters.end();
+		it++
+	   )
+	{
+	    dbg << "Category "<< it.key() << '\n';
+	    dbg << *(it.value()) << '\n';
+	}
     }
     return dbg;
 }

@@ -17,8 +17,8 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #include "CategoriesPage.h"
-#include "plugins.h"
-#include "categories.h"
+#include "datapppool.h"
+#include "categoriespool.h"
 #include "settings_config.h"
 #include <KMessageBox>
 #include <kinputdialog.h>
@@ -51,7 +51,7 @@ CategoriesPage::CategoriesPage(Nepomuk::WebExtractorConfig* cfg,QWidget * parent
     connect(enabled_categories_listwidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)),
                     SLOT(switchCategory(QListWidgetItem*, QListWidgetItem*)));
 
-    connect( Categories::self(), SIGNAL(categoriesChanged()),
+    connect( Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()),
 	    this, SLOT(reloadAvailableCategoriesList()));
 
     // Initialize machine
@@ -130,7 +130,7 @@ void CategoriesPage::loadCategory()
     interval_spinbox->setValue( cat->interval() );
 
     // Add plugins
-    const QStringList & availablePlugins = Plugins::plugins();
+    const QStringList & availablePlugins = Nepomuk::DataPPPool::plugins();
     QMap< QString, DataPPDescr> enabledPlugins = cat->plugins();
 
     foreach(const QString plg, availablePlugins)
@@ -339,7 +339,7 @@ void CategoriesPage::reloadAvailableCategoriesList()
     this->category_selector->availableListWidget()->clear();
 
     // Fill lists
-    foreach( const QString & cat, Categories::categories()) 
+    foreach( const QString & cat, Nepomuk::CategoriesPool::categories()) 
     {
 	// If enabled add to selected
 	if ( m_enabledCategories.contains(cat) ) {
@@ -371,7 +371,7 @@ void CategoriesPage::addButton()
     // Create and add new category
     m_enabledCategories.insert(catname);
     //m_categories.insert(catname, new Nepomuk::WebExCategoryConfig(catname));
-    Categories::addCategory(catname);
+    Nepomuk::CategoriesPool::addCategory(catname);
 
     // Add to the list of selected
     category_selector->selectedListWidget()->addItem(catname);

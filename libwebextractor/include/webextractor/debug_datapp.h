@@ -47,7 +47,7 @@ namespace Nepomuk {
 		/*! \brief Abort execution 
 		 */
 		virtual void abort() ;
-	    	virtual bool isValid() ;
+	    	virtual bool isValid() const ;
 		/*
 	    Q_SIGNALS:
 		void finished();

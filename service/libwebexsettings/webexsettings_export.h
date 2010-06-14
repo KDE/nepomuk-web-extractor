@@ -16,26 +16,22 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "catnamevalidator.h"
-#include "categoriespool.h"
 
-CategoryNameValidator::CategoryNameValidator(QObject * parent):
-    QValidator(parent)
-{
-    update();
-    connect(Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()),
-	    this, SLOT(update()));
-}
+#ifndef __WEBEXSETTINGS_EXPORT_H_
+#define __WEBEXSETTINGS_EXPORT_H_
 
-void CategoryNameValidator::update()
-{
-    m_categories = Nepomuk::CategoriesPool::categories();
-}
+/* needed for KDE_EXPORT and KDE_IMPORT macros */
+#include <kdemacros.h>
 
-QValidator::State CategoryNameValidator::validate( QString & str, int & pos) const
-{
-    if (m_categories.contains(str))
-	return Intermediate;
-    else 
-	return Acceptable;
-}
+#ifndef WEBEXSETTINGS_EXPORT
+# if defined(MAKE_WEBEXSETTINGS_LIB)
+   /* We are building this library */
+#  define WEBEXSETTINGS_EXPORT KDE_EXPORT
+# else
+   /* We are using this library */
+#  define WEBEXSETTINGS_EXPORT KDE_IMPORT
+# endif
+#endif
+
+
+#endif

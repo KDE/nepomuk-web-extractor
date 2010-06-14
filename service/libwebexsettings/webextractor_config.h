@@ -21,7 +21,7 @@
 
 #include "webexconfigbase.h"
 #include "webexcatconfig.h"
-#include "plugin_interface.h"
+#include "webextractor_plugin.h"
 #include <QtCore/QHash>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
@@ -44,15 +44,20 @@ namespace Nepomuk {
 		void update();
 		void clear();
 
+		static const QString & pluginServiceType();
+		static QString queryByName(const QString & name);
+
 	    protected:
+		static QString queryTemplate();
 		QHash<QString,WebExCategoryConfig*> m_categories;
 		//QHash< QString, QSharedPointer<WebExtractor::ExtractParameters> > m_parameters; 
-		QHash< QString, WebExtractorPlugin *> m_plugins;
+		//QHash< QString, WebExtractorPlugin *> m_plugins;
 		//QHash< QString, DataPPWrapper*> m_datappwrappers;
 
 		friend QDebug operator<<( QDebug dbg,  const WebExtractorConfig & cat);
 
 	};
+	QDebug operator<<( QDebug dbg,  const WebExtractorConfig & cat);
 
 }
 #endif

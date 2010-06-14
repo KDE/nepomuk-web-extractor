@@ -16,24 +16,32 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _kcm_plugins_h_
-#define _kcm_plugins_h_
+#ifndef _kcm_categories_h_
+#define _kcm_categories_h_
 
 #include "datappconfig.h"
 #include <QStringList> 
+#include <KDirWatch> 
 
-class Plugins: public QObject
-{
-    public:
-	Plugins();
-	void init();
-	static const QStringList &  plugins();
-	static const Plugins * self() { return m_self; }
-    Q_SIGNALS:
-	void pluginsChanged();
-    private:
-	QStringList m_plugins;
-	static Plugins * m_self;
-};
+namespace Nepomuk {
+    class CategoriesPool: public QObject
+    {
+	Q_OBJECT;
+	public:
+	    static const QSet< QString> &  categories();
+	    static CategoriesPool * self(); 
+	    static void addCategory(const QString & name);
+	Q_SIGNALS:
+	    void categoriesChanged();
+	private Q_SLOTS:
+	    void update();
+	private:
+	    CategoriesPool();
+	    void init();
+	    void EmitCatChanged();
+	    QSet< QString > m_categories;
+	    KDirWatch wc;
+    };
+}
 
 #endif

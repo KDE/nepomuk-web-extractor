@@ -63,6 +63,7 @@ namespace Nepomuk {
 		void addDataPP( DataPPWrapper * ) ;
 
 		bool hasAnyDataPP() const;
+		int dataPPCount() const;
 
 		friend QDebug operator<<( QDebug dbg,  const ExtractParameters & cat);
 
