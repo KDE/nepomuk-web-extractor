@@ -6,7 +6,8 @@ Nepomuk::WebExtractor::DecisionList::DecisionList():
 */
 
 Nepomuk::WebExtractor::DecisionList::DecisionList(double threshold ):
-    m_threshold(threshold)
+    m_threshold(threshold),
+    m_trusted(true)
 {;}
 
 
@@ -56,7 +57,7 @@ void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, WE
 {
     Decision d(dec);
     // Correct rank if necessary
-    if (!noAuto) {
+    if ( (!noAuto) || (!m_trusted))  {
 	// Then this decision must not has auto applicable rank
 	if ( d.rank() > m_acrit )
 	    d.setRank(m_acrit);
