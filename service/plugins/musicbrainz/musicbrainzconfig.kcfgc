@@ -1,0 +1,7 @@
+File=musicbrainz.kcfg
+ClassName=WEMusicBrainzConfig
+NameSpace=Nepomuk
+ItemAccessors=true
+SetUserText=true
+Mutators=true
+

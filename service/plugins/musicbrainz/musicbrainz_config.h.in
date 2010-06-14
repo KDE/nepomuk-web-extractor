@@ -1,0 +1,6 @@
+#ifndef __music_brainz_config_h_
+#define __music_brainz_config_h_
+
+#define MUSIC_BRAINZ_VERSION @MUSIC_BRAINZ_VERSION@
+
+#endif

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal@gmail.com>
+   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,22 +16,20 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _WEBEXTRCT_PLUGIN
-#define _WEBEXTRCT_PLUGIN
-#include <kdemacros.h>
-#include <webextractor/datapp.h>
-#include <KSharedConfig>
-#include <QtCore/QObject>
+#ifndef __music_brainz_plugin_h_
+#define __music_brainz_plugin_h_
 
+#include <plugin_interface.h>
+#include <QNetworkAcessManager>
 namespace Nepomuk {
-    class KDE_EXPORT WebExtractorPlugin : public QObject 
+    class MusicBrainzWEPlugin : public WebExtractorPlugin
     {
 	Q_OBJECT;
 	public:
 	    virtual Nepomuk::WebExtractor::DataPP * getDataPP( KSharedConfigPtr configFile );
-	    virtual ~WebExtractorPlugin(){;}
-	// QWidget * 
-	//
+	protected:
+	    QHash< QString, QPointer<MusicBrainzDataPP> > m_datappCache; 
     };
-}
+}    
+
 #endif
