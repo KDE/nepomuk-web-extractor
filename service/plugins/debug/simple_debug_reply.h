@@ -23,15 +23,21 @@
 namespace Nepomuk {
     class SimpleDebugReply : public Nepomuk::WebExtractor::SimpleDataPPReply
     {
+	Q_OBJECT;
 	public:
 	    SimpleDebugReply(Nepomuk::WebExtractor::SimpleDataPP * parent , const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
-	    virtual void step();
+	    virtual void start();
+	    void step();
 	    virtual bool isValid() const { return true; }
 	    virtual const WebExtractor::DecisionList & decisions() const { return m_decisions; } 
 	    virtual void abort() {;}
 	protected:
 	    int m_state;
 	    WebExtractor::DecisionList m_decisions;
+	protected Q_SLOTS:
+	    void requestFinished();
+	    void requestError();
+
     };
 }
 #endif

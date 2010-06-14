@@ -25,5 +25,6 @@ const QString & Nepomuk::DebugPlugin::version()
 
 Nepomuk::WebExtractor::SimpleDataPP * Nepomuk::DebugPlugin::m_dataPP = new Nepomuk::WebExtractor::SimpleDataPP(
 	Nepomuk::DebugPlugin::version(),
+	"http://www.example.org/",
 	new Nepomuk::WebExtractor::SimpleReplyFactoryTemplate<SimpleDebugReply>()
 	);

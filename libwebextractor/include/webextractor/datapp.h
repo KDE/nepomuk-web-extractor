@@ -32,10 +32,12 @@ namespace Nepomuk {
 	class DataPPWrapper;
 	/*! \brief MUST be reentrant and thread safe
 	 */
-	class WEBEXTRACTOR_EXPORT DataPP 
+	class WEBEXTRACTOR_EXPORT DataPP : public QObject  
 	{
+	    Q_OBJECT;
 	    public:
 		virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res) = 0;
+		//virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res, QObject * target, const char * finishedSlot, const char * errorSlot) = 0;
 		virtual ~DataPP();
 		DataPP(
 			const QString & pluginVersion

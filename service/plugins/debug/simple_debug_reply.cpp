@@ -20,6 +20,7 @@
 #include <webextractor/decisionfactory.h>
 #include <webextractor/datapp.h>
 #include <webextractor/simple_datapp.h>
+#include <webextractor/simple_request.h>
 #include <KDebug>
 #include <stdint.h>
 
@@ -32,17 +33,42 @@ Nepomuk::SimpleDebugReply::SimpleDebugReply(NW::SimpleDataPP * parent , const NW
 {
 }
 
-void Nepomuk::SimpleDebugReply::step()
+void Nepomuk::SimpleDebugReply::start()
+{
+    step();
+}
+
+void Nepomuk::SimpleDebugReply::requestFinished()
 {
     if (m_state == 10) {
 	kDebug() << "SimpleDebugReply "<< uintptr_t(this) <<" finished";
 	emit finished();
-	return;
     }
     else {
-	// Enqueue ourself again
-	reinterpret_cast<NW::SimpleDataPP*>(this->parent())->enqueue(this);
+	step();
+    }
+    
+    // Anyway delete sender
+    sender()->deleteLater();
+}
+
+void Nepomuk::SimpleDebugReply::step()
+{
+	// Create request and connect it
+	NW::SimpleDataPPRequest * req = new NW::SimpleDataPPRequest("");
+	connect(req,SIGNAL(finished()), this, SLOT(requestFinished()));
+	connect(req,SIGNAL(error()), this, SLOT(requestError()));
+	
+	NW::SimpleDataPP * dpp = qobject_cast<NW::SimpleDataPP*>(this->parentDataPP());
+	dpp->get(req);
 	kDebug() << "SimpleDebugReply: " << uintptr_t(this) << " Step number: "<<m_state;
 	m_state++;
-    }
+}
+
+void Nepomuk::SimpleDebugReply::requestError()
+{
+    // Stop at this step
+    kDebug() << "SimpleDebugReply "<< uintptr_t(this) <<" finished with error";
+    sender()->deleteLater();
+    emit error();
 }

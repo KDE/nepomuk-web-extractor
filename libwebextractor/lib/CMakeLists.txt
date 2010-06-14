@@ -11,21 +11,22 @@ set( webextractor_SRCS
     parameters.cpp
     global.cpp
     datappwrapper.cpp
-    #simple_datapp.cpp
-    #simple_reply_factory.cpp
-    #simple_reply.cpp
+    simple_datapp.cpp
+    simple_reply_factory.cpp
+    simple_reply.cpp
+    simple_request.cpp
     )
 
-#set ( webextractor_MOC    webextractor_settings.h    )
 set ( webextractor_MOC    
     ${libwebextractor_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 
     ${libwebextractor_SOURCE_DIR}/include/webextractor/resourceanalyzer.h
     ${libwebextractor_SOURCE_DIR}/include/webextractor/datappreply.h
+    ${libwebextractor_SOURCE_DIR}/include/webextractor/datapp.h
     ${libwebextractor_SOURCE_DIR}/include/webextractor/debug_datapp.h
-    #${libwebextractor_SOURCE_DIR}/include/webextractor/simple_datapp.h
-    #${libwebextractor_SOURCE_DIR}/include/webextractor/simple_reply.h
-    #${libwebextractor_SOURCE_DIR}/include/webextractor/simple_reply_factory.h
-    #    resourceanalyzerimpl.h
+    ${libwebextractor_SOURCE_DIR}/include/webextractor/simple_datapp.h
+    ${libwebextractor_SOURCE_DIR}/include/webextractor/simple_reply.h
+    ${libwebextractor_SOURCE_DIR}/include/webextractor/simple_reply_factory.h
+    ${libwebextractor_SOURCE_DIR}/include/webextractor/simple_request.h
     )
 
 QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )

@@ -35,7 +35,7 @@ namespace Nepomuk {
 		virtual const DecisionList & decisions() const = 0;
 		virtual ~DataPPReply();
 		virtual const QString & pluginName() const; 
-		DataPP * parent() const;
+		DataPP * parentDataPP() const;
 	    public Q_SLOTS:
 		/*! \brief Abort execution 
 		 */

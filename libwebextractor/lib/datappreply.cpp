@@ -28,7 +28,7 @@ Nepomuk::WebExtractor::DataPPReply::~DataPPReply()
     delete d;
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::WebExtractor::DataPPReply::parent() const
+Nepomuk::WebExtractor::DataPP * Nepomuk::WebExtractor::DataPPReply::parentDataPP() const
 { return d->m_parent;}
 
 

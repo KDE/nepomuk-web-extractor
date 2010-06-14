@@ -37,7 +37,7 @@ namespace Nepomuk {
 		 * and non-zero otherwise. The method will be called untill it
 		 * return 0.
 		 */
-		virtual int step() = 0;
+		virtual void start() = 0;
 	};
     }
 }

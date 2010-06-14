@@ -165,8 +165,10 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 	const DataPPWrapper * dpp = d->m_queue.dequeue();
 	    
 	// launch 
+	//DataPPReply * repl = dpp->requestDecisions(d->m_fact, d->m_res,this, SLOT( pluginFinished()), SLOT(pluginFinished()));
 	DataPPReply * repl = dpp->requestDecisions(d->m_fact, d->m_res);
-	repl->setParent(this);
+	// ATTENTION! repl object is executed in another thread! 
+	//repl->setParent(this);
 
 	if (!repl) {
 	    kDebug() << "DataPP return 0 as reply. How should I handle it? Ignoring.";
@@ -174,8 +176,8 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 	}
 
 	// Save this reply
-	connect( repl, SIGNAL(finished()), this, SLOT( pluginFinished() ) );
-	connect( repl, SIGNAL(error()), this, SLOT( pluginFinished() ) );
+	 connect( repl, SIGNAL(finished()), this, SLOT( pluginFinished() ) );
+	 connect( repl, SIGNAL(error()), this, SLOT( pluginFinished() ) );
 
 	//d->m_replyAndRanks[repl] = d->it->second;
 	d->m_respWaits++;;
@@ -220,19 +222,20 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     // Process data plugin has returned
     DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender() );
     if (repl) {
-	const DataPP * parent = repl->parent();
+	const DataPP * parent = repl->parentDataPP();
 	// Delete it from map and call deleteLater
 	//if (!d->m_replyAndRanks.contains(repl)) {
 	if (d->m_dataPPKeeper.contains(parent)) {
 	    //double repl_rank = d->m_replyAndRanks[repl];
 	    double repl_rank = d->m_dataPPKeeper[parent]->rank();
 
-	    repl->deleteLater();
 	    
 	    if (repl->isValid()) {
 		// Process Decision list
 		d->m_decisions.mergeWith(repl->decisions(), repl_rank,d->m_mergePolitics, d->m_mergeCoff );
 	    }
+
+	    repl->deleteLater();
 	}
 	else {
 		kDebug() << "Recived answer from unregistred DataPP";

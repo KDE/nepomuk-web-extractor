@@ -7,6 +7,7 @@
 #include <webextractor/simple_reply_factory.h>
 #include "simple_debug_reply.h"
 #include <QObject>
+#include <stdint.h>
 
 
 #define TESTERS_COUNT 5
@@ -25,7 +26,7 @@ class SimpleTester : public QThread
 	    this->dpp = dpp;
 	    mapper = new QSignalMapper();
 	    f = 0;
-	    kDebug() << "Created new SimpleTester";
+	    kDebug() << "Created new SimpleTester" /*<< int(QThread::currentThreadId())*/;
 	}
     private:
 	SimpleDataPP * dpp;
@@ -35,6 +36,7 @@ class SimpleTester : public QThread
     protected:
 	virtual void run()
 	{
+	    kDebug() << "SimpleTester" << (uintptr_t)(QThread::currentThread()) << "started";
 	    for ( int i = 0; i < REPLS_COUNT; i++)
 	    {
 		repl[i] = dpp->requestDecisions(DecisionFactory::debugFactory(),Nepomuk::Resource());
@@ -50,7 +52,7 @@ class SimpleTester : public QThread
 	protected Q_SLOTS:
 	    void finished(int num) 
 	    {
-		kDebug() << num << " finished";
+		kDebug() << num << " finished " << (uintptr_t )(QThread::currentThread());
 		f++;
 		if ( f == 5)
 		    quit();
@@ -62,9 +64,12 @@ class Tester: public QObject
     Q_OBJECT;
     public:
 	Tester() 
+	{;}
+	void init()
 	{
 	    SimpleDataPP * dpp = new SimpleDataPP(
 		    "0.1",
+		    "http://www.example.org",
 		new Nepomuk::WebExtractor::SimpleReplyFactoryTemplate<SimpleDebugReply>()
 		);
 	    // Generate 4 threads
@@ -77,6 +82,8 @@ class Tester: public QObject
     public Q_SLOTS:
 	void start() 
 	{
+	    init();
+	    Nepomuk::Resource res;
 	    for ( int i = 0; i < TESTERS_COUNT; i++)
 	    {
 		testers[i]->start();
@@ -92,7 +99,6 @@ int main(int argc, char ** argv)
     Tester * t = new Tester();
     QTimer::singleShot(0,t, SLOT(start()));
     
-    //Nepomuk::Resource res;
     app.exec();    
 }
 
