@@ -2,6 +2,7 @@
 Type=ServiceType
 X-KDE-ServiceType=Nepomuk/WebExtractorPlugin
 Name=Web Extractor Plugin
+Name[x-test]=xxWeb Extractor Pluginxx
 
 [PropertyDef::X-WebExtractor-Name]
 Type=QString
