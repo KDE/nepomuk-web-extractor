@@ -103,6 +103,8 @@ void ConsoleMainWindow::startExtracting()
         QString dataPPName = index.data(DataPPPool::NameRole).toString();
 
         //NW::DataPP * dpp = DataPPConfig::dataPP(dataPPName);
+        //FIXME Enable proper plugin selection back
+        kDebug() << "DataPP selection is disabled. DebugDataPP is used instead";
         NW::DataPP * dpp = new NW::DebugDataPP();
         if(!dpp)
             continue;
@@ -138,6 +140,7 @@ void ConsoleMainWindow::startExtracting()
     // delete previous analyzes
     delete m_currentAnalyzer;
     m_currentAnalyzer = resanal;
+    resanal->setParent(0);
     //resanal->moveToThread(workThread);
     //connect(workThread, SIGNAL(started()), resanal, SLOT(analyze()));
     connect(resanal, SIGNAL(analyzingFinished()), this, SLOT(extractingFinished()), Qt::QueuedConnection);

@@ -36,7 +36,7 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private /*: public QSharedData*/
         int m_respWaits;
         // THis is hash <DataPP*,DataPPWrapper*> where all DataPPWrappers are storeg
         // keys are corresponding DataPP*
-        const DataPPKeeper & m_dataPPKeeper;
+        DataPPKeeper m_dataPPKeeper;
         //DataPPKeeper::const_iterator it;
         // DecisionFactory that will be passed to DataPP
         DecisionFactory * m_fact;
@@ -87,7 +87,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer::Private::Private(
 
 Nepomuk::WebExtractor::ResourceAnalyzer::Private::~Private()
 {
-    kDebug() << "Deleted: " << uintptr_t(this);
+    //kDebug() << "Deleted: " << uintptr_t(this);
     delete m_fact;
 }
 
@@ -125,7 +125,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
 
 Nepomuk::WebExtractor::ResourceAnalyzer::~ResourceAnalyzer()
 {
-    kDebug() << "Deleted: " << uintptr_t(this);
+    //kDebug() << "Deleted: " << uintptr_t(this);
     // delete d;
 }
 
@@ -138,7 +138,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze()
 
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepomuk::Resource & res)
 {
-    kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
+    //kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
     if(isRunning()) {
         abort();
         clear();
@@ -311,7 +311,7 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 // 'obsolete' replies
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinished()
 {
-    kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
+    //kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
     d->m_respWaits--;
     kDebug() << "Recived answer from plugin.";
 

@@ -35,7 +35,7 @@ Nepomuk::WebExtractor::ExtractParameters::ExtractParameters()
 
 Nepomuk::WebExtractor::ExtractParameters::~ExtractParameters()
 {
-    kDebug() << "Deleted: " << uintptr_t(this);
+    //kDebug() << "Deleted: " << uintptr_t(this);
 }
 
 Nepomuk::WebExtractor::ExtractParameters::ExtractParameters(const ExtractParameters & rhs)
