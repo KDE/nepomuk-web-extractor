@@ -24,6 +24,8 @@
 #include <QtCore/QSharedDataPointer>
 #include <Nepomuk/Resource>
 #include <Soprano/Statement>
+#include <Soprano/Model>
+#include <QUrl>
 #include <webextractor/webextractor_export.h>
 #include <webextractor/propertiesgroup.h>
 #include <webextractor/soprano_statement_qhash.h>
@@ -36,6 +38,10 @@ namespace Nepomuk {
 	class DataPP;
 	class PropertiesGroup;
 
+	/*! \brief This class represent one Decision - set of statements that can be applied to resource
+	 * Decision consist of PropertiesGroup. PropertiesGroup is a set of statements
+	 *  that can be applied only together
+	 */
 	class WEBEXTRACTOR_EXPORT Decision /*: public QOb*/
 	{
 	    public:
@@ -54,6 +60,12 @@ namespace Nepomuk {
 		bool operator!=( const Decision & rhs)const;
 		Decision( const Decision & );
 		static double truncateRank(double );
+		/*! \brief This function load decision from model
+		 * Load decision from given model by given url. It will return invalid
+		 * decision if resource with given url is not a Decision or if url is
+		 * invalid
+		 */
+		Decision loadDecision(Soprano::Model * model,QUrl url);
 		friend class ResourceAnalyzer;
 		friend class DecisionFactory;
 		friend class DecisionList;
