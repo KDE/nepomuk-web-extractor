@@ -24,32 +24,34 @@
 #include <webextractor/decisionlist.h>
 #include <webextractor/propertiesgroup.h>
 
-namespace Nepomuk {
-    namespace  WebExtractor {
-	class ResourceAnalyzerFactory;
-	class DataPPReply;
-	class WEBEXTRACTOR_EXPORT DecisionFactory
-	{
-	    public:
-		friend class ResourceAnalyzerFactory;
-		friend class ResourceAnalyzer;
-		friend class DataPPReply;
-		Decision newDecision(const DataPP * author) const;
-		DecisionList  newDecisionList( const DataPP * ) const;
-		/*! \brief Debugging function
-		 * Return DecisionFactory that can be used for debugging propose
-		 * to avoid creation on unnecessary 
-		 * ResourceAnalyzers/ResourceAnalyzerFactory instances
-		 */
-		static DecisionFactory * debugFactory(double ucrit = 0, double acrit = 1);
-		PropertiesGroup newPropertiesGroup( const DataPP *) const;
-	    private:
-		DecisionList  newDecisionList( ) const;
-		void setThreshold(double);
-		DecisionFactory(double ucrit, double acrit);
-		double m_threshold; // ucrit;
-		double m_acrit;
-	};
+namespace Nepomuk
+{
+    namespace  WebExtractor
+    {
+        class ResourceAnalyzerFactory;
+        class DataPPReply;
+        class WEBEXTRACTOR_EXPORT DecisionFactory
+        {
+            public:
+                friend class ResourceAnalyzerFactory;
+                friend class ResourceAnalyzer;
+                friend class DataPPReply;
+                Decision newDecision(const DataPP * author) const;
+                DecisionList  newDecisionList(const DataPP *) const;
+                PropertiesGroup newPropertiesGroup(const DataPP *) const;
+                /*! \brief Debugging function
+                 * Return DecisionFactory that can be used for debugging propose
+                 * to avoid creation on unnecessary
+                 * ResourceAnalyzers/ResourceAnalyzerFactory instances
+                 */
+                static DecisionFactory * debugFactory(double ucrit = 0, double acrit = 1);
+            private:
+                DecisionList  newDecisionList() const;
+                void setThreshold(double);
+                DecisionFactory(double ucrit, double acrit);
+                double m_threshold; // ucrit;
+                double m_acrit;
+        };
     }
 }
 

@@ -59,8 +59,6 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private /*: public QSharedData*/
         bool m_running;
         // The last error that occure while analyzing
         ResourceAnalyzer::AnalyzingError m_error;
-        // Convinience method to add set of DataPP* to queue
-        void enqueue(const QSet<const DataPP*> &);
         // Store all replies there
         QSet<DataPPReply*> m_replies;
 
@@ -297,7 +295,6 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
     if(!launchNext()) {
         // No more plugins to launch and all plugins launched before
         // returned their data
-
 
         kDebug() << "Extracting for resource finished";
         kDebug() << "Total decisions count: " << d->m_decisions.size();
