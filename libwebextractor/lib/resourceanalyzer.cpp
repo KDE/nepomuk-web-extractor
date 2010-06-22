@@ -201,11 +201,11 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 	    // Process data
 	    if (d->m_decisions.hasAutoApplicable()) {
 		d->m_decisions.best().apply();
-		d->m_decisions.clear();
 	    }
 	    else {
 		d->m_decisions.addToUserDiscretion();
 	    }
+	    d->m_decisions.clear();
 
 	    kDebug() << "Extracting for resource finished";
 	    kDebug() << "Total decisions count: "<<d->m_decisions.size();
@@ -227,12 +227,12 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
 	//if (!d->m_replyAndRanks.contains(repl)) {
 	if (d->m_dataPPKeeper.contains(parent)) {
 	    //double repl_rank = d->m_replyAndRanks[repl];
-	    double repl_rank = d->m_dataPPKeeper[parent]->rank();
+	    //double repl_rank = d->m_dataPPKeeper[parent]->rank();
 
 	    
 	    if (repl->isValid()) {
 		// Process Decision list
-		d->m_decisions.mergeWith(repl->decisions(), repl_rank,d->m_mergePolitics, d->m_mergeCoff );
+		d->m_decisions.mergeWith(repl->decisions(), d->m_mergePolitics, d->m_mergeCoff );
 	    }
 
 	    repl->deleteLater();

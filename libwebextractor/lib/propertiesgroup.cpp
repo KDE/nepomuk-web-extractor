@@ -41,7 +41,7 @@ void NW::PropertiesGroup::addStatement(const Soprano::Statement & st)
     
     // increase hash
     // TODO Analyze and implement more advanced hash function
-    d->hash += qHash(st);
+    d->hash ^= qHash(st);
 }
 
 const QSet< Soprano::Statement > & NW::PropertiesGroup::data() const

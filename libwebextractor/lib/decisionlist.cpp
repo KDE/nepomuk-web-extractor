@@ -1,4 +1,5 @@
 #include <webextractor/decisionlist.h>
+#include <math.h>
 
 /*
 Nepomuk::WebExtractor::DecisionList::DecisionList():
@@ -7,11 +8,13 @@ Nepomuk::WebExtractor::DecisionList::DecisionList():
 
 Nepomuk::WebExtractor::DecisionList::DecisionList(double threshold ):
     m_threshold(threshold),
-    m_trusted(true)
+    m_trusted(true),
+    m_hasAutoApplicable(false),
+    m_best(0)
 {;}
 
 
-void Nepomuk::WebExtractor::DecisionList::mergeWith( const DecisionList & rhs, double scale, WE::MergePolitics politics, double coff )
+void Nepomuk::WebExtractor::DecisionList::mergeWith( const DecisionList & rhs,  WE::MergePolitics politics, double coff )
 {
     if (&rhs == this)
 	return;
@@ -25,28 +28,37 @@ void Nepomuk::WebExtractor::DecisionList::mergeWith( const DecisionList & rhs, d
     //foreach( Decision d, rhs)
     {
 	Decision d = Decision(*it);
-	d.setRank(scale * d.rank() );
-	addDecision( d, politics, coff);
+	addDecisionUnscaled( d, politics, coff);
     }
 }
 
+/*
 void Nepomuk::WebExtractor::DecisionList::unique( WE::MergePolitics policis , double coff )
 {
     kDebug() << "Not realized yet";
 }
+*/
 
+
+/*
 void Nepomuk::WebExtractor::DecisionList::scale(double coff)
 {
     for(DecisionList::iterator it = begin(); it != end(); it++)
     {
-	it->setRank(it->rank()*coff);
+	it->setRank(scaledRank(it->rank(), coff));
     }
 }
+*/
 
+
+/*
 void Nepomuk::WebExtractor::DecisionList::sort()
 {
     kDebug() << "Not realized yet";
 }
+*/
+
+
 
 void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, bool noAuto )
 {
@@ -56,23 +68,71 @@ void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, bo
 void Nepomuk::WebExtractor::DecisionList::addDecision( const Decision &  dec, WE::MergePolitics politics, double coff, bool noAuto )
 {
     Decision d(dec);
+    double newRank = scaledRank(dec.rank(), m_scaleCoff );
     // Correct rank if necessary
     if ( (!noAuto) || (!m_trusted))  {
 	// Then this decision must not has auto applicable rank
-	if ( d.rank() > m_acrit )
+	if ( newRank > m_acrit )
 	    d.setRank(m_acrit);
     }
+    addDecisionUnscaled(d,politics,coff);
+}
+
+void Nepomuk::WebExtractor::DecisionList::addDecisionUnscaled( Decision &  d, WE::MergePolitics politics, double coff)
+{
+    double newRank = d.rank();
     // Ignore decision with low rank and empty decisions
-    if ( ( d.rank() < m_threshold ) and (!d.isEmpty()) ) {
-	this->push_back(dec);
+    if ( ( newRank > m_threshold ) and (!d.isEmpty()) ) {
+	// If such decision already exists
+	QSet<Decision>::iterator dit = this->find(d);
+	if ( dit != this->end() ) {
+	    // Adjust it rank acording to politics
+	    double nnRank = 0;
+	    double ditRank = dit->rank();
+	    switch (politics) {
+		case WE::Lowest : { nnRank = qMin(newRank,ditRank); break; }
+		case WE::Average : { nnRank = (newRank + ditRank)/2.0; break; }
+		case WE::Highest : { nnRank = qMax(newRank,ditRank); break; }
+		case WE::Adjust : { nnRank = pow(ditRank,1-newRank); break; }
+	    }
+
+	    // Update hasAutoApplicable flag
+	    if (nnRank > m_acrit)
+		m_hasAutoApplicable = true;
+
+	    // Update best decision
+	    if (nnRank > m_best.rank() )
+		m_best = d;
+
+	    d.setRank(nnRank);
+
+	    this->erase(dit);
+
+	    this->insert(d);
+
+	}
+	else {
+	    // Add this decision
+	    d.setRank(newRank);
+
+	    // Update hasAutoApplicable flag
+	    if (newRank > m_acrit)
+		m_hasAutoApplicable = true;
+
+	    this->insert(d);
+
+	    // Update best decision
+	    if (newRank > m_best.rank() )
+		m_best = d;
+	}
     }
-    kDebug() << "Not realized yet";
+    //kDebug() << "Not realized yet";
 }
 
 bool Nepomuk::WebExtractor::DecisionList::hasAutoApplicable() const
 {
-    kDebug() << "Not realized yet";
-    return false;
+    //kDebug() << "Not realized yet";
+    return m_hasAutoApplicable;
 }
 
 
@@ -94,7 +154,14 @@ void Nepomuk::WebExtractor::DecisionList::addToUserDiscretion() const
 
 const Nepomuk::WebExtractor::Decision &  Nepomuk::WebExtractor::DecisionList::best() const
 {
-    static Decision d = Decision(0);
-    kDebug() << "Not realzed yet";
-    return d;
+    return m_best;
+}
+
+double Nepomuk::WebExtractor::DecisionList::scaledRank(double rank, double coff)
+{
+    if (coff >= 0)
+	return pow(rank,1-coff);
+    else 
+	return pow(rank,1.0/(1+coff));
+
 }

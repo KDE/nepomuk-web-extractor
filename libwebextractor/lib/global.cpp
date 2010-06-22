@@ -54,3 +54,34 @@ double Nepomuk::WebExtractor::WE::boundUCrit(double val)
 
 }
 
+double Nepomuk::WebExtractor::WE::minRank()
+{
+    return 0.0;
+}
+
+double Nepomuk::WebExtractor::WE::maxRank()
+{
+    return 0.9999;
+}
+
+
+double Nepomuk::WebExtractor::WE::boundRank(double val)
+{
+    return qBound(minRank(), maxRank(), val);
+}
+
+double Nepomuk::WebExtractor::WE::minScaleCoff()
+{
+    return -0.9999;
+}
+
+double Nepomuk::WebExtractor::WE::maxScaleCoff()
+{
+    return 0.9999;
+}
+
+
+double Nepomuk::WebExtractor::WE::boundScaleCoff(double val)
+{
+    return qBound(minScaleCoff(), maxScaleCoff(), val);
+}

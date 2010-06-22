@@ -25,10 +25,10 @@ namespace Nepomuk {
 	{
 	    public:
 		enum MergePolitics { 
-		    Lowest = 1, 
-		    Average = 2, 
-		    Highest = 3, 
-		    Adjust = 4, 
+		    Lowest = 1,// Result decision has rank == min(r1,r2) 
+		    Average = 2, // Result decision has rank == (r1+r2)/2
+		    Highest = 3,  // Result decision has rank == max(r1,r2)
+		    Adjust = 4, // Result decision has rank r1**(1-r2)
 		    MergePolitics_MAX = 4, MergePolitics_MIN = 1 
 		};
 
@@ -43,6 +43,14 @@ namespace Nepomuk {
 
 		static double minUCrit();
 		static double maxUCrit();
+
+		static double minRank();
+		static double maxRank();
+		static double boundRank(double);
+
+		static double minScaleCoff();
+		static double maxScaleCoff();
+		static double boundScaleCoff(double);
 
 		static double boundACrit(double val);
 		static double boundUCrit(double val);

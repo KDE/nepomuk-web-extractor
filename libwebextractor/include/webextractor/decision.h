@@ -50,8 +50,8 @@ namespace Nepomuk {
 		const QSet<DataPP*> & pluginsInformation() const;
 		~Decision();
 		const Decision & operator=( const Decision & rhs);
-		bool operator==( const Decision & rhs);
-		bool operator!=( const Decision & rhs);
+		bool operator==( const Decision & rhs)const;
+		bool operator!=( const Decision & rhs)const;
 		Decision( const Decision & );
 		static double truncateRank(double );
 		friend class ResourceAnalyzer;
@@ -71,6 +71,7 @@ namespace Nepomuk {
 		 */
 		void addToUserDiscretion();
 		void addAuthor(const DataPP * author);
+		unsigned int timeStamp() const;
 		class Private;
 		QSharedDataPointer<Private> d;
 

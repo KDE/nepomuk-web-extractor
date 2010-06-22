@@ -19,6 +19,7 @@
 #include <webextractor/decision.h>
 #include <webextractor/datapp.h>
 #include <QtCore/QSharedData>
+#include <QtCore/QTime>
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>
 #include <KDebug>
@@ -31,6 +32,7 @@ class Nepomuk::WebExtractor::Decision::Private : public QSharedData
 	QSet<  PropertiesGroup > data;
 	QSet<const DataPP*>  authorsData;
 	unsigned int hash;
+	QTime timeStamp;
 	//QString pluginName;
 	//QString pluginVersion;
 };
@@ -38,11 +40,7 @@ class Nepomuk::WebExtractor::Decision::Private : public QSharedData
 
 double Nepomuk::WebExtractor::Decision::truncateRank( double rank )
 {
-    if (rank >= 1)
-	rank = 0.99;
-    if (rank < 0 )
-	rank = 0;
-    return rank;
+    return WE::boundRank(rank);
 }
 
 double Nepomuk::WebExtractor::Decision::rank() const
@@ -70,6 +68,8 @@ Nepomuk::WebExtractor::Decision::Decision(
     // If parent == 0 then this is invalid Decision
     if (parent)
 	d->authorsData.insert(parent);
+
+    d->timeStamp = QTime::currentTime();
 }
 
 Nepomuk::WebExtractor::Decision::~Decision()
@@ -86,12 +86,12 @@ const Nepomuk::WebExtractor::Decision & Nepomuk::WebExtractor::Decision::operato
     return *this;
 }
 
-bool Nepomuk::WebExtractor::Decision::operator==( const Decision & rhs)
+bool Nepomuk::WebExtractor::Decision::operator==( const Decision & rhs) const
 {
 	return (d->data == rhs.d->data);
 }
 
-bool Nepomuk::WebExtractor::Decision::operator!=( const Decision & rhs)
+bool Nepomuk::WebExtractor::Decision::operator!=( const Decision & rhs)const
 {
     return !(*this == rhs);
 }
@@ -133,7 +133,7 @@ void Nepomuk::WebExtractor::Decision::addGroup( const PropertiesGroup & grp)
     d->data << grp;
 
     // Increase hash
-    d->hash += qHash(grp);
+    d->hash ^= qHash(grp);
 }
 
 void Nepomuk::WebExtractor::Decision::apply() const
