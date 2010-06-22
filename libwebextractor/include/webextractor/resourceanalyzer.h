@@ -26,44 +26,96 @@
 #include <webextractor/datappwrapper.h>
 #include <webextractor/datappwrapper.h>
 #include <webextractor/global.h>
+#include <webextractor/decisionlist.h>
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	class ResourceAnalyzerFactory;
-	class WEBEXTRACTOR_EXPORT ResourceAnalyzer : public QObject
-	{
-	    Q_OBJECT;
-	    public:
-		void analyze(Nepomuk::Resource & res);
-	    Q_SIGNALS:
-		void analyzingFinished();
-	    private:
-		ResourceAnalyzer(
-			const DataPPKeeper & ,
-		       	DecisionFactory * fact, // Take ownership
-			WE::MergePolitics mergePolitics,
-			WE::LaunchPolitics launchPolitics,
-			double acrit,
-			double ucrit,
-			unsigned int step,
-		       	QObject * parent = 0
-			);
-		~ResourceAnalyzer();
-		// Only defenition, no implementation.
-		// Copying is forbidden
-		ResourceAnalyzer(const ResourceAnalyzer &);
-		const ResourceAnalyzer & operator=( const ResourceAnalyzer &);
-	    private Q_SLOTS:
-		void pluginFinished();
-		//void pluginError();
-		bool launchNext();
-		void launchOrFinish();
-		void emitAnalyzingFinished();
-	    public:
-		friend class ResourceAnalyzerFactory;
-		class Private;
-		Private * d;
-	};
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        class ResourceAnalyzerFactory;
+        /*! \brief This is the main class for analyzing resources.
+         *
+         * Analyzing is started with analyze() method.
+         *
+         * After analyzing is finished generated decisions can be retrived with
+         * decisions() method.
+         *
+         * To apply decisionlist - apply the best decision with rank > a_crit or
+         * add decisions with rank > u_crit to the storage call apply() method
+         *
+         * TODO Add counter for counting how often decisions become obsolete right
+         * after the retriving. If too often then refuse from analyzing.
+         */
+        class WEBEXTRACTOR_EXPORT ResourceAnalyzer : public QObject
+        {
+                Q_OBJECT;
+                // Public API
+            public:
+                enum AnalyzingError { NoError = 0, ActiveUsage = 1 };
+                /*! \brief Starts analyzing of resource
+                      */
+                void analyze(Nepomuk::Resource & res);
+
+                /*! \brief Return list of generated decisions
+                 */
+                DecisionList decisions() const;
+
+                /*! \brief Apply any Decision with rank > a_crit or store Decision for the user discrition
+                 *
+                 * This function can be called only once. Next calls of this method will do nothing
+                 */
+                void apply();
+
+                /*! Remove list of decisions.
+                 *
+                 * Call this method if you want to free memory immidiately.
+                 */
+                void clear();
+
+                /*! \brief return error code
+                 */
+                AnalyzingError error() const;
+            Q_SIGNALS:
+                void analyzingFinished();
+                /*! \brief indicates an error during analyzer
+                 * The analyzingFinished signal will folow this one
+                 */
+                void error(AnalyzingError error);
+
+                // Implementation API
+            private:
+                ResourceAnalyzer(
+                    const DataPPKeeper & ,
+                    DecisionFactory * fact, // Take ownership
+                    WE::MergePolitics mergePolitics,
+                    WE::LaunchPolitics launchPolitics,
+                    double acrit,
+                    double ucrit,
+                    unsigned int step,
+                    QObject * parent = 0
+                );
+                ~ResourceAnalyzer();
+                // Only defenition, no implementation.
+                // Copying is forbidden
+                ResourceAnalyzer(const ResourceAnalyzer &);
+                const ResourceAnalyzer & operator=(const ResourceAnalyzer &);
+            private Q_SLOTS:
+                void pluginFinished();
+                //void pluginError();
+                bool launchNext();
+                void launchOrFinish();
+
+                // emit analyzingFinished signal
+                void emitAnalyzingFinished();
+
+                // emit error signal and then analyzingFinished signal.
+                // Also set m_error variable to code
+                void finishWithError(AnalyzingError code);
+            public:
+                friend class ResourceAnalyzerFactory;
+                class Private;
+                Private * d;
+        };
     }
 }
 
