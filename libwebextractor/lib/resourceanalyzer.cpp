@@ -167,11 +167,12 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
             continue;
         }
 
-        // Save this reply
+        // Connect signals of this reply
         connect(repl, SIGNAL(finished()), this, SLOT(pluginFinished()));
         connect(repl, SIGNAL(error()), this, SLOT(pluginFinished()));
 
         //d->m_replyAndRanks[repl] = d->it->second;
+        // Increase the number of active replies
         d->m_respWaits++;;
 
     }
@@ -217,9 +218,9 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender());
     if(repl) {
         const DataPP * parent = repl->parentDataPP();
-        // Delete it from map and call deleteLater
-        //if (!d->m_replyAndRanks.contains(repl)) {
+        // Error check - check that this reply is not from unknown DataPP
         if(d->m_dataPPKeeper.contains(parent)) {
+            // Delete it from map and call deleteLater
             //double repl_rank = d->m_replyAndRanks[repl];
             //double repl_rank = d->m_dataPPKeeper[parent]->rank();
 
@@ -243,6 +244,8 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     if(d->m_respWaits == 0) {
         // All launched plugins return data
         // Process it
+        // Filter obsolete Decisions and add the DataPP that generate
+        // this obsolete Decisions back to queue
         QSet< const DataPP*> set = d->m_decisions.filterObsolete();
         if(set.size()) {
             d->enqueue(set);
@@ -260,6 +263,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
 
 void NW::ResourceAnalyzer::apply()
 {
+    // This function can be called only once.
     if(d->m_applied)
         return;
 
