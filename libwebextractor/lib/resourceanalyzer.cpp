@@ -45,8 +45,11 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private
         double m_acrit;
         double m_ucrit;
         QQueue<DataPPWrapper*> m_queue;
+<<<<<<< HEAD
         bool m_applied;
         ResourceAnalyzer::AnalyzingError m_error;
+=======
+>>>>>>> Restyle files
         void enqueue(const QSet<const DataPP*> &);
 
 };
@@ -187,6 +190,16 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
         // No more plugins to launch and all plugins launched before
         // returned their data
 
+<<<<<<< HEAD
+=======
+        // Process data
+        if(d->m_decisions.hasAutoApplicable()) {
+            d->m_decisions.best().apply();
+        } else {
+            d->m_decisions.addToUserDiscretion();
+        }
+        d->m_decisions.clear();
+>>>>>>> Restyle files
 
         kDebug() << "Extracting for resource finished";
         kDebug() << "Total decisions count: " << d->m_decisions.size();

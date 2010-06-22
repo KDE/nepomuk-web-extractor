@@ -21,14 +21,15 @@
 
 #include <webextractor_plugin.h>
 #include <webextractor/simple_datapp.h>
-namespace Nepomuk {
+namespace Nepomuk
+{
     class DebugPlugin : public WebExtractorPlugin
     {
-	public:
-	    DebugPlugin(QObject*, const QList<QVariant>&);
-	    virtual Nepomuk::WebExtractor::DataPP * getDataPP( KSharedConfigPtr configFile );
-	    static QString  version();
-	protected:
-    };  
+        public:
+            DebugPlugin(QObject*, const QList<QVariant>&);
+            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
+            static QString  version();
+        protected:
+    };
 }
 #endif
