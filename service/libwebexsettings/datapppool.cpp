@@ -7,6 +7,7 @@
 #include <KService>
 #include <KServiceTypeTrader>
 #include <KGlobal>
+#include <QtDebug>
 #include <kstandarddirs.h>
 
 TreeItem::TreeItem(const QString & name):
@@ -249,114 +250,155 @@ void Nepomuk::DataPPPool::addDataPP(const QString & name, const QString & source
     KSharedConfigPtr Nepomuk::DataPPPool::dataPPConfig(const QString & name) {
         return KSharedConfig::openConfig()
            }
+       }
 #endif
 
-    QString Nepomuk::DataPPPool::dataPPSource(const QString & name) {
-        if(!self()->m_dataPPSources.contains(name)) {
-            kDebug() << "No such DataPP: " << name ;
-            return QString();
-        } else {
-            return self()->m_dataPPSources[name];
-        }
+       QString Nepomuk::DataPPPool::dataPPSource(const QString & name)
+{
+    if(!self()->m_dataPPSources.contains(name)) {
+        kDebug() << "No such DataPP: " << name ;
+        return QString();
+    } else {
+        return self()->m_dataPPSources[name];
     }
-    Nepomuk::DataPPPool * Nepomuk::DataPPPool::self() {
-        static DataPPPool *  m_self = new DataPPPool();
-        return m_self;
+}
+
+Nepomuk::DataPPPool * Nepomuk::DataPPPool::self()
+{
+    static DataPPPool *  m_self = new DataPPPool();
+    return m_self;
+}
+
+int Nepomuk::DataPPPool::categoryCount()
+{
+    return self()->m_categoryPlugins->childsCount();
+}
+
+// Non-static methods of the class
+// These are methods that realize  model functionality
+//
+QModelIndex Nepomuk::DataPPPool::index(int row, int column, const QModelIndex & parent) const
+{
+    //kDebug() << "Index " << row << ' ' << column << ' ' << parent;
+    if(!hasIndex(row, column, parent))
+        return QModelIndex();
+
+    TreeItem * parentItem;
+    if(parent.isValid())
+        parentItem = static_cast<TreeItem*>(parent.internalPointer());
+    else
+        parentItem = m_categoryPlugins;
+
+    TreeItem * childItem = parentItem->child(row);
+    if(childItem)
+        return createIndex(row, column, childItem);
+    else
+        return QModelIndex();
+}
+
+QModelIndex Nepomuk::DataPPPool::parent(const QModelIndex & index) const
+{
+    if(!index.isValid())
+        return QModelIndex();
+
+    TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+    Q_ASSERT(childItem);
+    TreeItem *parentItem = childItem->parent();
+    Q_ASSERT(parentItem);
+
+    if(parentItem == m_categoryPlugins)
+        return QModelIndex();
+
+    return createIndex(parentItem->row(), 0, parentItem);
+}
+
+
+int Nepomuk::DataPPPool::rowCount(const QModelIndex & parent) const
+{
+    //kDebug() << "Row  count. parent: "<<parent;
+    if(!parent.isValid()) {
+        //kDebug() << m_categoryPlugins->childsCount();
+        return m_categoryPlugins->childsCount();
     }
 
-    int Nepomuk::DataPPPool::categoryCount() {
-        return self()->m_categoryPlugins->childsCount();
+    if(parent.column() > 0) {
+        //kDebug() << 0;
+        return 0;
     }
 
-    // Non-static methods of the class
-    // These are methods that realize  model functionality
-    //
-    QModelIndex Nepomuk::DataPPPool::index(int row, int column, const QModelIndex & parent) const {
-        if(!hasIndex(row, column, parent))
-            return QModelIndex();
+    //kDebug() << static_cast<TreeItem*>(parent.internalPointer())->childsCount();
+    return static_cast<TreeItem*>(parent.internalPointer())->childsCount();
+}
 
-        TreeItem * parentItem;
-        if(parent.isValid())
-            parentItem = static_cast<TreeItem*>(parent.internalPointer());
-        else
-            parentItem = m_categoryPlugins;
-
-        TreeItem * childItem = parentItem->child(row);
-        if(childItem)
-            return createIndex(row, column, childItem);
-        else
-            return QModelIndex();
-    }
-
-    QModelIndex Nepomuk::DataPPPool::parent(const QModelIndex & index) const {
-        if(!index.isValid())
-            return QModelIndex();
-
-        TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
-        TreeItem *parentItem = childItem->parent();
-
-        if(parentItem == m_categoryPlugins)
-            return QModelIndex();
-
-        return createIndex(parentItem->row(), 0, parentItem);
-    }
-
-
-    int Nepomuk::DataPPPool::rowCount(const QModelIndex & parent) const {
-        if(parent.column() > 0)
-            return 0;
-
-        if(!parent.isValid())
-            return m_categoryPlugins->childsCount();
-        else
-            return static_cast<TreeItem*>(parent.internalPointer())->childsCount();
-    }
-
-    int Nepomuk::DataPPPool::columnCount(const QModelIndex & parent) const {
+int Nepomuk::DataPPPool::columnCount(const QModelIndex & parent) const
+{
+    //kDebug() << "Column  count. parent: "<<parent;
+    // If parent root item return 1
+    if(!parent.isValid())
         return 1;
+
+    TreeItem * item = static_cast<TreeItem*>(parent.internalPointer());
+    Q_ASSERT(item);
+    // If parent is category then return 1 if it has any child
+    if(item->isCategory() && item->childsCount())
+        return 1;
+    else {
+        // If it is DataPP or Category without any DataPP assigned
+        return 0;
     }
 
-    QVariant Nepomuk::DataPPPool::data(const QModelIndex & index, int role) const {
-        if(!index.isValid())
-            return QVariant();
+}
 
-        TreeItem * item = static_cast<TreeItem*>(index.internalPointer());
-        switch(role) {
-        case Qt::DisplayRole : {
-            return item->name();
-        }
-        case DataPPPool::DataPPRole : {
-            return !item->isCategory() ;
-        }
-        case DataPPPool::SourceRole : {
-            return DataPPPool::dataPPSource(item->name());
-        }
-        }
-    }
-
-    Qt::ItemFlags Nepomuk::DataPPPool::flags(const QModelIndex & index) const {
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
-    }
-
-    QVariant Nepomuk::DataPPPool::headerData(int section, Qt::Orientation orientation,
-    int role) const {
-        if(orientation == Qt::Horizontal)
-            return m_categoryPlugins->name();
-
+QVariant Nepomuk::DataPPPool::data(const QModelIndex & index, int role) const
+{
+    if(!index.isValid())
         return QVariant();
 
+    TreeItem * item = static_cast<TreeItem*>(index.internalPointer());
+    Q_ASSERT(item);
+    switch(role) {
+    case Qt::DisplayRole : {
+        //kDebug() << item->name();
+        return item->name();
+    }
+    case DataPPPool::DataPPRole : {
+        return !item->isCategory() ;
+    }
+    case DataPPPool::SourceRole : {
+        return DataPPPool::dataPPSource(item->name());
+    }
+    }
+    return QVariant();
+}
+
+/*
+Qt::ItemFlags Nepomuk::DataPPPool::flags(const QModelIndex & index) const
+{
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+}
+*/
+
+QVariant Nepomuk::DataPPPool::headerData(int section, Qt::Orientation orientation,
+        int role) const
+{
+    if(orientation == Qt::Horizontal)
+        return m_categoryPlugins->name();
+
+    return QVariant();
+
+}
+
+QDebug Nepomuk::operator<<(QDebug dbg,  const DataPPPool & pool)
+{
+    dbg << " Pool of all DataPP installed in system/user " << '\n';
+    foreach(const QString & plg, pool.m_plugins) {
+        dbg << plg << /*" source: " << pool.m_dataPPSources[plg]<<*/'\n';
+    }
+    if(pool.m_categoryPlugins) {
+        dbg << " DataPP,per-category " << '\n';
+        pool.m_categoryPlugins->print(0, dbg);
     }
 
-    QDebug Nepomuk::operator<<(QDebug dbg,  const DataPPPool & pool) {
-        dbg << " Pool of all DataPP installed in system/user " << '\n';
-        foreach(const QString & plg, pool.m_plugins) {
-            dbg << plg << /*" source: " << pool.m_dataPPSources[plg]<<*/'\n';
-        }
-        if(pool.m_categoryPlugins) {
-            dbg << " DataPP,per-category " << '\n';
-            pool.m_categoryPlugins->print(0, dbg);
-        }
 
-
-        return dbg;
-    }
+    return dbg;
+}

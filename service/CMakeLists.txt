@@ -74,6 +74,9 @@ kde4_add_library ( webexplugin SHARED
 # Add webexsettings library, that depends from webexplugin
 add_subdirectory(libwebexsettings)
 
+# Add webexsettings ui library
+add_subdirectory(libwebexsettingsui)
+
 # Add include directory for libwebexsettings library
 include_directories(
     ${libwebexsettings_BINARY_DIR}
@@ -93,6 +96,9 @@ kde4_add_plugin(nepomukwebexservice ${webexservice_SRCS})
 
 #kcm
 add_subdirectory(kcm)
+
+#gui
+add_subdirectory(gui)
 
 
 target_link_libraries(nepomukwebexservice 
