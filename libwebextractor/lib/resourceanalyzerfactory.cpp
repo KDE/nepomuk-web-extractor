@@ -20,34 +20,34 @@
 #include "resourceanalyzerfactory.h"
 #include <KDebug>
 
+namespace NW = Nepomuk::WebExtractor;
 Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
-	ExtractParametersPtr extractParams,
-	/*
-	ResourceAnalyzer::LaunchPolitics launchPolitics,
-	DecisionList::MergePolitics mergePolitics,
-	unsigned int step,
-	double acrit,
-	double ucrit,
-	*/
-	QObject * parent
-	):
+    ExtractParametersPtr extractParams,
+    /*
+    ResourceAnalyzer::LaunchPolitics launchPolitics,
+    DecisionList::MergePolitics mergePolitics,
+    unsigned int step,
+    double acrit,
+    double ucrit,
+    */
+    QObject * parent
+):
     QObject(parent),
     m_launchPolitics(WE::StepWise),
     m_mergePolitics(WE::Highest),
     m_step(10)
 {
-    if ( extractParams.isNull() ) {
-	kDebug() << "Parameters are null. Reseting to defaults";
-    }
-    else {
-	m_dataPPKeeper = extractParams->plugins();
-	m_step = extractParams->pluginSelectStep();
-	m_launchPolitics = extractParams->launchPolitics();
-	m_mergePolitics = extractParams->mergePolitics() ;
-	m_ucrit = extractParams->uCrit() ;
-	m_acrit = extractParams->aCrit() ;
-	kDebug() << "ACrit: "<<m_acrit;
-	kDebug() << "UCrit: "<<m_ucrit;
+    if(extractParams.isNull()) {
+        kDebug() << "Parameters are null. Reseting to defaults";
+    } else {
+        m_dataPPKeeper = extractParams->plugins();
+        m_step = extractParams->pluginSelectStep();
+        m_launchPolitics = extractParams->launchPolitics();
+        m_mergePolitics = extractParams->mergePolitics() ;
+        m_ucrit = extractParams->uCrit() ;
+        m_acrit = extractParams->aCrit() ;
+        kDebug() << "ACrit: " << m_acrit;
+        kDebug() << "UCrit: " << m_ucrit;
     }
 }
 
@@ -56,15 +56,24 @@ Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyze
     DecisionFactory * fct = new DecisionFactory(m_ucrit, m_acrit);
     fct->setThreshold(m_ucrit);
     return new Nepomuk::WebExtractor::ResourceAnalyzer(
-	    m_dataPPKeeper,
-	    fct,
-	    this->m_mergePolitics,
-	    this->m_launchPolitics,
-	    m_acrit,
-	    m_ucrit,
-	    this->m_step
-	    );
+               m_dataPPKeeper,
+               fct,
+               this->m_mergePolitics,
+               this->m_launchPolitics,
+               m_acrit,
+               m_ucrit,
+               this->m_step
+           );
+}
+
+Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyzerFactory::newAnalyzer(const Nepomuk::Resource & res)
+{
+    ResourceAnalyzer * resanal = newAnalyzer();
+    resanal->setResource(res);
+    return resanal;
 }
 
 void Nepomuk::WebExtractor::ResourceAnalyzerFactory::deleteAnalyzer(Nepomuk::WebExtractor::ResourceAnalyzer * res)
-{if (res) res->deleteLater();}
+{
+    if(res) res->deleteLater();
+}

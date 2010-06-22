@@ -31,26 +31,46 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private
         ~Private();
     public:
         //int tmp_count;
+        // Number of responds that must be recived
         int m_respWaits;
+        // THis is hash <DataPP*,DataPPWrapper*> where all DataPPWrappers are storeg
+        // keys are corresponding DataPP*
         const DataPPKeeper & m_dataPPKeeper;
-        DataPPKeeper::const_iterator it;
+        //DataPPKeeper::const_iterator it;
+        // DecisionFactory that will be passed to DataPP
         DecisionFactory * m_fact;
         //QMap< DataPPReply*, double > m_replyAndRanks;
         WE::LaunchPolitics m_launchPolitics;
         unsigned int m_step;
+        // All collected Decisions are stored there
         DecisionList m_decisions;
         WE::MergePolitics m_mergePolitics;
         double m_mergeCoff;
+        // This is stored resource we currently analyze. Or are going to analyze.
         Nepomuk::Resource m_res;
         double m_acrit;
         double m_ucrit;
+        // This is queue where all DataPP that must be launched are stored
         QQueue<DataPPWrapper*> m_queue;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        // THis variable prevent executing apply() method more then one time
+>>>>>>> Change API of resource analyzer
         bool m_applied;
+        // This variable keep running/not-running state of ResourceAnalyzer
+        bool m_running;
+        // The last error that occure while analyzing
         ResourceAnalyzer::AnalyzingError m_error;
+<<<<<<< HEAD
 =======
 >>>>>>> Restyle files
+=======
+        // Convinience method to add set of DataPP* to queue
+>>>>>>> Change API of resource analyzer
         void enqueue(const QSet<const DataPP*> &);
+        // Store all replies there
+        QSet<DataPPReply*> m_replies;
 
 };
 
@@ -63,6 +83,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer::Private::Private(
     m_fact(fact),
     m_mergeCoff(1),
     m_applied(false),
+    m_running(false),
     m_error(ResourceAnalyzer::NoError)
 {
     //DataPPKeeper::const_iterator it = m_dataPPKeeper.begin();
@@ -103,7 +124,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
     d->m_acrit = acrit;
     d->m_ucrit = ucrit;
     d->m_decisions = fac->newDecisionList();
-    d->it = d->m_dataPPKeeper.begin();
+    //d->it = d->m_dataPPKeeper.begin();
 }
 
 Nepomuk::WebExtractor::ResourceAnalyzer::~ResourceAnalyzer()
@@ -112,10 +133,23 @@ Nepomuk::WebExtractor::ResourceAnalyzer::~ResourceAnalyzer()
 }
 
 
-void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepomuk::Resource & res)
+void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze()
 {
 
-    // Check that resource exists
+    analyze(d->m_res);
+}
+
+void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepomuk::Resource & res)
+{
+    if(isRunning()) {
+        abort();
+        clear();
+    }
+
+    // Reset error variable
+    d->m_error = NoError;
+
+    // Check that resource is valid
     if(!res.isValid()) {
         // Set error now to provide caller ability to check for errors immidiately
         // and delete ResourceAnalyzer, thus avoiding error signal(I hope Qt
@@ -149,6 +183,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
     // start processing
     kDebug() << "Extracting data from resource";
 
+    d->m_running = true;
     if(!launchNext()) {
         // Can not analyze - no DataPP or any other problem
         // to avoid infinite recursion the analyzingFinished signal will
@@ -156,9 +191,50 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
         if(d->m_error == NoError) {
             d->m_error = UnknownError;
         }
+        d->m_running = false;
         QTimer::singleShot(0, this, SLOT(finishWithError()));
     }
 }
+
+bool NW::ResourceAnalyzer::isRunning() const
+{
+    return d->m_running;
+}
+
+void NW::ResourceAnalyzer::abort()
+{
+    if(d->m_running) {
+        // This is the only method where m_replies is necessary :(
+        // Abort each reply, delete it and clear m_replies
+        foreach(DataPPReply * repl, d->m_replies) {
+            disconnect(repl, SIGNAL(finished()), this, SLOT(pluginFinished()));
+            // FIXME Change error() signal to pluginError slot
+            disconnect(repl, SIGNAL(error()), this, SLOT(pluginFinished()));
+            repl->abort();
+            delete repl;
+        }
+        d->m_replies.clear();
+
+        d->m_running = false;
+    }
+    return;
+}
+
+void NW::ResourceAnalyzer::setResource(const Nepomuk::Resource & res)
+{
+    if(d->m_running) {
+        abort();
+    }
+    if(!res.isValid())
+        return;
+
+    // Clear previously collected data
+    clear();
+    // Set new resource and return
+    d->m_res = res;
+
+}
+
 
 bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 {
@@ -196,8 +272,12 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
         }
 
         // Connect signals of this reply
+        // FIXME Change error() signal to pluginError slot
         connect(repl, SIGNAL(finished()), this, SLOT(pluginFinished()));
         connect(repl, SIGNAL(error()), this, SLOT(pluginFinished()));
+
+        Q_ASSERT(!d->m_replies.contains(repl));
+        d->m_replies.insert(repl);
 
         //d->m_replyAndRanks[repl] = d->it->second;
         // Increase the number of active replies
@@ -219,16 +299,6 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
         // No more plugins to launch and all plugins launched before
         // returned their data
 
-<<<<<<< HEAD
-=======
-        // Process data
-        if(d->m_decisions.hasAutoApplicable()) {
-            d->m_decisions.best().apply();
-        } else {
-            d->m_decisions.addToUserDiscretion();
-        }
-        d->m_decisions.clear();
->>>>>>> Restyle files
 
         kDebug() << "Extracting for resource finished";
         kDebug() << "Total decisions count: " << d->m_decisions.size();
@@ -237,6 +307,9 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 }
 
 
+// TODO I am not sure that even after deleting the reply there will not be any
+// queued signals left. May be it is necessary to add filter that will ignore
+// 'obsolete' replies
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinished()
 {
     d->m_respWaits--;
@@ -245,6 +318,9 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     // Process data plugin has returned
     DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender());
     if(repl) {
+        Q_ASSERT(d->m_replies.contains(repl));
+        // Remove reply from set
+        d->m_replies.remove(repl);
         const DataPP * parent = repl->parentDataPP();
         // Error check - check that this reply is not from unknown DataPP
         if(d->m_dataPPKeeper.contains(parent)) {
@@ -307,6 +383,9 @@ void NW::ResourceAnalyzer::apply()
 
 void NW::ResourceAnalyzer::clear()
 {
+    if(d->m_running)
+        return;
+
     d->m_decisions.clear();
 }
 

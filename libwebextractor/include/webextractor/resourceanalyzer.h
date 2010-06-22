@@ -51,9 +51,17 @@ namespace Nepomuk
                 Q_OBJECT;
                 // Public API
             public Q_SLOTS:
-                /*! \brief Starts analyzing of resource
-                      */
+                /*! \brief Analyze given resource.
+                 * If resource is incorrect then error() signal will be send.
+                 * All signals are sent <b>after</b> the control returns to event loop.
+                 */
                 void analyze(Nepomuk::Resource & res);
+
+                /*! \brief Analyze current resource
+                      * If resource is incorrect then error() signal will be send.
+                      * All signals are sent <b>after</b> the control returns to event loop.
+                      */
+                void analyze();
             public:
                 enum AnalyzingError {
                     /*! \brief No error
@@ -90,13 +98,40 @@ namespace Nepomuk
 
                 /*! Remove list of decisions.
                  *
-                 * Call this method if you want to free memory immidiately.
+                 * Call this method if you want to delete collected information.
+                         * Calling this method when analyzing process is running will result
+                         * in ignoring this function. Call abort() first, then clear()
+                         * TODO Make this function bool instead of void
                  */
                 void clear();
 
                 /*! \brief return error code
                  */
                 AnalyzingError error() const;
+
+                /*! \brief Set current analyzing resource.
+                 * This method should not be called while ResourceAnalyzer
+                 * is processing prevous resource. It will <b>always</b> abort analyzing.
+                 * If res is invalid then nothing will happens ( except aborting
+                 * previous analyzing, of course). If resource is valid (even if
+                 * it is not exists) then all previously collected data will be cleared
+                 * and target resource will be replaced with given one.
+                 * The analyzing process will <b>not</b> restart even if it was running
+                 * when this method was called.
+                 */
+                void setResource(const Nepomuk::Resource & res);
+
+                /*! \brief Return true if ResourceAnalyzer is analyzing some resource
+                 */
+                bool isRunning() const;
+
+                /*! \brief Abort analyzing. No signal will be send
+                 * The method will abort analyzing but will not clear already
+                 * collected data. Call clear() to do this.
+                 * TODO Add overloaded method that will send error() and finished()
+                 * signals after aborting
+                 */
+                void abort();
             Q_SIGNALS:
                 void analyzingFinished();
                 /*! \brief indicates an error during analyzer
@@ -146,5 +181,4 @@ namespace Nepomuk
         };
     }
 }
-
 #endif

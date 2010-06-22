@@ -24,32 +24,35 @@
 #include <webextractor/decisionlist.h>
 #include <webextractor/webextractor_export.h>
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	class DataPP;
-	class WEBEXTRACTOR_EXPORT DataPPReply : public QObject
-	{
-	    Q_OBJECT;
-	    public:
-		DataPPReply(DataPP * );
-		virtual DecisionList decisions() const = 0;
-		virtual ~DataPPReply();
-		virtual QString pluginName() const; 
-		DataPP * parentDataPP() const;
-	    public Q_SLOTS:
-		/*! \brief Abort execution 
-		 */
-		virtual void abort() = 0;
-	    	virtual bool isValid() const = 0;
-		//const QString & pluginVersion() const; 
-	    Q_SIGNALS:
-		void finished();
-		void error();
-	    private:
-		//void setPluginName(const QString & pluginName);
-		class Private;
-		Private * d;
-	};
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        class DataPP;
+        class WEBEXTRACTOR_EXPORT DataPPReply : public QObject
+        {
+                Q_OBJECT;
+            public:
+                DataPPReply(DataPP *);
+                virtual DecisionList decisions() const = 0;
+                virtual ~DataPPReply();
+                virtual QString pluginName() const;
+                DataPP * parentDataPP() const;
+            public Q_SLOTS:
+                /*! \brief Abort execution
+                 * Calling abort <b>must</b> prevent finished() and error() signals from comming
+                 */
+                virtual void abort() = 0;
+                virtual bool isValid() const = 0;
+                //const QString & pluginVersion() const;
+            Q_SIGNALS:
+                void finished();
+                void error();
+            private:
+                //void setPluginName(const QString & pluginName);
+                class Private;
+                Private * d;
+        };
     }
 }
 
