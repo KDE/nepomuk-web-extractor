@@ -37,8 +37,8 @@ namespace Nepomuk
         public:
 
             DataPPConfig(const QString &);
-            /*! Return config file for this DataPP
-             */
+            /*! \brief Return config file for this DataPP
+            */
             KSharedConfigPtr config();
 
             virtual ~DataPPConfig();
