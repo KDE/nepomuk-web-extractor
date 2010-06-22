@@ -16,26 +16,31 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "catnamevalidator.h"
-#include "libwebexsettings/categoriespool.h"
 
-CategoryNameValidator::CategoryNameValidator(QObject * parent):
-    QValidator(parent)
-{
-    update();
-    connect(Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()),
-            this, SLOT(update()));
-}
+#ifndef __webexsettings_global_h_
+#define __webexsettings_global_h_
 
-void CategoryNameValidator::update()
-{
-    m_categories = Nepomuk::CategoriesPool::categories();
-}
+#include "webextractor_plugin.h"
+#include <QHash>
 
-QValidator::State CategoryNameValidator::validate(QString & str, int & pos) const
-{
-    if(m_categories.contains(str))
-        return Intermediate;
-    else
-        return Acceptable;
+namespace Nepomuk {
+    class GlobalSettings
+    {
+	public:
+	    static int pluginCount();
+	// FIXME Make all members private and open them to some config classes:
+	// DataPPConfig , may be category config
+	public:
+	    static WebExtractorPlugin * plugin(const QString & name );
+	    // Temporaly desabled as unused
+	    //static KServicePtr pluginService( const QString & name );
+	    static QString pluginServiceType();
+	    static QString pluginQueryByName(const QString & name);
+	private:
+	    static QString pluginQueryTemplate();
+	    static QHash< QString, WebExtractorPlugin*> & m_plugins();
+		
+
+    };
 }
+#endif

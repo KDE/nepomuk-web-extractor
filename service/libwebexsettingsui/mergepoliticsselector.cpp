@@ -17,17 +17,18 @@
  */
 
 #include "mergepoliticsselector.h"
+#include <klocalizedstring.h>
 
 MergePoliticsSelector::MergePoliticsSelector(QWidget * parent):
     QComboBox(parent)
 {
-    this->addItem(i18n("Lowest"),Nepomuk::WebExtractor::WE::Lowest);
-    this->addItem(i18n("Average"),Nepomuk::WebExtractor::WE::Average);
-    this->addItem(i18n("Highest"),Nepomuk::WebExtractor::WE::Highest);
-    this->addItem(i18n("Adjust"),Nepomuk::WebExtractor::WE::Adjust);
+    this->addItem(i18n("Lowest"), Nepomuk::WebExtractor::WE::Lowest);
+    this->addItem(i18n("Average"), Nepomuk::WebExtractor::WE::Average);
+    this->addItem(i18n("Highest"), Nepomuk::WebExtractor::WE::Highest);
+    this->addItem(i18n("Adjust"), Nepomuk::WebExtractor::WE::Adjust);
 }
 
-Nepomuk::WebExtractor::WE::MergePolitics MergePolitics::politics() const
+Nepomuk::WebExtractor::WE::MergePolitics MergePoliticsSelector::politics() const
 {
-    return itemData(currentIndex()); 
+    return Nepomuk::WebExtractor::WE::MergePolitics(itemData(currentIndex()).toInt());
 }

@@ -49,7 +49,10 @@ kde4_add_executable( console ${webexconsole_SRCS} )
 
 target_link_libraries( console 
     webexsettings
+    webextractor
     ${LIBWEBEXTRACTOR_LIBRARIES}
     ${NEPOMUK_LIBRARIES}
     ${KDE4_NEPOMUK_LIBS}
+    ${KDE4_KDECORE_LIBS}
+    ${KDE4_KDEUI_LIBRARY}
     )

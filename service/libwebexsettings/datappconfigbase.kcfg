@@ -6,7 +6,7 @@
 
 <kcfgfile arg="true"/>
 <group name="webextractor">
-    <entry name="plugin" type="String">
+    <entry name="source" type="String">
     </entry>
     <entry name="categories" type="StringList">
     </entry>

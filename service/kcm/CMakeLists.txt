@@ -1,6 +1,7 @@
 include_directories(
     ${webextractorservice_BINARY_DIR}
-      ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${libwebexsettingsui_SOURCE_DIR}
     )
 configure_file(kcm_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/kcm_config.h )
 
@@ -10,7 +11,7 @@ set( webexkcm_SRCS
     ConfigWidget.cpp
     GeneralPage.cpp
     CategoriesPage.cpp
-    catnamevalidator.cpp
+    #catnamevalidator.cpp
     pluginItemDelegate.cpp
     pluginselector.cpp
     
@@ -34,6 +35,7 @@ target_link_libraries(kcm_webexconfig
      ${KDE4_KNOTIFYCONFIG_LIBRARY}
      ${KDE4_KIO_LIBS}
      webexsettings
+     webexsettingsui
      )
 
 install(

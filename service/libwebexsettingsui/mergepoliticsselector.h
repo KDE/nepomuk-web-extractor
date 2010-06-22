@@ -20,13 +20,13 @@
 #include <QComboBox>
 #include <webextractor/global.h>
 
-class MergePoliticsSelector:public QComboBox
+class MergePoliticsSelector: public QComboBox
 {
-    Q_OBJECT;
+        Q_OBJECT;
     public:
-	MergePoliticsSelector(QWidget * parent = 0);
-	Nepomuk::WebExtractor::MergePolitics politics() const;
+        MergePoliticsSelector(QWidget * parent = 0);
+        Nepomuk::WebExtractor::WE::MergePolitics politics() const;
     private:
-	// Only defenition
-	// addItem();
+        // Only defenition
+        // addItem();
 };

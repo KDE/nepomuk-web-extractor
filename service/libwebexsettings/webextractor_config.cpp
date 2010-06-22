@@ -30,17 +30,16 @@ Nepomuk::WebExtractorConfig::WebExtractorConfig():
 
 Nepomuk::WebExtractorConfig::~WebExtractorConfig()
 {
-    foreach(WebExCategory * ctg, m_categories)
-    {
-	if (ctg)
-	    delete ctg;
+    foreach(WebExCategory * ctg, m_categories) {
+        if(ctg)
+            delete ctg;
     }
     m_categories.clear();
     /*
     foreach(WebExtractorPlugin * plg, m_plugins)
     {
-	if (plg)
-	    delete plg;
+    if (plg)
+        delete plg;
     }
     m_plugins.clear();
     */
@@ -54,8 +53,8 @@ void Nepomuk::WebExtractorConfig::clear()
     /*
     foreach(WebExCategoryConfig * ctg, m_categories)
     {
-	if (ctg)
-	    delete ctg;
+    if (ctg)
+        delete ctg;
     }
     m_categories.clear();
     */
@@ -74,27 +73,24 @@ void Nepomuk::WebExtractorConfig::update()
     QStringList cats = WebExConfigBase::categories();
     // Create new QHash
     QHash< QString, WebExCategoryConfig*> new_categories;
-    foreach( const QString &  cat, cats)
-    {
-	// If it was not loaded before
-	// If it was not loaded before
-	if (!m_categories.contains(cat)) {
-	    kDebug() << "Loading category "<<cat;
-	    WebExCategoryConfig * ctg = new WebExCategoryConfig(cat);
-	    new_categories[cat] = ctg;
-	}
-	else {
-	    // Take already loaded category config from m_categories
-	    new_categories[cat] = m_categories[cat];
-	    // Remove taken config from m_categories
-	    m_categories.remove(cat);
-	}
+    foreach(const QString &  cat, cats) {
+        // If it was not loaded before
+        // If it was not loaded before
+        if(!m_categories.contains(cat)) {
+            kDebug() << "Loading category " << cat;
+            WebExCategoryConfig * ctg = new WebExCategoryConfig(cat);
+            new_categories[cat] = ctg;
+        } else {
+            // Take already loaded category config from m_categories
+            new_categories[cat] = m_categories[cat];
+            // Remove taken config from m_categories
+            m_categories.remove(cat);
+        }
     }
     // Everything that left in m_categories is not enabled any more. Clear
-    foreach(WebExCategoryConfig * ctg, m_categories)
-    {
-	if (ctg)
-	    delete ctg;
+    foreach(WebExCategoryConfig * ctg, m_categories) {
+        if(ctg)
+            delete ctg;
     }
 
     // Copy new value to m_categories
@@ -103,47 +99,28 @@ void Nepomuk::WebExtractorConfig::update()
 
 Nepomuk::WebExCategoryConfig * Nepomuk::WebExtractorConfig::categoryConfig(const QString & categoryName) const
 {
-    if (m_categories.contains(categoryName))
-	return m_categories[categoryName];
+    if(m_categories.contains(categoryName))
+        return m_categories[categoryName];
     else {
-	kDebug() << "No such category "<<categoryName;
-	return 0;
+        kDebug() << "No such category " << categoryName;
+        return 0;
     }
 }
 
-QString Nepomuk::WebExtractorConfig::pluginServiceType()
+QDebug Nepomuk::operator<<(QDebug dbg,  const WebExtractorConfig & conf)
 {
-    static QString _t = QString(WE_PLUGIN_SERVICE_TYPE);
-    return _t;
-}
-
-QString Nepomuk::WebExtractorConfig::queryByName(const QString & name)
-{
-    return queryTemplate().arg(name);
-}
-
-QString Nepomuk::WebExtractorConfig::queryTemplate()
-{
-    static QString _t = QString("(["WE_PLUGIN_NAME_KEY"] == '%1')");
-    return _t;
-}
-
-QDebug Nepomuk::operator<<( QDebug dbg,  const WebExtractorConfig & conf)
-{
-    dbg << "Web Extractor Configuration"<<'\n';
+    dbg << "Web Extractor Configuration" << '\n';
 
     QStringList cats = conf.categories();
-    if (conf.m_categories.size() > 0) {
-	dbg<<conf.m_categories.size()<<" Categories:"<<'\n';
+    if(conf.m_categories.size() > 0) {
+        dbg << conf.m_categories.size() << " Categories:" << '\n';
 
-	foreach(WebExCategoryConfig * ctg, conf.m_categories)
-	{
-	    dbg << *ctg << '\n';
-	}
+        foreach(WebExCategoryConfig * ctg, conf.m_categories) {
+            dbg << *ctg << '\n';
+        }
 
-    }
-    else {
-	dbg << "No category enabled"<<'\n';
+    } else {
+        dbg << "No category enabled" << '\n';
     }
     return dbg;
 }

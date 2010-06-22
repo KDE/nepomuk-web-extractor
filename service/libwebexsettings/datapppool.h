@@ -89,7 +89,12 @@ namespace Nepomuk
                 DataPPRole = Qt::UserRole + 1,
                 /*! \brief Store source plugin for DataPP or NULL string for category
                  */
-                SourceRole
+                SourceRole,
+
+                /*! \brief Store name of datapp/category
+                 */
+                NameRole = Qt::DisplayRole
+
             };
             static QString  dataPPSource(const QString &);
             //static KSharedConfigPtr dataPPConfig(const QString & name);

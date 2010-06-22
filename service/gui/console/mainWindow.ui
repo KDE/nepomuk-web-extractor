@@ -23,6 +23,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
      </widget>
     </item>
     <item>
@@ -31,12 +34,12 @@
        <attribute name="title">
         <string>Select Resources</string>
        </attribute>
-       <widget class="KIconButton" name="startButton">
+       <widget class="KPushButton" name="startButton">
         <property name="geometry">
          <rect>
           <x>420</x>
           <y>30</y>
-          <width>71</width>
+          <width>81</width>
           <height>91</height>
          </rect>
         </property>
@@ -60,6 +63,12 @@
          </item>
          <item>
           <widget class="KDoubleNumInput" name="thresholdNumInput">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="maximum">
             <double>1.000000000000000</double>
            </property>
@@ -117,14 +126,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KIconButton</class>
-   <extends>QPushButton</extends>
-   <header>kicondialog.h</header>
-  </customwidget>
-  <customwidget>
    <class>KDoubleNumInput</class>
    <extends>QWidget</extends>
    <header>knuminput.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KPushButton</class>
+   <extends>QPushButton</extends>
+   <header>kpushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>KLineEdit</class>

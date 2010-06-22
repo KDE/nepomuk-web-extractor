@@ -25,29 +25,30 @@
 #include <KPluginFactory>
 #include "webextractor_config.h"
 #include "datappconfig.h"
-namespace Nepomuk {
+namespace Nepomuk
+{
     class WebExtractorSettings : public WebExtractorConfig
     {
-	public:
-	    WebExtractorSettings();
-	    ~WebExtractorSettings();
-	    WebExtractor::ExtractParametersPtr  extractParameters(const QString categoryName) const;
-	    int maxPluginsLaunched( const QString & categoryName);
-	    int maxResSimult( const QString & categoryName);
+        public:
+            WebExtractorSettings();
+            ~WebExtractorSettings();
+            WebExtractor::ExtractParametersPtr  extractParameters(const QString categoryName) const;
+            int maxPluginsLaunched(const QString & categoryName);
+            int maxResSimult(const QString & categoryName);
 
-	    int interval( const QString & categoryName);
-	    QString query( const QString categoryName);
-	    QString queryPrefix( const QString categoryName);
-	    void update();
-	    void clear();
-	    friend QDebug operator<<( QDebug dbg,  const WebExtractorSettings & conf);
-	protected:
-	    QHash< QString, WebExtractor::ExtractParametersPtr > m_parameters; 
-	    QHash< QString, Nepomuk::WebExtractor::DataPP*> m_datapp;
-	    QHash< QString, Nepomuk::DataPPConfig*> m_datappConfig;
-	    QHash< QString, WebExtractorPlugin* > m_plugins;
+            int interval(const QString & categoryName);
+            QString query(const QString categoryName);
+            QString queryPrefix(const QString categoryName);
+            void update();
+            void clear();
+            friend QDebug operator<<(QDebug dbg,  const WebExtractorSettings & conf);
+        protected:
+            QHash< QString, WebExtractor::ExtractParametersPtr > m_parameters;
+            //QHash< QString, Nepomuk::WebExtractor::DataPP*> m_datapp;
+            QHash< QString, Nepomuk::DataPPConfig*> m_datappConfig;
+            //QHash< QString, WebExtractorPlugin* > m_plugins;
     };
-	QDebug operator<<( QDebug dbg,  const WebExtractorSettings & conf);
+    QDebug operator<<(QDebug dbg,  const WebExtractorSettings & conf);
 }
 
 

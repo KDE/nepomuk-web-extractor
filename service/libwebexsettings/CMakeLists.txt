@@ -13,6 +13,7 @@ set( webexsettings_SRCS
     datapppool.cpp
     datappconfig.cpp
     categoriespool.cpp
+    global.cpp
     )
 kde4_add_kcfg_files(webexsettings_SRCS webexconfigbase.kcfgc)
 kde4_add_kcfg_files(webexsettings_SRCS webexcategory.kcfgc)
