@@ -78,7 +78,9 @@ void Nepomuk::WebExtractorScheduler::readConfig()
     }
     */
     QStringList cats = m_conf->categories();
-    QString q, qp;
+    // q,qp are created outside the cycle because
+    // such usage will require less stack operations
+    QString q, qp, aq;
     foreach(const QString  & catname, cats)
     {
 	// Check that this category has any assigned DataPP.
@@ -95,7 +97,7 @@ void Nepomuk::WebExtractorScheduler::readConfig()
 	q = m_conf->queryPrefix(catname);
 	qp = m_conf->query(catname);
 
-	QString aq = Nepomuk::WebExtractorQueries::ask_query(
+	aq = Nepomuk::WebExtractorQueries::ask_query(
 		q,qp
 		);
 
@@ -108,6 +110,7 @@ void Nepomuk::WebExtractorScheduler::readConfig()
 	    kDebug() << "Query \" " << catname << " has invalid syntax";
 	    continue;
 	}
+
 
 	m_askQueries[catname] = aq;
 

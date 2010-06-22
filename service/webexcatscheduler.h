@@ -33,12 +33,26 @@
 
 namespace Nepomuk{
     namespace WE = WebExtractor;
-   // class WebExtractorCategorySchedulerImpl;
+
+    /*! \brief Class that analyze all resource in category
+     *
+     * This class is slowly analyzing all resource that match 
+     * category query. It can be stopped,suspende, resumed  in any moment
+     */
     class WebExtractorCategoryScheduler : public QThread
     {
 	Q_OBJECT;
 
 	public:
+	    /*! \brief Construct new scheduler.
+	     *
+	     * This is constructor.
+	     * \param category_query This is query for category. All resources
+	     * that match this query will be analyzed during work of this scheduler
+	     * \param parent No comments - just simple QObject parent
+	     * \param params This is settings for all analyzing stuff
+	     * \param maxResSimult Maximum number of resources launched simultaneously
+	     */
 	    WebExtractorCategoryScheduler( 
 		    const QString & category_query,
 		    QObject * parent, 
@@ -102,6 +116,10 @@ namespace Nepomuk{
 	    /*! \brief Called when resource processing aborted
 	     */
 	    void resourceProcessingAborted();
+
+	private Q_SLOTS:
+	    /*! This method start analyzing of givenr resourceUri
+	     */
 	    void launch(const QUrl & resourceUri);
 	    // Debug only
 	    //void mseg();
@@ -117,18 +135,33 @@ namespace Nepomuk{
 	    // emits indexingStarted or indexingStopped based on parameter. Makes sure
 	    // no signal is emitted twice
 	    void setExtractingStarted( bool started );
+	    
+	    // Make a delay and return. Suspending is implemented with this method.
 	    // Return true if thread is not stopped
 	    bool waitForContinue( bool disableDelay = false );
 
-	    // Start extracting for next resource in query
 
-
+	    // Launch next resource from queue. If queue is empty, 
+	    // then makes an attempt to fill it. It queue is still empty,
+	    // return false. Otherwise start analyzing of  next resource
+	    // via launch(QUrl) and return true.
 	    bool launchNext();
+
+	    // This method will launch next resource (via launchNext() )
+	    // if the system has not been stoped ( via stop()  or destructor).
+	    // When system is stopped or all resource in category has been analyzed,
+	    // it will call quit() and the thread will finish.
 	    void launchOrFinish();
+
+	    // This method is used once to start analyzing of initial portion of 
+	    // resources. If there is no resouce to start, will return false.
+	    // Otherwise return true.
 	    bool startLaunch();
-	    // Add new urls to cache
+
+	    // Add new urls to cache/queue
 	    void cacheUrls();
 
+	    // Check that given (in constructor) query is valid.
 	    bool checkQuery();
 
 
@@ -136,16 +169,27 @@ namespace Nepomuk{
 	    // but it is internal and can not be modificated
 	    // by another thread
 	    //bool m_finishing;
+	    
+	    // Category query
 	    QString m_query;
+
+	    // Number of Resources that has been started, but has not finished
 	    int m_respWaits;
+
 	    // Maximum number of resources that can be processed simultaneously
 	    int m_maxResSimult;
+	    
 	    // Number of currently processed resources
 	    int m_currentResProc;
 	    int m_cacheSize;
 	    //Soprano::QueryResultIterator it;
+	    
 	    WebExtractor::ResourceAnalyzerFactory * m_factory;
+	    
+	    // Queue of resource url to analyze
 	    QQueue<QUrl> m_urlQueue;
+
+	    // Parameters necessary for analyzers
 	    WebExtractor::ExtractParametersPtr m_extractParams;
 
 	    bool m_suspended;
