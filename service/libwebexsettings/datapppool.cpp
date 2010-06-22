@@ -26,6 +26,7 @@
 #include <KServiceTypeTrader>
 #include <KGlobal>
 #include <QtDebug>
+#include <QQueue>
 #include <kstandarddirs.h>
 
 TreeItem::TreeItem(const QString & name):
@@ -405,6 +406,45 @@ QVariant Nepomuk::DataPPPool::headerData(int section, Qt::Orientation orientatio
     return QVariant();
 
 }
+
+QModelIndexList Nepomuk::DataPPPool::match(
+    const QModelIndex & start,
+    int role,
+    const QVariant & value,
+    int hits,
+    Qt::MatchFlags flags) const
+{
+    // FIXME Enable respeting flags
+    TreeItem * startItem;
+    QModelIndexList answer;
+    QQueue<QModelIndex> stored;
+    stored << start;
+    //kDebug() << "Initial Stored: " << stored;
+
+
+
+    while((stored.size() > 0) and((answer.size() < hits) or(hits == -1))) {
+        //kDebug() << "Stored: " << stored;
+        QModelIndex current = stored.dequeue();
+        if(current.isValid()) {
+            //kDebug() << "Check: " << data(current, Qt::DisplayRole);
+            if(data(current, role) == value) {
+                answer << current;
+                continue;
+            }
+        }
+        for(int i = 0; i < rowCount(current); i++)
+            for(int j = 0; j < columnCount(current); j++) {
+                //kDebug() << "i,j" << i <<','<<j;
+                QModelIndex ch = index(i, j, current);
+                if(ch.isValid())
+                    stored.enqueue(ch);
+            }
+    }
+
+    return answer;
+}
+
 
 QDebug Nepomuk::operator<<(QDebug dbg,  const DataPPPool & pool)
 {

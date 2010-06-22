@@ -5,11 +5,18 @@
 #include <Nepomuk/Resource>
 #include <webextractor/parameters.h>
 #include <webextractor/global.h>
+#include <webextractor/debug_datapp.h>
+#include <webextractor/resourceanalyzerfactory.h>
+#include <stdint.h>
 //#include "modeltest.h"
 
 using namespace Nepomuk;
 namespace NW = Nepomuk::WebExtractor;
-ConsoleMainWindow::ConsoleMainWindow(QWidget * parent):
+ConsoleMainWindow::ConsoleMainWindow(
+    const QString & uri ,
+    const QStringList & datapps ,
+    bool autostart ,
+    QWidget * parent):
     QMainWindow(parent)
 {
     this->setupUi(this);
@@ -18,11 +25,43 @@ ConsoleMainWindow::ConsoleMainWindow(QWidget * parent):
     kDebug() << *Nepomuk::DataPPPool::self();
     connect(this->startButton, SIGNAL(clicked()),
             this, SLOT(startExtracting()));
+    workThread = new QThread();
+    m_currentAnalyzer = 0;
+    m_previousIndex = 0;
+
+    //m_machine = new QStateMachine();
+    //m_selectLaunchState = new QState();
+    //m_dataPPSettingsState = new QState();
+    connect(this->ktabwidget, SIGNAL(currentChanged(int)),
+            this, SLOT(tabChanged(int)));
+
+    if(uri.size())
+        this->uriLineEdit->setText(uri);
+
+    if(datapps.size()) {
+        QModelIndexList selected;
+        foreach(const QString & dpp, datapps) {
+            selected << DataPPPool::self()->match(QModelIndex(), DataPPPool::NameRole, dpp, -1);
+        }
+        kDebug() << "Finish searching";
+
+        foreach(const QModelIndex & idx, selected) {
+            dataPPView->selectionModel()->select(idx, QItemSelectionModel::Select);
+        }
+    }
+
+    if(autostart) {
+        QTimer::singleShot(0, this, SLOT(startExtracting()));
+    }
 }
 
 
 void ConsoleMainWindow::startExtracting()
 {
+    if(workThread->isRunning()) {
+        kError() << "Application is currently analyzing another resource. You must abort previous analyzing first";
+        return;
+    }
     // Fist check that we have necessary uri
     QString uriString = uriLineEdit->text();
     if(uriString.isEmpty()) {
@@ -60,23 +99,106 @@ void ConsoleMainWindow::startExtracting()
         if(!index.data(DataPPPool::DataPPRole).toBool())
             continue;
 
-        hasAny = true;
 
         QString dataPPName = index.data(DataPPPool::NameRole).toString();
 
-        NW::DataPP * dpp = DataPPConfig::dataPP(dataPPName);
+        //NW::DataPP * dpp = DataPPConfig::dataPP(dataPPName);
+        NW::DataPP * dpp = new NW::DebugDataPP();
+        if(!dpp)
+            continue;
+
+        hasAny = true;
+
         NW::DataPPWrapper * dppw =  new NW::DataPPWrapper(dpp, dataPPName, 1.0, 1.0);
         p->addDataPP(dppw);
     }
 
     if(!hasAny) {
         // Warn user
-        KMessageBox::sorry(this, "You forget to select DataPP. If you have selected category, then sorry - this feature is not supported yet");
+        KMessageBox::sorry(this, "You forget to select DataPP. Or the DataPP you have selected are all invalid.\n  If you have selected category, then sorry - this feature is not supported yet");
         return;
     }
 
     Nepomuk::WebExtractor::ExtractParametersPtr parameters = Nepomuk::WebExtractor::ExtractParametersPtr(p);
 
     kDebug() << " Launch Resource Analyzer with folowing parameters: " << *p;
+
+    m_parptr = parameters;
+
+    NW::ResourceAnalyzerFactory factory(parameters);
+
+    NW::ResourceAnalyzer * resanal = factory.newAnalyzer(res);
+    if(!resanal) {
+        kError() << "ResourceAnalyzerFactory failed to create Analyzer";
+        return;
+    }
+
+    kDebug() << "Create ResourceAnalyzer: " << uintptr_t(resanal);
+
+    // delete previous analyzes
+    delete m_currentAnalyzer;
+    m_currentAnalyzer = resanal;
+    //resanal->moveToThread(workThread);
+    //connect(workThread, SIGNAL(started()), resanal, SLOT(analyze()));
+    connect(resanal, SIGNAL(analyzingFinished()), this, SLOT(extractingFinished()), Qt::QueuedConnection);
+    //workThread->start();
+    resanal->analyze();
+
+}
+
+void ConsoleMainWindow::extractingFinished()
+{
+    kDebug() << "Analyzing finished";
+    workThread->quit();
+}
+void ConsoleMainWindow::tabChanged(int currentIndex)
+{
+    // clear selection anyway
+    dataPPView->clearSelection();
+    switch(m_previousIndex) {
+    case SelectLaunchPage : { // Do nothing
+        break;
+    }
+    case SettingsPage: {
+        // Disconnect signals
+        disconnect(this->dataPPView, SIGNAL(clicked(QModelIndex)),
+                   this, SLOT(dataPPClicked(QModelIndex)));
+        break;
+    }
+    }
+    switch(currentIndex) {
+    case SelectLaunchPage: {
+        dataPPView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        break;
+    }
+    case SettingsPage : {
+        dataPPView->setSelectionMode(QAbstractItemView::SingleSelection);
+        connect(this->dataPPView, SIGNAL(clicked(QModelIndex)),
+                this, SLOT(dataPPClicked(QModelIndex)));
+        break;
+    }
+    }
+    m_previousIndex = currentIndex;
+
+
+}
+
+void ConsoleMainWindow::dataPPClicked(QModelIndex index)
+{
+    if(!index.data(DataPPPool::DataPPRole).toBool()) {
+        this->sourceNameLabel->setText("This is a category");
+        return;
+    }
+
+
+    QString dataPPSource = index.data(DataPPPool::SourceRole).toString();
+    if(dataPPSource.isEmpty()) {
+        this->sourceNameLabel->setText("Invalid DataPP: Source not set");
+        return;
+    } else {
+        this->sourceNameLabel->setText("Source: " + dataPPSource);
+        return;
+    }
+
 
 }

@@ -21,6 +21,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QQueue>
+#include <QSharedDataPointer>
 #include <Nepomuk/Resource>
 #include <webextractor/webextractor_export.h>
 #include <webextractor/datappwrapper.h>
@@ -132,6 +133,13 @@ namespace Nepomuk
                  * signals after aborting
                  */
                 void abort();
+
+                /*!  \brief Destructor
+                 * TODO May be it is necessary to remember parent factory inside
+                 * ResourceAnalyzer and call factory->deleteAnalyzer in destructor
+                 * or something like this. Or may be it is a bad idea
+                 */
+                ~ResourceAnalyzer();
             Q_SIGNALS:
                 void analyzingFinished();
                 /*! \brief indicates an error during analyzer
@@ -151,7 +159,6 @@ namespace Nepomuk
                     unsigned int step,
                     QObject * parent = 0
                 );
-                ~ResourceAnalyzer();
                 // Only defenition, no implementation.
                 // Copying is forbidden
                 ResourceAnalyzer(const ResourceAnalyzer &);
@@ -177,7 +184,8 @@ namespace Nepomuk
             public:
                 friend class ResourceAnalyzerFactory;
                 class Private;
-                Private * d;
+                //QSharedDataPointer<Private> d;
+                Private* d;
         };
     }
 }

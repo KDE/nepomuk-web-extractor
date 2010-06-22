@@ -108,6 +108,12 @@ namespace Nepomuk
                                 int role = Qt::DisplayRole) const;
             QModelIndex index(int row, int column, const QModelIndex &parent) const;
             QModelIndex parent(const QModelIndex &index) const;
+            QModelIndexList match(
+                const QModelIndex & start,
+                int role,
+                const QVariant & value,
+                int hits = 1,
+                Qt::MatchFlags flags = Qt::MatchFlags(Qt::MatchStartsWith | Qt::MatchWrap)) const;
 
         Q_SIGNALS:
             void dataPPChanged();

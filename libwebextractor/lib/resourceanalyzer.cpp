@@ -20,11 +20,12 @@
 #include <QtCore/QTimer>
 #include <assert.h>
 #include <stdint.h>
+#include <QSharedData>
 
 namespace NW = Nepomuk::WebExtractor;
 
 
-class Nepomuk::WebExtractor::ResourceAnalyzer::Private
+class Nepomuk::WebExtractor::ResourceAnalyzer::Private /*: public QSharedData*/
 {
     public:
         Private(const DataPPKeeper & dataPPKeeper, DecisionFactory * fact);
@@ -52,25 +53,19 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private
         double m_ucrit;
         // This is queue where all DataPP that must be launched are stored
         QQueue<DataPPWrapper*> m_queue;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
         // THis variable prevent executing apply() method more then one time
->>>>>>> Change API of resource analyzer
         bool m_applied;
         // This variable keep running/not-running state of ResourceAnalyzer
         bool m_running;
         // The last error that occure while analyzing
         ResourceAnalyzer::AnalyzingError m_error;
-<<<<<<< HEAD
-=======
->>>>>>> Restyle files
-=======
         // Convinience method to add set of DataPP* to queue
->>>>>>> Change API of resource analyzer
         void enqueue(const QSet<const DataPP*> &);
         // Store all replies there
         QSet<DataPPReply*> m_replies;
+
+        // Convinience method to add set of DataPP* to queue
+        void enqueue(const QSet<const DataPP*> &);
 
 };
 
@@ -92,6 +87,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer::Private::Private(
 
 Nepomuk::WebExtractor::ResourceAnalyzer::Private::~Private()
 {
+    kDebug() << "Deleted: " << uintptr_t(this);
     delete m_fact;
 }
 
@@ -129,7 +125,8 @@ Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
 
 Nepomuk::WebExtractor::ResourceAnalyzer::~ResourceAnalyzer()
 {
-    delete d;
+    kDebug() << "Deleted: " << uintptr_t(this);
+    // delete d;
 }
 
 
@@ -141,6 +138,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze()
 
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepomuk::Resource & res)
 {
+    kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
     if(isRunning()) {
         abort();
         clear();
@@ -192,6 +190,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
             d->m_error = UnknownError;
         }
         d->m_running = false;
+        kDebug() << "Failed to analyze resource. Check parameters.";
         QTimer::singleShot(0, this, SLOT(finishWithError()));
     }
 }
@@ -245,7 +244,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
     //  return false;
 
     kDebug() << "Launching next portion of plugins";
-    kDebug() << "Total plugins: " << d->m_dataPPKeeper.size();
+    kDebug() << "Total DataPP: " << d->m_dataPPKeeper.size();
 
     int substop = 0;
     if(d->m_launchPolitics == WE::All)
@@ -312,13 +311,14 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 // 'obsolete' replies
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinished()
 {
+    kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
     d->m_respWaits--;
     kDebug() << "Recived answer from plugin.";
 
     // Process data plugin has returned
     DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender());
     if(repl) {
-        Q_ASSERT(d->m_replies.contains(repl));
+        //Q_ASSERT(d->m_replies.contains(repl));
         // Remove reply from set
         d->m_replies.remove(repl);
         const DataPP * parent = repl->parentDataPP();

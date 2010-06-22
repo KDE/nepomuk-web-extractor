@@ -21,14 +21,47 @@
 
 #include "ui_mainWindow.h"
 #include <QMainWindow>
+#include <QThread>
+#include <QStateMachine>
+#include <webextractor/resourceanalyzer.h>
+#include <webextractor/parameters.h>
 
 class ConsoleMainWindow : public QMainWindow , public Ui_MainWindow
 {
-    Q_OBJECT;
+        Q_OBJECT;
     public:
-	ConsoleMainWindow(QWidget * parent = 0);
+        ConsoleMainWindow(
+            const QString & uri = QString(),
+            const QStringList & datapps = QStringList(),
+            bool autostart = false,
+            QWidget * parent = 0);
     public Q_SLOTS:
-	void startExtracting();
+        void startExtracting();
+    private Q_SLOTS:
+        void extractingFinished();
+        void tabChanged(int currentIndex);
+        void dataPPClicked(QModelIndex index);
+    private:
+        QThread * workThread;
+        Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;
+        /*
+        QStateMachine * m_machine;
+        QState * m_selectLaunchState;
+        QState * m_dataPPSettingsState;
+        */
+        enum PageNums {
+            SelectLaunchPage = 0,
+            SettingsPage
+        };
+
+        // Store extract paramters ptr for debugging proposes
+        Nepomuk::WebExtractor::ExtractParametersPtr m_parptr;
+
+
+
+
+        int m_previousIndex;
+
 
 };
 
