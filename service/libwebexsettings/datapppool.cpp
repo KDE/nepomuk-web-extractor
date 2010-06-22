@@ -63,12 +63,12 @@ void Nepomuk::DataPPPool::init()
     //m_init = true;
 }
 
-const QStringList & Nepomuk::DataPPPool::plugins()
+QStringList Nepomuk::DataPPPool::plugins()
 {
     return self()->m_plugins;
 }
 
-const QSet< QString > & Nepomuk::DataPPPool::categoryDataPPs(const QString & categoryName) 
+QSet< QString >  Nepomuk::DataPPPool::categoryDataPPs(const QString & categoryName) 
 {
     return self()->m_categoryPlugins[categoryName];
 }

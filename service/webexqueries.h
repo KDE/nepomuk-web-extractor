@@ -26,10 +26,10 @@ namespace Nepomuk {
 	public:
 	    static QString ask_query(const QString & prefix, const QString & query);
 	    static QString select_query(const QString & prefix, const QString & query);
-	    static const QString & resourceVariableName(); 
+	    static QString  resourceVariableName(); 
 	private:
-	    static const QString & ask_template() ;
-	    static const QString & select_template() ;
+	    static QString  ask_template() ;
+	    static QString  select_template() ;
     };
 }
 

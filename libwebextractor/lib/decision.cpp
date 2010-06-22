@@ -46,13 +46,13 @@ double Nepomuk::WebExtractor::Decision::truncateRank( double rank )
 double Nepomuk::WebExtractor::Decision::rank() const
 { return d->rank; }
 
-const QString  & Nepomuk::WebExtractor::Decision::pluginVersion() const
+QString  Nepomuk::WebExtractor::Decision::pluginVersion() const
 {
    Q_ASSERT(!d->authorsData.isEmpty());
    return (*(d->authorsData.begin()))->pluginVersion();
 }
 
-const QString  & Nepomuk::WebExtractor::Decision::pluginName() const
+QString  Nepomuk::WebExtractor::Decision::pluginName() const
 { 
    Q_ASSERT(!d->authorsData.isEmpty());
    return (*(d->authorsData.begin()))->pluginName();

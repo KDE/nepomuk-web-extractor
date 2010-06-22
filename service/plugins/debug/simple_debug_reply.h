@@ -29,7 +29,7 @@ namespace Nepomuk {
 	    virtual void start();
 	    void step();
 	    virtual bool isValid() const { return true; }
-	    virtual const WebExtractor::DecisionList & decisions() const { return m_decisions; } 
+	    virtual WebExtractor::DecisionList  decisions() const { return m_decisions; } 
 	    virtual void abort() {;}
 	protected:
 	    int m_state;

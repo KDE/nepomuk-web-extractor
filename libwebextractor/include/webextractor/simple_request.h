@@ -39,7 +39,7 @@ namespace Nepomuk {
 		SimpleDataPPRequest(const QString & requestUrlPart, QObject * parent = 0);
 		~SimpleDataPPRequest();
 		QNetworkReply * reply() const;
-		const QString & requestUrlPart() const;
+		QString requestUrlPart() const;
 		/*! \brief This function delete accosiated QNetworkReply( if any )
 		 * This function will be called automaticaly when request is sent to
 		 * SimpleDataPP. But you can call it yourself.

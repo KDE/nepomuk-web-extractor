@@ -51,9 +51,9 @@ namespace Nepomuk {
 		void addGroup(const PropertiesGroup &);
 		bool isEmpty() const;
 		bool isValid() const;
-		const QString & pluginName() const;
-		const QString  & pluginVersion() const;
-		const QSet<DataPP*> & pluginsInformation() const;
+		QString  pluginName() const;
+		QString   pluginVersion() const;
+		QSet<DataPP*>  pluginsInformation() const;
 		~Decision();
 		const Decision & operator=( const Decision & rhs);
 		bool operator==( const Decision & rhs)const;

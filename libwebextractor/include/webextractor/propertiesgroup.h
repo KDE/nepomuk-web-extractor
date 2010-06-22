@@ -36,7 +36,7 @@ namespace Nepomuk {
 		void addStatement(const Soprano::Statement & );
 		//void addStatement(const Soprano::Node & predicate, const Soprano::Node & second, bool subject = true );
 		double rank() const;
-		const QSet< Soprano::Statement > & data() const;
+		QSet< Soprano::Statement > data() const;
 		void setRank(double newRank );
 		bool operator==(const PropertiesGroup & rhs)const;
 		bool operator!=(const PropertiesGroup & rhs)const;

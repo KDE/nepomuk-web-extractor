@@ -63,7 +63,7 @@ void Nepomuk::CategoriesPool::update()
     //m_init = true;
 }
 
-const QSet<QString> & Nepomuk::CategoriesPool::categories()
+QSet<QString> Nepomuk::CategoriesPool::categories()
 {
     return self()->m_categories;
 }

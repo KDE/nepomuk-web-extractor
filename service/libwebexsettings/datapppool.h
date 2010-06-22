@@ -25,14 +25,14 @@
 #include <QSet> 
 
 namespace Nepomuk {
-class WEBEXSETTINGS_EXPORT DataPPPool: public QObject
-    {
+    class WEBEXSETTINGS_EXPORT DataPPPool: public QObject
+    {    
 	Q_OBJECT;
 	public:
-	    static const QStringList &  plugins();
+	    static QStringList plugins();
 
 	    // Return all datapp that belong to category
-	    static const QSet< QString > & categoryDataPPs(const QString & categoryName) ;
+	    static QSet< QString >  categoryDataPPs(const QString & categoryName) ;
 	    static DataPPPool * self(); 
 	    //static QString  dataPPSource(const QString &); 
 	    //static KSharedConfigPtr dataPPConfig(const QString & name);

@@ -32,8 +32,8 @@ namespace Nepomuk {
 	    public:
 		DebugDataPP();
 		virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
-		static const QString & name();
-		static const QString & version();
+		static QString  name();
+		static QString version();
 	};
 
 	class WEBEXTRACTOR_EXPORT DebugDataPPReply : public DataPPReply
@@ -41,7 +41,7 @@ namespace Nepomuk {
 	    Q_OBJECT;
 	    public:
 		DebugDataPPReply( DebugDataPP*, const DecisionFactory *);
-		virtual const DecisionList & decisions() const { return m_decisions; }
+		virtual DecisionList decisions() const { return m_decisions; }
 		virtual ~DebugDataPPReply();
 	    public Q_SLOTS:
 		/*! \brief Abort execution 

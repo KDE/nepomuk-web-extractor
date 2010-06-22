@@ -42,8 +42,8 @@ namespace Nepomuk {
 		DataPP(
 			const QString & pluginVersion
 			);
-		const QString  & pluginVersion() const;
-		const QString & pluginName() const; 
+		QString  pluginVersion() const;
+		QString pluginName() const; 
 		// Force uncopyable
 		// No implementation
 		DataPP(const DataPP &);

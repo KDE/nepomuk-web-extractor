@@ -45,7 +45,7 @@ void NW::SimpleDataPPRequest::clear()
     m_reply = 0;
 }
 
-const QString & NW::SimpleDataPPRequest::requestUrlPart() const
+QString NW::SimpleDataPPRequest::requestUrlPart() const
 {
     return m_requestUrlPart;
 }

@@ -44,7 +44,7 @@ void NW::PropertiesGroup::addStatement(const Soprano::Statement & st)
     d->hash ^= qHash(st);
 }
 
-const QSet< Soprano::Statement > & NW::PropertiesGroup::data() const
+QSet< Soprano::Statement > NW::PropertiesGroup::data() const
 {
     return d->statements;
 }

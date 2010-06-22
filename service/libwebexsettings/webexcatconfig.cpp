@@ -79,12 +79,13 @@ void Nepomuk::WebExCategoryConfig::clearPluginList()
     }
     m_plugins.clear();
 }
-const QMap<QString, DataPPDescr> & Nepomuk::WebExCategoryConfig::plugins() const
+
+QMap<QString, DataPPDescr>  Nepomuk::WebExCategoryConfig::plugins() const
 {
     return m_plugins;
 }
 
-const QSet<QString> & Nepomuk::WebExCategoryConfig::pluginsNames() const
+QSet<QString> Nepomuk::WebExCategoryConfig::pluginsNames() const
 {
     return m_pluginsNames;
 }

@@ -32,9 +32,9 @@ namespace Nepomuk {
 	    Q_OBJECT;
 	    public:
 		DataPPReply(DataPP * );
-		virtual const DecisionList & decisions() const = 0;
+		virtual DecisionList decisions() const = 0;
 		virtual ~DataPPReply();
-		virtual const QString & pluginName() const; 
+		virtual QString pluginName() const; 
 		DataPP * parentDataPP() const;
 	    public Q_SLOTS:
 		/*! \brief Abort execution 

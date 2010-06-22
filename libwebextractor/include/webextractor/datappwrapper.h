@@ -30,8 +30,8 @@ namespace Nepomuk {
 		double rank() const { return m_rank;}
 		double coff() const { return m_scaleCoff;}
 		void setRank(double val) { m_rank = val; }
-		const QString & pluginName() const { return m_data->pluginName();}
-		const QString  & pluginVersion() const { return m_data->pluginVersion();}
+		QString  pluginName() const { return m_data->pluginName();}
+		QString  pluginVersion() const { return m_data->pluginVersion();}
 		DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)const;
 	    private:
 		DataPP * m_data;

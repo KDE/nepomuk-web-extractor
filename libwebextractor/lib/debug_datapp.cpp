@@ -24,13 +24,13 @@
 
 namespace NW = Nepomuk::WebExtractor;
 
-const QString & NW::DebugDataPP::name()
+QString NW::DebugDataPP::name()
 {
     static QString name = QString("debug");
     return name;
 }
 
-const QString & NW::DebugDataPP::version()
+QString  NW::DebugDataPP::version()
 {
     static QString version = QString("0.0.1");
     return version;

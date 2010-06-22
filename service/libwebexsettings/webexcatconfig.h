@@ -31,8 +31,8 @@ namespace Nepomuk {
 	    WebExCategoryConfig(const QString & name);
 	    WebExCategoryConfig( KSharedConfigPtr ptr);
 	    void clearPluginList();
-	    const QMap<QString,DataPPDescr> & plugins() const;
-	    const QSet<QString> & pluginsNames() const;
+	    QMap<QString,DataPPDescr> plugins() const;
+	    QSet<QString> pluginsNames() const;
 	    void addPlugin( const QString & pluginName, double rank, double coff, bool trusted = true);
 	    void addPlugin( const DataPPDescr & pluginDescr);
 	    //static const QString & categoryConfigDir();

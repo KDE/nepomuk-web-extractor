@@ -21,7 +21,7 @@
 #include <Soprano/Vocabulary/NRL>
 #include <Soprano/Node>
 
-const QString & Nepomuk::WebExtractorQueries::ask_template() 
+QString Nepomuk::WebExtractorQueries::ask_template() 
 {
     static QString _templ = QString(
 	"PREFIX nrl: %1 \
@@ -44,7 +44,7 @@ QString Nepomuk::WebExtractorQueries::ask_query(const QString & prefix, const QS
 		);
 }
 
-const QString & Nepomuk::WebExtractorQueries::select_template() 
+QString Nepomuk::WebExtractorQueries::select_template() 
 {
     static QString _templ = QString(
 	"PREFIX nrl: %1 \
@@ -66,7 +66,7 @@ QString Nepomuk::WebExtractorQueries::select_query(const QString & prefix, const
 		);
 }
 
-const QString & Nepomuk::WebExtractorQueries::resourceVariableName()
+QString Nepomuk::WebExtractorQueries::resourceVariableName()
 {
     static QString _n = QString("r");
     return _n;

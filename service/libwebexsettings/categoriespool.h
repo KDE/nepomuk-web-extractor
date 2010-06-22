@@ -28,7 +28,7 @@ namespace Nepomuk {
     {
 	Q_OBJECT;
 	public:
-	    static const QSet< QString> &  categories();
+	    static QSet< QString> categories();
 	    static CategoriesPool * self(); 
 	    static void addCategory(const QString & name);
 	Q_SIGNALS:

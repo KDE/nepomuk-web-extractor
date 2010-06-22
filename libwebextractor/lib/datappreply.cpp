@@ -32,12 +32,12 @@ Nepomuk::WebExtractor::DataPP * Nepomuk::WebExtractor::DataPPReply::parentDataPP
 { return d->m_parent;}
 
 
-const QString & Nepomuk::WebExtractor::DataPPReply::pluginName() const 
+QString Nepomuk::WebExtractor::DataPPReply::pluginName() const 
 { return d->m_parent->pluginName(); }
 
 
 /*
-const QString & Nepomuk::WebExtractor::DataPPReply::pluginVersion() const 
+QString Nepomuk::WebExtractor::DataPPReply::pluginVersion() const 
 { return d->m_pluginVersion; }
 
 */

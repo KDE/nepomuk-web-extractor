@@ -44,7 +44,7 @@ namespace Nepomuk {
 		void update();
 		void clear();
 
-		static const QString & pluginServiceType();
+		static QString pluginServiceType();
 		static QString queryByName(const QString & name);
 
 	    protected:

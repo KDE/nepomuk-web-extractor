@@ -111,7 +111,7 @@ Nepomuk::WebExCategoryConfig * Nepomuk::WebExtractorConfig::categoryConfig(const
     }
 }
 
-const QString & Nepomuk::WebExtractorConfig::pluginServiceType()
+QString Nepomuk::WebExtractorConfig::pluginServiceType()
 {
     static QString _t = QString(WE_PLUGIN_SERVICE_TYPE);
     return _t;
