@@ -58,6 +58,7 @@ namespace Nepomuk {
 		//void pluginError();
 		bool launchNext();
 		void launchOrFinish();
+		void emitAnalyzingFinished();
 	    public:
 		friend class ResourceAnalyzerFactory;
 		class Private;

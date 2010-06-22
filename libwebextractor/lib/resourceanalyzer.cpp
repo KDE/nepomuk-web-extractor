@@ -20,28 +20,8 @@
 #include <QtCore/QTimer>
 #include <assert.h>
 
-/*
-namespace Nepomuk {
-    namespace WebExtractor {
-	class ResourceAnalyzer : public QObject
-	{
-	    Q_OBJECT;
-	    public:
-		ResourceAnalyzer(QObject * parent = 0);
-		void analyze( Nepomuk::Resource & res);
-	    Q_SIGNALS:
-		void analyzingFinished();
-	    private:
-		int tmp_count;
-		int m_respWaits;
-	    private Q_SLOTS:
-		void pluginFinished();
-		bool launchNext();
-	};
-    }
-}
+namespace NW = Nepomuk::WebExtractor;
 
-*/
 
 class Nepomuk::WebExtractor::ResourceAnalyzer::Private 
 {
@@ -138,11 +118,19 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
     
     // start processing
     kDebug() << "Extracting data from resource";
-    launchOrFinish();
+
+    if (!launchNext() ) {
+	// Can not analyze - no DataPP or any other problem
+	// to avoid infinite recursion the analyzingFinished signal will
+	// be called via QTimer::singleShot(0)
+	QTimer::singleShot(0,this, SLOT(emitAnalyzingFinished()) );
+    }
 }
 
 bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 {
+    kDebug() << "DISABLED";
+    return false;
     assert(d->m_respWaits == 0);
     //if (!tmp_count)
     //	return false;
@@ -209,7 +197,7 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 
 	    kDebug() << "Extracting for resource finished";
 	    kDebug() << "Total decisions count: "<<d->m_decisions.size();
-	    emit analyzingFinished();
+	    emitAnalyzingFinished();
 	}
 }
 
@@ -264,4 +252,9 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
        kDebug() << "Only " << m_respWaits << " answers remaining";
     }
     */
+}
+
+void NW::ResourceAnalyzer::emitAnalyzingFinished()
+{
+    emit analyzingFinished();
 }
