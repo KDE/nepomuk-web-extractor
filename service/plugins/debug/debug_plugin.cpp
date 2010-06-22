@@ -14,6 +14,11 @@ Nepomuk::DebugPlugin::DebugPlugin(QObject* parent, const QList<QVariant>&):
 
 Nepomuk::WebExtractor::DataPP* Nepomuk::DebugPlugin::getDataPP( KSharedConfigPtr configFile)
 {
+	static WebExtractor::SimpleDataPP * m_dataPP = new Nepomuk::WebExtractor::SimpleDataPP(
+	Nepomuk::DebugPlugin::version(),
+	"http://www.example.org/",
+	new Nepomuk::WebExtractor::SimpleReplyFactoryTemplate<SimpleDebugReply>()
+	);
     return m_dataPP;
 }
 
@@ -23,8 +28,3 @@ QString Nepomuk::DebugPlugin::version()
     return v;
 }
 
-Nepomuk::WebExtractor::SimpleDataPP * Nepomuk::DebugPlugin::m_dataPP = new Nepomuk::WebExtractor::SimpleDataPP(
-	Nepomuk::DebugPlugin::version(),
-	"http://www.example.org/",
-	new Nepomuk::WebExtractor::SimpleReplyFactoryTemplate<SimpleDebugReply>()
-	);

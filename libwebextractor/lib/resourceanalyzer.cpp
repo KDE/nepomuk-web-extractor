@@ -19,6 +19,7 @@
 #include <KDebug>
 #include <QtCore/QTimer>
 #include <assert.h>
+#include <stdint.h>
 
 namespace NW = Nepomuk::WebExtractor;
 
@@ -130,8 +131,8 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
 
 bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 {
-    kDebug() << "DISABLED";
-    return false;
+    //kDebug() << "DISABLED";
+    //return false;
     assert(d->m_respWaits == 0);
     //if (!tmp_count)
     //  return false;

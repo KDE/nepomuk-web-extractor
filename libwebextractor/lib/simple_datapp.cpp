@@ -38,6 +38,7 @@ NW::SimpleDataPP::~SimpleDataPP()
     }
     delete m_reqTimer;
     delete m_factory;
+    kDebug() << "SimpleDataPP deleted. ID: "<<uintptr_t(this);
 }
 
 void NW::SimpleDataPP::__init()

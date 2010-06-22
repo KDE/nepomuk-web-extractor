@@ -29,8 +29,6 @@ namespace Nepomuk {
 	    virtual Nepomuk::WebExtractor::DataPP * getDataPP( KSharedConfigPtr configFile );
 	    static QString  version();
 	protected:
-	    static WebExtractor::SimpleDataPP * m_dataPP;
-	    static QString m_version;
     };  
 }
 #endif
