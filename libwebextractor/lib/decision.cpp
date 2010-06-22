@@ -15,6 +15,7 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+#include <webextractor/propertiesgroup.h>
 #include <webextractor/decision.h>
 #include <webextractor/datapp.h>
 #include <QtCore/QSharedData>
@@ -27,15 +28,15 @@ class Nepomuk::WebExtractor::Decision::Private : public QSharedData
     public:
 	// TODO move rank to upper class because it it modificated frequently
 	double rank;
-	QMultiMap< double, QList<Soprano::Statement> > data;
+	QSet<  PropertiesGroup > data;
 	QSet<const DataPP*>  authorsData;
+	unsigned int hash;
 	//QString pluginName;
 	//QString pluginVersion;
-	static inline double truncateRank(double );
 };
 
 
-double Nepomuk::WebExtractor::Decision::Private::truncateRank( double rank )
+double Nepomuk::WebExtractor::Decision::truncateRank( double rank )
 {
     if (rank >= 1)
 	rank = 0.99;
@@ -85,6 +86,16 @@ const Nepomuk::WebExtractor::Decision & Nepomuk::WebExtractor::Decision::operato
     return *this;
 }
 
+bool Nepomuk::WebExtractor::Decision::operator==( const Decision & rhs)
+{
+	return (d->data == rhs.d->data);
+}
+
+bool Nepomuk::WebExtractor::Decision::operator!=( const Decision & rhs)
+{
+    return !(*this == rhs);
+}
+
 bool Nepomuk::WebExtractor::Decision::isEmpty() const
 {
     return d->data.isEmpty();
@@ -97,35 +108,40 @@ bool Nepomuk::WebExtractor::Decision::isValid() const
 
 void Nepomuk::WebExtractor::Decision::setRank(double rank)
 {
-    rank = Private::truncateRank(rank);
+    rank = truncateRank(rank);
 
     d->rank = rank;
 }
 
 void Nepomuk::WebExtractor::Decision::addStatement(const Soprano::Statement & statement, double rank)
 {
-    QList<Soprano::Statement> lst;
-    lst.push_back(statement);
-    addStatementGroup(lst,rank);
+    PropertiesGroup grp;
+    grp << statement;
+    grp.setRank(rank);
+    addGroup(grp);
 }
 
-void Nepomuk::WebExtractor::Decision::addStatementGroup( const QList<Soprano::Statement> & statements, double rank)
+void Nepomuk::WebExtractor::Decision::addGroup( const PropertiesGroup & grp)
 {
-    rank = Private::truncateRank(rank);
+    //rank = Private::truncateRank(rank);
 
     // Check that none of this statemnt's exist in model.
     // Those that's exist - ignore
     
     // Add statements
-    d->data.insert(rank,statements);
+    //d->data.insert(rank,statements);
+    d->data << grp;
+
+    // Increase hash
+    d->hash += qHash(grp);
 }
 
 void Nepomuk::WebExtractor::Decision::apply() const
 {
     kDebug() << "Write statements to storage";
-    foreach ( const QList< Soprano::Statement > & lst, d->data )
+    foreach ( const PropertiesGroup & lst, d->data )
     {
-	foreach( const Soprano::Statement  & st, lst )
+	foreach( const Soprano::Statement  & st, lst.data() )
 	{
 	    kDebug() << st;
 	}
@@ -135,9 +151,9 @@ void Nepomuk::WebExtractor::Decision::apply() const
 void Nepomuk::WebExtractor::Decision::addToUserDiscretion()
 {
     kDebug() << "Write Decision to user discretion list";
-    foreach ( const QList< Soprano::Statement >  &  lst, d->data )
+    foreach ( const PropertiesGroup  &  lst, d->data )
     {
-	foreach( const Soprano::Statement  & st, lst )
+	foreach( const Soprano::Statement  & st, lst.data() )
 	{
 	    kDebug() << st;
 	}
@@ -149,3 +165,7 @@ void Nepomuk::WebExtractor::Decision::addAuthor(const DataPP * author)
     d->authorsData.insert(author);
 }
 
+unsigned int Nepomuk::WebExtractor::qHash( const Nepomuk::WebExtractor::Decision & des)
+{
+    return des.d->hash;
+}

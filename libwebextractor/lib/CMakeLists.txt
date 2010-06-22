@@ -15,6 +15,7 @@ set( webextractor_SRCS
     simple_reply_factory.cpp
     simple_reply.cpp
     simple_request.cpp
+    propertiesgroup.cpp
     )
 
 set ( webextractor_MOC    

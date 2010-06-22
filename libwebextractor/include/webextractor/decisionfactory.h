@@ -22,6 +22,7 @@
 #include <webextractor/webextractor_export.h>
 #include <webextractor/decision.h>
 #include <webextractor/decisionlist.h>
+#include <webextractor/propertiesgroup.h>
 
 namespace Nepomuk {
     namespace  WebExtractor {
@@ -41,6 +42,7 @@ namespace Nepomuk {
 		 * ResourceAnalyzers/ResourceAnalyzerFactory instances
 		 */
 		static DecisionFactory * debugFactory(double ucrit = 0, double acrit = 1);
+		PropertiesGroup newPropertiesGroup( const DataPP *) const;
 	    private:
 		DecisionList  newDecisionList( ) const;
 		void setThreshold(double);

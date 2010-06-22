@@ -17,6 +17,7 @@ void Nepomuk::WebExtractor::DecisionFactory::setThreshold(double threshold)
 {
     m_threshold = threshold;
 }
+
 Nepomuk::WebExtractor::Decision Nepomuk::WebExtractor::DecisionFactory::newDecision(const DataPP * parent) const
 {
      return Decision(parent);
@@ -28,6 +29,11 @@ Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::new
     lst.m_threshold = m_threshold;
     lst.m_acrit = m_acrit;
     return lst;
+}
+
+Nepomuk::WebExtractor::PropertiesGroup Nepomuk::WebExtractor::DecisionFactory::newPropertiesGroup(const DataPP * parent) const
+{
+     return PropertiesGroup();
 }
 
 Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::newDecisionList() const

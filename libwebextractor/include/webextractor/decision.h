@@ -21,10 +21,12 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
-#include <QtCore/QSharedPointer>
+#include <QtCore/QSharedDataPointer>
 #include <Nepomuk/Resource>
 #include <Soprano/Statement>
 #include <webextractor/webextractor_export.h>
+#include <webextractor/propertiesgroup.h>
+#include <webextractor/soprano_statement_qhash.h>
 
 namespace Nepomuk {
     namespace WebExtractor {
@@ -32,6 +34,7 @@ namespace Nepomuk {
 	class DecisionFactory;
 	class DecisionList;
 	class DataPP;
+	class PropertiesGroup;
 
 	class WEBEXTRACTOR_EXPORT Decision /*: public QOb*/
 	{
@@ -39,7 +42,7 @@ namespace Nepomuk {
 		double rank() const; 
 		void setRank(double rank);
 		void addStatement(const Soprano::Statement &, double rank);
-		void addStatementGroup(const QList<Soprano::Statement> &, double rank);
+		void addGroup(const PropertiesGroup &);
 		bool isEmpty() const;
 		bool isValid() const;
 		const QString & pluginName() const;
@@ -50,10 +53,13 @@ namespace Nepomuk {
 		bool operator==( const Decision & rhs);
 		bool operator!=( const Decision & rhs);
 		Decision( const Decision & );
+		static double truncateRank(double );
 		friend class ResourceAnalyzer;
 		friend class DecisionFactory;
 		friend class DecisionList;
-	    private:
+		friend class PropertiesGroup;
+		friend unsigned int qHash( const Decision & );
+	    protected:
 		Decision(
 			const DataPP * parent
 			);
@@ -69,6 +75,8 @@ namespace Nepomuk {
 		QSharedDataPointer<Private> d;
 
 	};
+	unsigned int qHash( const Nepomuk::WebExtractor::Decision & );
     }
 }
+
 #endif
