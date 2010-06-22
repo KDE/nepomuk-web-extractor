@@ -50,11 +50,33 @@ namespace Nepomuk
         {
                 Q_OBJECT;
                 // Public API
-            public:
-                enum AnalyzingError { NoError = 0, ActiveUsage = 1 };
+            public Q_SLOTS:
                 /*! \brief Starts analyzing of resource
                       */
                 void analyze(Nepomuk::Resource & res);
+            public:
+                enum AnalyzingError {
+                    /*! \brief No error
+                     */
+                    NoError = 0,
+
+                    /*! I forget :(
+                     */
+                    ActiveUsage = 1 ,
+
+                    /*! Resource doesn't exist
+                     */
+                    UnexistingResource,
+
+                    /*! Resource is invalid
+                     */
+                    InvalidResource,
+
+                    /*! Unknown resource.
+                     * This is usually a bug in system
+                     */
+                    UnknownError
+                };
 
                 /*! \brief Return list of generated decisions
                  */
@@ -108,9 +130,15 @@ namespace Nepomuk
                 // emit analyzingFinished signal
                 void emitAnalyzingFinished();
 
+                // This method will emit error signal and then analyzingFinished signal
+                // error must be set BEFORE calling this slot.
+                void finishWithError();
+
+            private:
                 // emit error signal and then analyzingFinished signal.
                 // Also set m_error variable to code
                 void finishWithError(AnalyzingError code);
+                //void clearPreviousData();
             public:
                 friend class ResourceAnalyzerFactory;
                 class Private;

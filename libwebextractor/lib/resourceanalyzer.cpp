@@ -62,7 +62,8 @@ Nepomuk::WebExtractor::ResourceAnalyzer::Private::Private(
     m_dataPPKeeper(dataPPKeeper),
     m_fact(fact),
     m_mergeCoff(1),
-    m_applied(false)
+    m_applied(false),
+    m_error(ResourceAnalyzer::NoError)
 {
     //DataPPKeeper::const_iterator it = m_dataPPKeeper.begin();
 
@@ -113,8 +114,32 @@ Nepomuk::WebExtractor::ResourceAnalyzer::~ResourceAnalyzer()
 
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepomuk::Resource & res)
 {
+
+    // Check that resource exists
+    if(!res.isValid()) {
+        // Set error now to provide caller ability to check for errors immidiately
+        // and delete ResourceAnalyzer, thus avoiding error signal(I hope Qt
+        // doesn't pass signals from destroyed objects.)
+        d->m_error = InvalidResource;
+        QTimer::singleShot(0, this, SLOT(finishWithError()));
+        return;
+    }
+
+
     // Make some work here
+    // Change current resource
     d->m_res = res;
+    // Clear all previous data
+    clear();
+
+    // We check for resource existing AFTER switching from previously analyzed resource.
+    // This is done for consistency with setResource() method that allow setting as
+    // resource unexisting resource
+    if(!res.exists()) {
+        d->m_error = UnexistingResource;
+        QTimer::singleShot(0, this, SLOT(finishWithError()));
+        return;
+    }
 
     // Add all datapp to queue
     foreach(DataPPWrapper * dppw, d->m_dataPPKeeper) {
@@ -128,7 +153,10 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
         // Can not analyze - no DataPP or any other problem
         // to avoid infinite recursion the analyzingFinished signal will
         // be called via QTimer::singleShot(0)
-        QTimer::singleShot(0, this, SLOT(emitAnalyzingFinished()));
+        if(d->m_error == NoError) {
+            d->m_error = UnknownError;
+        }
+        QTimer::singleShot(0, this, SLOT(finishWithError()));
     }
 }
 
@@ -292,9 +320,14 @@ void NW::ResourceAnalyzer::emitAnalyzingFinished()
     emit analyzingFinished();
 }
 
+void NW::ResourceAnalyzer::finishWithError()
+{
+    emit error(d->m_error);
+    emit analyzingFinished();
+}
+
 void NW::ResourceAnalyzer::finishWithError(AnalyzingError code)
 {
     d->m_error = code;
-    emit error(code);
-    emit analyzingFinished();
+    finishWithError();
 }
