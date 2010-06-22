@@ -189,7 +189,7 @@ void Nepomuk::WebExtractorCategoryScheduler::launch(const QUrl & resourceUri)
 {
     Nepomuk::Resource res(resourceUri);
     // If resource doesn't exist(has already removed)
-    if (!res.isValid()) {
+    if (!res.exists()) {
 	kDebug() << "Resource "<<resourceUri<<" doesn't exist any more and will be skiped";
 	launchOrFinish();
 	return;
