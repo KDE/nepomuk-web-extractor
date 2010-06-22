@@ -1,28 +1,160 @@
 #include "datapppool.h"
 #include "datappconfig.h"
 #include "settings_config.h"
-#include <QDir> 
-#include <QFileInfo> 
-#include <KDebug> 
-#include <KService> 
-#include <KServiceTypeTrader> 
-#include <KGlobal> 
+#include <QDir>
+#include <QFileInfo>
+#include <KDebug>
+#include <KService>
+#include <KServiceTypeTrader>
+#include <KGlobal>
 #include <kstandarddirs.h>
 
-Nepomuk::DataPPPool::DataPPPool()
+TreeItem::TreeItem(const QString & name):
+    m_name(name),
+    m_category(true),
+    parentItem(0)
 {
-    init();
+    ;
 }
 
-void Nepomuk::DataPPPool::init()
+TreeItem::~TreeItem()
+{
+    foreach(TreeItem * item, childs) {
+        delete item;
+    }
+}
+
+TreeItem *  TreeItem::addDataPP(const QString & name)
+{
+    if(m_datapps.contains(name))
+        return m_datapps[name];
+
+    TreeItem * item = new TreeItem(name);
+    item->m_category = false;
+    this->childs << item;
+    item->parentItem = this;
+    m_datapps[name] = item;
+    return item;
+}
+
+TreeItem *  TreeItem::addCategory(const QString & name)
+{
+    if(categories. contains(name))
+        return categories[name];
+
+    TreeItem * item = new TreeItem(name);
+    item->m_category = true;
+    this->childs << item;
+    item->parentItem = this;
+    categories[name] = item;
+    return item;
+}
+
+TreeItem *  TreeItem::category(const QString & name)
+{
+    if(categories. contains(name))
+        return categories[name];
+    return 0;
+}
+
+
+TreeItem *  TreeItem::datapp(const QString & name)
+{
+    if(m_datapps.contains(name))
+        return m_datapps[name];
+    return 0;
+}
+
+QList< TreeItem* > TreeItem::allDataPP() const
+{
+    if(isCategory())
+        return m_datapps.values();
+}
+
+
+QSet< QString > TreeItem::allDataPPNames() const
+{
+    if(isCategory())
+        return m_datapps.keys().toSet();
+}
+
+
+TreeItem* TreeItem::child(int row)
+{
+    if(row > childs.size())
+        return 0;
+    return childs[row];
+}
+
+TreeItem* TreeItem::parent()
+{
+    return parentItem;
+}
+
+int TreeItem::row() const
+{
+    if(parentItem)
+        return parentItem->childs.indexOf(const_cast<TreeItem*>(this));
+
+    return 0;
+}
+
+int TreeItem::childsCount()
+{
+    return childs.size();
+}
+
+
+bool TreeItem::isCategory() const
+{
+    return childs.size();
+}
+
+QString TreeItem::name() const
+{
+    return m_name;
+}
+
+void TreeItem::print(int displacments, QDebug & stream)
+{
+    for(int i = 0; i < displacments; i++)
+        stream << ' ';
+    if(m_category) {
+        stream << m_name << '|' << '+' << '\n';
+    } else {
+        stream << m_name << '\n';
+    }
+    // Print DataPP first
+    foreach(TreeItem * item , m_datapps) {
+        item->print(displacments + 4, stream);
+    }
+    foreach(TreeItem * item , categories) {
+        item->print(displacments + 4, stream);
+    }
+}
+
+Nepomuk::DataPPPool::DataPPPool(QObject * parent):
+    QAbstractItemModel(parent)
+{
+    m_categoryPlugins = 0;
+    update();
+    // Ignore watching directory because it breaks config idealogy
+    foreach(const QString & dirName, KGlobal::dirs()->findDirs("config", PLUGIN_CONFIG_DIR)) {
+        kDebug() << "Watching dir " << dirName;
+        //wc.addDir(dirName);
+    }
+    //connect(&wc,SIGNAL(dirty(const QString &)),this,SLOT(update()));
+}
+
+void Nepomuk::DataPPPool::update()
 {
     /*
     KService::List services;
     KServiceTypeTrader* trader = KServiceTypeTrader::self();
-     
+
     services = trader->query("WebExtractor/DataPP");
     foreach (KService::Ptr service, services) {
-	    kDebug() << "read datapp" << service->name();
+        kDebug() << "read datapp" << service->name();
     }
     */
     /*
@@ -32,32 +164,44 @@ void Nepomuk::DataPPPool::init()
     filters.push_back(QString("*rc"));
     QStringList list = myDir.entryList(filters, QDir::Files);
     */
-    QStringList list = KGlobal::dirs()->findAllResources("config",PLUGIN_CONFIG_DIR"/*rc");
-    foreach( const QString & plg, list)
-    {
-	QFileInfo info(plg);
-	QString filename = info.fileName();
-	QString name = filename;
-	
-	name.remove(name.size() - 2,2);
-	if (!name.isEmpty())
-	    m_plugins.push_back(name);
+    delete m_categoryPlugins;
+    m_categoryPlugins = new TreeItem("DataPP");
+    QStringList list = KGlobal::dirs()->findAllResources("config", PLUGIN_CONFIG_DIR"/*rc");
+    foreach(const QString & plg, list) {
+        QFileInfo info(plg);
+        QString filename = info.fileName();
+        QString name = filename;
+
+        name.remove(name.size() - 2, 2);
+        if(!name.isEmpty()) {
+            // Put name of the plugin into the list of all plugins
+            m_plugins.push_back(name);
+        }
 
 
-	// Open it's config to read file
-	DataPPConfig * dppcfg = new DataPPConfig(name);
-	// Take categories 
-	foreach( const QString & categoryName, dppcfg->categories())
-	{
-	    m_categoryPlugins[categoryName].insert(name);
-	}
+        // Open it's config to read file
+        DataPPConfig * dppcfg = new DataPPConfig(name);
+        // Take categories
+        if(dppcfg->categories().isEmpty())   // DataPP is uncategorized
+            m_categoryPlugins->addDataPP(name);
+        else {
+            foreach(const QString & categoryName, dppcfg->categories()) {
+                // Split category into subcategories
+                QStringList catpath = categoryName.split("/", QString::SkipEmptyParts);
+                TreeItem * item = m_categoryPlugins;
+                foreach(const QString & cat, catpath) {
+                    item = item->addCategory(cat);
+                }
 
-	// Take source plugin
-	m_dataPPSources[name] = dppcfg->plugin();
+                item->addDataPP(name);
+            }
+        }
 
-	// Remove config object
-	delete dppcfg;
-	
+        // Add source to the list of sources
+        m_dataPPSources[name] = dppcfg->plugin();
+        // Remove config object
+        delete dppcfg;
+
     }
 
     //m_init = true;
@@ -68,55 +212,151 @@ QStringList Nepomuk::DataPPPool::plugins()
     return self()->m_plugins;
 }
 
-QSet< QString >  Nepomuk::DataPPPool::categoryDataPPs(const QString & categoryName) 
+QSet< QString >  Nepomuk::DataPPPool::categoryDataPPs(const QString & categoryName)
 {
-    return self()->m_categoryPlugins[categoryName];
+    //return self()->m_categoryPlugins[categoryName];
+    if(categoryName.isEmpty()) {
+    } else {
+        // Parse category
+        QStringList catpath = categoryName.split('/');
+        TreeItem * item = self()->m_categoryPlugins;
+        foreach(const QString & cat, catpath) {
+            item = item->category(cat);
+            if(!item) {  // No such category
+                kDebug() << "No such category: " << cat << "Full path: " << categoryName;
+                return QSet<QString> ();
+            }
+        }
+        return item->allDataPPNames();
+    }
+
 }
 
 #if 0
 void Nepomuk::DataPPPool::addDataPP(const QString & name, const QString & sourcePlugin)
 {
-    if ( self()->m_plugins.contains(name) )
-	return;
+    if(self()->m_plugins.contains(name))
+        return;
 
     DataPPConfig * dppcfg = new DataPPConfig(name);
 
     // If DataPP already exists
-    if (dppcfg->plugin().size()) {
-	// Clear it config file
-    self()->m_plugins << 
-}
-QString Nepomuk::DataPPPool::dataPPSource(const QString & name)
-{
-    if (!self()->m_dataPPSources.contains(name)) {
-	kDebug() << "No such DataPP: "<<name ;
-	return QString();
-    }
-    else {
-	return self()->m_dataPPSources[name];
-    }
-}
+    if(dppcfg->plugin().size()) {
+        // Clear it config file
+        self()->m_plugins <<
+                      }
 
-KSharedConfigPtr Nepomuk::DataPPPool::dataPPConfig(const QString & name)
-{
-    return KSharedConfig::openConfig()
-}
+    KSharedConfigPtr Nepomuk::DataPPPool::dataPPConfig(const QString & name) {
+        return KSharedConfig::openConfig()
+           }
 #endif
 
-Nepomuk::DataPPPool * Nepomuk::DataPPPool::self()
-{
-    static DataPPPool *  m_self = new DataPPPool();
-    return m_self;
-}
-
-
-QDebug Nepomuk::operator<<( QDebug dbg,  const DataPPPool & pool)
-{
-    dbg << " Pool of all DataPP installed in system/user "<<'\n';
-    foreach( const QString & plg, pool.m_plugins )
-    {
-	dbg << plg << /*" source: " << pool.m_dataPPSources[plg]<<*/'\n';
+    QString Nepomuk::DataPPPool::dataPPSource(const QString & name) {
+        if(!self()->m_dataPPSources.contains(name)) {
+            kDebug() << "No such DataPP: " << name ;
+            return QString();
+        } else {
+            return self()->m_dataPPSources[name];
+        }
+    }
+    Nepomuk::DataPPPool * Nepomuk::DataPPPool::self() {
+        static DataPPPool *  m_self = new DataPPPool();
+        return m_self;
     }
 
-    return dbg;
-}
+    int Nepomuk::DataPPPool::categoryCount() {
+        return self()->m_categoryPlugins->childsCount();
+    }
+
+    // Non-static methods of the class
+    // These are methods that realize  model functionality
+    //
+    QModelIndex Nepomuk::DataPPPool::index(int row, int column, const QModelIndex & parent) const {
+        if(!hasIndex(row, column, parent))
+            return QModelIndex();
+
+        TreeItem * parentItem;
+        if(parent.isValid())
+            parentItem = static_cast<TreeItem*>(parent.internalPointer());
+        else
+            parentItem = m_categoryPlugins;
+
+        TreeItem * childItem = parentItem->child(row);
+        if(childItem)
+            return createIndex(row, column, childItem);
+        else
+            return QModelIndex();
+    }
+
+    QModelIndex Nepomuk::DataPPPool::parent(const QModelIndex & index) const {
+        if(!index.isValid())
+            return QModelIndex();
+
+        TreeItem *childItem = static_cast<TreeItem*>(index.internalPointer());
+        TreeItem *parentItem = childItem->parent();
+
+        if(parentItem == m_categoryPlugins)
+            return QModelIndex();
+
+        return createIndex(parentItem->row(), 0, parentItem);
+    }
+
+
+    int Nepomuk::DataPPPool::rowCount(const QModelIndex & parent) const {
+        if(parent.column() > 0)
+            return 0;
+
+        if(!parent.isValid())
+            return m_categoryPlugins->childsCount();
+        else
+            return static_cast<TreeItem*>(parent.internalPointer())->childsCount();
+    }
+
+    int Nepomuk::DataPPPool::columnCount(const QModelIndex & parent) const {
+        return 1;
+    }
+
+    QVariant Nepomuk::DataPPPool::data(const QModelIndex & index, int role) const {
+        if(!index.isValid())
+            return QVariant();
+
+        TreeItem * item = static_cast<TreeItem*>(index.internalPointer());
+        switch(role) {
+        case Qt::DisplayRole : {
+            return item->name();
+        }
+        case DataPPPool::DataPPRole : {
+            return !item->isCategory() ;
+        }
+        case DataPPPool::SourceRole : {
+            return DataPPPool::dataPPSource(item->name());
+        }
+        }
+    }
+
+    Qt::ItemFlags Nepomuk::DataPPPool::flags(const QModelIndex & index) const {
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    }
+
+    QVariant Nepomuk::DataPPPool::headerData(int section, Qt::Orientation orientation,
+    int role) const {
+        if(orientation == Qt::Horizontal)
+            return m_categoryPlugins->name();
+
+        return QVariant();
+
+    }
+
+    QDebug Nepomuk::operator<<(QDebug dbg,  const DataPPPool & pool) {
+        dbg << " Pool of all DataPP installed in system/user " << '\n';
+        foreach(const QString & plg, pool.m_plugins) {
+            dbg << plg << /*" source: " << pool.m_dataPPSources[plg]<<*/'\n';
+        }
+        if(pool.m_categoryPlugins) {
+            dbg << " DataPP,per-category " << '\n';
+            pool.m_categoryPlugins->print(0, dbg);
+        }
+
+
+        return dbg;
+    }
