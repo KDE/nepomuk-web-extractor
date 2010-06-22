@@ -25,47 +25,67 @@
 #include <webextractor/global.h>
 #include <QtCore/QSet>
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	class DataPP;
-	class WEBEXTRACTOR_EXPORT DecisionList : private QSet<Decision>
-	{
-	    public:
-		friend class ResourceAnalyzer;
-		friend class DecisionFactory;
-		void addDecision( const Decision &, bool noAuto = false );
-		void addDecision( const Decision & , WE::MergePolitics politics, double coff = 1, bool noAuto = false);
-		void mergeWith( const DecisionList & rhs, WE::MergePolitics policis = WE::Highest, double coff = 1);
-		//void scale( double coff);
-		/*! \brief return names of plugins that produce obsolete decisions
-		 */
-		/*
-		using QList<Decision>::size;
-		
-		using QList<Decision>::iterator;
-		using QList<Decision>::begin;
-		*/
-	    private:
-		DecisionList(double threshold = 0);
-		// Leave only unique instances
-		//void unique( WE::MergePolitics policis = WE::Highest, double coff = 1 );
-		//void sort();
-		bool hasAutoApplicable() const;
-		QSet<const DataPP*> filterObsolete();
-		void addDecisionUnscaled( Decision & , WE::MergePolitics politics, double coff = 1 );
-		void filter( double threshold);
-		void addToUserDiscretion() const;
-		const Decision & best() const;
-		double m_threshold;
-		double m_acrit;
-		bool m_trusted;
-		double m_scaleCoff;
-		bool m_hasAutoApplicable;
-		Decision m_best;
-		static double scaledRank(double rank, double coff);
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        class DataPP;
+        class WEBEXTRACTOR_EXPORT DecisionList : private QSet<Decision>
+        {
+            public:
+                friend class ResourceAnalyzer;
+                friend class DecisionFactory;
+                /*! \brief Add decision to the list
+                 * The given Decision will be added to the list. If there is the same Decision in this list, then
+                 * these Decisions will be merget into one using default merging politics.
+                 * \param noAuto If true, then this Decision will be forced to have rank less than a_crit
+                 */
+                void addDecision(const Decision &, bool noAuto = false);
+
+                /*! \brief Add decision to the list using given mereg politics
+                 * The given Decision will be added to the list. If there is the same Decision in this list, then
+                 * these Decisions will be merget into one using given merging politics.
+                 * \param noAuto If true, then this Decision will be forced to have rank less than a_crit
+                 * \param politics Merging politics
+                 * \param coff Ignored
+                 */
+                void addDecision(const Decision & , WE::MergePolitics politics, double coff = 1, bool noAuto = false);
+                /*! \brief Merge one DecisionLis with another
+                 * The same as add all Decisions from one list to another using given settings
+                 */
+                void mergeWith(const DecisionList & rhs, WE::MergePolitics policis = WE::Highest, double coff = 1);
+                using QSet<Decision>::constBegin ;
+                using QSet<Decision>::constEnd ;
+                //void scale( double coff);
+                /*! \brief return names of plugins that produce obsolete decisions
+                 */
+                /*
+                using QList<Decision>::size;
+
+                using QList<Decision>::iterator;
+                using QList<Decision>::begin;
+                */
+            private:
+                DecisionList(double threshold = 0);
+                // Leave only unique instances
+                //void unique( WE::MergePolitics policis = WE::Highest, double coff = 1 );
+                //void sort();
+                bool hasAutoApplicable() const;
+                QSet<const DataPP*> filterObsolete();
+                void addDecisionUnscaled(Decision & , WE::MergePolitics politics, double coff = 1);
+                void filter(double threshold);
+                void addToUserDiscretion() const;
+                const Decision & best() const;
+                double m_threshold;
+                double m_acrit;
+                bool m_trusted;
+                double m_scaleCoff;
+                bool m_hasAutoApplicable;
+                Decision m_best;
+                static double scaledRank(double rank, double coff);
 
 
-	};
+        };
     }
 }
 

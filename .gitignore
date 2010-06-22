@@ -1,3 +1,4 @@
 #ignore swp files
 *.sw[opn]
 *.*.orig
+.gitignore
