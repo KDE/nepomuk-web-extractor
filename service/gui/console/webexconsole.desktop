@@ -1,0 +1,8 @@
+[Desktop Entry]
+Exec=webexconsole
+Type=Application
+Categories=Qt;KDE;System;
+Name=WebExtractorConsole
+GenericName=Web Extractor Console
+Terminal=false
+

@@ -23,10 +23,11 @@
 #include <QMainWindow>
 #include <QThread>
 #include <QStateMachine>
+#include <KXmlGuiWindow>
 #include <webextractor/resourceanalyzer.h>
 #include <webextractor/parameters.h>
 
-class ConsoleMainWindow : public QMainWindow , public Ui_MainWindow
+class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
 {
         Q_OBJECT;
     public:
@@ -35,12 +36,14 @@ class ConsoleMainWindow : public QMainWindow , public Ui_MainWindow
             const QStringList & datapps = QStringList(),
             bool autostart = false,
             QWidget * parent = 0);
+        ~ConsoleMainWindow();
     public Q_SLOTS:
         void startExtracting();
     private Q_SLOTS:
         void extractingFinished();
         void tabChanged(int currentIndex);
         void dataPPClicked(QModelIndex index);
+        void onCurrentResourceChanged(const Nepomuk::Resource & current, const Nepomuk::Resource & previous);
     private:
         QThread * workThread;
         Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;

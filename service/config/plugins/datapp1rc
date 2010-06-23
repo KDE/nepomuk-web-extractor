@@ -1,0 +1,3 @@
+[webextractor]
+source=debug
+categories= Debug, Music, Category/SubCategory

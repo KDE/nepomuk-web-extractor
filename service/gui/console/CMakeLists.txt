@@ -10,6 +10,7 @@ set (QT_USE_QTNETWORK true)
 
 find_package(KDE4  REQUIRED)
 find_package(Nepomuk REQUIRED)
+# find_package(LibNepomuksearchgui REQUIRED)
 
 # check for required packages
 if(WEBEXTRACTOR_VERSION_STRING)
@@ -28,6 +29,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${NEPOMUK_INCLUDE_DIR}
+  ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${CMAKE_CURRENT_BINARY_DIR}
   ${KDE4_INCLUDES}
   ${LIBWEBEXTRACTOR_INCLUDE_DIRS}
@@ -45,9 +47,9 @@ set ( webexconsole_SRCS
 kde4_add_ui_files(webexconsole_SRCS
    mainWindow.ui
   ) 
-kde4_add_executable( console ${webexconsole_SRCS} )
+kde4_add_executable( webexconsole ${webexconsole_SRCS} )
 
-target_link_libraries( console 
+target_link_libraries( webexconsole 
     webexsettings
     webextractor
     ${LIBWEBEXTRACTOR_LIBRARIES}
@@ -55,4 +57,8 @@ target_link_libraries( console
     ${KDE4_NEPOMUK_LIBS}
     ${KDE4_KDECORE_LIBS}
     ${KDE4_KDEUI_LIBRARY}
+    nepomuksearchgui
     )
+
+install( TARGETS webexconsole ${INSTALL_TARGETS_DEFAULT_ARGS} )
+install(FILES webexconsole.desktop DESTINATION ${SERVICES_INSTALL_DIR} )

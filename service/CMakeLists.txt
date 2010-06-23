@@ -60,6 +60,10 @@ FILE( GLOB
     config/categories/*rc
     )
 
+FILE( GLOB 
+    webexservice_datapps_CFG
+    config/plugins/*rc
+    )
 
 qt4_add_dbus_adaptor(webexservice_SRCS  org.kde.nepomuk.WebExtractorService.xml webexservice.h Nepomuk::WebExtractorService )
 
@@ -171,6 +175,10 @@ install (
     FILES ${webexservice_categories_CFG} DESTINATION ${CONFIG_INSTALL_DIR}/webextractor/categories 
     )
 
+
+install (
+    FILES ${webexservice_datapps_CFG} DESTINATION ${CONFIG_INSTALL_DIR}/webextractor/plugins
+    )
 
 # install headers
 install (

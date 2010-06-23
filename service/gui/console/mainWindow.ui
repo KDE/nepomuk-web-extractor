@@ -30,6 +30,9 @@
     </item>
     <item>
      <widget class="KTabWidget" name="ktabwidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
       <widget class="QWidget" name="selectTab">
        <attribute name="title">
         <string>Select Resources</string>
@@ -41,6 +44,16 @@
           <y>30</y>
           <width>81</width>
           <height>91</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="Nepomuk::QueryBuilderSearchWidget" name="resWidget" native="true">
+        <property name="geometry">
+         <rect>
+          <x>30</x>
+          <y>150</y>
+          <width>361</width>
+          <height>351</height>
          </rect>
         </property>
        </widget>
@@ -162,6 +175,12 @@
    <class>KTabWidget</class>
    <extends>QTabWidget</extends>
    <header>ktabwidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Nepomuk::QueryBuilderSearchWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">querybuildersearchwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

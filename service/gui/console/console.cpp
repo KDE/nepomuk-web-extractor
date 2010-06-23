@@ -3,10 +3,15 @@
 #include <KDebug>
 #include <KMessageBox>
 #include <Nepomuk/Resource>
+#include <Soprano/Vocabulary/NAO>
+#include <Nepomuk/Query/Query>
+#include <Nepomuk/Query/LiteralTerm>
+#include <Nepomuk/Query/ComparisonTerm>
 #include <webextractor/parameters.h>
 #include <webextractor/global.h>
 #include <webextractor/debug_datapp.h>
 #include <webextractor/resourceanalyzerfactory.h>
+#include <querybuildersearchwidget.h>
 #include <stdint.h>
 //#include "modeltest.h"
 
@@ -17,7 +22,8 @@ ConsoleMainWindow::ConsoleMainWindow(
     const QStringList & datapps ,
     bool autostart ,
     QWidget * parent):
-    QMainWindow(parent)
+    KXmlGuiWindow(parent),
+    workThread(0)
 {
     this->setupUi(this);
     //new ModelTest(Nepomuk::DataPPPool::self(), this);
@@ -34,6 +40,14 @@ ConsoleMainWindow::ConsoleMainWindow(
     //m_dataPPSettingsState = new QState();
     connect(this->ktabwidget, SIGNAL(currentChanged(int)),
             this, SLOT(tabChanged(int)));
+
+    Nepomuk::Query::ComparisonTerm coreTerm(Soprano::Vocabulary::NAO::hasTag(),
+                                            Nepomuk::Query::LiteralTerm(),
+                                            Nepomuk::Query::ComparisonTerm::Contains);
+    resWidget->setCoreQueryTerm(coreTerm);
+
+    connect(this->resWidget, SIGNAL(currentChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)),
+            this, SLOT(onCurrentResourceChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)));
 
     if(uri.size())
         this->uriLineEdit->setText(uri);
@@ -60,6 +74,7 @@ void ConsoleMainWindow::startExtracting()
 {
     if(workThread->isRunning()) {
         kError() << "Application is currently analyzing another resource. You must abort previous analyzing first";
+        KMessageBox::sorry(this, "Application is currently analyzing another resource. You must abort previous analyzing first");
         return;
     }
     // Fist check that we have necessary uri
@@ -102,10 +117,10 @@ void ConsoleMainWindow::startExtracting()
 
         QString dataPPName = index.data(DataPPPool::NameRole).toString();
 
-        //NW::DataPP * dpp = DataPPConfig::dataPP(dataPPName);
+        NW::DataPP * dpp = DataPPConfig::dataPP(dataPPName);
         //FIXME Enable proper plugin selection back
-        kDebug() << "DataPP selection is disabled. DebugDataPP is used instead";
-        NW::DataPP * dpp = new NW::DebugDataPP();
+        //kDebug() << "DataPP selection is disabled. DebugDataPP is used instead";
+        //NW::DataPP * dpp = new NW::DebugDataPP();
         if(!dpp)
             continue;
 
@@ -141,13 +156,20 @@ void ConsoleMainWindow::startExtracting()
     delete m_currentAnalyzer;
     m_currentAnalyzer = resanal;
     resanal->setParent(0);
-    //resanal->moveToThread(workThread);
-    //connect(workThread, SIGNAL(started()), resanal, SLOT(analyze()));
+    resanal->moveToThread(workThread);
+    connect(workThread, SIGNAL(started()), resanal, SLOT(analyze()));
     connect(resanal, SIGNAL(analyzingFinished()), this, SLOT(extractingFinished()), Qt::QueuedConnection);
-    //workThread->start();
-    resanal->analyze();
+    workThread->start();
+    //resanal->analyze();
 
 }
+
+ConsoleMainWindow::~ConsoleMainWindow()
+{
+    workThread->quit();
+    delete workThread;
+}
+
 
 void ConsoleMainWindow::extractingFinished()
 {
@@ -203,5 +225,14 @@ void ConsoleMainWindow::dataPPClicked(QModelIndex index)
         return;
     }
 
+
+}
+void ConsoleMainWindow::onCurrentResourceChanged(const Nepomuk::Resource & current, const Nepomuk::Resource & previous)
+{
+    if(current.isValid()) {
+        this->uriLineEdit->setText(current.uri());
+    } else {
+        this->uriLineEdit->setText(QString());
+    }
 
 }

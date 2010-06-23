@@ -1,1 +1,4 @@
 [webextractorcore]
+categories = files3
+             max_res_simult = 5000
+                              max_res_simult_per_category = 5000

@@ -1,0 +1,4 @@
+[webextractor]
+source=debug
+categories= Debug, Video, Category
+
