@@ -3,6 +3,8 @@ Exec=webexconsole
 Type=Application
 Categories=Qt;KDE;System;
 Name=WebExtractorConsole
+Name[x-test]=xxWebExtractorConsolexx
 GenericName=Web Extractor Console
+GenericName[x-test]=xxWeb Extractor Consolexx
 Terminal=false
 
