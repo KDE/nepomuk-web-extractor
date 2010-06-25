@@ -16,8 +16,8 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __simple_datareply_h_
-#define __simple_datareply_h_
+#ifndef __simple_network_datareply_h_
+#define __simple_network_datareply_h_
 
 #include <webextractor/datappreply.h>
 #include <webextractor/webextractor_export.h>
@@ -25,13 +25,13 @@
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class SimpleDataPP;
+	class SimpleNetworkDataPP;
 	class DecisionFactory;
-	class WEBEXTRACTOR_EXPORT SimpleDataPPReply : public DataPPReply
+	class WEBEXTRACTOR_EXPORT SimpleNetworkDataPPReply : public DataPPReply
 	{
 	    Q_OBJECT;
 	    public:
-		SimpleDataPPReply(SimpleDataPP * parent , const DecisionFactory * factory, const Nepomuk::Resource & res);
+		SimpleNetworkDataPPReply(SimpleNetworkDataPP * parent , const DecisionFactory * factory, const Nepomuk::Resource & res);
 		/*! \brief main function for Reply. All work should be done here
 		 * This methon must return 0 when all work is finished,
 		 * and non-zero otherwise. The method will be called untill it

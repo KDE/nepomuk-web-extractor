@@ -1,0 +1,10 @@
+#set lname = $name.lower()
+[Desktop Entry]
+ Type=Service
+ X-KDE-ServiceTypes=Nepomuk/WebExtractorPlugin
+ X-KDE-Library=webexplugin_${lname}
+ X-WebExtractor-Name=${lname}
+ Name=Put name here
+ Comment=Put comment here
+
+

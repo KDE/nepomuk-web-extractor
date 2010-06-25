@@ -19,15 +19,15 @@
 #include "simple_debug_reply.h"
 #include <webextractor/decisionfactory.h>
 #include <webextractor/datapp.h>
-#include <webextractor/simple_datapp.h>
-#include <webextractor/simple_request.h>
+#include <webextractor/simplenetworkdatapp.h>
+#include <webextractor/simplenetworkrequest.h>
 #include <KDebug>
 #include <stdint.h>
 
-namespace NW=Nepomuk::WebExtractor;
+namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::SimpleDebugReply::SimpleDebugReply(NW::SimpleDataPP * parent , const NW::DecisionFactory * factory, const Nepomuk::Resource & res):
-    SimpleDataPPReply(parent,factory, res),
+Nepomuk::SimpleDebugReply::SimpleDebugReply(NW::SimpleNetworkDataPP * parent , const NW::DecisionFactory * factory, const Nepomuk::Resource & res):
+    SimpleNetworkDataPPReply(parent, factory, res),
     m_state(0),
     m_decisions(factory->newDecisionList(parent))
 {
@@ -40,35 +40,34 @@ void Nepomuk::SimpleDebugReply::start()
 
 void Nepomuk::SimpleDebugReply::requestFinished()
 {
-    if (m_state == 10) {
-	kDebug() << "SimpleDebugReply "<< uintptr_t(this) <<" finished";
-	emit finished();
+    if(m_state == 10) {
+        kDebug() << "SimpleDebugReply " << uintptr_t(this) << " finished";
+        emit finished();
+    } else {
+        step();
     }
-    else {
-	step();
-    }
-    
+
     // Anyway delete sender
     sender()->deleteLater();
 }
 
 void Nepomuk::SimpleDebugReply::step()
 {
-	// Create request and connect it
-	NW::SimpleDataPPRequest * req = new NW::SimpleDataPPRequest("");
-	connect(req,SIGNAL(finished()), this, SLOT(requestFinished()));
-	connect(req,SIGNAL(error()), this, SLOT(requestError()));
-	
-	NW::SimpleDataPP * dpp = qobject_cast<NW::SimpleDataPP*>(this->parentDataPP());
-	dpp->get(req);
-	kDebug() << "SimpleDebugReply: " << uintptr_t(this) << " Step number: "<<m_state;
-	m_state++;
+    // Create request and connect it
+    NW::SimpleNetworkDataPPRequest * req = new NW::SimpleNetworkDataPPRequest("");
+    connect(req, SIGNAL(finished()), this, SLOT(requestFinished()));
+    connect(req, SIGNAL(error()), this, SLOT(requestError()));
+
+    NW::SimpleNetworkDataPP * dpp = qobject_cast<NW::SimpleNetworkDataPP*>(this->parentDataPP());
+    dpp->get(req);
+    kDebug() << "SimpleDebugReply: " << uintptr_t(this) << " Step number: " << m_state;
+    m_state++;
 }
 
 void Nepomuk::SimpleDebugReply::requestError()
 {
     // Stop at this step
-    kDebug() << "SimpleDebugReply "<< uintptr_t(this) <<" finished with error";
+    kDebug() << "SimpleDebugReply " << uintptr_t(this) << " finished with error";
     sender()->deleteLater();
     emit error();
 }

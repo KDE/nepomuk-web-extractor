@@ -16,41 +16,41 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <webextractor/simple_request.h>
+#include <webextractor/simplenetworkrequest.h>
 #include <QtGlobal>
 
 namespace NW=Nepomuk::WebExtractor;
 
-NW::SimpleDataPPRequest::SimpleDataPPRequest(const QString & requestUrlPart, QObject* parent):
+NW::SimpleNetworkDataPPRequest::SimpleNetworkDataPPRequest(const QString & requestUrlPart, QObject* parent):
     QObject(parent),
     m_requestUrlPart(requestUrlPart),
     m_reply(0)
 {
 }
 
-NW::SimpleDataPPRequest::~SimpleDataPPRequest()
+NW::SimpleNetworkDataPPRequest::~SimpleNetworkDataPPRequest()
 {
     delete m_reply;
 }
 
-QNetworkReply * NW::SimpleDataPPRequest::reply() const
+QNetworkReply * NW::SimpleNetworkDataPPRequest::reply() const
 {
     return m_reply;
 }
 
-void NW::SimpleDataPPRequest::clear()
+void NW::SimpleNetworkDataPPRequest::clear()
 {
     if (m_reply)
 	m_reply->deleteLater();
     m_reply = 0;
 }
 
-QString NW::SimpleDataPPRequest::requestUrlPart() const
+QString NW::SimpleNetworkDataPPRequest::requestUrlPart() const
 {
     return m_requestUrlPart;
 }
 
-void NW::SimpleDataPPRequest::setReply( QNetworkReply * reply )
+void NW::SimpleNetworkDataPPRequest::setReply( QNetworkReply * reply )
 {
     Q_ASSERT(m_reply == 0);
     m_reply = reply;

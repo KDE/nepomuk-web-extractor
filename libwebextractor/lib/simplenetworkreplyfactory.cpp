@@ -1,4 +1,4 @@
-#include <webextractor/simple_reply_factory.h>
+#include <webextractor/simplenetworkreplyfactory.h>
 
 namespace NW=Nepomuk::WebExtractor;
 

@@ -16,19 +16,20 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __debug_plugin_h_
-#define __debug_plugin_h_
+#ifndef __dbpedia_plugin_h_
+#define __dbpedia_plugin_h_
 
 #include <webextractor_plugin.h>
+#include <webextractor/simple_datapp.h>
 namespace Nepomuk
 {
-    class DebugPlugin : public WebExtractorPlugin
+    class DbpediaPlugin : public WebExtractorPlugin
     {
         public:
-            DebugPlugin(QObject*, const QList<QVariant>&);
+            DbpediaPlugin(QObject*, const QList<QVariant>&);
             virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
             static QString  version();
-        protected:
     };
 }
 #endif
+

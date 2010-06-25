@@ -16,19 +16,26 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __debug_plugin_h_
-#define __debug_plugin_h_
+#include <webextractor/datapp.h>
+#include "dbpediaplugin.h"
+#include <KPluginFactory>
+#include "dbpedia_config.h"
 
-#include <webextractor_plugin.h>
-namespace Nepomuk
+K_PLUGIN_FACTORY(DebugPluginFactory, registerPlugin< Nepomuk::DebugPlugin >();)
+K_EXPORT_PLUGIN(DebugPluginFactory("webexdebugplugin"))
+
+Nepomuk::DbpediaPlugin::DbpediaPlugin(QObject * parent, const QList<QVariant> &):
+    WebExtractorPlugin(parent)
 {
-    class DebugPlugin : public WebExtractorPlugin
-    {
-        public:
-            DebugPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
-            static QString  version();
-        protected:
-    };
+    ;
 }
-#endif
+
+Nepomuk::WebExtractor::DataPP*  Nepomuk::DbpediaPlugin::getDataPP(KSharedConfigPtr configFile)
+{
+}
+
+QString Nepomuk::DbpediaPlugin::version()
+{
+    static QString v = QString(DBPEDIA_PLUGIN_VERSION);
+    return v;
+}

@@ -16,19 +16,28 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __debug_plugin_h_
-#define __debug_plugin_h_
+#ifndef __webextractor_simple_datapp_reply_private_h_
+#define __webextractor_simple_datapp_reply_private_h_
 
-#include <webextractor_plugin.h>
+#include "datappreply_p.h"
+
 namespace Nepomuk
 {
-    class DebugPlugin : public WebExtractorPlugin
+    namespace WebExtractor
     {
-        public:
-            DebugPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
-            static QString  version();
-        protected:
-    };
+        class SimpleDataPPReplyPrivate : public DataPPReplyPrivate
+        {
+            public:
+                SimpleDataPPReplyPrivate(DecisionList list):
+                    m_decisions(list) {
+                    ;
+                }
+                const DecisionFactory * m_factory;
+                Nepomuk::Resource m_res;
+                DecisionList m_decisions;
+        };
+    }
 }
+
+
 #endif

@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+   Copyright (C) 2010 by $author <$mail>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,11 +16,16 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <webextractor/simple_reply.h>
-#include "simple_datapp.h"
+#set lname = $name.lower()
+#raw 
+#ifndef #end raw __webextractor_plugin_config_${lname} 
 
-namespace NW=Nepomuk::WebExtractor;
+#raw 
+#define #end raw __webextractor_plugin_config_${lname} 
 
-NW::SimpleDataPPReply::SimpleDataPPReply( SimpleDataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource & res):
-    DataPPReply(parent)
-{;}
+#raw 
+#define #end raw ${name.upper()}_PLUGIN_VERSION "@${name.upper()}_PLUGIN_VERSION@"
+
+
+#raw 
+#endif #end raw

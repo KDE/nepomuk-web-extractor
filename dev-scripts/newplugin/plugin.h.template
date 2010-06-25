@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+   Copyright (C) 2010 by $author <$mail>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,19 +16,28 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __debug_plugin_h_
-#define __debug_plugin_h_
 
-#include <webextractor_plugin.h>
+#raw 
+#ifndef #end raw __webextractor_plugin_${name.lower()}_h_
+#raw 
+#define #end raw __webextractor_plugin_${name.lower()}_h_
+
+#raw
+#include <webextractor/webextractor_plugin.h>
+#include <KSharedConfig>
+#include <QString>
+#end raw
+
 namespace Nepomuk
 {
-    class DebugPlugin : public WebExtractorPlugin
+    class ${name}Plugin : public WebExtractorPlugin
     {
+	Q_OBJECT;
         public:
-            DebugPlugin(QObject*, const QList<QVariant>&);
+            ${name}Plugin(QObject*, const QList<QVariant>&);
             virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
             static QString  version();
-        protected:
     };
 }
-#endif
+#raw 
+#endif #end raw

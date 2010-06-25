@@ -1,13 +1,13 @@
-#include  "simple_datapp.h"
+#include  "simplenetworkdatapp.h"
 #include  "stdint.h"
-#include "simple_reply.h"
-#include "simple_reply_factory.h"
+#include "simplenetworkreply.h"
+#include "simplenetworkreplyfactory.h"
 #include <QThread>
 #include <stdint.h>
 
 namespace NW = Nepomuk::WebExtractor;
 
-NW::SimpleDataPP::SimpleDataPP(const QString & dataPPVersion, const QString & serverName, const QString & endpointUrl):
+NW::SimpleNetworkDataPP::SimpleNetworkDataPP(const QString & dataPPVersion, const QString & serverName, const QString & endpointUrl):
     DataPP(dataPPVersion),
     m_timeout(true),
     m_factory(0),
@@ -17,7 +17,7 @@ NW::SimpleDataPP::SimpleDataPP(const QString & dataPPVersion, const QString & se
     __init();
 }
 
-NW::SimpleDataPP::SimpleDataPP(const QString & dataPPVersion, const QString & endpointUrl, SimpleReplyFactory * factory):
+NW::SimpleNetworkDataPP::SimpleNetworkDataPP(const QString & dataPPVersion, const QString & endpointUrl, SimpleReplyFactory * factory):
     DataPP(dataPPVersion),
     m_timeout(true),
     m_factory(factory),
@@ -25,22 +25,22 @@ NW::SimpleDataPP::SimpleDataPP(const QString & dataPPVersion, const QString & en
     m_endpointUrl(endpointUrl)
 {
     __init();
-    kDebug() << "New SimpleDataPP created. ID: " << uintptr_t(this);
+    kDebug() << "New SimpleNetworkDataPP created. ID: " << uintptr_t(this);
 }
 
-NW::SimpleDataPP::~SimpleDataPP()
+NW::SimpleNetworkDataPP::~SimpleNetworkDataPP()
 {
     //TODO Implement QWaitCondition that will free when queue becomes empty
     delete m_net;
-    foreach(SimpleDataPPRequest * req, m_queue) {
+    foreach(SimpleNetworkDataPPRequest * req, m_queue) {
         delete req;
     }
     delete m_reqTimer;
     delete m_factory;
-    kDebug() << "SimpleDataPP deleted. ID: " << uintptr_t(this);
+    kDebug() << "SimpleNetworkDataPP deleted. ID: " << uintptr_t(this);
 }
 
-void NW::SimpleDataPP::__init()
+void NW::SimpleNetworkDataPP::__init()
 {
     m_net = new QNetworkAccessManager();
     m_reqTimer = new QTimer();
@@ -52,7 +52,7 @@ void NW::SimpleDataPP::__init()
 }
 
 
-NW::SimpleDataPPReply * NW::SimpleDataPP::newReply(const DecisionFactory * factory, const Nepomuk::Resource & res)
+NW::SimpleNetworkDataPPReply * NW::SimpleNetworkDataPP::newReply(const DecisionFactory * factory, const Nepomuk::Resource & res)
 {
     if(!m_factory)
         return 0;
@@ -62,7 +62,7 @@ NW::SimpleDataPPReply * NW::SimpleDataPP::newReply(const DecisionFactory * facto
 
 
 /*
-void NW::SimpleDataPP::launchNext()
+void NW::SimpleNetworkDataPP::launchNext()
 {
     QMutexLocker locker_timer(&m_timeoutMutex);
     QMutexLocker locker_queue(&m_queueMutex);
@@ -76,7 +76,7 @@ void NW::SimpleDataPP::launchNext()
 }
 */
 
-void NW::SimpleDataPP::startTimer()
+void NW::SimpleNetworkDataPP::startTimer()
 {
     kDebug() << "Start timer";
     //QMutexLocker locker(&m_timeoutMutex);
@@ -86,11 +86,11 @@ void NW::SimpleDataPP::startTimer()
 }
 
 // This function is executed in thread requesting reply. Most other functions executed in thread where DataPP lives
-//NW::DataPPReply * NW::SimpleDataPP::requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res, QObject* target, const char * finishedSlot, const char * errorSlot)
-NW::DataPPReply * NW::SimpleDataPP::requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)
+//NW::DataPPReply * NW::SimpleNetworkDataPP::requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res, QObject* target, const char * finishedSlot, const char * errorSlot)
+NW::DataPPReply * NW::SimpleNetworkDataPP::requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)
 {
     // Create SimpleReply with this information
-    SimpleDataPPReply * repl = this->newReply(factory, res);
+    SimpleNetworkDataPPReply * repl = this->newReply(factory, res);
 #if 0
     connect(repl, SIGNAL(finished()), target, finishedSlot, Qt::QueuedConnection);
     connect(repl, SIGNAL(error()), target, errorSlot, Qt::QueuedConnection);
@@ -104,7 +104,7 @@ NW::DataPPReply * NW::SimpleDataPP::requestDecisions(const DecisionFactory * fac
 
 }
 
-void NW::SimpleDataPP::get(SimpleDataPPRequest * request)
+void NW::SimpleNetworkDataPP::get(SimpleNetworkDataPPRequest * request)
 {
     // This function can be called from parent thread or by caller thread
 
@@ -137,7 +137,7 @@ void NW::SimpleDataPP::get(SimpleDataPPRequest * request)
     // In this case the control move from calling thread to
     // thread where SimleDataPP lives. ( In case this is 2 different threads.
     // Such situation occur when get is called indirectly from requestDecisions via
-    // SimpleDataPPReply->start() )
+    // SimpleNetworkDataPPReply->start() )
 
     enqueue(request);
     // And start timer. invokeMethod() is used because timer should be called
@@ -156,12 +156,12 @@ void NW::SimpleDataPP::get(SimpleDataPPRequest * request)
     }
 }
 
-int NW::SimpleDataPP::runNext()
+int NW::SimpleNetworkDataPP::runNext()
 {
     QMutexLocker locker_queue(&m_queueMutex);
     if(m_queue.isEmpty())
         return 0;
-    SimpleDataPPRequest * req = m_queue.dequeue();
+    SimpleNetworkDataPPRequest * req = m_queue.dequeue();
     locker_queue.unlock();
 
     getRequest(req);
@@ -169,7 +169,7 @@ int NW::SimpleDataPP::runNext()
 
 }
 
-void NW::SimpleDataPP::getRequest(SimpleDataPPRequest * request)
+void NW::SimpleNetworkDataPP::getRequest(SimpleNetworkDataPPRequest * request)
 {
     request->clear();
     QNetworkReply * repl = m_net->get(
@@ -178,7 +178,7 @@ void NW::SimpleDataPP::getRequest(SimpleDataPPRequest * request)
     request->setReply(repl);
 }
 
-void NW::SimpleDataPP::timeout()
+void NW::SimpleNetworkDataPP::timeout()
 {
     kDebug() << "Timeout";
     // Lock timer
@@ -203,7 +203,7 @@ void NW::SimpleDataPP::timeout()
             return;
 
     } else {
-        SimpleDataPPReply * repl = m_queue.dequeue();
+        SimpleNetworkDataPPReply * repl = m_queue.dequeue();
         // Call step for repl
         repl->step();
     }
@@ -212,8 +212,8 @@ void NW::SimpleDataPP::timeout()
 #endif
 }
 
-//void NW::SimpleDataPP::enqueue( SimpleDataPPReply * repl)
-void NW::SimpleDataPP::enqueue(SimpleDataPPRequest * request)
+//void NW::SimpleNetworkDataPP::enqueue( SimpleNetworkDataPPReply * repl)
+void NW::SimpleNetworkDataPP::enqueue(SimpleNetworkDataPPRequest * request)
 {
     QMutexLocker locker_queue(&m_queueMutex);
     m_queue.enqueue(request);

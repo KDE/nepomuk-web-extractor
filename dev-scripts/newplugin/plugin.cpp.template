@@ -1,0 +1,53 @@
+/*
+   Copyright (C) 2010 by $author <$mail>
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+#set $classname = $name + 'Plugin'
+#raw 
+#include #end raw  "${name.lower()}plugin.h"
+
+#raw 
+#include #end raw "${name.lower()}plugin_config.h"
+
+#raw
+#include <KPluginFactory>
+#include <KDebug>
+#end raw 
+
+
+K_PLUGIN_FACTORY(${name}PluginFactory, registerPlugin< Nepomuk::${name}Plugin >();)
+K_EXPORT_PLUGIN(${name}PluginFactory("webex${name.lower()}plugin"))
+
+Nepomuk::${classname}::${classname}(QObject* parent, const QList<QVariant>&):
+    WebExtractorPlugin(parent)
+{
+    ;
+}
+
+QString Nepomuk::${classname}::version()
+{
+    static QString v = QString(${name.upper()}_PLUGIN_VERSION);
+    return v;
+}
+
+Nepomuk::WebExtractor::DataPP * Nepomuk::${classname}::getDataPP(KSharedConfigPtr configFile)
+{
+    kError() << "ATTENTION! Reimplement this! ";
+    return 0;
+}
+
+

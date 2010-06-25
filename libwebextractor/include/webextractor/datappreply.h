@@ -29,6 +29,7 @@ namespace Nepomuk
     namespace WebExtractor
     {
         class DataPP;
+        class DataPPReplyPrivate;
         class WEBEXTRACTOR_EXPORT DataPPReply : public QObject
         {
                 Q_OBJECT;
@@ -48,10 +49,12 @@ namespace Nepomuk
             Q_SIGNALS:
                 void finished();
                 void error();
+            protected:
+                DataPPReply(DataPPReplyPrivate & p, DataPP*);
+                DataPPReplyPrivate * d_ptr;
             private:
                 //void setPluginName(const QString & pluginName);
-                class Private;
-                Private * d;
+                Q_DECLARE_PRIVATE(DataPPReply)
         };
     }
 }

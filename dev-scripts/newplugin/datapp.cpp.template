@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+   Copyright (C) 2010 by $author <$mail>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,19 +16,39 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __debug_plugin_h_
-#define __debug_plugin_h_
+#set lname = $name.lower()
+#set classname = $name + 'DataPP'
+#raw 
+#include #end raw "${lname}plugin_config.h"
 
-#include <webextractor_plugin.h>
-namespace Nepomuk
+#raw 
+#include #end raw "${lname}datapp.h"
+
+#raw
+#include <webextractor/datappreply.h>
+#end raw
+
+#raw
+#include #end raw "${lname}datappreply.h"
+
+
+Nepomuk::${classname}::${classname}(
+		    const QString & pluginVersion
+		    ):
+    DataPP(pluginVersion)
 {
-    class DebugPlugin : public WebExtractorPlugin
-    {
-        public:
-            DebugPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
-            static QString  version();
-        protected:
-    };
 }
-#endif
+
+
+Nepomuk::WebExtractor::DataPPReply * Nepomuk::${classname}::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
+{
+
+#if $use_simple
+    return new ${name}Reply(this, factory, res ); 
+#end if
+
+} 
+
+Nepomuk::${classname}::~${classname}()
+{;}
+

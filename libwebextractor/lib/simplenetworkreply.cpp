@@ -16,19 +16,11 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __debug_plugin_h_
-#define __debug_plugin_h_
+#include <webextractor/simplenetworkreply.h>
+#include "simplenetworkdatapp.h"
 
-#include <webextractor_plugin.h>
-namespace Nepomuk
-{
-    class DebugPlugin : public WebExtractorPlugin
-    {
-        public:
-            DebugPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
-            static QString  version();
-        protected:
-    };
-}
-#endif
+namespace NW=Nepomuk::WebExtractor;
+
+NW::SimpleNetworkDataPPReply::SimpleNetworkDataPPReply( SimpleNetworkDataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource & res):
+    DataPPReply(parent)
+{;}

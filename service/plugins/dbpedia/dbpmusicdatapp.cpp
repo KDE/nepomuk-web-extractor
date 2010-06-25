@@ -16,19 +16,20 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __debug_plugin_h_
-#define __debug_plugin_h_
+#include "dbpmusicdatapp.h"
 
-#include <webextractor_plugin.h>
-namespace Nepomuk
+Nepomuk::DbpMusicDataPP:: DbpMusicDataPP(
+		    Soprano::SparqlModel * model,
+		    const QString & pluginVersion
+		    ):
+    DataPP(pluginVersion),
+    m_model(model)
 {
-    class DebugPlugin : public WebExtractorPlugin
-    {
-        public:
-            DebugPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
-            static QString  version();
-        protected:
-    };
+    Q_ASSERT(m_model)
 }
-#endif
+
+
+DataPPReply * Nepomuk::DbpMusicDataPP::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
+{
+    //return DbpMusicReply(this, factory, res ); 
+} 

@@ -1,14 +1,14 @@
 [category]
 queryPrefix =
-    query = ? r nao : hasTag ? tag. ? tag nao : prefLabel 'tag3' ^ ^ xsd : string .
-            description = Select files
+query =?r nao:hasTag ?tag. ?tag nao:prefLabel 'tag3'^^xsd:string .
+description = Select files
 
-                          [plugins][datapp1]
-                          coff = 1
-                                 rank = 1
-                                        trusted = true
+[plugins][datapp1]
+coff = 1
+rank = 1
+trusted = true
 
-                                                [plugins][datapp2]
-                                                coff = 1
-                                                        rank = 1
-                                                                trusted = true
+[plugins][datapp2]
+coff = 1
+rank = 1
+trusted = true
