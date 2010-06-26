@@ -43,7 +43,7 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
         void extractingFinished();
         void tabChanged(int currentIndex);
         void dataPPClicked(QModelIndex index);
-        void onCurrentResourceChanged(const Nepomuk::Resource & current, const Nepomuk::Resource & previous);
+        void onCurrentResourceChanged();
     private:
         QThread * workThread;
         Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;

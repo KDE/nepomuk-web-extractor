@@ -46,8 +46,10 @@ ConsoleMainWindow::ConsoleMainWindow(
                                             Nepomuk::Query::ComparisonTerm::Contains);
     resWidget->setCoreQueryTerm(coreTerm);
 
-    connect(this->resWidget, SIGNAL(currentChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)),
-            this, SLOT(onCurrentResourceChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)));
+    //connect(this->resWidget, SIGNAL(currentChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)),
+    //      this, SLOT(onCurrentResourceChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)));
+    connect(this->resWidget, SIGNAL(selectionChanged()),
+            this, SLOT(onCurrentResourceChanged()));
 
     if(uri.size())
         this->uriLineEdit->setText(uri);
@@ -227,8 +229,9 @@ void ConsoleMainWindow::dataPPClicked(QModelIndex index)
 
 
 }
-void ConsoleMainWindow::onCurrentResourceChanged(const Nepomuk::Resource & current, const Nepomuk::Resource & previous)
+void ConsoleMainWindow::onCurrentResourceChanged()
 {
+    Nepomuk::Resource current = resWidget->currentResource();
     if(current.isValid()) {
         this->uriLineEdit->setText(current.uri());
     } else {

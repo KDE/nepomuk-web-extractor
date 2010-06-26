@@ -47,7 +47,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="Nepomuk::QueryBuilderSearchWidget" name="resWidget" native="true">
+       <widget class="Nepomuk::ResourceSearchWidget" name="resWidget" native="true">
         <property name="geometry">
          <rect>
           <x>30</x>
@@ -57,7 +57,7 @@
          </rect>
         </property>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -98,7 +98,7 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="">
+       <widget class="QWidget" name="layoutWidget">
         <property name="geometry">
          <rect>
           <x>20</x>
@@ -178,9 +178,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Nepomuk::QueryBuilderSearchWidget</class>
+   <class>Nepomuk::ResourceSearchWidget</class>
    <extends>QWidget</extends>
-   <header location="global">querybuildersearchwidget.h</header>
+   <header location="global">resourcesearchwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
