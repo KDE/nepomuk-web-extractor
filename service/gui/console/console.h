@@ -43,8 +43,22 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
         void extractingFinished();
         void tabChanged(int currentIndex);
         void dataPPClicked(QModelIndex index);
+        /*! \brief Handler for selecting resources in gui
+         */
         void onCurrentResourceChanged();
+        /*! \brief Handler for selecting resource - via LineEdit or Gui
+         */
+        void onSelectedResourceChanged();
+
+        /*! \brief mark given datapp as examined for given resource
+         */
+        void onMarkedExamined(const QString & name, const QString & version);
+
+        void onClearExamined();
+        void onClearAllExamined();
     private:
+        void updateExmainedInfo();
+        void updateServiceInfo();
         QThread * workThread;
         Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;
         /*

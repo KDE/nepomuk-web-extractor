@@ -1,0 +1,149 @@
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix exif:    <http://www.kanzaki.com/ns/exif#> .
+@prefix geo:     <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix protege:  <http://protege.stanford.edu/system#> .
+@prefix nao:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nao#> .
+@prefix nfo:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#> .
+@prefix nie:     <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#> .
+@prefix ncal:    <http://www.semanticdesktop.org/ontologies/2007/04/02/ncal#> .
+@prefix nco:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nco#> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix pimo:    <http://www.semanticdesktop.org/ontologies/2007/11/01/pimo#> .
+@prefix nmo:     <http://www.semanticdesktop.org/ontologies/2007/03/22/nmo#> .
+@prefix nrl:     <http://www.semanticdesktop.org/ontologies/2007/08/15/nrl#> .
+@prefix tmo:     <http://www.semanticdesktop.org/ontologies/2008/05/20/tmo#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix nid3:    <http://www.semanticdesktop.org/ontologies/2007/05/10/nid3#> .
+@prefix nexif:   <http://www.semanticdesktop.org/ontologies/2007/05/10/nexif#> .
+@prefix ndco:	 <http://www.example.org/ontologies/2010/05/29/ndco#> .
+
+ndco: {
+	ndco:DataPP
+	   a	rdfs:Class;
+	   rdfs:comment "Class representing one DataPP. It is necessary to store versioni(nao:version) and name(nao:identifier)";
+	   rdfs:label "DataPP".
+	   
+	ndco:lastExtracted
+	    a	rdf:Property;
+	    rdfs:comment "Property represent last date when extraction was performed for this resource ?";
+	    rdfs:label "Extraction date";
+	    rdfs:domain rdf:Resource;
+	    rdfs:range xsd:date;
+	    nrl:cardinality "1".
+	    	
+	ndco:Decision
+	   a	rdfs:Class;
+	   rdfs:comment "Graph representing one Decision";
+	   rdfs:label "Decision";
+	   rdfs:subClassOf nrl:InstanceBase.
+
+	ndco:decisionGraphFor
+	    a	rdf:Property;
+	    rdfs:comment "Property representing ?";
+	    rdfs:label "decision for";
+	    rdfs:range rdfs:Class;
+	    rdfs:domain ndco:Decision;
+	    nrl:minCardinality "1".
+
+	ndco:decisionMetaGraphFor
+	    a	rdf:Property;
+	    rdfs:comment " This property point to graph where all settings of webextractor - list of DataPP and their versions, time of last extracting - are stored";
+	    rdfs:label "Resource extracting metadata";
+	    rdfs:range rdfs:Class;
+	    rdfs:domain nrl:GraphMetadata;
+	    nrl:cardinality "1" .
+	
+	ndco:extractionFinished
+	    a	rdf:Property;
+	    rdfs:comment "This property is used to mark used DataPP for this resource";
+	    rdfs:label " ?? ";
+	    rdfs:range ndco:Decision;
+	    rdfs:domain rdf:Resource.
+	
+
+	ndco:Alias
+	    a rdfs:Class;
+	    rdfs:comment "Alias for some resource";
+	    rdfs:label "alias".
+	
+	    
+	ndco:targetAlias
+	    a	rdf:Property;
+	    rdfs:comment "Set alias for another resource. When (If) decision will be accepted, all occuriance of aliases will be replaced with actual resources";
+	    rdfs:label "alias";
+	    rdfs:range rdfs:Class;
+	    rdfs:domain rdfs:Alias;
+	    nrl:cardinality "1" .
+
+	ndco:producedBy
+	    a	rdf:Property;
+	    rdfs:comment "Plugin(s) that produced this decision";
+	    rdfs:label "Decision source";
+	    rdfs:range xsd:string;
+	    rdfs:domain ndco:Decision;
+	    nrl:minCardinality "1".
+
+	ndco:producedAt
+	    a	rdf:Property;
+	    rdfs:comment "Date (maximum of dates) when this Decision was produced";
+	    rdfs:label "creation date";
+	    rdfs:range xsd:dateTime;
+	    rdfs:domain ndco:Decision;
+	    nrl:maxCardinality "1" .
+
+	ndco:accepted
+	    a	rdf:Property;
+	    rdfs:comment "True if this Decision was accepted, false if this Decision is still require user attention";
+	    rdfs:label "Decision is accepted";
+	    rdfs:range xsd:bool;
+	    rdfs:domain ndco:Decision;
+	    nrl:cardinality "1".
+
+	ndco:rank
+	    a	rdf:Property;
+	    rdfs:comment "Rank of this decision";
+	    rdfs:label "decision rank";
+	    rdfs:range xsd:float;
+	    rdfs:domain ndco:Decision;
+	    nrl:cardinality "1" .
+
+	ndco:PropertyGroup 
+	    a	rdfs:Class;
+	    rdfs:comment "Group of properties that are depends from each other and thus can be applied together or doesn't applied at all";
+	    rdfs:label "Group of properties";
+	    rdfs:subClassOf nrl:InstanceBase.
+
+	ndco:groupRank
+	    a	rdf:Property;
+	    rdfs:comment "Rank of Group of properties";
+	    rdfs:label "group of properties rank";
+	    rdfs:range xsd:float;
+	    rdfs:domain ndco:PropertyGroup;
+	    nrl:cardinality "1".
+
+	ndco:groupOf
+	    a	rdf:Property;
+	    rdfs:comment "Decision this graph belogs to";
+	    rdfs:label " group of";
+	    rdfs:range ndco:PropertyGroup;
+	    rdfs:domain ndco:Decision;
+	    rdfs:subPropertyOf nrl:subGraphOf;
+	    nrl:cardinality "1".
+
+}
+
+<http://www.example.org/ontologies/2010/05/29/ndco_metadata#> {
+ 	<http://www.example.org/ontologies/2010/05/29/ndco_metadata#> 
+	    a nrl:GraphMetadata;
+	    nrl:coreGraphMetadataFor ndco: .
+	ndco:
+	    a nrl:Ontology ;
+	    nao:creator <http://artemserebiyskiy.blogger.com>;
+	    nao:hasDefaultNamespace
+		"http://www.example.org/ontologies/2010/05/29/ndco#" ;
+	    nao:hasDefaultNamespaceAbbreviation "ndco";
+	    nao:version "0.1"
+}
+

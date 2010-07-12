@@ -1,3 +1,5 @@
+include(SopranoAddOntology)
+
 add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 set( webextractor_SRCS 
     resourceanalyzerfactory.cpp
@@ -39,6 +41,8 @@ set ( webextractor_SRCS
     )
 
 add_library( webextractor SHARED ${webextractor_SRCS})
+
+soprano_add_ontology( webextractor_SRCS ../decisions.trig "NDCO" "WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
 
 #kde4_add_library( webextractor SHARED ${webextractor_SRCS} )
 

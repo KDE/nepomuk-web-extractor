@@ -37,14 +37,118 @@ include_directories(
   )
 
 
-add_subdirectory( lib )
 
+add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
+set( webextractor_SRCS 
+    resourceanalyzerfactory.cpp
+    resourceanalyzer.cpp
+    decision.cpp
+    decisionfactory.cpp
+    decisionlist.cpp
+    datappreply.cpp
+    datapp.cpp
+    debug_datapp.cpp
+    parameters.cpp
+    global.cpp
+    datappwrapper.cpp
+    propertiesgroup.cpp
+    simplenetworkdatapp.cpp
+    simplenetworkreplyfactory.cpp
+    simplenetworkreply.cpp
+    simplenetworkrequest.cpp
+    simpledatappreply.cpp
+    resourceservicedatamanager.cpp
+    resourceservicedata.cpp
+    nepomukservicedatabackend.cpp
+    servicedatabackend.cpp
+    )
+
+set ( webextractor_MOC    
+    resourceanalyzerfactory.h 
+    resourceanalyzer.h
+    datappreply.h
+    datapp.h
+    debug_datapp.h
+    simplenetworkdatapp.h
+    simplenetworkreply.h
+    simpledatappreply.h
+    simplenetworkreplyfactory.h
+    simplenetworkrequest.h
+    nepomukservicedatabackend.h
+    servicedatabackend.h
+    )
+
+QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )
+set ( webextractor_SRCS
+    ${webextractor_SRCS}
+    ${webextractor_RES}
+    )
+
+soprano_add_ontology( webextractor_SRCS ${libwebextractor_SOURCE_DIR}/decisions.trig "NDCO" "Nepomuk::WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
+#nepomuk_add_ontology_classes( webextractor_SRCS, ONTOLOGIES ${libwebextractor_SOURCE_DIR}/decisions.trig CLASSES DataPP VISIBILITY webextractor)
+
+add_library( webextractor SHARED ${webextractor_SRCS})
+
+#kde4_add_library( webextractor SHARED ${webextractor_SRCS} )
+
+set_target_properties(webextractor PROPERTIES
+	VERSION ${WEBEXTRACTOR_VERSION_STRING}
+	SOVERSION ${WEBEXTRACTOR_VERSION_MAJOR}
+	DEFINE_SYMBOL MAKE_WEBEXTRACTOR_LIB
+)
+
+#message(STATUS "(NOT) Found Qt network library ${QT_LIBRARIES} ")
+
+target_link_libraries( webextractor 
+  ${NEPOMUK_LIBRARIES}
+  ${NEPOMUK_QUERY_LIBRARIES}
+  ${KDE4_NEPOMUK_LIBS}
+  ${QT_LIBRARIES}
+  ${QT_QTNETWORK_LIBRARY}
+  )
+
+install(TARGETS webextractor
+    	LIBRARY DESTINATION ${LIB_DESTINATION}
+    	RUNTIME DESTINATION bin
+    	ARCHIVE DESTINATION ${LIB_DESTINATION}
+)
+remove_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 
 
 
 #installing
 
-file (GLOB WEBEXTRACTOR_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/*.h ) 
+set (WEBEXTRACTOR_HEADERS 
+    datapp.h
+    datappkeeper.h
+    datappproxy.h
+    datappreply.h
+    datappreply_p.h
+    datapprequest.h
+    datappwrapper.h
+    debug_datapp.h
+    decisionfactorybase.h
+    decisionfactory.h
+    decision.h
+    decisionlist.h
+    desicion.h
+    global.h
+    parameters.h
+    propertiesgroup.h
+    resourceanalyzerfactory.h
+    resourceanalyzer.h
+    simpledatappreply.h
+    simplenetworkdatapp.h
+    simplenetworkreplyfactory.h
+    simplenetworkreply.h
+    simplenetworkrequest.h
+    resourceservicedatamanager.h
+    resourceservicedata.h
+    nepomukservicedatabackend.h
+    servicedatabackend.h
+    servicedatabackendfactory.h
+    webextractor_export.h
+    ) 
 #set ( WEBEXTRACTOR_HEADERS 
 #    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 
 #    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzer.h
@@ -57,3 +161,12 @@ install(FILES
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/LibWebextractorConfig.cmake
 	DESTINATION ${LIB_DESTINATION}/libwebextractor)
+
+macro(INSTALL_ONTOLOGY _name _group)
+  set(ONTO_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/share/ontology/${_group})
+  configure_file("${_name}.ontology.in" "${CMAKE_CURRENT_BINARY_DIR}/${_name}.ontology")
+  install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${_name}.ontology" DESTINATION ${ONTO_INSTALL_DIR})
+  install(FILES "${_name}.trig" DESTINATION ${ONTO_INSTALL_DIR})
+endmacro(INSTALL_ONTOLOGY)
+
+install_ontology(decisions nepomuk)

@@ -27,6 +27,7 @@
 #include <KDirWatch>
 #include <QSet>
 #include <QCache>
+#include <QMimeData>
 
 // FIXME Mode defenition of treeitem to the source file instead of header
 namespace
@@ -73,6 +74,10 @@ namespace Nepomuk
     {
             Q_OBJECT;
         public:
+            /*! \brief Return list of all DataPP in the system
+             * This function will return set of all available DataPP in the system.
+             * It will return both valid and invalid DataPP.
+             */
             static QStringList plugins();
 
             // Return all datapp that belong to category
@@ -102,7 +107,7 @@ namespace Nepomuk
         public:
             int rowCount(const QModelIndex &parent = QModelIndex()) const;
             int columnCount(const QModelIndex &parent = QModelIndex()) const;
-            //Qt::ItemFlags flags(const QModelIndex & index) const;
+            Qt::ItemFlags flags(const QModelIndex & index) const;
             QVariant data(const QModelIndex &index, int role) const;
             QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
@@ -115,6 +120,8 @@ namespace Nepomuk
                 int hits = 1,
                 Qt::MatchFlags flags = Qt::MatchFlags(Qt::MatchStartsWith | Qt::MatchWrap)) const;
 
+            QMimeData * mimeData(const QModelIndexList & indexes) const ;
+            QStringList  mimeTypes() const ;
         Q_SIGNALS:
             void dataPPChanged();
         private Q_SLOTS:

@@ -42,6 +42,7 @@ set ( webexconsole_SRCS
     console.cpp
     main.cpp
     modeltest.cpp
+    examinedwidget.cpp
     )
 
 kde4_add_ui_files(webexconsole_SRCS

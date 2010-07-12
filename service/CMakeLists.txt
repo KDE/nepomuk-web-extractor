@@ -116,13 +116,13 @@ kde4_add_executable( test_launch2 test_launch2.cpp ${webexservice_SRCS} )
 
 kde4_add_executable( test_config test_config.cpp ${webexservice_SRCS} )
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/plugins/debug )
-QT4_WRAP_CPP( test_config_SRCS test_simple.cpp )
-kde4_add_executable( test_simple test_simple.cpp ${CMAKE_CURRENT_SOURCE_DIR}/plugins/debug/simple_debug_reply.cpp  )
+#include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/plugins/debug )
+#QT4_WRAP_CPP( test_config_SRCS test_simple.cpp )
+#kde4_add_executable( test_simple test_simple.cpp ${CMAKE_CURRENT_SOURCE_DIR}/plugins/debug/simple_debug_reply.cpp  )
 
-target_link_libraries( test_simple
-    ${LIBWEBEXTRACTOR_LIBRARIES}
-    )
+#target_link_libraries( test_simple
+#    ${LIBWEBEXTRACTOR_LIBRARIES}
+#    )
 
 
 target_link_libraries( test_launch2 

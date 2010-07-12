@@ -163,6 +163,8 @@ Nepomuk::DataPPPool::DataPPPool(QObject * parent):
         kDebug() << "Watching dir " << dirName;
         //wc.addDir(dirName);
     }
+
+    this->setSupportedDragActions(Qt::CopyAction);
     //connect(&wc,SIGNAL(dirty(const QString &)),this,SLOT(update()));
 }
 
@@ -390,12 +392,10 @@ QVariant Nepomuk::DataPPPool::data(const QModelIndex & index, int role) const
     return QVariant();
 }
 
-/*
 Qt::ItemFlags Nepomuk::DataPPPool::flags(const QModelIndex & index) const
 {
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
-*/
 
 QVariant Nepomuk::DataPPPool::headerData(int section, Qt::Orientation orientation,
         int role) const
@@ -443,6 +443,36 @@ QModelIndexList Nepomuk::DataPPPool::match(
     }
 
     return answer;
+}
+
+QStringList Nepomuk::DataPPPool::mimeTypes() const
+{
+    QStringList types;
+    types << "application/vnd.text.list";
+    return types;
+}
+
+QMimeData * Nepomuk::DataPPPool::mimeData(const QModelIndexList & indexes) const
+{
+    QMimeData *_mimeData = new QMimeData();
+    //QByteArray encodedData;
+    //QDataStream stream(&encodedData, QIODevice::WriteOnly);
+
+    foreach(QModelIndex index, indexes) {
+        if(index.isValid()) {
+            if(data(index, DataPPRole).toBool()) {
+                QString text = data(index, NameRole).toString();
+                kDebug() << "Create mimetype for index: " << index << "Name: " <<
+                text;
+                _mimeData->setText(text);
+                //stream << text;
+            }
+        }
+    }
+
+    //_mimeData->setData("text/plain", encodedData);
+    kDebug() << "Mime text: " << _mimeData->text();
+    return _mimeData;
 }
 
 

@@ -1,0 +1,9 @@
+[Ontology]
+Version=1.0
+Name=Nepomuk Decision Ontology
+Comment=The Decision Ontology defines vocabulary for storing Decisions generated with WebEXtractor inside Nepomuk storage 
+Namespace=http://www.example.org/ontologies/2010/05/29/ndco#
+Path=${ONTO_INSTALL_DIR}/decisions.trig
+MimeType=application/x-trig
+Type=Data
+
