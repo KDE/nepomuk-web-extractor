@@ -23,6 +23,7 @@
 #include <QtCore/QQueue>
 #include <QSharedDataPointer>
 #include <Nepomuk/Resource>
+#include <Soprano/Backend>
 #include "webextractor_export.h"
 #include "datappwrapper.h"
 #include "datappwrapper.h"
@@ -87,6 +88,12 @@ namespace Nepomuk
                      */
                     InvalidResource,
 
+                    /*! \brief There is no necessary model
+                     * There is no model installed in the system that supports
+                     * in-memory models
+                     */
+                    NoModelAvailable,
+
                     /*! Unknown resource.
                      * This is usually a bug in system
                      */
@@ -100,6 +107,18 @@ namespace Nepomuk
                      * start new session. The process will stop if no more decisions
                      * can be generated or when none of decisions generated can not be
                      * applied automatically.
+                                 * There is one more benefit  in this mode - if in previous iteration
+                                 * some DataPP was examined, then in this iteration it will be exmained
+                                 * too. The problem that it solves is: what if changes, introduced
+                                 * with applied (at the end of the iteration) Decision has not changed
+                                 * nao:lastModified date of the resource. For example Decision change
+                                 * the information about author of the song. Then we have a situation
+                                 * where information is actually changed, but there is no records
+                                 * about it. In SingleStep politics all DataPP will be marked as
+                                 * examined - because to detect non-examined DataPP system compares
+                                 * 2 dates - last modification date of the resource and extraction
+                                 * date of the DataPP. In Iterative politics all DataPP from previous
+                                 * iteration  will be executed in current iteration.
                      * Choosing this politics help decrease request to Nepomuk because
                      * auxilary data(DataPP name, version, time of extracting) will
                      * be written only once - at the end.
@@ -118,7 +137,7 @@ namespace Nepomuk
                      * the Decision and new portion of Decisions will be generated.
                      * This is equal to Iterative politics.
                      */
-                    StepWise
+                    SingleStep
                 };
 
                 /*! \brief Return list of generated decisions
@@ -175,8 +194,26 @@ namespace Nepomuk
                  */
                 ~ResourceAnalyzer();
 
+                /*! \brief Return the current analyzing politics
+                 */
                 AnalyzingPolitics analyzingPolitics() const;
+                /*! \brief Set new analyzing politics
+                 * Changing analyzing politics while extraction process is running
+                 * can lead to strange consequenceses
+                 */
                 void setAnalyzingPolitics(AnalyzingPolitics politics);
+
+
+                //QMap<QString, QString> finishedPlugins
+
+                /*! \brief Interrupter is function pointer that will be called between iterations
+                 * This object is necessary only in Iterative mode. It will be called
+                 * before each new iteration, startig from second one.
+                 * This is only for debugging proposes.
+                 */
+                //void setDebugInterrupter( void (*newInterrupter)() );
+
+
 
                 /*! \brief Return list of emamined DataPP for given resource
                  * Be aware that calling this function while given resource is being
@@ -193,8 +230,25 @@ namespace Nepomuk
                  */
                 //static void clearObsoleteExaminedDataPPInfo( Nepomuk::Resource & res, int expirationInterval = 0);
                 //static void clearExaminedDataPPInfo( Nepomuk::Resource & res );
+
             Q_SIGNALS:
+                /*! \brief This signal is emmited when analyzing is finished
+                 * In SingleStep mode it is after iteration is finished.
+                 * In Iterative mode, analyzing is finished when there is no more
+                 * Decisions with automatically applicable rank generated.
+                 */
                 void analyzingFinished();
+
+                /*! \brief This signal is emited before next iteration start
+                 * This signal will be emited only in Iterative mode. It will
+                 * be emited before any Iteration, starting from second one
+                 * The signal is emmited before the best decision is applied.
+                 * Do not modificate analyzer or target resource from the slots,
+                 * connected to this signal. This signal should be used only for
+                 * debugging or introspection
+                 */
+                void nextIteration();
+
                 /*! \brief indicates an error during analyzer
                  * The analyzingFinished signal will folow this one
                  */
@@ -217,10 +271,6 @@ namespace Nepomuk
                 ResourceAnalyzer(const ResourceAnalyzer &);
                 const ResourceAnalyzer & operator=(const ResourceAnalyzer &);
 
-                /*! \brief Utility function for creation/retrieving new graph for storing   information about examined resources
-                 * This function will return uri of graph where information about examinde resources should be stored. If there is no such graph it will create one.
-                 */
-                static QUrl getDecisionMetaGraph(const Nepomuk::Resource &);
             private Q_SLOTS:
                 void pluginFinished();
                 //void pluginError();

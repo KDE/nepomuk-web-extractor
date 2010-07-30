@@ -12,9 +12,9 @@ find_package(Nepomuk REQUIRED)
 include(KDE4Defaults)
 include(MacroLibrary)
 
-set(WEBEXTRACTOR_VERSION_MAJOR 0 CACHE INT "Major Webextractor version number" FORCE)
-set(WEBEXTRACTOR_VERSION_MINOR 0 CACHE INT "Minor Webextractor version number" FORCE)
-set(WEBEXTRACTOR_VERSION_PATCH 1 CACHE INT "Release Webextractor version number" FORCE)
+set(WEBEXTRACTOR_VERSION_MAJOR 0 CACHE INT "Major WebExtractor version number" FORCE)
+set(WEBEXTRACTOR_VERSION_MINOR 0 CACHE INT "Minor WebExtractor version number" FORCE)
+set(WEBEXTRACTOR_VERSION_PATCH 1 CACHE INT "Release WebExtractor version number" FORCE)
 set(WEBEXTRACTOR_VERSION_STRING "${WEBEXTRACTOR_VERSION_MAJOR}.${WEBEXTRACTOR_VERSION_MINOR}.${WEBEXTRACTOR_VERSION_PATCH}" CACHE STRING "Webextractor version string" FORCE)
 set( LIBWEBEXTRACTOR_VERSION $WEBEXTRACTOR_VERSION_STRING})
 
@@ -43,6 +43,7 @@ set( webextractor_SRCS
     resourceanalyzerfactory.cpp
     resourceanalyzer.cpp
     decision.cpp
+    decisiondata.cpp
     decisionfactory.cpp
     decisionlist.cpp
     datappreply.cpp
@@ -131,7 +132,7 @@ set (WEBEXTRACTOR_HEADERS
     decisionfactory.h
     decision.h
     decisionlist.h
-    desicion.h
+    decisiondata.h
     global.h
     parameters.h
     propertiesgroup.h

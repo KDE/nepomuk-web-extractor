@@ -28,6 +28,7 @@ NW::SimpleDataPPReply::SimpleDataPPReply(DataPP * parent, const DecisionFactory 
     Q_D(SimpleDataPPReply);
     d->m_factory = factory;
     d->m_res = res;
+    d->m_error = NoError;
 }
 
 NW::SimpleDataPPReply::SimpleDataPPReply(DataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource & res , SimpleDataPPReplyPrivate & p):
@@ -36,7 +37,37 @@ NW::SimpleDataPPReply::SimpleDataPPReply(DataPP * parent, const DecisionFactory 
     Q_D(SimpleDataPPReply);
     d->m_res = res;
     d->m_factory = factory;
+    d->m_error = NoError;
 }
+
+void NW::SimpleDataPPReply::setError(DataPPReplyError errorCode)
+{
+    Q_D(SimpleDataPPReply);
+    d->m_error = errorCode;
+}
+
+NW::DataPPReply::DataPPReplyError NW::SimpleDataPPReply::error() const
+{
+    Q_D(const SimpleDataPPReply);
+    return d->m_error;
+}
+
+void NW::SimpleDataPPReply::finish()
+{
+    // If there is no error, then emit only finished signal.
+    // If there is an error, them first emit error signal, then finished signal
+    Q_D(SimpleDataPPReply);
+    if(d->m_error == NoError) {
+        emit finished();
+        return;
+    } else {
+        emit DataPPReply::error(d->m_error);
+        emit finished();
+        return;
+    }
+
+}
+
 
 NW::Decision NW::SimpleDataPPReply::newDecision()
 {

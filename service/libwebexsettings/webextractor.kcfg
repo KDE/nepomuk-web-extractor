@@ -11,7 +11,7 @@
 <group name="webextractorcore">
     <entry name="categories" type="StringList">
 	<label> List of enabled categories </label>
-	<whatsthis> This is the list of enabled categories of resources. Each resource in each category will be parsed by WebExtractor. Plugins can be specifieg in per-category manner </whatsthis>
+	<whatsthis> This is the list of enabled categories of resources. Each resource in each category will be parsed by WebExtractor. Plugins can be specified in per-category manner </whatsthis>
     </entry>
     <entry key="max_categories_simult" name="maxCategoriesSimult" type="UInt">
 	<label> Max number of simultaneously processed categories </label>
@@ -36,7 +36,31 @@
 	<max>10000</max>
 	<default>0</default>
     </entry>
-
+    <entry name="decisionsModelScheme" key="decisionsModelScheme" type="Enum" >
+	<label> Enum for selecting some predefined settings for decisions model </label>
+	<choices>
+	    <choice name="Redland"/>
+	    <choice name="Virtuoso"/>
+	    <choice name="User"/>
+	</choices>
+    </entry>
+    <entry name="decisionsModelBackend" key="decisions_model_backend" type="String">
+	<label> Backend for generating model for decisions </label>
+	<default>auto</default>
+    </entry>
+    <entry name="decisionsModelDir" key="decisons_model_dir" type="String" >
+	<label> Directory for storing decisions model data or "random" to use randomly created directory </label>
+	<default>random</default>
+    </entry>
+    <entry name="ForceStorage" key="force_storage" type="Bool" >
+	<label> Flag. If set to true, then even if model supports in-memory models, model with storage will be used </label>
+	<default> false </default>
+    </entry>
+    
+    <entry name="RemoveDecisionsModelData" key="remove_decisions_model_data" type="Bool" >
+	<label> Flag. If set to true, then files generated for decisions model will be removed after they will becomu unnecessary. Set this flag to false only for debugging purposes </label>
+	<default>true</default>
+    </entry>
 
 </group>
 </kcfg>

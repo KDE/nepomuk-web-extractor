@@ -35,6 +35,7 @@ namespace Nepomuk
                 const DecisionFactory * m_factory;
                 Nepomuk::Resource m_res;
                 DecisionList m_decisions;
+                DataPPReply::DataPPReplyError m_error;
         };
     }
 }

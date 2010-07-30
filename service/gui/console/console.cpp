@@ -3,8 +3,13 @@
 #include <KDebug>
 #include <QUrl>
 #include <KMessageBox>
+#include <KStandardDirs>
 #include <Nepomuk/Resource>
 #include <Soprano/Vocabulary/NAO>
+#include <Soprano/QueryResultIterator>
+#include <Soprano/Global>
+#include <Soprano/BackendSettings>
+#include <Soprano/Backend>
 #include <Nepomuk/Query/Query>
 #include <Nepomuk/Query/LiteralTerm>
 #include <Nepomuk/Query/ComparisonTerm>
@@ -25,7 +30,8 @@ ConsoleMainWindow::ConsoleMainWindow(
     bool autostart ,
     QWidget * parent):
     KXmlGuiWindow(parent),
-    workThread(0)
+    workThread(0),
+    m_tmpDir(0)
 {
     this->setupUi(this);
     //new ModelTest(Nepomuk::DataPPPool::self(), this);
@@ -56,6 +62,7 @@ ConsoleMainWindow::ConsoleMainWindow(
     // Set table widget of examined DataPP
     this->examinedDataPPWidget->setVerticalHeaderItem(0, new QTableWidgetItem("Name"));
     this->examinedDataPPWidget->setVerticalHeaderItem(1, new QTableWidgetItem("Version"));
+    this->examinedDataPPWidget->setVerticalHeaderItem(2, new QTableWidgetItem("Last extraction date"));
     this->examinedDataPPWidget->viewport()->setAcceptDrops(true);
     connect(this->examinedDataPPWidget, SIGNAL(setExaminedDataPP(const QString &, const QString &)), this, SLOT(onMarkedExamined(const QString &, const QString &)));
 
@@ -65,6 +72,9 @@ ConsoleMainWindow::ConsoleMainWindow(
     connect(this->clearExaminedButton, SIGNAL(clicked()), this, SLOT(onClearExamined()));
     connect(this->clearAllExaminedButton, SIGNAL(clicked()), this, SLOT(onClearAllExamined()));
     //connect(this->clearServiceButton, SIGNAL(clicked()), this, SLOT(onClearAllExamined()));
+
+    // Set Decisions widget
+    connect(this->decisionListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(onCurrentDecisionChanged(QListWidgetItem*, QListWidgetItem*)));
 
     // Set service info widget
     this->serviceInfoTableWidget->setColumnCount(2);
@@ -157,7 +167,30 @@ void ConsoleMainWindow::startExtracting()
         return;
     }
 
+    // Set backend
+    Soprano::BackendSettings settings;
+    KTempDir * td = 0;    if(this->backendComboBox->currentText() == QString("Redland")) {
+        settings << Soprano::BackendOptionStorageMemory;
+        p->setBackendName("redland");
+    } else if(this->backendComboBox->currentText() == QString("Virtuoso")) {
+        td = new KTempDir(KStandardDirs::locateLocal("tmp", "desmodel"));
+        settings << Soprano::BackendSetting(Soprano::BackendOptionStorageDir, td->name());
+        p->setBackendName("virtuoso");
+        // If we use virtuoso backend, then we should clean temporaly created model(s)
+        p->setAutoDeleteModelData(true);
+    } else {
+        kDebug() << "Unknown backend is selected. Use default one.";
+    }
+
+
+    p->setBackendSettings(settings);
+
+    delete m_tmpDir;
+    m_tmpDir = td;
+
+
     Nepomuk::WebExtractor::ExtractParametersPtr parameters = Nepomuk::WebExtractor::ExtractParametersPtr(p);
+
 
     kDebug() << " Launch Resource Analyzer with folowing parameters: " << *p;
 
@@ -173,8 +206,17 @@ void ConsoleMainWindow::startExtracting()
 
     kDebug() << "Create ResourceAnalyzer: " << uintptr_t(resanal);
 
+    // Set other settings of analyzer
+    NW::ResourceAnalyzer::AnalyzingPolitics ap;
+    if(this->analyzingPoliticsComboBox->currentIndex() == 0)
+        ap = NW::ResourceAnalyzer::SingleStep;
+    else
+        ap = NW::ResourceAnalyzer::Iterative;
+
+    resanal->setAnalyzingPolitics(ap);
+
     // delete previous analyzes
-    delete m_currentAnalyzer;
+    cleanAfterAnalyzing();
     m_currentAnalyzer = resanal;
     resanal->setParent(0);
     resanal->moveToThread(workThread);
@@ -185,10 +227,22 @@ void ConsoleMainWindow::startExtracting()
 
 }
 
+void ConsoleMainWindow::cleanAfterAnalyzing()
+{
+
+    // First remove model data
+    delete m_currentAnalyzer;
+    m_currentAnalyzer = 0;
+    delete m_tmpDir;
+    m_tmpDir = 0;
+}
+
+
 ConsoleMainWindow::~ConsoleMainWindow()
 {
     workThread->quit();
     delete workThread;
+    cleanAfterAnalyzing();
 }
 
 
@@ -196,6 +250,9 @@ void ConsoleMainWindow::extractingFinished()
 {
     kDebug() << "Analyzing finished";
     workThread->quit();
+    updateExaminedInfo();
+    updateServiceInfo();
+    updateDecisionsInfo();
 }
 void ConsoleMainWindow::tabChanged(int currentIndex)
 {
@@ -262,10 +319,10 @@ void ConsoleMainWindow::onCurrentResourceChanged()
 void ConsoleMainWindow::onSelectedResourceChanged()
 {
     updateServiceInfo();
-    updateExmainedInfo();
+    updateExaminedInfo();
 }
 
-void ConsoleMainWindow::updateExmainedInfo()
+void ConsoleMainWindow::updateExaminedInfo()
 {
     // Clear examined info
     this->examinedDataPPWidget->clear();
@@ -281,6 +338,7 @@ void ConsoleMainWindow::updateExmainedInfo()
     // Change examined widget
 
     QMap< QString, QString > ed = rsd.examinedDataPPInfo();
+    QMap< QString, QDateTime > edd = rsd.examinedDataPPDates();
     kDebug() << "Examined info: " << ed;
     int currentRow = 0;
     this->examinedDataPPWidget->setRowCount(ed.size());
@@ -296,6 +354,11 @@ void ConsoleMainWindow::updateExmainedInfo()
         item = new QTableWidgetItem(it.value());
         item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         this->examinedDataPPWidget->setItem(currentRow, 1, item);
+
+        QDateTime d = edd[it.key()];
+        item = new QTableWidgetItem(d.toString());
+        item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+        this->examinedDataPPWidget->setItem(currentRow, 2, item);
 
         currentRow++;
     }
@@ -344,6 +407,36 @@ void ConsoleMainWindow::updateServiceInfo()
     }
 }
 
+void ConsoleMainWindow::updateDecisionsInfo()
+{
+
+    // clear widgets with  Decisions and other data structures
+    this->decisionInformationWidget->clear();
+    //this->decisionInformationWidget->setRowCount(0);
+    this->decisionListWidget->clear();
+    this->m_decisionMap.clear();
+
+    // If there is no analyzer, then return
+    if(!m_currentAnalyzer) {
+        kDebug() << "No curret analyzer";
+        return;
+    }
+
+
+    NW::DecisionList lst(m_currentAnalyzer->decisions());
+    kDebug() << "Number of the decisions: " << lst.size();
+    foreach(const NW::Decision & d, lst) {
+        // Add record to list widget
+        QListWidgetItem * item = new QListWidgetItem();
+        item->setData(Qt::DisplayRole, d.uri());
+        this->decisionListWidget->addItem(item);
+
+        // Add record to the map
+        m_decisionMap.insert(d.uri(), d);
+    }
+}
+
+
 void ConsoleMainWindow::onMarkedExamined(const QString & name, const QString & version)
 {
     QUrl url = uriLineEdit->text();
@@ -372,6 +465,7 @@ void ConsoleMainWindow::onMarkedExamined(const QString & name, const QString & v
                 datapp_item = _item;
             }
         }
+        QMap< QString, QDateTime > edd = rsd.examinedDataPPDates();
         if(!hasAny) {
 
             kDebug() << "Add new item";
@@ -385,12 +479,19 @@ void ConsoleMainWindow::onMarkedExamined(const QString & name, const QString & v
             _item = new QTableWidgetItem(version);
             _item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
             examinedDataPPWidget->setItem(examinedDataPPWidget->rowCount() - 1, 1, _item);
+
+            QDateTime d = edd[name];
+            _item = new QTableWidgetItem(d.toString());
+            _item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+            this->examinedDataPPWidget->setItem(examinedDataPPWidget->rowCount() - 1, 2, _item);
         } else {
             kDebug() << "Update version";
             // Update version
             // Get item for version ( we have item for name )
             int row = datapp_item->row();
             examinedDataPPWidget->item(row, 1)->setText(version);
+            QDateTime d = edd[name];
+            examinedDataPPWidget->item(row, 2)->setText(d.toString());
         }
 
         updateServiceInfo();
@@ -418,7 +519,7 @@ void ConsoleMainWindow::onClearExamined()
         // Convert it to the list
         foreach(const QModelIndex & idx, lst) {
             QString name = idx.data().toString();
-            rsd.clearExaminedIfno(name);
+            rsd.clearExaminedInfo(name);
         }
         this->onSelectedResourceChanged();
     }
@@ -435,7 +536,110 @@ void ConsoleMainWindow::onClearAllExamined()
             kError() << "ResourceServiceData is invalid";
             return;
         }
-        rsd.clearExaminedIfno();
+        rsd.clearExaminedInfo();
         this->onSelectedResourceChanged();
+    }
+}
+
+void ConsoleMainWindow::onCurrentDecisionChanged(QListWidgetItem * current, QListWidgetItem * previous)
+{
+    if(!current)
+        return;
+
+    // Get current decision uri
+    QUrl url = current->text();
+
+    // Get decision by url
+    NW::Decision des = m_decisionMap[url];
+    if(!des.isValid()) {
+        kDebug() << "Decision is invalid";
+        return;
+    }
+
+    QMap<QUrl, QUrl> tmpMap = des.proxies();
+    kDebug() << "Number of proxy resources in Decision: " << tmpMap.size();
+
+    // Display decision
+    foreach(const NW::PropertiesGroup & grp, des.groups()) {
+        kDebug() << "PropertiesGroup: " << grp.uri();
+        // Add widget item that corresponds the group
+        QTreeWidgetItem * grpItem  = new QTreeWidgetItem();
+        grpItem->setData(Qt::DisplayRole, 0, grp.uri());
+        this->decisionInformationWidget->addTopLevelItem(grpItem);
+
+        // Unfortunately displaying Decision doesn't work now. It is a bug
+        // and I will fix it.
+        // As temporary solution, decisions will be displayed in less
+        // convinient form
+#if 0
+#endif
+
+        // For each target resource show it's changes ( if any )
+        for(
+            QMap<QUrl, QUrl>::const_iterator it = tmpMap.begin();
+            it != tmpMap.end();
+            it++
+        ) {
+            QUrl originalResource = it.key();
+            QUrl proxyResource = it.value();
+            // Check that there is any changes for the resource in this group
+
+            static QString query_template = "select distinct ?p ?o where { graph %1 {  %2 ?p ?o } }";
+            QString query = query_template.arg(
+                                Soprano::Node::resourceToN3(grp.uri()),
+                                Soprano::Node::resourceToN3(proxyResource)
+                            );
+
+            // execute query
+            Soprano::QueryResultIterator it = des.model()->executeQuery(
+                                                  query,
+                                                  Soprano::Query::QueryLanguageSparql
+                                              );
+            // Create item only if there is any result
+            QTreeWidgetItem * resItem;
+            if(it.next()) {
+                // Create item that represents the resource
+                resItem = new QTreeWidgetItem();
+                resItem->setData(0, Qt::DisplayRole, originalResource.toString());
+                // Add this item to widget
+                grpItem->addChild(resItem);
+
+
+                // Create item that represents the change
+                QTreeWidgetItem * item = new QTreeWidgetItem();
+                item->setData(0, Qt::DisplayRole, it.binding("p").uri());
+                item->setData(1, Qt::DisplayRole, it.binding("o").uri());
+                resItem->addChild(item);
+
+                while(it.next()) {
+                    // Create item that represents the change
+                    QTreeWidgetItem * item = new QTreeWidgetItem();
+                    item->setData(0, Qt::DisplayRole, it.binding("p").uri());
+                    item->setData(1, Qt::DisplayRole, it.binding("o").uri());
+                    resItem->addChild(item);
+                }
+            } else {
+                kDebug() << "PropertiesGroup doesn't contains any changes for resource: " <<
+                         originalResource;
+            }
+
+        }
+        // Disable this when bug will be fixed
+#if 0
+        static QString queryTemplate = QString("select ?s ?p ?o where { graph %1 { ?s ?p ?o .} } ");
+        QString queryString = queryTemplate.arg(Soprano::Node::resourceToN3(grp.uri()));
+        Soprano::QueryResultIterator it = des.model()->executeQuery(
+                                              queryString,
+                                              Soprano::Query::QueryLanguageSparql
+                                          );
+        while(it.next()) {
+            QTreeWidgetItem * item = new QTreeWidgetItem();
+            item->setData(0, Qt::DisplayRole, it.binding("s").uri());
+            item->setData(1, Qt::DisplayRole, it.binding("p").uri());
+            item->setData(2, Qt::DisplayRole, it.binding("o").uri());
+            grpItem->addChild(item);
+            kDebug() << "Add statement to item";
+        }
+#endif
     }
 }

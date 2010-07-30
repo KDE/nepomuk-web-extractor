@@ -23,75 +23,95 @@
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>
 #include <KDebug>
+#include "ndco.h"
+#include "decisiondata.h"
 
-class Nepomuk::WebExtractor::Decision::Private : public QSharedData
-{
-    public:
-	// TODO move rank to upper class because it it modificated frequently
-	double rank;
-	QSet<  PropertiesGroup > data;
-	QSet<const DataPP*>  authorsData;
-	unsigned int hash;
-	QTime timeStamp;
-	//QString pluginName;
-	//QString pluginVersion;
-};
+namespace NW = Nepomuk::WebExtractor;
 
 
-double Nepomuk::WebExtractor::Decision::truncateRank( double rank )
+
+double Nepomuk::WebExtractor::Decision::truncateRank(double rank)
 {
     return WE::boundRank(rank);
 }
 
 double Nepomuk::WebExtractor::Decision::rank() const
-{ return d->rank; }
+{
+    return d->rank;
+}
 
 QString  Nepomuk::WebExtractor::Decision::pluginVersion() const
 {
-   Q_ASSERT(!d->authorsData.isEmpty());
-   return (*(d->authorsData.begin()))->pluginVersion();
+    Q_ASSERT(!d->authorsData.isEmpty());
+    return (*(d->authorsData.begin()))->pluginVersion();
 }
 
 QString  Nepomuk::WebExtractor::Decision::pluginName() const
-{ 
-   Q_ASSERT(!d->authorsData.isEmpty());
-   return (*(d->authorsData.begin()))->pluginName();
+{
+    Q_ASSERT(!d->authorsData.isEmpty());
+    return (*(d->authorsData.begin()))->pluginName();
 }
 
 Nepomuk::WebExtractor::Decision::Decision(
-	const DataPP * parent
-			)
+    const DataPP * parent,
+    ResourceManager * manager
+):
+    d(new Nepomuk::WebExtractor::DecisionData())
 {
-    this->d = QSharedDataPointer<Private>( 
-	    new Nepomuk::WebExtractor::Decision::Private()
-	    );
+    Q_ASSERT(manager);
     // If parent == 0 then this is invalid Decision
-    if (parent)
-	d->authorsData.insert(parent);
+    if(parent)
+        d->authorsData.insert(parent);
 
     d->timeStamp = QTime::currentTime();
+    d->manager = manager;
+    d->model = manager->mainModel();
+    // TODO May be it is necessary to create new context for Decision not after Decision
+    // was created, but after first PropertyGroup was created for this Decision.
+    // This will help to avoid empty Decisions in the model
+    d->contextUrl = manager->generateUniqueUri();
+    //TODO Resources must be created inside the context url
+    d->decisionRes = Nepomuk::Resource(d->contextUrl, NW::Vocabulary::NDCO::Decision(), d->manager);
+    d->setFreeze(false);
 }
+
+Nepomuk::WebExtractor::Decision::Decision(
+):
+    d(new Nepomuk::WebExtractor::DecisionData())
+{
+};
+
 
 Nepomuk::WebExtractor::Decision::~Decision()
-{;}
+{
+    kDebug() << "Decision is destroyed";
+}
 
-Nepomuk::WebExtractor::Decision::Decision( const Decision & rhs)
+Nepomuk::WebExtractor::Decision::Decision(const Decision & rhs)
 {
     d = rhs.d;
 }
 
-const Nepomuk::WebExtractor::Decision & Nepomuk::WebExtractor::Decision::operator=( const Decision & rhs)
+const Nepomuk::WebExtractor::Decision & Nepomuk::WebExtractor::Decision::operator=(const Decision & rhs)
 {
-    d = rhs.d;
+    this->d = rhs.d;
     return *this;
 }
 
-bool Nepomuk::WebExtractor::Decision::operator==( const Decision & rhs) const
+bool Nepomuk::WebExtractor::Decision::operator==(const Decision & rhs) const
 {
-	return (d->data == rhs.d->data);
+    if(this == &rhs)
+        return true;
+    if(this->d == rhs.d)
+        return true;
+
+#warning Implement this!
+
+    return false;
+    //return (d->data == rhs.d->data);
 }
 
-bool Nepomuk::WebExtractor::Decision::operator!=( const Decision & rhs)const
+bool Nepomuk::WebExtractor::Decision::operator!=(const Decision & rhs)const
 {
     return !(*this == rhs);
 }
@@ -103,16 +123,114 @@ bool Nepomuk::WebExtractor::Decision::isEmpty() const
 
 bool Nepomuk::WebExtractor::Decision::isValid() const
 {
-    return !d->authorsData.isEmpty();
+    return (!d->contextUrl.isEmpty()) and(!d->authorsData.isEmpty());
 }
 
 void Nepomuk::WebExtractor::Decision::setRank(double rank)
 {
+    // If freezed
+    if(d->isFreezed())
+        return ;
+
     rank = truncateRank(rank);
 
     d->rank = rank;
 }
 
+QUrl NW::Decision::uri() const
+{
+    return d->contextUrl;
+}
+
+Nepomuk::ResourceManager * NW::Decision::manager() const
+{
+    return d->manager;
+}
+
+
+Soprano::Model * NW::Decision::model() const
+{
+    return d->model;
+}
+
+QString NW::Decision::description() const
+{
+    return d->description;
+}
+
+
+void NW::Decision::setDescription(const QString & description)
+{
+    d->description = description;
+}
+
+
+NW::PropertiesGroup NW::Decision::newGroup()
+{
+    // Check that decision is valid
+    if(!isValid())
+        return PropertiesGroup(0);
+
+    // If freezed
+    if(d->isFreezed())
+        return PropertiesGroup(0);
+
+    // First create new property group
+    PropertiesGroup pg = PropertiesGroup(this->d.data());
+
+    d->data.insert(pg);
+    return pg;
+
+}
+
+QSet< NW::PropertiesGroup > NW::Decision::groups() const
+{
+    return d->data;
+}
+
+
+QUrl NW::Decision::proxyResource(const Nepomuk::Resource & res)
+{
+    // Check that decision is valid
+    if(!isValid())
+        return QUrl();
+
+    // If freezed
+    if(d->isFreezed())
+        return QUrl();
+
+    QMap< QUrl, QUrl>::iterator it = d->resourceProxyUrlMap.find(res.resourceUri());
+    if(it != d->resourceProxyUrlMap.end())
+        return it.value();
+
+    // TODO Copy identifying properties from the source resource to new one
+    QUrl newUrl = d->manager->generateUniqueUri();
+
+    // Add a hint
+    d->model->addStatement(
+        newUrl,
+        NW::Vocabulary::NDCO::aliasHint(),
+        Soprano::LiteralValue(
+            res.resourceUri().toString()
+        ),
+        d->contextUrl
+    );
+
+    // Add to the map
+    d->resourceProxyUrlMap.insert(res.resourceUri(), newUrl);
+
+    // TODO Mark resource as syncable with some properties
+    //
+    return newUrl;
+
+}
+
+QMap<QUrl, QUrl> NW::Decision::proxies() const
+{
+    return d->resourceProxyUrlMap;
+}
+
+/*
 void Nepomuk::WebExtractor::Decision::addStatement(const Soprano::Statement & statement, double rank)
 {
     PropertiesGroup grp;
@@ -120,14 +238,15 @@ void Nepomuk::WebExtractor::Decision::addStatement(const Soprano::Statement & st
     grp.setRank(rank);
     addGroup(grp);
 }
-
+*/
+/*
 void Nepomuk::WebExtractor::Decision::addGroup( const PropertiesGroup & grp)
 {
     //rank = Private::truncateRank(rank);
 
     // Check that none of this statemnt's exist in model.
     // Those that's exist - ignore
-    
+
     // Add statements
     //d->data.insert(rank,statements);
     d->data << grp;
@@ -135,29 +254,44 @@ void Nepomuk::WebExtractor::Decision::addGroup( const PropertiesGroup & grp)
     // Increase hash
     d->hash ^= qHash(grp);
 }
+*/
+
+void NW::Decision::freeze()
+{
+    this->d->setFreeze(true);
+}
+
+bool NW::Decision::isFreezed() const
+{
+    return this->d->isFreezed();
+}
 
 void Nepomuk::WebExtractor::Decision::apply() const
 {
+    /*
     kDebug() << "Write statements to storage";
     foreach ( const PropertiesGroup & lst, d->data )
     {
-	foreach( const Soprano::Statement  & st, lst.data() )
-	{
-	    kDebug() << st;
-	}
+    foreach( const Soprano::Statement  & st, lst.data() )
+    {
+        kDebug() << st;
     }
+    }
+    */
 }
 
 void Nepomuk::WebExtractor::Decision::addToUserDiscretion()
 {
+    /*
     kDebug() << "Write Decision to user discretion list";
     foreach ( const PropertiesGroup  &  lst, d->data )
     {
-	foreach( const Soprano::Statement  & st, lst.data() )
-	{
-	    kDebug() << st;
-	}
+    foreach( const Soprano::Statement  & st, lst.data() )
+    {
+        kDebug() << st;
     }
+    }
+    */
 }
 
 void Nepomuk::WebExtractor::Decision::addAuthor(const DataPP * author)
@@ -165,7 +299,7 @@ void Nepomuk::WebExtractor::Decision::addAuthor(const DataPP * author)
     d->authorsData.insert(author);
 }
 
-unsigned int Nepomuk::WebExtractor::qHash( const Nepomuk::WebExtractor::Decision & des)
+unsigned int Nepomuk::WebExtractor::qHash(const Nepomuk::WebExtractor::Decision & des)
 {
     return des.d->hash;
 }

@@ -33,6 +33,13 @@ ndco: {
 	    rdfs:range xsd:date;
 	    nrl:cardinality "1".
 	    	
+	ndco:extractionDate
+	    a	rdf:Property;
+	    rdfs:comment "Property represent last date when extraction was performed. Resource can be determined from the context of the statement";
+	    rdfs:label "Extraction date";
+	    rdfs:domain ndco:DataPP;
+	    rdfs:range xsd:date.
+	    	
 	ndco:Decision
 	   a	rdfs:Class;
 	   rdfs:comment "Graph representing one Decision";
@@ -62,6 +69,12 @@ ndco: {
 	    rdfs:range ndco:Decision;
 	    rdfs:domain rdf:Resource.
 	
+	ndco:aliasHint
+	    a	rdf:Property;
+	    rdfs:comment "This property is used to store a url of the source resource. It can be used as a hint when syncing back to the main model";
+	    rdfs:label " ?? ";
+	    rdfs:range rdf:Resource;
+	    rdfs:domain xsd:string.
 
 	ndco:Alias
 	    a rdfs:Class;
@@ -109,7 +122,7 @@ ndco: {
 	    rdfs:domain ndco:Decision;
 	    nrl:cardinality "1" .
 
-	ndco:PropertyGroup 
+	ndco:PropertiesGroup 
 	    a	rdfs:Class;
 	    rdfs:comment "Group of properties that are depends from each other and thus can be applied together or doesn't applied at all";
 	    rdfs:label "Group of properties";
@@ -120,18 +133,24 @@ ndco: {
 	    rdfs:comment "Rank of Group of properties";
 	    rdfs:label "group of properties rank";
 	    rdfs:range xsd:float;
-	    rdfs:domain ndco:PropertyGroup;
+	    rdfs:domain ndco:PropertiesGroup;
 	    nrl:cardinality "1".
 
 	ndco:groupOf
 	    a	rdf:Property;
-	    rdfs:comment "Decision this graph belogs to";
+	    rdfs:comment "Decision this PropertiesGroup belogs to";
 	    rdfs:label " group of";
-	    rdfs:range ndco:PropertyGroup;
+	    rdfs:range ndco:PropertiesGroup;
 	    rdfs:domain ndco:Decision;
 	    rdfs:subPropertyOf nrl:subGraphOf;
 	    nrl:cardinality "1".
 
+	ndco:hasPropertiesGroup
+	    a	rdf:Property;
+	    rdfs:comment "Decision contains the folowing PropertiesGroup";
+	    rdfs:label "has group";
+	    rdfs:range ndco:PropertiesGroup;
+	    rdfs:domain ndco:Decision.
 }
 
 <http://www.example.org/ontologies/2010/05/29/ndco_metadata#> {

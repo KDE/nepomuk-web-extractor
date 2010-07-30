@@ -20,39 +20,106 @@
 #define __properties_group_h_
 
 #include <QtCore/QSharedDataPointer>
+#include <QSharedPointer>
 #include <QtCore/QSet>
-#include <Soprano/Statement> 
+#include <Soprano/Statement>
+#include <Nepomuk/Resource>
+#include <Nepomuk/ResourceManager>
+#include "webextractor_export.h"
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	class Decision;
-	class DecisionFactory;
-	class PropertiesGroup
-	{
-	    public:
-		PropertiesGroup( const PropertiesGroup &);
-		~PropertiesGroup();
-		const PropertiesGroup & operator=(const PropertiesGroup &);
-		void addStatement(const Soprano::Statement & );
-		//void addStatement(const Soprano::Node & predicate, const Soprano::Node & second, bool subject = true );
-		double rank() const;
-		QSet< Soprano::Statement > data() const;
-		void setRank(double newRank );
-		bool operator==(const PropertiesGroup & rhs)const;
-		bool operator!=(const PropertiesGroup & rhs)const;
-		friend PropertiesGroup & operator<<( PropertiesGroup &, const Soprano::Statement & );
-		friend class Decision;
-		friend class DecisionFactory;
-		friend unsigned int qHash(const PropertiesGroup &);
-	    protected:
-		PropertiesGroup();
-		class Private;
-		QSharedDataPointer<Private> d;
-	};
-	PropertiesGroup & operator<<( PropertiesGroup &, const Soprano::Statement & );
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        class Decision;
+        class DecisionFactory;
+        class DecisionData;
+        /*! \brief PropertiesGroup is a unit of changes that can be applied to the resource
+         * PropertiesGroup is actually a context in a separate model. The uri of the context
+         * can be retrived with uri() method.
+         * TODO Add error methods and ifrastructure
+         */
+        class WEBEXTRACTOR_EXPORT PropertiesGroup
+        {
+            public:
+                PropertiesGroup(const PropertiesGroup &);
+                ~PropertiesGroup();
+                const PropertiesGroup & operator=(const PropertiesGroup &);
+                /*! \brief add statements to
+                 */
+                void addStatement(Soprano::Statement);
+
+                //void addStatement(const Soprano::Node & predicate, const Soprano::Node & second, bool subject = true );
+
+                /*! \brief Return rank of the PropertiesGroup
+                 * See setRank for detalis
+                 */
+                double rank() const;
+
+                //QSet< Soprano::Statement > data() const;
+
+                /*! \brief This function set the rank of this PropertiesGroup
+                 * The rank of the group is taken into account when automatically applying Decision.
+                 * Greater rank will increase the chance that this PropertiesGroup will be applied.
+                 * Rank must meet common requirements to rank. Incorrect rank will be automaticaly
+                 * trucated
+                 */
+                void setRank(double newRank);
+
+                /*! \brief Return proxy resource.
+                 * The proxy resource is an alias to target resource. All changes that you want
+                 * to make with target resource, you must instead do with this proxy resource.
+                 * DO NOT MODIFICATE ORIGINAL RESOURCE!
+                 */
+                //Nepomuk::Resource mainProxyResource();
+                //QUrl mainProxyResourceUrl();
+
+                /*! \brief Return proxy resource for given one
+                 */
+                //Nepomuk::Resource proxyResource( const Nepomuk::Resource & );
+                QUrl proxyResource(const Nepomuk::Resource &);
+
+                const ResourceManager * manager() const;
+
+                QString description() const;
+                void setDescription(const QString &);
+
+                /*! \brief Return url of the group
+                 * This method will return non-empty url only after any statements
+                 * was added to the group.
+                 * If some error occured and group failed to create, then
+                 * empty url will be returned too.
+                 */
+                QUrl uri() const;
+                /*! \brief Return true if this PropertiesGroup is valid
+                 * The PropertiesGroup is valid if it was created within Decision.
+                 * PropertiesGroup created with default constructor are invalid.
+                 * This method will return true even if group failed to initialize
+                 * properly
+                 */
+                bool isValid() const;
+                bool operator==(const PropertiesGroup & rhs)const;
+                bool operator!=(const PropertiesGroup & rhs)const;
+                friend PropertiesGroup & operator<<(PropertiesGroup &, const Soprano::Statement &);
+                friend class Decision;
+                friend class DecisionData;
+                friend class DecisionFactory;
+                friend unsigned int qHash(const PropertiesGroup &);
+            protected:
+                PropertiesGroup(DecisionData *);
+                class Private;
+                //QSharedDataPointer<Private> d;
+                QSharedPointer<Private> d;
+            private:
+                // This method should be called from any method that edits data.
+                // When it is called first time, it will create url of the PropertiesGroup
+                // and register it in the decision
+                void inline createContext();
+        };
+        PropertiesGroup & operator<<(PropertiesGroup &, const Soprano::Statement &);
     }
 }
 
-unsigned int qHash( const Nepomuk::WebExtractor::PropertiesGroup &);
+unsigned int qHash(const Nepomuk::WebExtractor::PropertiesGroup &);
 
 #endif

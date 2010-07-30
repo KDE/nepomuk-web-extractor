@@ -26,13 +26,12 @@ double Nepomuk::WebExtractor::WE::maxUCrit()
 
 double Nepomuk::WebExtractor::WE::boundACrit(double val)
 {
-    if ( val < minACrit() ) {
-	kDebug() << "ACrit value is less than minimun. Fixing";
-	return minACrit();
-    }
-    else if ( val > maxACrit() ) {
-	kDebug() << "ACrit value is greater than maximum. Fixing";
-	return maxACrit();
+    if(val < minACrit()) {
+        kDebug() << "ACrit value is less than minimun. Fixing";
+        return minACrit();
+    } else if(val > maxACrit()) {
+        kDebug() << "ACrit value is greater than maximum. Fixing";
+        return maxACrit();
     }
 
     return val;
@@ -41,13 +40,12 @@ double Nepomuk::WebExtractor::WE::boundACrit(double val)
 
 double Nepomuk::WebExtractor::WE::boundUCrit(double val)
 {
-    if ( val < minUCrit() ) {
-	kDebug() << "UCrit value is less than minimun. Fixing";
-	return minUCrit();
-    }
-    else if ( val > maxUCrit() ) {
-	kDebug() << "UCrit value is greater than maximum. Fixing";
-	return maxUCrit();
+    if(val < minUCrit()) {
+        kDebug() << "UCrit value is less than minimun. Fixing";
+        return minUCrit();
+    } else if(val > maxUCrit()) {
+        kDebug() << "UCrit value is greater than maximum. Fixing";
+        return maxUCrit();
     }
 
     return val;
@@ -85,3 +83,14 @@ double Nepomuk::WebExtractor::WE::boundScaleCoff(double val)
 {
     return qBound(minScaleCoff(), maxScaleCoff(), val);
 }
+
+/*
+Soprano::Model * NW::WE::decisionsModel()
+{
+    // Find necessary backend
+    static Soprano::Backend * backend = Soprano::discoverBackendByFeatures(Soprano::BackendOptionStorageMemory);
+    static Soprano::Model * val = backend->createModel(Soprano::BackendOptionStorageMemory);
+    return val;
+}
+
+*/

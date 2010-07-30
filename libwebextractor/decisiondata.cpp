@@ -17,31 +17,38 @@
  */
 
 
-#include "servicedatabackend.h"
+#include "decisiondata.h"
+#include <KDebug>
+#include "ndco.h"
 
 namespace NW = Nepomuk::WebExtractor;
 
-void NW::ServiceDataBackend::clearServiceInfo()
-{
-    clearExaminedInfo();
+
+NW::DecisionData::~DecisionData()
+{;
+    kDebug() << "DecisionData is destroyed";
 }
 
-NW::ServiceDataBackend::~ServiceDataBackend()
+bool NW::DecisionData::isFreezed() const
 {
-    ;
+    return m_freeze;
 }
 
-QStringList NW::ServiceDataBackend::serviceInfoPropertiesNames() const
+void NW::DecisionData::setFreeze(bool val)
 {
-    return QStringList();
+    m_freeze = val;
 }
 
-QMap< QString, QDateTime > NW::ServiceDataBackend::examinedDataPPDates()
+QUrl NW::DecisionData::createPropertiesGroupUrl()
 {
-    return QMap< QString, QDateTime >();
-}
+    QUrl answer = manager->generateUniqueUri("grp");
+    // Then attach the group to the Decision
+    Soprano::Statement st(this->contextUrl, NW::Vocabulary::NDCO::hasPropertiesGroup(),answer, this->contextUrl);
+    Soprano::Error::ErrorCode error = this->model->addStatement(st);
+    if ( error != Soprano::Error::ErrorNone ) {
+	kError() << " An error when adding PropertiesGroup to the Decision has occured ";
+	return QUrl();
+    }
 
-QDateTime NW::ServiceDataBackend::examinedDate(const QString & name)
-{
-    return QDateTime();
+    return answer;
 }

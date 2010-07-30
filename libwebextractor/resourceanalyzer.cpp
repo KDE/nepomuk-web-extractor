@@ -16,7 +16,9 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #include "resourceanalyzer.h"
+#include "resourceservicedata.h"
 #include <KDebug>
+#include <QDateTime>
 #include <QtCore/QTimer>
 #include <assert.h>
 #include <stdint.h>
@@ -73,6 +75,15 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private /*: public QSharedData*/
         // where all metadata for resource are stored
         QUrl resourceContext;
 
+        // The data about examined DataPP are managed with this variable
+        ResourceServiceData rsd;
+
+        // When working in Iterative mode, it is useless to write information about
+        // examined DataPP in current iteration directly to storage. Instead it is
+        // stored there
+        QMap<DataPPWrapper*, QDateTime > examinedDates;
+
+
         // Convinience method to add set of DataPP* to queue
         void enqueue(const QSet<const DataPP*> &);
 
@@ -94,9 +105,10 @@ Nepomuk::WebExtractor::ResourceAnalyzer::Private::Private(
     m_applied(false),
     m_running(false),
     m_error(ResourceAnalyzer::NoError),
-    m_apolitics(ResourceAnalyzer::StepWise)
+    m_apolitics(ResourceAnalyzer::SingleStep)
 {
     //DataPPKeeper::const_iterator it = m_dataPPKeeper.begin();
+
 
 }
 
@@ -191,7 +203,9 @@ Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
 Nepomuk::WebExtractor::ResourceAnalyzer::~ResourceAnalyzer()
 {
     //kDebug() << "Deleted: " << uintptr_t(this);
-    // delete d;
+    // DecisionFactory is destroyed when Private class is Destroyed
+    delete d;
+
 }
 
 
@@ -208,6 +222,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
         abort();
         clear();
     }
+
 
     // Reset error variable
     d->m_error = NoError;
@@ -228,7 +243,8 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
     d->m_res = res;
     // Clear all previous data
     clear();
-    // Found or create context where all metadata for resource will be stored
+    // Set object for managing examined datapp info
+    d->rsd = ResourceServiceData(d->m_res);
 
     // We check for resource existing AFTER switching from previously analyzed resource.
     // This is done for consistency with setResource() method that allow setting as
@@ -240,12 +256,36 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
     }
 
     // Add all datapp to queue
+    QMap< QString, QString > examined = d->rsd.examinedDataPPInfo();
     foreach(DataPPWrapper * dppw, d->m_dataPPKeeper) {
+        // The algorithm is the folowing:
+        // First we check examined DataPP that are written into storage. If some of the
+        // DataPP is mark as examined, then we check local cache.
+        //  This is necessary because when working in iterative
+        // mode, information about examined plugins is not written to storage, but is
+        // kept localy in examinedDates
+        // If some DataPP is marked as examined in storage, but exists in local cache,
+        // the we add it to queue. If it is not in local cache, then it is not added to
+        // queue
+        // See description of ResourceAnalyzer and ResourceAnalyzer::Iterative about
+        // why do we need such behaviour
+        QString n = dppw->pluginName();
+        QMap< QString, QString >::const_iterator it = examined.find(n);
+        if(it != examined.end()) {
+            // Check version
+            if(it.value() == dppw->pluginVersion())
+                if(!d->examinedDates.contains(dppw))
+                    continue;
+        }
         d->m_queue.enqueue(dppw);
     }
 
     // start processing
     kDebug() << "Extracting data from resource";
+    kDebug() << "List of DataPP to use:";
+    foreach(DataPPWrapper * dppw, d->m_queue) {
+        kDebug() << dppw->pluginName() << ":" << dppw->pluginVersion();
+    }
 
     d->m_running = true;
     d->m_applied = false;
@@ -275,7 +315,7 @@ void NW::ResourceAnalyzer::abort()
         foreach(DataPPReply * repl, d->m_replies) {
             disconnect(repl, SIGNAL(finished()), this, SLOT(pluginFinished()));
             // FIXME Change error() signal to pluginError slot
-            disconnect(repl, SIGNAL(error()), this, SLOT(pluginFinished()));
+            disconnect(repl, SIGNAL(error(DataPPReply::DataPPReplyError)), this, SLOT(pluginFinished()));
             repl->abort();
             delete repl;
         }
@@ -341,7 +381,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
         // Connect signals of this reply
         // FIXME Change error() signal to pluginError slot
         connect(repl, SIGNAL(finished()), this, SLOT(pluginFinished()));
-        connect(repl, SIGNAL(error()), this, SLOT(pluginFinished()));
+        connect(repl, SIGNAL(error(DataPPReply::DataPPReplyError)), this, SLOT(pluginFinished()));
 
         Q_ASSERT(!d->m_replies.contains(repl));
         d->m_replies.insert(repl);
@@ -397,8 +437,17 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
 
 
             if(repl->isValid()) {
+                kDebug() << "Reply has " << repl->decisions().size() << " decisions";
                 // Process Decision list
                 d->m_decisions.mergeWith(repl->decisions(), d->m_mergePolitics, d->m_mergeCoff);
+                // Mark DataPP as examined. Not in ResourceServiceData, but in
+                // internal storage. This is necessary to reduce amount of
+                // requests to examined info storage in case ResourceAnalyzer is
+                // working in Iterative mode.
+                DataPPWrapper * dppw = d->m_dataPPKeeper[parent];
+                d->examinedDates[dppw] = QDateTime::currentDateTime();
+            } else {
+                kDebug() << "Reply is invalid";
             }
 
             repl->deleteLater();
@@ -417,6 +466,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
         // Process it
         // Filter obsolete Decisions and add the DataPP that generate
         // this obsolete Decisions back to queue
+        // FIXME Fix infinite loop that is possible there
         QSet< const DataPP*> set = d->m_decisions.filterObsolete();
         if(set.size()) {
             d->enqueue(set);
@@ -430,6 +480,11 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
        kDebug() << "Only " << m_respWaits << " answers remaining";
     }
     */
+}
+
+NW::DecisionList NW::ResourceAnalyzer::decisions() const
+{
+    return d->m_decisions;
 }
 
 void NW::ResourceAnalyzer::apply()
@@ -455,6 +510,7 @@ void NW::ResourceAnalyzer::clear()
 
     d->m_decisions.clear();
     d->m_examined.clear();
+    d->examinedDates.clear();
 }
 
 NW::ResourceAnalyzer::AnalyzingPolitics NW::ResourceAnalyzer::analyzingPolitics() const
@@ -478,8 +534,13 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
         // Relaunch algorithm
         // If there is no decison or no automaticaly applicable decision
         if(d->m_decisions.best().isValid()) {
+            // Emit signal
+            emit nextIteration();
             apply();
             d->m_applied = false;
+
+
+            // Relaunch algorithm
             QMetaObject::invokeMethod(this, "analyze", Qt::QueuedConnection);
             return;
         }
@@ -491,6 +552,13 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
     emit analyzingFinished();
     }
     */
+    for(QMap<DataPPWrapper*, QDateTime>::const_iterator it = d->examinedDates.begin();
+            it != d->examinedDates.end();
+            it++
+       ) {
+        d->rsd.setExaminedDataPPInfo(it.key()->pluginName(), it.key()->pluginVersion());
+        kDebug() << "Mark as examined:" << it.key()->pluginName();
+    }
 
     d->m_applied = false;
     emit analyzingFinished();
@@ -508,6 +576,14 @@ void NW::ResourceAnalyzer::finishWithError(AnalyzingError code)
     finishWithError();
 }
 
+
+
+/*
+void NW::ResourceAnalyzer::setDebugInterrupter( void (*newInterrupter)() )
+{
+    d->debug_interrupter = newInterrupter;
+}
+*/
 /*
 QMap< QString, QString> NW::ResourceAnalyzer::examinedDataPPInfo(const Nepomuk::Resource & res)
 {

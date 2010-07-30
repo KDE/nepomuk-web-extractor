@@ -38,6 +38,9 @@ namespace Nepomuk
             virtual void abort() {
                 ;
             }
+            virtual DataPPReplyError error() const {
+                return NoError;
+            }
         protected:
             int m_state;
             WebExtractor::DecisionList m_decisions;

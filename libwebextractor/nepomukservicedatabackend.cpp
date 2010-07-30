@@ -32,14 +32,24 @@ NW::NepomukServiceDataBackend::NepomukServiceDataBackend(const QUrl & url)
 {
     m_res = Nepomuk::Resource(url);
     m_url = url;
+    m_dataPPTerm = NQ::ComparisonTerm(
+                       Nepomuk::WebExtractor::Vocabulary::NDCO::extractionFinished(),
+                       NQ::ResourceTerm(m_res),
+                       NQ::ComparisonTerm::Equal
+                   ).inverted();
+
+    m_dataPPQuery = NQ::Query(m_dataPPTerm);
+    // TODO Comment the folowing kDebug
+    //kDebug() << "Search for DataPP query: " << query.toSparqlQuery();
 }
 
-void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPPName, const QString & dataPPVersion)
+void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPPName, const QString & dataPPVersion, const QDateTime & ed)
 {
     // Get graph node
     loadCreateGraph();
     if(!m_graphNode.isValid()) {
         kError() << "Invalid graph for storing datapp info. Probably unexisting resource";
+        return;
     }
 
 
@@ -64,34 +74,69 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
 
     if(error != Soprano::Error::ErrorNone) {
         kError() << "Adding statement failed with folowing error: " << Soprano::Error::errorMessage(error);
+        return;
     }
 
-    // TODO FIXME Add properties in separate graph
-    //res.addProperty(NW::Vocabulary::NDCO::extractionFinished(), dataPPUrl);
+    // Add extraction date. if given datetime is invalid, the current one will be used.
+    QDateTime ned;
+    if(!ed.isValid())
+        ned = QDateTime::currentDateTime();
+    else
+        ned = ed;
+
+    error = Nepomuk::ResourceManager::instance()->mainModel()->addStatement(
+                dataPPUrl,
+                NW::Vocabulary::NDCO::extractionDate(),
+                Soprano::LiteralValue(ned),
+                m_graphNode
+            );
+
+    if(error != Soprano::Error::ErrorNone) {
+        // Clean: Remove the previous statement
+        Nepomuk::ResourceManager::instance()->mainModel()->removeStatement(
+            m_url,
+            NW::Vocabulary::NDCO::extractionFinished(),
+            dataPPUrl,
+            m_graphNode
+        );
+
+        kError() << "Adding statement with extraction date failed with folowing error: " << Soprano::Error::errorMessage(error);
+        return;
+    }
+
+
 
 }
 
 
 QMap< QString, QString> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 {
-    Nepomuk::Resource m_res(m_url);
-    if(!m_res.isValid() or !m_res.exists())
+    //Nepomuk::Resource m_res(m_url);
+    loadGraph();
+    // if(!m_res.isValid() or !m_res.exists())
+    if(!m_graphNode.isValid()) {
+        kDebug() << "No graph  with examined info found";
         return QMap<QString, QString>();
+    }
 
-    NQ::ComparisonTerm DataPPTerm = NQ::ComparisonTerm(
-                                        Nepomuk::WebExtractor::Vocabulary::NDCO::extractionFinished(),
-                                        NQ::ResourceTerm(m_res)
-                                    ).inverted();
+    QDateTime lmd = m_res.property(Soprano::Vocabulary::NAO::lastModified()).toDateTime();
 
-    Nepomuk::Query::Query query = NQ::Query(DataPPTerm);
+    // If lastModification date is greater then last extraction date then
+    // all examined resources must be discarded
+    /*
+    if ( lmd > led ) {
+    clearExaminedInfo();
+    return QMap<QString, QString >();
+    }
+    */
 
-    // TODO Comment the folowing kDebug
-    kDebug() << "Search for DataPP query: " << query.toSparqlQuery();
+
 
     QMap< QString, QString >  answer;
     Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
-                                          query.toSparqlQuery(), Soprano::Query::QueryLanguageSparql
+                                          m_dataPPQuery.toSparqlQuery(), Soprano::Query::QueryLanguageSparql
                                       );
+    QSet<QString> toRemove;
     // TODO implement counting in query and if there are less then X results
     // ( X is user-defined parameter) cache all bindings
     // Look at bindingCount()
@@ -103,13 +148,62 @@ QMap< QString, QString> NW::NepomukServiceDataBackend::examinedDataPPInfo()
         // Name and version
         QString name = dataPPRes.property(Soprano::Vocabulary::RDFS::label()).toString();
         if(name.isEmpty())
+            // This is a bug.
             continue;
         Nepomuk::Variant vv = dataPPRes.property(Soprano::Vocabulary::NAO::version());
-        if(!vv.isValid())
+        if(!vv.isValid()) {
+            // This is a bug. Clear
+            toRemove.insert(name);
             continue;
+        }
 
         //QString name = ln[0];
         QString version = vv.toString();
+
+        // Now found date of extraction
+        // Use QString because it is much easier to read and understand
+
+        // If lastModificationDate of the resource is not availabel, then skip this check
+        if(lmd.isValid()) {
+            QString date_query = date_query_templ().arg(
+                                     Soprano::Node::resourceToN3(m_graphNode.uri()),
+                                     Soprano::Node::resourceToN3(dataPPRes.uri()),
+                                     Soprano::Node::resourceToN3(NW::Vocabulary::NDCO::extractionDate())
+                                 );
+            Soprano::QueryResultIterator it2 = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+                                                   date_query,
+                                                   Soprano::Query::QueryLanguageSparql
+                                               );
+            QDateTime ed;
+            if(it2.next()) {
+                Soprano::Node edNode = it2.binding("r");
+                if(!edNode.isValid() or !edNode.isLiteral()) {
+                    // Date is incorrect. Clear
+                    toRemove.insert(name);
+                    continue;
+                }
+                Soprano::LiteralValue edv = edNode.literal();
+                if(!edv.isDateTime()) {
+                    // Date is incorrect. Clear
+                    toRemove.insert(name);
+                    continue;
+                }
+
+                ed = edv.toDateTime();
+            } else {
+                kError() << "No record about date. Resource: " << dataPPRes.uri();
+                toRemove.insert(name);
+                continue;
+            }
+            // Check extraction date
+            if(lmd > ed) {
+                // Resource has changed since last extraction.
+                // We should remove record about this from the model
+                toRemove.insert(name);
+                continue;
+            }
+        }
+
 
         // TODO Comment folowing kDebug
         kDebug() << "Name: " << name << " Version: " << version;
@@ -118,8 +212,16 @@ QMap< QString, QString> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 
     }
 
+    // Clear obsolete examined info
+    kDebug() << "The records about the folowing examined DataPP are now invalid and will be removed: " << toRemove;
+    foreach(const QString & name, toRemove) {
+        clearExaminedInfo(name);
+    }
+
     return answer;
 }
+
+
 void NW::NepomukServiceDataBackend::loadCreateGraph()
 {
     loadGraph();
@@ -153,27 +255,37 @@ void NW::NepomukServiceDataBackend::loadCreateGraph()
         metaGraphUrl = Nepomuk::ResourceManager::instance()->generateUniqueUri(QLatin1String("ctx"));
         Soprano::Node metaGraphNode = Soprano::Node(metaGraphUrl);
 
-        manager->mainModel()->addStatement(graphNode,
-                                           Soprano::Vocabulary::RDF::type(),
-                                           Soprano::Vocabulary::NRL::InstanceBase(),
-                                           metaGraphNode);
-        manager->mainModel()->addStatement(graphNode,
-                                           Soprano::Vocabulary::NAO::created(),
-                                           Soprano::LiteralValue(QDateTime::currentDateTime()),
-                                           metaGraphNode);
-        manager->mainModel()->addStatement(metaGraphNode,
-                                           Soprano::Vocabulary::RDF::type(),
-                                           Soprano::Vocabulary::NRL::GraphMetadata(),
-                                           metaGraphNode);
-        manager->mainModel()->addStatement(metaGraphNode,
-                                           Soprano::Vocabulary::NRL::coreGraphMetadataFor(),
-                                           graphNode,
-                                           metaGraphNode);
+        QList<Soprano::Statement> statements;
+        statements <<
+                   Soprano::Statement(graphNode,
+                                      Soprano::Vocabulary::RDF::type(),
+                                      Soprano::Vocabulary::NRL::InstanceBase(),
+                                      metaGraphNode) <<
+                   Soprano::Statement(graphNode,
+                                      Soprano::Vocabulary::NAO::created(),
+                                      Soprano::LiteralValue(QDateTime::currentDateTime()),
+                                      metaGraphNode) <<
+                   Soprano::Statement(metaGraphNode,
+                                      Soprano::Vocabulary::RDF::type(),
+                                      Soprano::Vocabulary::NRL::GraphMetadata(),
+                                      metaGraphNode) <<
+                   Soprano::Statement(metaGraphNode,
+                                      Soprano::Vocabulary::NRL::coreGraphMetadataFor(),
+                                      graphNode,
+                                      metaGraphNode);
         /* END of FIXME */
-        manager->mainModel()->addStatement(graphNode,
-                                           NW::Vocabulary::NDCO::decisionMetaGraphFor(),
-                                           m_res.resourceUri(),
-                                           metaGraphNode);
+        statements << Soprano::Statement(
+                       graphNode,
+                       NW::Vocabulary::NDCO::decisionMetaGraphFor(),
+                       m_res.resourceUri(),
+                       metaGraphNode);
+
+        Soprano::Error::ErrorCode error = Nepomuk::ResourceManager::instance()->mainModel()->addStatements(statements);
+        if(error != Soprano::Error::ErrorNone) {
+            kError() << "Failed to create examined graph. Error: " << Soprano::Error::errorMessage(error);
+        } else {
+            kDebug() << "Create examinend info graph: " << graphUrl;
+        }
     }
 }
 
@@ -187,15 +299,29 @@ void NW::NepomukServiceDataBackend::loadGraph()
 
 
     // Find graph or create one
+    // Temporaly switch to the QString queries
+    /*
     NQ::Query query = NQ::Query(NQ::ComparisonTerm(
                                     NW::Vocabulary::NDCO::decisionMetaGraphFor(),
-                                    NQ::ResourceTerm(m_res)
+                                    NQ::ResourceTerm(m_res),
+                                    NQ::ComparisonTerm::Equal
                                 )
                                );
+    QString queryString = query.toSparqlQuery();
+    */
+    /* Comment this when uncomment above */
+    static QString queryTempl = QString("select ?r where { ?r %1 %2 .}");
+    QString queryString = queryTempl.arg(
+                              Soprano::Node::resourceToN3(NW::Vocabulary::NDCO::decisionMetaGraphFor()),
+                              Soprano::Node::resourceToN3(m_res.resourceUri())
+                          );
 
-    //kDebug() << "Graph search query: " << query.toSparqlQuery();
+
+
+
+    kDebug() << "Graph search query: " << queryString;
     Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
-                                          query.toSparqlQuery(), Soprano::Query::QueryLanguageSparql
+                                          queryString, Soprano::Query::QueryLanguageSparql
                                       );
     QUrl graphUrl;
     QUrl metaGraphUrl;
@@ -203,8 +329,10 @@ void NW::NepomukServiceDataBackend::loadGraph()
         // Graph exist
         m_graphNode = it.binding("r");
         //d->graphRes = Nepomuk::Resource( it.binding("r").uri());
+        kDebug() << "Graph url:" << m_graphNode.uri();
+    } else {
+        kDebug() << "Graph not found";
     }
-    //kDebug() << "Graph url:" << m_graphNode.uri();
     return;
 }
 
@@ -276,29 +404,44 @@ void NW::NepomukServiceDataBackend::clearUnusedDataPP()
 
 }
 
-void NW::NepomukServiceDataBackend::clearExaminedIfno()
+void NW::NepomukServiceDataBackend::clearExaminedInfo()
 {
     loadGraph();
+    if(!m_graphNode.isValid()) {
+        return;
+    }
+
     //Soprano::NRLModel  model(ResourceManager::instance()->mainModel());
     //model.removeGraph(m_graphNode.uri());
     //kError() << "IMPLEMENT THIS";
     Soprano::Model  * model = ResourceManager::instance()->mainModel();
     // Find metagraph
+    /* Uncomment and fix this when Nepomuk Query API become more stable */
+    /*
     NQ::Query query = NQ::Query(NQ::ComparisonTerm(
                                     Soprano::Vocabulary::NRL::coreGraphMetadataFor(),
                                     NQ::ResourceTerm(m_graphNode.uri()),
                                     NQ::ComparisonTerm::Equal
                                 )
                                );
-    kDebug() << "Query: " << query.toSparqlQuery();
+    QString queryString = query.toSparqlQuery();
+    */
+    /* Uncomment above and comment this when it will be necessary*/
+    static QString queryTempl = QString("select ?r where {?r %1 %2 }");
+    QString queryString = queryTempl.arg(
+                              Soprano::Node::resourceToN3(Soprano::Vocabulary::NRL::coreGraphMetadataFor()),
+                              Soprano::Node::resourceToN3(m_graphNode.uri())
+                          );
+    /* End of second variant */
+    kDebug() << "Query: " << queryString;
     Soprano::QueryResultIterator it = model->executeQuery(
-                                          query.toSparqlQuery(),
+                                          queryString,
                                           Soprano::Query::QueryLanguageSparql
                                       );
 
     // Cache bindigs
     foreach(const Soprano::BindingSet & set, it.allBindings()) {
-        QUrl metaGraphUrl = it.binding("r").uri();
+        QUrl metaGraphUrl = set.value("r").uri();
         kDebug() << "Graph url:" << m_graphNode;
         kDebug() << "Metagraph url: " << metaGraphUrl;
         model->removeContext(metaGraphUrl);
@@ -307,7 +450,7 @@ void NW::NepomukServiceDataBackend::clearExaminedIfno()
     }
 }
 
-void NW::NepomukServiceDataBackend::clearExaminedIfno(const QString & name)
+void NW::NepomukServiceDataBackend::clearExaminedInfo(const QString & name)
 {
     // Search for statement that link this datapp to the resource
     loadGraph();
@@ -349,6 +492,15 @@ void NW::NepomukServiceDataBackend::clearExaminedIfno(const QString & name)
         ;
         if(error != Soprano::Error::ErrorNone) {
             kError() << "Removing statement failed with folowing error: " << Soprano::Error::errorMessage(error);
+        }
+
+        // Now delete statement about extraction date. Statement is wildward statement
+        Soprano::Statement d_st(dataPPUrl, NW::Vocabulary::NDCO::extractionDate(), Soprano::Node(), m_graphNode);
+        error = model->removeAllStatements(d_st);
+
+        ;
+        if(error != Soprano::Error::ErrorNone) {
+            kError() << "Removing statement with extraction date failed with folowing error: " << Soprano::Error::errorMessage(error);
         }
     }
 }
@@ -403,4 +555,105 @@ QStringList NW::NepomukServiceDataBackend::serviceInfoPropertiesNames() const
 {
     static QStringList lst = QStringList() << QString("graphName");
     return lst;
+}
+
+QMap< QString, QDateTime > NW::NepomukServiceDataBackend::examinedDataPPDates()
+{
+    loadGraph();
+    if(!m_graphNode.isValid())
+        return QMap< QString, QDateTime >();
+
+
+    Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+                                          m_dataPPQuery.toSparqlQuery(),
+                                          Soprano::Query::QueryLanguageSparql
+                                      );
+    QMap< QString, QDateTime > answer;
+    while(it.next()) {
+        Nepomuk::Resource dataPPRes(it.binding("r").uri());
+
+        // Name
+        QString name = dataPPRes.property(Soprano::Vocabulary::RDFS::label()).toString();
+        // Date
+        QString date_query = date_query_templ().arg(
+                                 Soprano::Node::resourceToN3(m_graphNode.uri()),
+                                 Soprano::Node::resourceToN3(dataPPRes.uri()),
+                                 Soprano::Node::resourceToN3(NW::Vocabulary::NDCO::extractionDate())
+                             );
+        Soprano::QueryResultIterator it2 = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+                                               date_query,
+                                               Soprano::Query::QueryLanguageSparql
+                                           );
+        QDateTime ed;
+        if(it2.next()) {
+            Soprano::Node edNode = it2.binding("r");
+            if(!edNode.isValid() or !edNode.isLiteral())
+                continue;
+            Soprano::LiteralValue edv = edNode.literal();
+            if(!edv.isDateTime())
+                continue;
+
+            ed = edv.toDateTime();
+        }
+
+        answer[name] = ed;
+    }
+
+    return answer;
+
+}
+
+QDateTime NW::NepomukServiceDataBackend::examinedDate(const QString & name)
+{
+    loadGraph();
+
+    if(!m_graphNode.isValid())
+        return QDateTime();
+
+    // Search for this datapp
+    NQ::Query query = NQ::Query(NQ::AndTerm(
+                                    m_dataPPTerm,
+                                    NQ::ComparisonTerm(
+                                        Soprano::Vocabulary::RDFS::label(),
+                                        NQ::LiteralTerm(name),
+                                        NQ::ComparisonTerm::Equal
+                                    )
+                                )
+                               );
+
+    Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+                                          query.toSparqlQuery(),
+                                          Soprano::Query::QueryLanguageSparql
+                                      );
+    QDateTime ed;
+    if(it.next()) {
+        QString date_query = date_query_templ().arg(
+                                 Soprano::Node::resourceToN3(m_graphNode.uri()),
+                                 Soprano::Node::resourceToN3(it.binding("r").uri()),
+                                 Soprano::Node::resourceToN3(NW::Vocabulary::NDCO::extractionDate())
+                             );
+        Soprano::QueryResultIterator it2 = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+                                               date_query,
+                                               Soprano::Query::QueryLanguageSparql
+                                           );
+        if(it2.next()) {
+            Soprano::Node edNode = it2.binding("r");
+            if(!edNode.isValid() or !edNode.isLiteral())
+                return ed;
+            Soprano::LiteralValue edv = edNode.literal();
+            if(!edv.isDateTime())
+                return ed;
+
+            ed = edv.toDateTime();
+        }
+    }
+
+    return ed;
+
+}
+
+QString NW::NepomukServiceDataBackend::date_query_templ()
+{
+    static QString v = "select ?r where { graph %1 { %2 %3 ?r . } }";
+    return v;
 }

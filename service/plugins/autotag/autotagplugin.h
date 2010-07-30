@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+   Copyright (C) 2010 by Artem Serebriyskiy <v.for.vandal@gmail.com>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,31 +17,22 @@
  */
 
 
-#include "servicedatabackend.h"
+#ifndef __webextractor_plugin_autotag_h_
+#define __webextractor_plugin_autotag_h_
 
-namespace NW = Nepomuk::WebExtractor;
+#include "webextractor_plugin.h"
+#include <KSharedConfig>
+#include <QString>
 
-void NW::ServiceDataBackend::clearServiceInfo()
+namespace Nepomuk
 {
-    clearExaminedInfo();
+    class AutotagPlugin : public WebExtractorPlugin
+    {
+	Q_OBJECT;
+        public:
+            AutotagPlugin(QObject*, const QList<QVariant>&);
+            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
+            static QString  version();
+    };
 }
-
-NW::ServiceDataBackend::~ServiceDataBackend()
-{
-    ;
-}
-
-QStringList NW::ServiceDataBackend::serviceInfoPropertiesNames() const
-{
-    return QStringList();
-}
-
-QMap< QString, QDateTime > NW::ServiceDataBackend::examinedDataPPDates()
-{
-    return QMap< QString, QDateTime >();
-}
-
-QDateTime NW::ServiceDataBackend::examinedDate(const QString & name)
-{
-    return QDateTime();
-}
+#endif 

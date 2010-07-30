@@ -43,6 +43,10 @@ namespace Nepomuk
                 virtual ~SimpleDataPPReply() {
                     ;
                 }
+                void setError(DataPPReplyError errorCode);
+                virtual DataPPReplyError error() const;
+            public Q_SLOTS:
+                void finish();
             protected:
                 SimpleDataPPReply(DataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource & res , SimpleDataPPReplyPrivate & p);
             private:

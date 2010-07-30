@@ -121,7 +121,7 @@ def runGui():
 
 parser = OptionParser()
 parser.add_option("-g", "--gui", dest="gui")
-parser.add_option("-s", "--use-simple", dest="use_simple", action='store_true')
+parser.add_option("-s", "--use-simple", dest="use_simple", action='store_true', help="If enabled, then generated Reply class will inherit SimpleDataPPReply. This is usually more convinient")
 parser.add_option("-v", "--version", dest="version")
 parser.add_option("-a", "--git", dest="git_enabled",action='store_true',
 		                  help="use git to get missed valueg")

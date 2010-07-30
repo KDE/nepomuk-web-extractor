@@ -23,43 +23,48 @@
 #include "webextractor_export.h"
 #include <QtCore/QTimer>
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	/*! \brief MUST be reentrant and thread safe
-	 */
-	class WEBEXTRACTOR_EXPORT DebugDataPP: public DataPP
-	{
-	    public:
-		DebugDataPP();
-		virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
-		static QString  name();
-		static QString version();
-	};
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        /*! \brief MUST be reentrant and thread safe
+         */
+        class WEBEXTRACTOR_EXPORT DebugDataPP: public DataPP
+        {
+            public:
+                DebugDataPP();
+                virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
+                static QString  name();
+                static QString version();
+        };
 
-	class WEBEXTRACTOR_EXPORT DebugDataPPReply : public DataPPReply
-	{
-	    Q_OBJECT;
-	    public:
-		DebugDataPPReply( DebugDataPP*, const DecisionFactory *);
-		virtual DecisionList decisions() const { return m_decisions; }
-		virtual ~DebugDataPPReply();
-	    public Q_SLOTS:
-		/*! \brief Abort execution 
-		 */
-		virtual void abort() ;
-	    	virtual bool isValid() const ;
-		/*
-	    Q_SIGNALS:
-		void finished();
-		void error();
-		*/
-	    private Q_SLOTS:
-		void ready();
-	    private:
-	    	DecisionList m_decisions;
-		//const DecisionFactory * m_fact;
-		QTimer * m_timer;
-	};
+        class WEBEXTRACTOR_EXPORT DebugDataPPReply : public DataPPReply
+        {
+                Q_OBJECT;
+            public:
+                DebugDataPPReply(DebugDataPP*, const DecisionFactory *);
+                virtual DecisionList decisions() const {
+                    return m_decisions;
+                }
+                virtual ~DebugDataPPReply();
+            public Q_SLOTS:
+                /*! \brief Abort execution
+                 */
+                virtual void abort() ;
+                virtual bool isValid() const ;
+                virtual DataPPReplyError error() const;
+                /*
+                Q_SIGNALS:
+                void finished();
+                void error();
+                */
+            private Q_SLOTS:
+                void ready();
+            private:
+                DecisionList m_decisions;
+                //const DecisionFactory * m_fact;
+                QTimer * m_timer;
+        };
     }
 }
 #endif

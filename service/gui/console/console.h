@@ -24,6 +24,7 @@
 #include <QThread>
 #include <QStateMachine>
 #include <KXmlGuiWindow>
+#include <KTempDir>
 #include <webextractor/resourceanalyzer.h>
 #include <webextractor/parameters.h>
 
@@ -56,11 +57,15 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
 
         void onClearExamined();
         void onClearAllExamined();
+        void onCurrentDecisionChanged(QListWidgetItem * current, QListWidgetItem * previous);
     private:
-        void updateExmainedInfo();
+        void updateExaminedInfo();
         void updateServiceInfo();
+        void updateDecisionsInfo();
+        void cleanAfterAnalyzing();
         QThread * workThread;
         Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;
+        //Nepomuk::WebExtractor::ResourceAnalyzerFactory * m_currentFactory;
         /*
         QStateMachine * m_machine;
         QState * m_selectLaunchState;
@@ -73,6 +78,12 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
 
         // Store extract paramters ptr for debugging proposes
         Nepomuk::WebExtractor::ExtractParametersPtr m_parptr;
+
+        // Map that store current list of the Decisions. Key is the url.
+        QMap< QUrl, Nepomuk::WebExtractor::Decision > m_decisionMap;
+
+        KTempDir * m_tmpDir;
+        const Soprano::Backend * m_usedBackend;
 
 
 

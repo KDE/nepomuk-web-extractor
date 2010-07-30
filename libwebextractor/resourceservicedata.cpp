@@ -30,6 +30,13 @@ class NW::ResourceServiceData::Private : public QSharedData
         ServiceDataBackend * backend;
 };
 
+NW::ResourceServiceData::ResourceServiceData()
+{
+    d = new Private();
+    d->backend = ResourceServiceDataManager::instance()->resourceData(QUrl());
+}
+
+
 NW::ResourceServiceData::ResourceServiceData(Nepomuk::Resource & res)
 {
     d = new Private();
@@ -76,14 +83,14 @@ QMap< QString, QString > NW::ResourceServiceData::examinedDataPPInfo()
     return d->backend->examinedDataPPInfo();
 }
 
-void NW::ResourceServiceData::clearExaminedIfno()
+void NW::ResourceServiceData::clearExaminedInfo()
 {
-    d->backend->clearExaminedIfno();
+    d->backend->clearExaminedInfo();
 }
 
-void NW::ResourceServiceData::clearExaminedIfno(const QString & dataPPName)
+void NW::ResourceServiceData::clearExaminedInfo(const QString & dataPPName)
 {
-    d->backend->clearExaminedIfno(dataPPName);
+    d->backend->clearExaminedInfo(dataPPName);
 }
 
 bool NW::ResourceServiceData::isValid() const
@@ -99,4 +106,12 @@ QStringList NW::ResourceServiceData::serviceInfoPropertiesNames() const
 QVariant NW::ResourceServiceData::property(const char * name) const
 {
     return d->backend->property(name);
+}
+QMap< QString, QDateTime > NW::ResourceServiceData::examinedDataPPDates()
+{
+    return d->backend->examinedDataPPDates();
+}
+QDateTime NW::ResourceServiceData::examinedDate(const QString & name)
+{
+    return d->backend->examinedDate(name);
 }

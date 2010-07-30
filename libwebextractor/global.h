@@ -20,6 +20,7 @@
 #define _WEBEXTRCT_GLOBALS
 
 #include "webextractor_export.h"
+#include <Soprano/Model>
 
 namespace Nepomuk
 {
@@ -59,6 +60,7 @@ namespace Nepomuk
                 static double boundACrit(double val);
                 static double boundUCrit(double val);
 
+                //static Soprano::Model * decisionsModel();
         };
     }
 }

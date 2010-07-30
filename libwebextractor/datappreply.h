@@ -39,16 +39,36 @@ namespace Nepomuk
                 virtual ~DataPPReply();
                 virtual QString pluginName() const;
                 DataPP * parentDataPP() const;
+                enum DataPPReplyError {
+                    /*! Everything is ok
+                     */
+                    NoError,
+                    /*! Resource has incorrect type.
+                     * For example Contact as input for DataPP that works with files
+                     */
+                    ResourceTypeIncorrect,
+
+                    /*! \brief Resource doesn't match some internal  conditions
+                     * Some DataPP put some restrictions on the input resource. If the input resource
+                     * doesn't satisfy these conditions, DataPP may exit with this error.
+                     * This error should not be used when Resource has incorrect type - use ResourceTypeIncorrect
+                     * instead. Also this error shouldn't be used when resource doesn't contain enough information
+                     * to extract anything - this is valid situation. Set error to NoError and exit silently.
+                     */
+                    ResourceInternalConditionsFailed
+
+                };
             public Q_SLOTS:
                 /*! \brief Abort execution
                  * Calling abort <b>must</b> prevent finished() and error() signals from comming
                  */
                 virtual void abort() = 0;
                 virtual bool isValid() const = 0;
+                virtual DataPPReplyError error() const = 0;
                 //const QString & pluginVersion() const;
             Q_SIGNALS:
                 void finished();
-                void error();
+                void error(DataPPReply::DataPPReplyError errorCode);
             protected:
                 DataPPReply(DataPPReplyPrivate & p, DataPP*);
                 DataPPReplyPrivate * d_ptr;

@@ -22,12 +22,16 @@
 #include "servicedatabackend.h"
 #include <QMap>
 #include <QString>
+#include <Nepomuk/Query/Query>
+#include <Nepomuk/Query/ComparisonTerm>
 
 namespace Nepomuk
 {
     namespace WebExtractor
     {
         /*! \brief This is backend for storing information service information inside Nepomuk
+             * All information is stored in separate graph and this graph is bound to the resource
+             * with ndco:decisionMetaGraphFor property.
          */
         class NepomukServiceDataBackend : public ServiceDataBackend
         {
@@ -36,7 +40,7 @@ namespace Nepomuk
                 NepomukServiceDataBackend(const QUrl &);
                 /*! \brief Add/Update information about examined DataPP ( name, version)
                  */
-                virtual void setExaminedDataPPInfo(const QString & dataPPName, const QString & dataPPVersion) ;
+                virtual void setExaminedDataPPInfo(const QString & dataPPName, const QString & dataPPVersion, const QDateTime & = QDateTime());
 
                 /*! \brief Return map (name, version ) about all examined DataPP
                  */
@@ -44,12 +48,12 @@ namespace Nepomuk
 
                 /*! \brief Clear all information about examined DataPP
                  */
-                virtual void clearExaminedIfno() ;
-                virtual void clearExaminedIfno(const QString & name) ;
+                virtual void clearExaminedInfo() ;
+                virtual void clearExaminedInfo(const QString & name) ;
 
                 // TODO Reimplement function clearServiceInfo. This function must clear
                 // all unused DataPP Resources, all examined info ( including statements
-                // that are outside appropriate graph ( clearExaminedIfno() doesn't do
+                // that are outside appropriate graph ( clearExaminedInfo() doesn't do
                 // this). Such statements may appear because of some program errors.
                 virtual void clearServiceInfo();
 
@@ -62,8 +66,31 @@ namespace Nepomuk
 
                 virtual QStringList serviceInfoPropertiesNames() const;
 
+                /*! \brief This is optional function, that returns map of (DataPP name, last extraction date)
+                 * This function is for introspection proporses only.
+                 *
+                 * Backends that doesn't store this information may not implement this function. Default one will return
+                 * empty map
+                 */
+                virtual QMap< QString, QDateTime > examinedDataPPDates();
+
+                /*! \brief This is optional function that return last extraction date for given DataPP
+                 * This function is for introspection proporses only.
+                 *
+                 * This function should return date of last extraction of DataPP with given name. If DataPP with given name
+                 * has not been used, then invalid Date should be return.
+                 * Backends that doesn't store this information may not implement this function. Default one will return
+                 * invalid DataPP.
+                 */
+                virtual QDateTime examinedDate(const QString & name);
+
             private:
+                /*! \brief This function tries to found graph where all information should be stored
+                 * If there is no such graph, then this function will do nothing. It will not create the one!
+                 */
                 void loadGraph();
+                /*! \brief This function behaves like loadGraph(), but it create the graph, if there is no one
+                 */
                 void loadCreateGraph();
                 /*! \brief return url of resource, corresponding this DataPP
                  * If there is no such resource, then this resource will be created.
@@ -71,13 +98,23 @@ namespace Nepomuk
                  * If name or version are invalid(empty) invalid url will be returned
                  */
                 static QUrl dataPPResourceUrl(const QString & name, const QString & version);
+                /*! \brief This function remove unnecessary DataPP resources
+                 * TODO Enable it usage
+                 */
                 static void clearUnusedDataPP();
+
+                static QString date_query_templ() ;
+
                 // FIXME Only one of the folowing 2 variables is necessary, because
                 // we can retrive resource by url  and url by resource
                 Nepomuk::Resource  m_res;
                 QUrl m_url;
                 // End
+                // This is the node that store graph where all decisions are stored
                 Soprano::Node m_graphNode;
+
+                Nepomuk::Query::Query m_dataPPQuery;
+                Nepomuk::Query::ComparisonTerm m_dataPPTerm;
         };
     }
 }

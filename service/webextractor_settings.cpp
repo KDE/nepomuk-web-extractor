@@ -19,6 +19,7 @@
 #include <QtCore/QString>
 #include <KDebug>
 #include <KService>
+#include <KStandardDirs>
 #include <KServiceTypeTrader>
 #include <KPluginFactory>
 #include <KPluginLoader>
@@ -34,7 +35,8 @@
 
 namespace NW = Nepomuk::WebExtractor;
 Nepomuk::WebExtractorSettings::WebExtractorSettings():
-    WebExtractorConfig()
+    WebExtractorConfig(),
+    m_globalTempDir(0)
 {
     update();
 }
@@ -65,6 +67,7 @@ void Nepomuk::WebExtractorSettings::clear()
     m_parameters.clear();
 
     //m_plugins.clear();
+    delete m_globalTempDir;
 
 }
 
@@ -75,8 +78,23 @@ void Nepomuk::WebExtractorSettings::update()
 
     WebExtractorConfig::update();
 
-    //
-
+    // Some preparation
+    int scheme = decisionsModelScheme();
+    Soprano::BackendSettings globalVirtuosoSettings;
+    switch(scheme) {
+    case EnumDecisionsModelScheme::User : /* User */
+    case EnumDecisionsModelScheme::Redland : { /* Redland */
+        break;
+    }
+    case EnumDecisionsModelScheme::Virtuoso: { /* Virtuoso */
+        m_globalTempDir = new KTempDir(KStandardDirs::locateLocal("tmp", "dmodel"));
+        globalVirtuosoSettings << Soprano::BackendSetting(
+                                   Soprano::BackendOptionStorageDir,
+                                   m_globalTempDir->name()
+                               );
+        break;
+    }
+    }
     QStringList cats = WebExConfigBase::categories();
     foreach(const QString &  cat, cats) {
         WebExCategoryConfig * cfg = m_categories[cat];
@@ -119,6 +137,24 @@ void Nepomuk::WebExtractorSettings::update()
         p->setUCrit(cfg->uCrit());
         p->setACrit(cfg->aCrit());
         p->setPluginSelectStep(cfg->pluginSelectStep());
+        int scheme = decisionsModelScheme();
+        switch(scheme) {
+        case EnumDecisionsModelScheme::User : /* User */
+        case EnumDecisionsModelScheme::Redland : { /* Redland */
+            Soprano::BackendSettings settings;
+            settings << Soprano::BackendOptionStorageMemory;
+            p->setBackendName("redland");
+            p->setBackendSettings(settings);
+            break;
+        }
+        case EnumDecisionsModelScheme::Virtuoso: { /* Virtuoso */
+            p->setBackendName("virtuoso");
+            p->setBackendSettings(globalVirtuosoSettings);
+            break;
+        }
+        }
+
+
         NW::WE::LaunchPolitics pol;
         switch(cfg->pluginSelectType()) {
         case(WebExCategory::EnumPluginSelectType::stepwise) : {

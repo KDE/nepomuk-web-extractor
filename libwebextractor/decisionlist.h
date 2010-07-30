@@ -56,6 +56,10 @@ namespace Nepomuk
                 void mergeWith(const DecisionList & rhs, WE::MergePolitics policis = WE::Highest, double coff = 1);
                 using QSet<Decision>::constBegin ;
                 using QSet<Decision>::constEnd ;
+                using QSet<Decision>::const_iterator;
+                using QSet<Decision>::size;
+                const_iterator begin() const;
+                const_iterator end() const;
                 //void scale( double coff);
                 /*! \brief return names of plugins that produce obsolete decisions
                  */

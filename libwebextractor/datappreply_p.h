@@ -19,15 +19,20 @@
 #ifndef __webextractor_datappreply_private_h_
 #define __webextractor_datappreply_private_h_
 
+#include "datappreply.h"
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	class DataPPReplyPrivate
-	{
-	    public:
-		DataPP * m_parent;
-		virtual ~DataPPReplyPrivate() {;}
-	};
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        class DataPPReplyPrivate
+        {
+            public:
+                DataPP * m_parent;
+                virtual ~DataPPReplyPrivate() {
+                    ;
+                }
+        };
     }
 }
 

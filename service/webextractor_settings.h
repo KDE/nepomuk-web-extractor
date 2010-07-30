@@ -23,6 +23,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QtDebug>
 #include <KPluginFactory>
+#include <KTempDir>
 #include "webextractor_config.h"
 #include "datappconfig.h"
 namespace Nepomuk
@@ -47,6 +48,7 @@ namespace Nepomuk
             //QHash< QString, Nepomuk::WebExtractor::DataPP*> m_datapp;
             QHash< QString, Nepomuk::DataPPConfig*> m_datappConfig;
             //QHash< QString, WebExtractorPlugin* > m_plugins;
+            KTempDir * m_globalTempDir;
     };
     QDebug operator<<(QDebug dbg,  const WebExtractorSettings & conf);
 }

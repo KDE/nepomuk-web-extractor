@@ -35,6 +35,7 @@ namespace Nepomuk
         class WEBEXTRACTOR_EXPORT ResourceServiceData
         {
             public:
+                ResourceServiceData();
                 ResourceServiceData(Nepomuk::Resource & res, ResourceServiceDataManager * manager);
                 ResourceServiceData(Nepomuk::Resource & res);
                 ResourceServiceData(ResourceServiceData & arg);
@@ -50,16 +51,18 @@ namespace Nepomuk
 
                 /*! \brief Clear all information about examined DataPP
                  */
-                void clearExaminedIfno() ;
-                void clearExaminedIfno(const QString & dataPPName) ;
+                void clearExaminedInfo() ;
+                void clearExaminedInfo(const QString & dataPPName) ;
                 /*! \brief Clear all webextrator service information about this resource
-                 * This function will clear examined info ( can be done directly via clearExaminedIfno() ),
+                 * This function will clear examined info ( can be done directly via clearExaminedInfo() ),
                  * and all other stored service information
                  * This function is more for feature releases
                  */
                 void clearServiceInfo();
 
 
+                QMap< QString, QDateTime > examinedDataPPDates();
+                QDateTime examinedDate(const QString & name);
                 bool isValid() const;
 
                 QStringList serviceInfoPropertiesNames() const;

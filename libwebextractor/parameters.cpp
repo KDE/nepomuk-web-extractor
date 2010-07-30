@@ -18,6 +18,16 @@ class Nepomuk::WebExtractor::ExtractParameters::Private : public QSharedData
         double acrit, ucrit;
         // Storage of all plugins to launch
         DataPPKeeper dataPPlugins;
+        // Backend name. If set to empty string,
+        // then the most apropriate backend will be found
+        QString backendName;
+        Soprano::BackendSettings backendSettings;
+
+        bool autoDeleteModelData;
+
+        bool forceModelStorageDir;
+
+        Nepomuk::ResourceManager * manager;
 
 };
 
@@ -31,6 +41,7 @@ Nepomuk::WebExtractor::ExtractParameters::ExtractParameters()
     d->m_mergePolitics = NW::WE::Highest;
     d->m_launchPolitics = NW::WE::StepWise;
     d->m_pss = 5;
+    d->autoDeleteModelData = false;
 }
 
 Nepomuk::WebExtractor::ExtractParameters::~ExtractParameters()
@@ -145,6 +156,45 @@ void Nepomuk::WebExtractor::ExtractParameters::addDataPP(DataPPWrapper * pp)
     d->dataPPlugins.insert(pp->data(), pp);
 }
 
+QString NW::ExtractParameters::backendName() const
+{
+    return d->backendName;
+}
+
+void NW::ExtractParameters::setBackendName(const QString & name)
+{
+    d->backendName = name;
+}
+
+Soprano::BackendSettings NW::ExtractParameters::backendSettings() const
+{
+    return d->backendSettings;
+}
+void NW::ExtractParameters::setBackendSettings(const Soprano::BackendSettings & settings)
+{
+    d->backendSettings = settings;
+}
+bool NW::ExtractParameters::autoDeleteModelData() const
+{
+    return d->autoDeleteModelData;
+}
+
+void NW::ExtractParameters::setAutoDeleteModelData(bool val)
+{
+    // TODO Add more checks here. For example is model is given, instead
+    // of backend, then this flag can not be set to true.
+    d->autoDeleteModelData = val;
+}
+
+Nepomuk::ResourceManager * NW::ExtractParameters::manager() const
+{
+    return d->manager;
+}
+
+void NW::ExtractParameters::setResourceManager(ResourceManager * manager)
+{
+    d->manager = manager;
+}
 /*
 double Nepomuk::WebExtractor::ExtractParameters::scaleCoff(DataPP* pp)  const
 {

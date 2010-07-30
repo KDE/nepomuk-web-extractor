@@ -39,12 +39,12 @@ QString  NW::DebugDataPP::version()
 NW::DebugDataPP::DebugDataPP():
     DataPP(DebugDataPP::version())
 {
-    kDebug() << "New DebugDataPP created. ID: "<<uintptr_t(this);
+    kDebug() << "New DebugDataPP created. ID: " << uintptr_t(this);
 }
 
 NW::DataPPReply * NW::DebugDataPP::requestDecisions(const NW::DecisionFactory * factory, const Nepomuk::Resource & res)
 {
-    return new DebugDataPPReply(this,factory);
+    return new DebugDataPPReply(this, factory);
 }
 
 NW::DebugDataPPReply::DebugDataPPReply(DebugDataPP* parent, const DecisionFactory * factory):
@@ -52,17 +52,16 @@ NW::DebugDataPPReply::DebugDataPPReply(DebugDataPP* parent, const DecisionFactor
     //m_fact(factory),
     m_decisions(factory->newDecisionList(parent))
 {
-    kDebug() << "New DebugDataPPReply created. ID: "<<uintptr_t(this);
+    kDebug() << "New DebugDataPPReply created. ID: " << uintptr_t(this);
     m_timer = new QTimer(this);
     m_timer->setSingleShot(true);
-    connect(m_timer, SIGNAL(timeout()),this, SLOT(ready()) );
-    for ( double r = 0; r < 0.8; r+= 0.1 )
-    {
-	Decision d = factory->newDecision(parent);
-	d.setRank(r);
-	m_decisions.addDecision(d);
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(ready()));
+    for(double r = 0; r < 0.8; r += 0.1) {
+        Decision d = factory->newDecision(parent);
+        d.setRank(r);
+        m_decisions.addDecision(d);
     }
-    m_timer->start(2*1000);
+    m_timer->start(2 * 1000);
 }
 
 void NW::DebugDataPPReply::abort()
@@ -72,12 +71,20 @@ void NW::DebugDataPPReply::abort()
 
 void NW::DebugDataPPReply::ready()
 {
-    kDebug() << " DebugDataPPReply ready. ID: "<<uintptr_t(this);
+    kDebug() << " DebugDataPPReply ready. ID: " << uintptr_t(this);
     emit finished();
 }
 
 bool NW::DebugDataPPReply::isValid() const
-{return true;}
+{
+    return true;
+}
+
+NW::DataPPReply::DataPPReplyError NW::DebugDataPPReply::error() const
+{
+    return NoError;
+}
+
 
 NW::DebugDataPPReply::~DebugDataPPReply()
 {

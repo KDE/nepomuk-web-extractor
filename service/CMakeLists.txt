@@ -15,13 +15,17 @@ find_package(Nepomuk REQUIRED)
 if(WEBEXTRACTOR_VERSION_STRING)
 	# if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
 	set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-		../libwebextractor/include
-		${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
+		../libwebextractor
+		${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor)
 	set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
 else(WEBEXTRACTOR_VERSION_STRING)
 	find_package(LibWebextractor REQUIRED)
 endif(WEBEXTRACTOR_VERSION_STRING)
 
+set(WEBEXTRACTOR_SERVICE_VERSION_MAJOR 0 CACHE INT "Major WebExtractor Service version number" FORCE)
+set(WEBEXTRACTOR_SERVICE_VERSION_MINOR 0 CACHE INT "Minor WebExtractor Service version number" FORCE)
+set(WEBEXTRACTOR_SERVICE_VERSION_PATCH 1 CACHE INT "Release WebExtractor Service version number" FORCE)
+set(WEBEXTRACTOR_SERVICE_VERSION_STRING "${WEBEXTRACTOR_SERVICE_VERSION_MAJOR}.${WEBEXTRACTOR_SERVICE_VERSION_MINOR}.${WEBEXTRACTOR_SERVICE_VERSION_PATCH}" CACHE STRING "WebExtractor version string" FORCE)
 
 include_directories(
   ${SOPRANO_INCLUDE_DIR}
