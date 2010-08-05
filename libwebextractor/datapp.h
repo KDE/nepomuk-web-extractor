@@ -42,12 +42,12 @@ namespace Nepomuk
                 //virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res, QObject * target, const char * finishedSlot, const char * errorSlot) = 0;
                 virtual ~DataPP();
                 DataPP(
-                    const QString & pluginVersion
+                    float pluginVersion
                 );
                 /*! \brief Return version of this DataPP.
                  * The version of DataPP is actualy the version of the plugin, that create this DataPP
                  */
-                QString  pluginVersion() const;
+                float  pluginVersion() const;
                 /*! \brief Return name of this DataPP
                  */
                 QString pluginName() const;

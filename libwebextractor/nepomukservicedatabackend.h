@@ -24,6 +24,7 @@
 #include <QString>
 #include <Nepomuk/Query/Query>
 #include <Nepomuk/Query/ComparisonTerm>
+#include "webextractor_export.h"
 
 namespace Nepomuk
 {
@@ -33,18 +34,18 @@ namespace Nepomuk
              * All information is stored in separate graph and this graph is bound to the resource
              * with ndco:decisionMetaGraphFor property.
          */
-        class NepomukServiceDataBackend : public ServiceDataBackend
+        class WEBEXTRACTOR_EXPORT NepomukServiceDataBackend : public ServiceDataBackend
         {
                 Q_OBJECT;
             public:
                 NepomukServiceDataBackend(const QUrl &);
                 /*! \brief Add/Update information about examined DataPP ( name, version)
                  */
-                virtual void setExaminedDataPPInfo(const QString & dataPPName, const QString & dataPPVersion, const QDateTime & = QDateTime());
+                virtual void setExaminedDataPPInfo(const QString & dataPPName, float dataPPVersion, const QDateTime & = QDateTime());
 
                 /*! \brief Return map (name, version ) about all examined DataPP
                  */
-                virtual QMap< QString, QString > examinedDataPPInfo();
+                virtual QMap< QString, float > examinedDataPPInfo();
 
                 /*! \brief Clear all information about examined DataPP
                  */
@@ -84,6 +85,8 @@ namespace Nepomuk
                  */
                 virtual QDateTime examinedDate(const QString & name);
 
+                static Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, float> & assignedDataPP);
+
             private:
                 /*! \brief This function tries to found graph where all information should be stored
                  * If there is no such graph, then this function will do nothing. It will not create the one!
@@ -97,7 +100,7 @@ namespace Nepomuk
                  * name is the name of the DataPP, version is its version.
                  * If name or version are invalid(empty) invalid url will be returned
                  */
-                static QUrl dataPPResourceUrl(const QString & name, const QString & version);
+                static QUrl dataPPResourceUrl(const QString & name, float version);
                 /*! \brief This function remove unnecessary DataPP resources
                  * TODO Enable it usage
                  */

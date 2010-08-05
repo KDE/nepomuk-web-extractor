@@ -256,7 +256,8 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
     }
 
     // Add all datapp to queue
-    QMap< QString, QString > examined = d->rsd.examinedDataPPInfo();
+    QMap< QString, float > examined = d->rsd.examinedDataPPInfo();
+    //kDebug() << "Examind info: " << examined;
     foreach(DataPPWrapper * dppw, d->m_dataPPKeeper) {
         // The algorithm is the folowing:
         // First we check examined DataPP that are written into storage. If some of the
@@ -270,9 +271,10 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
         // See description of ResourceAnalyzer and ResourceAnalyzer::Iterative about
         // why do we need such behaviour
         QString n = dppw->pluginName();
-        QMap< QString, QString >::const_iterator it = examined.find(n);
+        QMap< QString, float >::const_iterator it = examined.find(n);
         if(it != examined.end()) {
             // Check version
+            //kDebug() << "Check version: " << it.value() << " vs " << dppw->pluginVersion();
             if(it.value() == dppw->pluginVersion())
                 if(!d->examinedDates.contains(dppw))
                     continue;

@@ -62,6 +62,8 @@ set( webextractor_SRCS
     resourceservicedata.cpp
     nepomukservicedatabackend.cpp
     servicedatabackend.cpp
+    identsetmanager.cpp
+    algorithm.cpp
     )
 
 set ( webextractor_MOC    
@@ -106,6 +108,8 @@ target_link_libraries( webextractor
   ${KDE4_NEPOMUK_LIBS}
   ${QT_LIBRARIES}
   ${QT_QTNETWORK_LIBRARY}
+  ${QT_QTCORE_LIBRARY}
+  nepomuksync
   )
 
 install(TARGETS webextractor
@@ -146,9 +150,14 @@ set (WEBEXTRACTOR_HEADERS
     resourceservicedatamanager.h
     resourceservicedata.h
     nepomukservicedatabackend.h
+    nepomukservicedatabackendfactory.h
     servicedatabackend.h
     servicedatabackendfactory.h
     webextractor_export.h
+    identsetmanager.h
+    algorithm.h
+    modelgraphvisitor.h
+    ${CMAKE_CURRENT_BINARY_DIR}/ndco.h
     ) 
 #set ( WEBEXTRACTOR_HEADERS 
 #    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 

@@ -23,6 +23,7 @@
 #include "decision.h"
 #include "decisionlist.h"
 #include "propertiesgroup.h"
+#include "identsetmanager.h"
 #include <Soprano/BackendSettings>
 #include <Nepomuk/ResourceManager>
 #include <Soprano/StorageModel>
@@ -55,14 +56,16 @@ namespace Nepomuk
                  * \param autoDeleteModelData If set to true, then model must be
                  * non-Null value. In this case the model will be cleared ( via
                  * Backend::deleteModelData() method)
+                         * \param decisionsModel This the the model that is used for working
+                         * with Decisions.
                  * \param model This is storage model used for storing Decisions data.
-                 * It may differ from manager->mainModel(), for example
-                 * manager->mainModel() can be a filter model built atop of this storage
-                 * model. But anyway it should model inside manager must rely on this
+                 * It may differ from decisionsModel, for example
+                 * decisionsModel can be a filter model built atop of this storage
+                 * model. But anyway it should decisionsModel must rely on this
                  * given storage model for storing statements.
                  * \param settings Settings that were used to create storage model. This is necessary to correctly remove it's data ( If requested)
                  */
-                DecisionFactory(double ucrit, double acrit, ResourceManager * manager, bool autoDeleteModelData, Soprano::StorageModel * model, Soprano::BackendSettings settings = Soprano::BackendSettings());
+                DecisionFactory(double ucrit, double acrit, Soprano::Model * decisionsModel, bool autoDeleteModelData, Soprano::StorageModel * model, Soprano::BackendSettings settings = Soprano::BackendSettings());
                 ~DecisionFactory();
                 DecisionList  newDecisionList() const;
                 void setThreshold(double);
@@ -72,10 +75,12 @@ namespace Nepomuk
                 //void setResourceManager( ResourceManager *);
                 double m_threshold; // ucrit;
                 double m_acrit;
-                ResourceManager * m_manager;
+                Soprano::Model * m_decisionsModel;
+                //Nepomuk::ResourceManager * m_manager;
                 bool m_autoDeleteModelData;
                 Soprano::BackendSettings m_settings;
                 Soprano::StorageModel * m_storageModel;
+                IdentificationSetManager * m_identsetManager;
         };
     }
 }

@@ -250,6 +250,7 @@ namespace Nepomuk
                 void nextIteration();
 
                 /*! \brief indicates an error during analyzer
+                         * This signal will be emited when any error occure.
                  * The analyzingFinished signal will folow this one
                  */
                 void error(AnalyzingError error);

@@ -27,11 +27,11 @@
 
 #if $use_simple
 #raw
-#include <webextractor/simpledatappreply.h>
+#include "simpledatappreply.h"
 #end raw
 #else
 #raw
-#include <webextractor/datappreply.h>
+#include "datappreply.h"
 #end raw
 #end if
 

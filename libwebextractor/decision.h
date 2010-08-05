@@ -29,6 +29,7 @@
 #include <QSharedPointer>
 #include "webextractor_export.h"
 #include "propertiesgroup.h"
+#include <nepomuk/changelog.h>
 //#include "soprano_statement_qhash.h"
 
 namespace Nepomuk
@@ -40,12 +41,15 @@ namespace Nepomuk
         class DecisionList;
         class DataPP;
         class PropertiesGroup;
+        class IdentificationSetManager;
 
         class DecisionData;
 
         /*! \brief This class represent one Decision - set of statements that can be applied to resource
          * Decision consist of PropertiesGroup. PropertiesGroup is a set of statements
-         *  that can be applied only together
+         * that can be applied only together. Decisions are implicitly shared objects
+             * and changing copy of the Decision will change original too. Because of this,
+             * this class is not thread-safe.
          */
         class WEBEXTRACTOR_EXPORT Decision /*: public QOb*/
         {
@@ -63,23 +67,48 @@ namespace Nepomuk
                  * occured
                  */
                 PropertiesGroup newGroup();
+
                 /*! \brief Return all groups of the Decision
-                 */
+                         */
                 QSet< PropertiesGroup > groups() const;
-                /*! \brief Return proxy resource for given one
+
+                /*! \brief Return urls of all PropertiesGroup
                  */
-                QUrl proxyResource(const Nepomuk::Resource &);
-                QMap<QUrl, QUrl> proxies() const;
+                //QList<QUrl> groupsUrls() const;
+
+                /*! \brief Set current group to \p group
+                 */
+                //void setCurrentGroup( const PropertiesGroup & group);
+
+                /*! \brief This method will reset current group( if any)
+                 */
+                void resetCurrentGroup();
+
+
+                /*! \brief Return proxy resource for given one
+                         * TODO Add checks that given resource is from target model.
+                         * This is necessary to prevent situations when target resource
+                         * will be from decisions model
+                 */
+                Nepomuk::Resource proxyResource(const Nepomuk::Resource &);
+                QUrl proxyUrl(const Nepomuk::Resource &);
+                QHash<QUrl, QUrl> proxies() const;
                 bool isEmpty() const;
                 bool isValid() const;
                 QString  pluginName() const;
-                QString   pluginVersion() const;
+                float   pluginVersion() const;
                 QSet<DataPP*>  pluginsInformation() const;
                 QUrl uri() const;
                 Soprano::Model * model() const;
                 Nepomuk::ResourceManager * manager() const;
                 QString description() const;
                 void setDescription(const QString &);
+
+
+                /*! \brief This function will return the log of all chanegs
+                 */
+                Sync::ChangeLog log() const;
+
                 ~Decision();
                 const Decision & operator=(const Decision & rhs);
                 bool operator==(const Decision & rhs)const;
@@ -111,7 +140,8 @@ namespace Nepomuk
                  */
                 Decision(
                     const DataPP * parent,
-                    ResourceManager * manager
+                    Soprano::Model * decisionsModel,
+                    IdentificationSetManager * identsetManager
                 );
                 /*! \brief Apply Decision
                  * Write all statements back to model

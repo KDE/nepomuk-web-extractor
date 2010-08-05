@@ -35,7 +35,7 @@ namespace Nepomuk
                 DebugDataPP();
                 virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
                 static QString  name();
-                static QString version();
+                static float version();
         };
 
         class WEBEXTRACTOR_EXPORT DebugDataPPReply : public DataPPReply

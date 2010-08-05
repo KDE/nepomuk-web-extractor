@@ -24,6 +24,13 @@ ndco: {
 	   a	rdfs:Class;
 	   rdfs:comment "Class representing one DataPP. It is necessary to store versioni(nao:version) and name(nao:identifier)";
 	   rdfs:label "DataPP".
+
+	ndco:version
+	    a	rdfs:Property;
+	    rdfs:comment "Property represents version of the DataPP";
+	    rdfs:label "DataPP version";
+	    rdfs:domain ndco:DataPP;
+	    rdfs:range  xsd:float.
 	   
 	ndco:lastExtracted
 	    a	rdf:Property;
@@ -66,7 +73,7 @@ ndco: {
 	    a	rdf:Property;
 	    rdfs:comment "This property is used to mark used DataPP for this resource";
 	    rdfs:label " ?? ";
-	    rdfs:range ndco:Decision;
+	    rdfs:range ndco:DataPP;
 	    rdfs:domain rdf:Resource.
 	
 	ndco:aliasHint

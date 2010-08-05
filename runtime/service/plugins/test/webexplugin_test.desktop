@@ -1,0 +1,9 @@
+[Desktop Entry]
+ Type=Service
+ X-KDE-ServiceTypes=Nepomuk/WebExtractorPlugin
+ X-KDE-Library=webexplugin_test
+ X-WebExtractor-Name=test
+ Name=Put name here
+ Comment=Put comment here
+
+

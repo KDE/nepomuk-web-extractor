@@ -38,7 +38,8 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
     m_launchPolitics(WE::StepWise),
     m_mergePolitics(WE::Highest),
     m_step(10),
-    decisionsResourceManager(0),
+    //decisionsResourceManager(0),
+    decisionsMainModel(0),
     m_backend(0)
 {
     if(extractParams.isNull()) {
@@ -52,8 +53,8 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
         m_ucrit = extractParams->uCrit() ;
         m_acrit = extractParams->aCrit() ;
         // We need backend only if ResourceManager is not provided.
-        this->decisionsResourceManager = extractParams->manager();
-        if(!this->decisionsResourceManager) {
+        this->decisionsMainModel = extractParams->decisionsModel();
+        if(!this->decisionsMainModel) {
             QString backendName = extractParams->backendName();
             if(backendName.isEmpty()) {
                 m_backend = Soprano::discoverBackendByFeatures(Soprano::BackendFeatureStorageMemory);
@@ -79,8 +80,8 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
 Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyzerFactory::newAnalyzer()
 {
     DecisionFactory * fct = 0;
-    if(this->decisionsResourceManager) {
-        fct = new DecisionFactory(m_ucrit, m_acrit, decisionsResourceManager, false, 0);
+    if(this->decisionsMainModel) {
+        fct = new DecisionFactory(m_ucrit, m_acrit, decisionsMainModel, false, 0);
     } else {
         const Soprano::Backend * b = m_backend;
         if(b) {
@@ -92,7 +93,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyze
             }
 
             // Initialize ResourceManager
-            adrm = ResourceManager::createManagerForModel((Soprano::Model*)(decisionsStorageModel));
+            //adrm = ResourceManager::createManagerForModel((Soprano::Model*)(decisionsStorageModel));
 
             // Check the model
             /*
@@ -103,7 +104,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyze
             QUrl uu = adrm->generateUniqueUri("res");
             */
             // Set this manager to the factory
-            fct = new DecisionFactory(m_ucrit, m_acrit, adrm, m_autoDeleteModelData, decisionsStorageModel, m_backendSettings);
+            fct = new DecisionFactory(m_ucrit, m_acrit, decisionsStorageModel, m_autoDeleteModelData, decisionsStorageModel, m_backendSettings);
             //fct->setResourceManager(decisionsResourceManager);
         } else {
             return 0;

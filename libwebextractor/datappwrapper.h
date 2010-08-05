@@ -21,24 +21,39 @@
 
 #include "datapp.h"
 #include "webextractor_export.h"
-namespace Nepomuk {
-    namespace WebExtractor {
-	class WEBEXTRACTOR_EXPORT DataPPWrapper {
-	    public:
-		DataPPWrapper(DataPP*,const QString & , double, double);
-		DataPP * data() const { return m_data; }
-		double rank() const { return m_rank;}
-		double coff() const { return m_scaleCoff;}
-		void setRank(double val) { m_rank = val; }
-		QString  pluginName() const { return m_data->pluginName();}
-		QString  pluginVersion() const { return m_data->pluginVersion();}
-		DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)const;
-	    private:
-		DataPP * m_data;
-		double m_rank;
-		double m_scaleCoff;
-	};
-    typedef QHash< const DataPP*, DataPPWrapper* > DataPPKeeper;
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        class WEBEXTRACTOR_EXPORT DataPPWrapper
+        {
+            public:
+                DataPPWrapper(DataPP*, const QString & , double, double);
+                DataPP * data() const {
+                    return m_data;
+                }
+                double rank() const {
+                    return m_rank;
+                }
+                double coff() const {
+                    return m_scaleCoff;
+                }
+                void setRank(double val) {
+                    m_rank = val;
+                }
+                QString  pluginName() const {
+                    return m_data->pluginName();
+                }
+                float  pluginVersion() const {
+                    return m_data->pluginVersion();
+                }
+                DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)const;
+            private:
+                DataPP * m_data;
+                double m_rank;
+                double m_scaleCoff;
+        };
+        typedef QHash< const DataPP*, DataPPWrapper* > DataPPKeeper;
     }
 }
 

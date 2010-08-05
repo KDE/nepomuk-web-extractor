@@ -26,7 +26,7 @@
 #define #end raw __webextractor_datapp_${lname} 
 
 #raw
-#include <webextractor/datapp.h>
+#include "datapp.h"
 #end raw
 
 namespace Nepomuk {
@@ -35,9 +35,9 @@ namespace Nepomuk {
     {
 	Q_OBJECT;
 	public:
-	WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
+	    WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
 	    ${classname}(
-		    const QString & pluginVersion
+			float pluginVersion
 		    );
 	    ~${classname}();
 	    friend class ${name}Reply;

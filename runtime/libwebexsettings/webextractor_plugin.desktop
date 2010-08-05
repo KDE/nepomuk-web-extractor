@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=ServiceType
+X-KDE-ServiceType=Nepomuk/WebExtractorPlugin
+Name=Web Extractor Plugin
+
+[PropertyDef::X-WebExtractor-Name]
+Type=QString
+
+

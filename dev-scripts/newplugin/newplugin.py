@@ -21,24 +21,28 @@ required_files = [
 'CMakeLists.txt.template',
 ]
 
-for rf in required_files:
-	if not osp.lexists(rf):
-		print " Couldn't found required template: %s " % (rf, )
-		exit()
+def prepare():
+	for rf in required_files:
+		if not osp.lexists(rf):
+			print " Couldn't found required template: %s " % (rf, )
+			exit()
 
-if osp.lexists(output_dir):
-	if  not osp.isdir(output_dir):
-		print "I have found %s and it is not a directory. May me you launch me from incorrect directory" % (output_dir,)
-		exit()
+	if osp.lexists(output_dir):
+		if  not osp.isdir(output_dir):
+			print "I have found %s and it is not a directory. May me you launch me from incorrect directory" % (output_dir,)
+			exit()
 
 		try :
+			print "Removind directory and recreating it"
 			subprocess.call(['rm', '-rf' , "./"+output_dir])
 			#os.rmdir(output_dir)
+			os.mkdir(output_dir)
 		except:
 			print "Can not remove output directory %s. Remove it yourself and relaunch script" % ( output_dir, )
 			exit()
-else :
-	os.mkdir(output_dir)
+	else :
+		print "%s doesn't exist. Creating it"
+		os.mkdir(output_dir)
 
 
 
@@ -48,10 +52,21 @@ def check_generate(namespace,git_enabled):
 	author = namespace.get('author',None)
 	mail = namespace.get('mail',None)
 	name = namespace.get('name',None)
+	version = namespace.get('version',None)
 
 	if name is None or len(name) == 0:
 		print "Please specify a name"
 		exit()
+
+	if version is None:
+		namespace['version'] = 0.1
+	else:
+		# Check that version is float
+		try :
+			namespace['version'] = float(version)
+		except ValueError:
+			print "Version of the Plugin must be float number"
+			exit()
 
 	if git_enabled:
 		if author is None or len(author) == 0:
@@ -93,7 +108,7 @@ def generate(namespace):
 		res = tclass(namespaces = namespace)
 		fo = open("".join([output_dir,'/',of]),"w")
 		fo.write(str(res))
-		print res
+		#print res
 
 def guiFinished():
 	namespace = {}
@@ -102,6 +117,7 @@ def guiFinished():
 	namespace['author'] = window.authorlLineEdit.text()
 	gui_enabled = window.gitCheckBox.value()
 	namespace['use_simple'] = window.simpleCheckBox.value()
+	prepare()
 	check_generate(namespace,git_enabled)
 
 def runGui():
@@ -120,12 +136,14 @@ def runGui():
 
 
 parser = OptionParser()
-parser.add_option("-g", "--gui", dest="gui")
+parser.add_option("-g", "--gui", dest="gui", action='store_true')
 parser.add_option("-s", "--use-simple", dest="use_simple", action='store_true', help="If enabled, then generated Reply class will inherit SimpleDataPPReply. This is usually more convinient")
 parser.add_option("-v", "--version", dest="version")
 parser.add_option("-a", "--git", dest="git_enabled",action='store_true',
-		                  help="use git to get missed valueg")
-parser.add_option("-n", "--name", dest = "name", help="plugin name. It is used for generatin filenames and class names")
+		                  help="use git to get missed values")
+parser.add_option("-n", "--name", dest = "name", help="plugin name. It is used for generating filenames and class names")
+parser.add_option("-t", "--author", dest = "author", help="Author name")
+parser.add_option("-m", "--mail", dest = "mail", help="Author mail")
 
 (options, args) = parser.parse_args()
 
@@ -138,11 +156,12 @@ else:
 		print "You must specify at least name (--name ) or call a gui ( --gui )"
 		exit()
 
-	namespace['mail'] = ""
-	namespace['author'] = ""
+	namespace['mail'] = options.author 
+	namespace['author'] = options.mail
 	gui_enabled = options.git_enabled
 	namespace['use_simple'] = options.use_simple
 	namespace['version'] = options.version
+	prepare()
 	check_generate(namespace,options.git_enabled)
 
 

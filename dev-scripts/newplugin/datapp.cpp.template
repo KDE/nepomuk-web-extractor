@@ -33,7 +33,7 @@
 
 
 Nepomuk::${classname}::${classname}(
-		    const QString & pluginVersion
+			float pluginVersion
 		    ):
     DataPP(pluginVersion)
 {

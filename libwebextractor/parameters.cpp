@@ -27,7 +27,9 @@ class Nepomuk::WebExtractor::ExtractParameters::Private : public QSharedData
 
         bool forceModelStorageDir;
 
-        Nepomuk::ResourceManager * manager;
+        Soprano::Model * decisionsModel;
+
+        NW::ResourceServiceDataManager * rsdManager;
 
 };
 
@@ -42,6 +44,7 @@ Nepomuk::WebExtractor::ExtractParameters::ExtractParameters()
     d->m_launchPolitics = NW::WE::StepWise;
     d->m_pss = 5;
     d->autoDeleteModelData = false;
+    d->rsdManager = ResourceServiceDataManager::instance();
 }
 
 Nepomuk::WebExtractor::ExtractParameters::~ExtractParameters()
@@ -186,14 +189,38 @@ void NW::ExtractParameters::setAutoDeleteModelData(bool val)
     d->autoDeleteModelData = val;
 }
 
-Nepomuk::ResourceManager * NW::ExtractParameters::manager() const
+Soprano::Model * NW::ExtractParameters::decisionsModel() const
 {
-    return d->manager;
+    return d->decisionsModel;
 }
 
-void NW::ExtractParameters::setResourceManager(ResourceManager * manager)
+void NW::ExtractParameters::setDecisionsModel(Soprano::Model * model)
 {
-    d->manager = manager;
+    d->decisionsModel = model;
+}
+
+NW::ResourceServiceDataManager * NW::ExtractParameters::resourceServiceDataManager() const
+{
+    return d->rsdManager;
+}
+
+void NW::ExtractParameters::setResourceServiceDataManager(ResourceServiceDataManager * manager)
+{
+    if(!manager)
+        d->rsdManager = ResourceServiceDataManager::instance();
+    else
+        d->rsdManager = manager;
+}
+
+QMap<QString, float> NW::ExtractParameters::dataPPInfo() const
+{
+    // TODO Introduce caching of the result
+    QMap<QString, float> answer;
+
+    foreach(const DataPPWrapper * wrp, d->dataPPlugins) {
+        answer.insert(wrp->pluginName(), wrp->pluginVersion());
+    }
+    return answer;
 }
 /*
 double Nepomuk::WebExtractor::ExtractParameters::scaleCoff(DataPP* pp)  const

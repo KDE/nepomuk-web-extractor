@@ -99,7 +99,8 @@ namespace Nepomuk
                 //Soprano::StorageModel * decisionsStorageModel;
                 // ResourceManager that manages this model. This pointer is non-null
                 // only if extractParams->manager() was non-null.
-                ResourceManager * decisionsResourceManager;
+                // ResourceManager * decisionsResourceManager;
+                Soprano::Model * decisionsMainModel;
                 const Soprano::Backend * m_backend;
                 Soprano::BackendSettings m_backendSettings;
         };

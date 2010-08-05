@@ -20,15 +20,34 @@
 #define __nepomuk_servicedata_backend_factory_h_
 
 #include "servicedatabackend.h"
+#include "webextractor_export.h"
+#include <Nepomuk/Query/Query>
+#include <Nepomuk/Query/Term>
 
 namespace Nepomuk
 {
     namespace WebExtractor
     {
-        class ServiceDataBackendFactory
+
+        class WEBEXTRACTOR_EXPORT ServiceDataBackendFactory
         {
             public:
+                /*! \brief Return ServiceDataBackend for giver resource
+                 * \param res Uri of the resource
+                 */
                 virtual ServiceDataBackend * backend(const QUrl & res) = 0;
+                /*! \brief Return Nepomuk::Query that will match all resources that should be examined with given DataPP
+                 * This method must be eqivalent for quering all resources that matchs mainTerm and checking for every resource
+                 * recived that any of the given DataPP has not be examined for the resources. If such query can not be created,
+                 * then invalid Query must be returned. Default implementation will return invalid query;
+                 * \param assignedDataPP Map of DataPP name, DataPP version
+                 */
+                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, float> & assignedDataPP) {
+                    Q_UNUSED(mainTerm);
+                    Q_UNUSED(assignedDataPP);
+                    return Nepomuk::Query::Query();
+                }
+
                 virtual ~ServiceDataBackendFactory() {
                     ;
                 }

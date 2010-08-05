@@ -41,9 +41,18 @@ NW::NepomukServiceDataBackend::NepomukServiceDataBackend(const QUrl & url)
     m_dataPPQuery = NQ::Query(m_dataPPTerm);
     // TODO Comment the folowing kDebug
     //kDebug() << "Search for DataPP query: " << query.toSparqlQuery();
+    /*
+    NQ::Query query(NQ::NegationTerm::negateTerm(NQ::ComparisonTerm(
+                        NW::Vocabulary::NDCO::decisionMetaGraphFor(),
+                        NQ::Term()
+                    )));
+
+    kDebug() << "clear unused query: " << query.toSparqlQuery();
+    */
+
 }
 
-void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPPName, const QString & dataPPVersion, const QDateTime & ed)
+void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPPName, float dataPPVersion, const QDateTime & ed)
 {
     // Get graph node
     loadCreateGraph();
@@ -109,14 +118,14 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
 }
 
 
-QMap< QString, QString> NW::NepomukServiceDataBackend::examinedDataPPInfo()
+QMap< QString, float> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 {
     //Nepomuk::Resource m_res(m_url);
     loadGraph();
     // if(!m_res.isValid() or !m_res.exists())
     if(!m_graphNode.isValid()) {
         kDebug() << "No graph  with examined info found";
-        return QMap<QString, QString>();
+        return QMap<QString, float>();
     }
 
     QDateTime lmd = m_res.property(Soprano::Vocabulary::NAO::lastModified()).toDateTime();
@@ -132,7 +141,7 @@ QMap< QString, QString> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 
 
 
-    QMap< QString, QString >  answer;
+    QMap< QString, float >  answer;
     Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
                                           m_dataPPQuery.toSparqlQuery(), Soprano::Query::QueryLanguageSparql
                                       );
@@ -150,7 +159,7 @@ QMap< QString, QString> NW::NepomukServiceDataBackend::examinedDataPPInfo()
         if(name.isEmpty())
             // This is a bug.
             continue;
-        Nepomuk::Variant vv = dataPPRes.property(Soprano::Vocabulary::NAO::version());
+        Nepomuk::Variant vv = dataPPRes.property(NW::Vocabulary::NDCO::version());
         if(!vv.isValid()) {
             // This is a bug. Clear
             toRemove.insert(name);
@@ -158,7 +167,7 @@ QMap< QString, QString> NW::NepomukServiceDataBackend::examinedDataPPInfo()
         }
 
         //QString name = ln[0];
-        QString version = vv.toString();
+        float version = vv.variant().toFloat();
 
         // Now found date of extraction
         // Use QString because it is much easier to read and understand
@@ -336,9 +345,9 @@ void NW::NepomukServiceDataBackend::loadGraph()
     return;
 }
 
-QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, const QString & version)
+QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, float version)
 {
-    if(name.isEmpty() or version.isEmpty())
+    if(name.isEmpty())
         return QUrl();
 
 
@@ -376,7 +385,7 @@ QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, cons
         //identifiers << name;
         //res.setIdentifiers(identifiers);
         res.setProperty(Soprano::Vocabulary::RDFS::label(), Nepomuk::Variant(name));
-        res.setProperty(Soprano::Vocabulary::NAO::version(), Nepomuk::Variant(version));
+        res.setProperty(NW::Vocabulary::NDCO::version(), Nepomuk::Variant(version));
 
         // TODO Comment the folowing kDebug() message
         kDebug() << "Creating new DataPP Resource| name :" << name << " version: " << version << "uri" << res.resourceUri();
@@ -393,6 +402,8 @@ void NW::NepomukServiceDataBackend::clearUnusedDataPP()
                         NW::Vocabulary::NDCO::decisionMetaGraphFor(),
                         NQ::Term()
                     )));
+
+    kDebug() << "clear unused query: " << query.toSparqlQuery();
 
     Soprano::QueryResultIterator it = ResourceManager::instance()->mainModel()->executeQuery(
                                           query.toSparqlQuery(), Soprano::Query::QueryLanguageSparql);
@@ -650,6 +661,26 @@ QDateTime NW::NepomukServiceDataBackend::examinedDate(const QString & name)
 
     return ed;
 
+}
+
+NQ::Query NW::NepomukServiceDataBackend::queryUnparsedResources(const NQ::Term mainTerm, const QMap<QString, float> & assignedDataPP)
+{
+    // TODO Implement advanced quering for resource that has not been parsed ( of parsing
+    // information is obsolete
+    // )
+#if 0
+    // Convert list of DataPP to the list of terms
+    QList<NQ::Term> dataPPTerms;
+    for(
+        QMap<QString, float>::const_iterator it = assignedDataPP.begin();
+        it != assignedDataPP.end();
+        it++
+    ) {
+        NQ::ComparisonTerm term = NQ::ComparisonTerm(NW::Vocabulary::NDCO::
+                              }
+                              NQ::AndTerm and
+#endif
+                              return NQ::Query();
 }
 
 QString NW::NepomukServiceDataBackend::date_query_templ()

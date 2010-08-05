@@ -4,18 +4,23 @@
 
 namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::WebExtractor::DecisionFactory::DecisionFactory(double ucrit, double acrit, ResourceManager * manager, bool autoDeleteModelData, Soprano::StorageModel * model, Soprano::BackendSettings settings):
+Nepomuk::WebExtractor::DecisionFactory::DecisionFactory(double ucrit, double acrit, Soprano::Model * decisionsModel, bool autoDeleteModelData, Soprano::StorageModel * model, Soprano::BackendSettings settings):
     m_threshold(0)
 {
     Q_ASSERT(acrit == Nepomuk::WebExtractor::WE::boundACrit(acrit));
     Q_ASSERT(ucrit == Nepomuk::WebExtractor::WE::boundUCrit(ucrit));
     m_threshold = ucrit;
     m_acrit = acrit;
-    Q_ASSERT(manager);
-    this->m_manager = manager;
+    Q_ASSERT(decisionsModel);
+    this->m_decisionsModel = decisionsModel;
     this->m_autoDeleteModelData = autoDeleteModelData;
     this->m_settings = settings;
     this->m_storageModel = model;
+    this->m_identsetManager = new IdentificationSetManager();
+
+    // Create ResourceManager atop of m_decisionsModel
+    // TODO Add log filter model
+    //this->m_manager = ResourceManager::createManagerForModel(m_decisionsModel);
 }
 
 void Nepomuk::WebExtractor::DecisionFactory::setThreshold(double threshold)
@@ -25,7 +30,7 @@ void Nepomuk::WebExtractor::DecisionFactory::setThreshold(double threshold)
 
 Nepomuk::WebExtractor::Decision Nepomuk::WebExtractor::DecisionFactory::newDecision(const DataPP * parent) const
 {
-    return Decision(parent, m_manager);
+    return Decision(parent, m_decisionsModel, m_identsetManager);
 }
 
 Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::newDecisionList(const DataPP*) const
@@ -55,7 +60,7 @@ Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::new
 Nepomuk::WebExtractor::DecisionFactory * NW::DecisionFactory::debugFactory(double ucrit, double acrit)
 {
     // TODO Fixme
-    static DecisionFactory * m_factory = new DecisionFactory(ucrit, acrit, ResourceManager::instance(), false, 0);
+    static DecisionFactory * m_factory = new DecisionFactory(ucrit, acrit, ResourceManager::instance()->mainModel(), false, 0);
     return m_factory;
 }
 
@@ -82,6 +87,7 @@ NW::DecisionFactory::~DecisionFactory()
             b->deleteModelData(m_settings);
         }
     }
+
 
 
 }

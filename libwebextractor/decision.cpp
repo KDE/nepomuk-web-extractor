@@ -25,8 +25,11 @@
 #include <KDebug>
 #include "ndco.h"
 #include "decisiondata.h"
+#include "identsetmanager.h"
+#include "algorithm.h"
 
 namespace NW = Nepomuk::WebExtractor;
+namespace NS = Nepomuk::Sync;
 
 
 
@@ -40,7 +43,7 @@ double Nepomuk::WebExtractor::Decision::rank() const
     return d->rank;
 }
 
-QString  Nepomuk::WebExtractor::Decision::pluginVersion() const
+float  Nepomuk::WebExtractor::Decision::pluginVersion() const
 {
     Q_ASSERT(!d->authorsData.isEmpty());
     return (*(d->authorsData.begin()))->pluginVersion();
@@ -54,25 +57,11 @@ QString  Nepomuk::WebExtractor::Decision::pluginName() const
 
 Nepomuk::WebExtractor::Decision::Decision(
     const DataPP * parent,
-    ResourceManager * manager
+    Soprano::Model * decisionsModel,
+    IdentificationSetManager * identsetManager
 ):
-    d(new Nepomuk::WebExtractor::DecisionData())
+    d(new Nepomuk::WebExtractor::DecisionData(parent, decisionsModel, identsetManager))
 {
-    Q_ASSERT(manager);
-    // If parent == 0 then this is invalid Decision
-    if(parent)
-        d->authorsData.insert(parent);
-
-    d->timeStamp = QTime::currentTime();
-    d->manager = manager;
-    d->model = manager->mainModel();
-    // TODO May be it is necessary to create new context for Decision not after Decision
-    // was created, but after first PropertyGroup was created for this Decision.
-    // This will help to avoid empty Decisions in the model
-    d->contextUrl = manager->generateUniqueUri();
-    //TODO Resources must be created inside the context url
-    d->decisionRes = Nepomuk::Resource(d->contextUrl, NW::Vocabulary::NDCO::Decision(), d->manager);
-    d->setFreeze(false);
 }
 
 Nepomuk::WebExtractor::Decision::Decision(
@@ -84,7 +73,6 @@ Nepomuk::WebExtractor::Decision::Decision(
 
 Nepomuk::WebExtractor::Decision::~Decision()
 {
-    kDebug() << "Decision is destroyed";
 }
 
 Nepomuk::WebExtractor::Decision::Decision(const Decision & rhs)
@@ -150,7 +138,7 @@ Nepomuk::ResourceManager * NW::Decision::manager() const
 
 Soprano::Model * NW::Decision::model() const
 {
-    return d->model;
+    return d->filterModel;
 }
 
 QString NW::Decision::description() const
@@ -164,6 +152,15 @@ void NW::Decision::setDescription(const QString & description)
     d->description = description;
 }
 
+NS::ChangeLog NW::Decision::log() const
+{
+    NS::ChangeLog answer;
+    foreach(const PropertiesGroup & grp, d->data) {
+        answer << grp.log();
+    }
+
+    return answer;
+}
 
 NW::PropertiesGroup NW::Decision::newGroup()
 {
@@ -188,8 +185,32 @@ QSet< NW::PropertiesGroup > NW::Decision::groups() const
     return d->data;
 }
 
+/*
+QList<QUrl> NW::Decision::groupsUrls() const
+{
+    QList<QUrl> answer;
+    foreach( const PropertiesGroup & grp, d->data)
+    {
+    answer << grp.uri();
+    }
+    return answer;
+}
+*/
 
-QUrl NW::Decision::proxyResource(const Nepomuk::Resource & res)
+/*
+void NW::Decision::setCurrentGroup( const PropertiesGroup & group)
+{
+    d->setCurrentGroup(group);
+}
+*/
+
+void NW::Decision::resetCurrentGroup()
+{
+    d->resetCurrentGroup();
+}
+
+
+QUrl NW::Decision::proxyUrl(const Nepomuk::Resource & res)
 {
     // Check that decision is valid
     if(!isValid())
@@ -199,35 +220,77 @@ QUrl NW::Decision::proxyResource(const Nepomuk::Resource & res)
     if(d->isFreezed())
         return QUrl();
 
+    /*
     QMap< QUrl, QUrl>::iterator it = d->resourceProxyUrlMap.find(res.resourceUri());
     if(it != d->resourceProxyUrlMap.end())
         return it.value();
+    */
+    QUrl sourceUrl = res.resourceUri();
 
-    // TODO Copy identifying properties from the source resource to new one
-    QUrl newUrl = d->manager->generateUniqueUri();
+    // Now we should create/obtain a IdentificationSet for original resource
+    // and perform a deep copy of the original resource to the decisions model
+    QHash<QUrl, QUrl>::const_iterator fit =
+        d->resourceProxyMap.find(sourceUrl);
 
-    // Add a hint
-    d->model->addStatement(
-        newUrl,
-        NW::Vocabulary::NDCO::aliasHint(),
-        Soprano::LiteralValue(
+    if(fit == d->resourceProxyMap.end()) { // Resource not found
+
+        IdentificationSetPtr ptr = d->identsetManager->identificationSet(res.resourceUri());
+        if(!ptr)
+            return QUrl();
+        d->resourceProxyISMap.insert(res.resourceUri(), ptr);
+
+        // First disable any current group
+        PropertiesGroup save = d->resetCurrentGroup();
+        // Perform actual copying
+        QUrl newUrl =
+            Nepomuk::deep_resource_copy_adjust(res, d->manager, &(d->resourceProxyMap))->operator[](res.resourceUri());
+        //kDebug() << "Proxy for " << res.resourceUri() << " is: " << newUrl;
+        Q_ASSERT(!newUrl.isEmpty());
+
+        // Restore current group
+        d->setCurrentGroup(save);
+
+        // Add to the list of copied resources
+        d->resourceProxyMap.insert(sourceUrl, newUrl);
+
+
+
+
+
+        // Add a hint
+        Q_ASSERT(d->decisionsModel);
+        /*
+        d->decisionsModel->addStatement(
+            newUrl,
+            NW::Vocabulary::NDCO::aliasHint(),
+            Soprano::LiteralValue(
             res.resourceUri().toString()
-        ),
-        d->contextUrl
-    );
+            ),
+            d->contextUrl
+            */
+        return newUrl;
+    } else {
+        kDebug() << "Resource " << sourceUrl << " has already been copied";
+    }
 
-    // Add to the map
-    d->resourceProxyUrlMap.insert(res.resourceUri(), newUrl);
-
-    // TODO Mark resource as syncable with some properties
-    //
-    return newUrl;
+    QUrl answer = fit.value();
+    Q_ASSERT(!answer.isEmpty());
+    return answer;
 
 }
 
-QMap<QUrl, QUrl> NW::Decision::proxies() const
+Nepomuk::Resource NW::Decision::proxyResource(const Nepomuk::Resource & res)
 {
-    return d->resourceProxyUrlMap;
+    // Call proxyUrl
+    QUrl answer = proxyUrl(res);
+    // Create resoruce and return it.
+    return Nepomuk::Resource(answer, QUrl(), d->manager);
+}
+
+QHash<QUrl, QUrl> NW::Decision::proxies() const
+{
+    return d->resourceProxyMap;
+
 }
 
 /*
@@ -268,6 +331,7 @@ bool NW::Decision::isFreezed() const
 
 void Nepomuk::WebExtractor::Decision::apply() const
 {
+    NS::ChangeLog log = this->log();
     /*
     kDebug() << "Write statements to storage";
     foreach ( const PropertiesGroup & lst, d->data )

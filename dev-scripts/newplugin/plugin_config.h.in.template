@@ -24,7 +24,7 @@
 #define #end raw __webextractor_plugin_config_${lname} 
 
 #raw 
-#define #end raw ${name.upper()}_PLUGIN_VERSION "@${name.upper()}_PLUGIN_VERSION@"
+#define #end raw ${name.upper()}_PLUGIN_VERSION @${name.upper()}_PLUGIN_VERSION@
 
 
 #raw 

@@ -27,62 +27,89 @@
 #include <Nepomuk/Resource>
 #include <Soprano/Model>
 #include "propertiesgroup.h"
+#include "changelogfiltermodel.h"
 #include "datapp.h"
+#include "identsetmanager.h"
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	// TODO Make a normal class from this one
-	// Anyway it is not exported class
-	class Decision;
-	class PropertiesGroup;
-	class DecisionData 
-	{
-	    public:
-		// TODO move rank to upper class because it it modificated frequently
-		double rank;
-		QSet<  PropertiesGroup > data;
-		QSet<const DataPP*>  authorsData;
-		unsigned int hash;
-		QTime timeStamp;
-		//QString pluginName;
-		//QString pluginVersion;
-		// Manager of the model
-		ResourceManager * manager;
-		// This is the model where PropertiesGroups of this Decision store all data. 
-		// It is the  same as manager->mainModel, extracted only for speed
-		Soprano::Model * model;
-		// This may is used  for storing pairs < original resource url, it's
-		// proxy resource url> .
-		QMap<QUrl,QUrl> resourceProxyUrlMap;
-		
-		// This is url of the Decision itself
-		QUrl contextUrl;
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        // TODO Make a normal class from this one
+        // Anyway it is not exported class
+        class Decision;
+        class PropertiesGroup;
+        class DecisionData
+        {
+            public:
+                DecisionData();
+                DecisionData(const DataPP * parent,  Soprano::Model * decisionsModel, IdentificationSetManager * identsetManager);
+                // TODO move rank to upper class because it it modificated frequently
+                double rank;
+                QSet<  PropertiesGroup > data;
+                QSet<const DataPP*>  authorsData;
+                unsigned int hash;
+                QTime timeStamp;
+                //QString pluginName;
+                //QString pluginVersion;
+                // Manager of the filter model
+                ResourceManager * manager;
 
-		// System use Nepomuk::Resource to create instance of the Decision.
-		// Nepomuk::Resource( contextUrl, NDCO::Decision(), some manager )
-		// Here this resource is stored. Currently it is not used after creation
-		// , but may be it will be used later
-		Nepomuk::Resource decisionRes;
+                // This is main Decisions model
+                Soprano::Model * decisionsModel;
 
-		// The human-readable description of the Decision
-		QString description;
+                // This is filtered model. It is used by manager.
+                // The log used in this model is log of current PropertiesGroup
+                // or 0 if there is no current PropertiesGroup
+                Sync::ChangeLogFilterModel * filterModel;
 
-		/*! \brief Return true if DecisionData is freezed
-		 */
-		bool isFreezed() const;
+                // This may is used  for storing pairs < original resource url, it's
+                // copy url> .
+                QHash<QUrl, QUrl> resourceProxyMap;
 
-		friend class Decision;
-		friend class PropertiesGroup;
+                // This is class where all IdentificationSets for all created
+                // proxy resources are stored
+                IdentificationSetManager * identsetManager;
+                // This is our storage for all IdentificationSets for all our
+                // proxied resources
+                QHash< QUrl, IdentificationSetPtr > resourceProxyISMap;
 
-		~DecisionData();
-	    private:
-		// Create and register new properties group context
-		QUrl createPropertiesGroupUrl();
-		// Freeze flag. After decision is freezed, it can not be modificated
-		// untill unfreezed.
-		bool m_freeze;
-		void setFreeze(bool val);
-	};
+                // This is url of the Decision itself
+                QUrl contextUrl;
+
+                // System use Nepomuk::Resource to create instance of the Decision.
+                // Nepomuk::Resource( contextUrl, NDCO::Decision(), some manager )
+                // Here this resource is stored. Currently it is not used after creation
+                // , but may be it will be used later
+                Nepomuk::Resource decisionRes;
+
+                // The human-readable description of the Decision
+                QString description;
+
+
+                // Current group. Invalid if there is no current group
+                PropertiesGroup m_currentGroup;
+
+                /*! \brief Return true if DecisionData is freezed
+                 */
+                bool isFreezed() const;
+
+                friend class Decision;
+                friend class PropertiesGroup;
+
+                ~DecisionData();
+            private:
+                PropertiesGroup setCurrentGroup(const PropertiesGroup &);
+                PropertiesGroup resetCurrentGroup();
+                PropertiesGroup currentGroup() const;
+                // Create and register new properties group context
+                //QUrl createPropertiesGroupUrl();
+                //void registerGroup( PropertiesGroup * ptr);
+                // Freeze flag. After decision is freezed, it can not be modificated
+                // untill unfreezed.
+                bool m_freeze;
+                void setFreeze(bool val);
+        };
     }
 }
 #endif

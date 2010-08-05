@@ -23,6 +23,9 @@
 #raw 
 #include #end raw "${name.lower()}plugin_config.h"
 
+#raw 
+#include #end raw  "${name.lower()}datapp.h"
+
 #raw
 #include <KPluginFactory>
 #include <KDebug>
@@ -38,16 +41,15 @@ Nepomuk::${classname}::${classname}(QObject* parent, const QList<QVariant>&):
     ;
 }
 
-QString Nepomuk::${classname}::version()
+float Nepomuk::${classname}::version()
 {
-    static QString v = QString(${name.upper()}_PLUGIN_VERSION);
-    return v;
+    return (${name.upper()}_PLUGIN_VERSION);
 }
 
 Nepomuk::WebExtractor::DataPP * Nepomuk::${classname}::getDataPP(KSharedConfigPtr configFile)
 {
     kError() << "ATTENTION! Reimplement this! ";
-    return 0;
+    return new ${name}DataPP(version()/* add your parameters here */);
 }
 
 

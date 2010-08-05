@@ -7,7 +7,7 @@
 
 namespace NW = Nepomuk::WebExtractor;
 
-NW::SimpleNetworkDataPP::SimpleNetworkDataPP(const QString & dataPPVersion, const QString & serverName, const QString & endpointUrl):
+NW::SimpleNetworkDataPP::SimpleNetworkDataPP(float dataPPVersion, const QString & serverName, const QString & endpointUrl):
     DataPP(dataPPVersion),
     m_timeout(true),
     m_factory(0),
@@ -17,7 +17,7 @@ NW::SimpleNetworkDataPP::SimpleNetworkDataPP(const QString & dataPPVersion, cons
     __init();
 }
 
-NW::SimpleNetworkDataPP::SimpleNetworkDataPP(const QString & dataPPVersion, const QString & endpointUrl, SimpleReplyFactory * factory):
+NW::SimpleNetworkDataPP::SimpleNetworkDataPP(float dataPPVersion, const QString & endpointUrl, SimpleReplyFactory * factory):
     DataPP(dataPPVersion),
     m_timeout(true),
     m_factory(factory),

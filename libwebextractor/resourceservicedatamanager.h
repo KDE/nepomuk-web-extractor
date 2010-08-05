@@ -22,6 +22,7 @@
 
 #include <Nepomuk/Resource>
 #include "servicedatabackendfactory.h"
+#include "webextractor_export.h"
 #include <QSharedDataPointer>
 #include <QUrl>
 
@@ -29,7 +30,7 @@ namespace Nepomuk
 {
     namespace WebExtractor
     {
-        class ResourceServiceDataManager
+        class WEBEXTRACTOR_EXPORT ResourceServiceDataManager
         {
             public:
                 ResourceServiceDataManager(ServiceDataBackendFactory * backend  = 0);
@@ -39,6 +40,7 @@ namespace Nepomuk
                 static ResourceServiceDataManager * instance();
                 void setOverrideBackend(ServiceDataBackendFactory * backendFactory);
                 ServiceDataBackend * resourceData(const QUrl &);
+                Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, float> & assignedDataPP);
             private:
                 class Private;
                 QSharedDataPointer<Private> d;

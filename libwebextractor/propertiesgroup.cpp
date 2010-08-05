@@ -4,13 +4,17 @@
 #include <QtCore/QSet>
 #include <QtCore/QSharedData>
 #include "decisiondata.h"
+#include "nepomuk/changelog.h"
+#include "changelogfiltermodel.h"
 
 
 namespace NW = Nepomuk::WebExtractor;
+namespace NS = Nepomuk::Sync;
 
 class NW::PropertiesGroup::Private : public QSharedData
 {
     public:
+        ~Private();
         QSet< Soprano::Statement > statements;
         //Decision * parent;
         //const Soprano::Node mainTarget;
@@ -20,19 +24,30 @@ class NW::PropertiesGroup::Private : public QSharedData
         mainTarget(mainTarget)
         {;}
         */
-        // Manager of the model
-        //ResourceManager * manager;
         // This is the model where PropertiesGroup store all data. It is the
-        // same as parent->model, extracted only for speed
-        Soprano::Model * model;
+        // decisions model, wrapped into logging filter model
+        Soprano::Model * filterModel;
+        // Manager of the filter model
+        ResourceManager * manager;
         // This is the url of the context where properties group store all statements
-        QUrl url;
+        //QUrl url;
         // Pointer to parent
         NW::DecisionData*  parent;
 
         // Human readble description
         QString description;
+
+        // ChangeLog. All changes are written here
+        NS::ChangeLog log;
+
 };
+
+NW::PropertiesGroup::Private::~Private()
+{
+    delete filterModel;
+    if(manager)
+        manager->deleteInstance();
+}
 
 NW::PropertiesGroup::PropertiesGroup(/*QUrl mainResourceUrl, ResourceManager * manager*/ DecisionData * parent)
 {
@@ -48,8 +63,20 @@ NW::PropertiesGroup::PropertiesGroup(/*QUrl mainResourceUrl, ResourceManager * m
     //d->parent = parent;
     //d->mainTarget = ;
     d->parent = parent;
-    d->model = parent->model;
+    // By default filter model will be set to 0. When first time a manager function
+    // will be accessed, this member will be initialized
+    //d->filterModel = new ChangeLogFilterModel(parent->model);
+    d->filterModel = 0;
+    d->manager = 0;
 
+}
+
+NW::PropertiesGroup::PropertiesGroup()
+{
+    this->d = QSharedPointer<Private>(new NW::PropertiesGroup::Private());
+    d->parent = 0;
+    d->filterModel = 0;
+    d->manager = 0;
 }
 
 NW::PropertiesGroup::~PropertiesGroup()
@@ -57,14 +84,21 @@ NW::PropertiesGroup::~PropertiesGroup()
     ;
 }
 
-void NW::PropertiesGroup::createContext()
+/*
+void NW::PropertiesGroup::setUrl( const QUrl & url)
+{
+    this->d->url = url;
+}
+
+void NW::PropertiesGroup::registerGroup()
 {
     if(this->d->url.isEmpty()) {
         // Register
-        this->d->url = this->d->parent->createPropertiesGroupUrl();
+        this->d->parent->registerGroup(this);
     }
 }
-
+*/
+/*
 void NW::PropertiesGroup::addStatement(Soprano::Statement  st)
 {
     if(!d->parent) {  // PropertiesGroup is invalid
@@ -77,7 +111,7 @@ void NW::PropertiesGroup::addStatement(Soprano::Statement  st)
         return;
     }
 
-    createContext();
+    registerGroup();
     if(d->url.isEmpty()) {
         kDebug() << "Failed to init PropertiesGroup";
         return;
@@ -93,6 +127,7 @@ void NW::PropertiesGroup::addStatement(Soprano::Statement  st)
     st.setContext(d->url);
     d->model->addStatement(st);
 }
+*/
 
 /*
 QSet< Soprano::Statement > NW::PropertiesGroup::data() const
@@ -125,14 +160,45 @@ void NW::PropertiesGroup::setRank(double newRank)
 
 }
 
+/*
 QUrl NW::PropertiesGroup::uri() const
 {
     return d->url;
 }
+*/
 
-const Nepomuk::ResourceManager * NW::PropertiesGroup::manager() const
+Nepomuk::ResourceManager * NW::PropertiesGroup::manager()
 {
-    return d->parent->manager;
+    if(!d->parent)
+        return 0;
+
+    if(d->parent->isFreezed()) {  // Any changes to this Decision is now forbiden
+        kDebug() << "PropertiesGroup is freezed";
+        return 0;
+    }
+
+    if(!d->filterModel) {
+        // This is first call. Create  a manager and a filter model
+        initFilterModelManager();
+    }
+    return d->manager;
+}
+
+Soprano::Model * NW::PropertiesGroup::model()
+{
+    if(!d->parent)
+        return 0;
+
+    if(d->parent->isFreezed()) {  // Any changes to this Decision is now forbiden
+        kDebug() << "PropertiesGroup is freezed";
+        return 0;
+    }
+
+    if(!d->filterModel) {
+        // This is first call. Create  a manager and a filter model
+        initFilterModelManager();
+    }
+    return d->filterModel;
 }
 
 bool NW::PropertiesGroup::isValid() const
@@ -150,6 +216,41 @@ void NW::PropertiesGroup::setDescription(const QString & description)
     d->description = description;
 }
 
+NS::ChangeLog NW::PropertiesGroup::log() const
+{
+    return d->log;
+}
+
+
+void NW::PropertiesGroup::makeCurrent()
+{
+    // Return if we are invalid
+    if(!d->parent)
+        return;
+
+    //registerGroup();
+
+    d->parent->setCurrentGroup(*this);
+}
+
+void NW::PropertiesGroup::resetCurrent()
+{
+    if(!d->parent)
+        return;
+
+    d->parent->resetCurrentGroup();
+}
+
+Nepomuk::Sync::ChangeLog * NW::PropertiesGroup::logPtr() const
+{
+    return &(d->log);
+}
+
+void NW::PropertiesGroup::initFilterModelManager()
+{
+    d->filterModel = new NS::ChangeLogFilterModel(&d->log, d->parent->decisionsModel);
+    d->manager = ResourceManager::createManagerForModel(d->filterModel);
+}
 /*
 QUrl NW::PropertiesGroup::mainProxyResourceUrl()
 {
@@ -191,7 +292,11 @@ bool NW::PropertiesGroup::operator!=(const PropertiesGroup & rhs) const
 
 NW::PropertiesGroup & NW::operator<<(NW::PropertiesGroup & grp, const Soprano::Statement & st)
 {
-    grp.addStatement(st);
+
+    if(!grp.model())
+        return grp;
+
+    grp.model()->addStatement(st);
     return grp;
 }
 

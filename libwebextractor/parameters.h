@@ -29,6 +29,7 @@
 #include <Soprano/Backend>
 #include <Soprano/Global>
 #include <Nepomuk/ResourceManager>
+#include "resourceservicedatamanager.h"
 #include <Soprano/BackendSettings>
 
 
@@ -92,14 +93,26 @@ namespace Nepomuk
                 void setForceModelStorageDir();
                 */
                 /*! \brief Instead of creating new model for each ResourceAnalyzer, the shared model for all of them can be used.
-                 * To do this, you should provide a ResourceManager. In this case,
+                 * To do this, you should provide a Model for Decisions. In this case,
                  * the backendSettings(), backendName(), autoDeleteModelData() parameters
                  *  will be ignored.  The web extractor system will not take ownership
                  *  on the given manager and will not delete or change it in any way.
                  *  If you want to disable this setting, then pass Null as manager
                  */
-                ResourceManager * manager() const;
-                void setResourceManager(ResourceManager * manager);
+                Soprano::Model * decisionsModel() const;
+                void setDecisionsModel(Soprano::Model * decisionsModel);
+
+                /*! \brief Set resource service data manager
+                 * ResourceServiceData is responsible for storing information about examined DataPP
+                 * for resource
+                 */
+                ResourceServiceDataManager * resourceServiceDataManager() const;
+                /*! \brief Set resource service data manager.
+                 * \param manager New manager or 0 to reset to default one
+                 */
+                void setResourceServiceDataManager(ResourceServiceDataManager * manager);
+
+                QMap<QString, float> dataPPInfo() const;
 
                 friend QDebug operator<<(QDebug dbg,  const ExtractParameters & cat);
 

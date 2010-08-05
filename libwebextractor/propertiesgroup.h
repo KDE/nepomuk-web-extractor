@@ -27,8 +27,14 @@
 #include <Nepomuk/ResourceManager>
 #include "webextractor_export.h"
 
+
 namespace Nepomuk
 {
+    namespace Sync
+    {
+        class ChangeLog;
+    }
+
     namespace WebExtractor
     {
         class Decision;
@@ -47,7 +53,7 @@ namespace Nepomuk
                 const PropertiesGroup & operator=(const PropertiesGroup &);
                 /*! \brief add statements to
                  */
-                void addStatement(Soprano::Statement);
+                //void addStatement(Soprano::Statement);
 
                 //void addStatement(const Soprano::Node & predicate, const Soprano::Node & second, bool subject = true );
 
@@ -79,7 +85,26 @@ namespace Nepomuk
                 //Nepomuk::Resource proxyResource( const Nepomuk::Resource & );
                 QUrl proxyResource(const Nepomuk::Resource &);
 
-                const ResourceManager * manager() const;
+                /*! Return ResourceManager over main Decisions model.
+                 * All changes that will be done with this ResourceManager will
+                 * be added to this PropertiesGroup
+                 * \return Manager for the PropertiesGroup, 0 if PropertiesGroup is
+                 * invalid or Decisions is already freezed.
+                 */
+                ResourceManager * manager() ;
+                Soprano::Model * model() ;
+
+                /*! \brief Make this PropertiesGroup current.
+                 * All changes that will be done after that call and befor another
+                 * PropertiesGroup will become current with decision's ResourceManager
+                 * will be added to this PropertiesGroup
+                 */
+                void makeCurrent();
+                /*! \brief This function will reset current group.
+                 * This method will reset current group even if current group is not
+                 * this one.
+                 */
+                void resetCurrent();
 
                 QString description() const;
                 void setDescription(const QString &);
@@ -90,7 +115,11 @@ namespace Nepomuk
                  * If some error occured and group failed to create, then
                  * empty url will be returned too.
                  */
-                QUrl uri() const;
+
+                /*! \brief This function will return log of all changes in this PropertiesGroup
+                 */
+                Sync::ChangeLog log() const;
+                //QUrl uri() const;
                 /*! \brief Return true if this PropertiesGroup is valid
                  * The PropertiesGroup is valid if it was created within Decision.
                  * PropertiesGroup created with default constructor are invalid.
@@ -107,14 +136,23 @@ namespace Nepomuk
                 friend unsigned int qHash(const PropertiesGroup &);
             protected:
                 PropertiesGroup(DecisionData *);
+                PropertiesGroup();
                 class Private;
                 //QSharedDataPointer<Private> d;
                 QSharedPointer<Private> d;
             private:
+                // Return pointer to internal log
+                Nepomuk::Sync::ChangeLog * logPtr() const;
                 // This method should be called from any method that edits data.
                 // When it is called first time, it will create url of the PropertiesGroup
                 // and register it in the decision
-                void inline createContext();
+                void inline registerGroup();
+
+                void initFilterModelManager();
+
+                // This is service method. It set url of the PropertiesGroup. It doesn't
+                // do any checks.
+                //void setUrl( const QUrl & url);
         };
         PropertiesGroup & operator<<(PropertiesGroup &, const Soprano::Statement &);
     }

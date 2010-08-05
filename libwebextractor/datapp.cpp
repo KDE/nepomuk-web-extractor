@@ -39,7 +39,7 @@ namespace NW = Nepomuk::WebExtractor;
 class Nepomuk::WebExtractor::DataPP::Private
 {
     public:
-        QString m_version;
+        float m_version;
         QString m_name;
 };
 Nepomuk::WebExtractor::DataPP::~DataPP()
@@ -47,7 +47,7 @@ Nepomuk::WebExtractor::DataPP::~DataPP()
     ;
 }
 
-Nepomuk::WebExtractor::DataPP::DataPP(const QString & pluginVersion)
+Nepomuk::WebExtractor::DataPP::DataPP(float  pluginVersion)
 {
     d = new Private();
     d->m_version = pluginVersion;
@@ -62,7 +62,7 @@ QString Nepomuk::WebExtractor::DataPP::pluginName() const
     return d->m_name;
 }
 
-QString Nepomuk::WebExtractor::DataPP::pluginVersion() const
+float Nepomuk::WebExtractor::DataPP::pluginVersion() const
 {
     return d->m_version;
 }
