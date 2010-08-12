@@ -41,7 +41,7 @@ def prepare():
 			print "Can not remove output directory %s. Remove it yourself and relaunch script" % ( output_dir, )
 			exit()
 	else :
-		print "%s doesn't exist. Creating it"
+        print "%s doesn't exist. Creating it" % output_dir
 		os.mkdir(output_dir)
 
 
