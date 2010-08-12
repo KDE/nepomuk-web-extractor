@@ -156,8 +156,8 @@ else:
 		print "You must specify at least name (--name ) or call a gui ( --gui )"
 		exit()
 
-	namespace['mail'] = options.author 
-	namespace['author'] = options.mail
+	namespace['mail'] = options.mail
+	namespace['author'] = options.author
 	gui_enabled = options.git_enabled
 	namespace['use_simple'] = options.use_simple
 	namespace['version'] = options.version
