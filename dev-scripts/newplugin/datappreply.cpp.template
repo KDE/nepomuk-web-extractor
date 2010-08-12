@@ -45,7 +45,6 @@ Nepomuk::${classname}::${classname}(${name}DataPP * parent, const WebExtractor::
     DataPPReply((Nepomuk::WebExtractor::DataPP*)(parent))
 #end if
 {
-
 }
 
 bool Nepomuk::${classname}::isValid() const

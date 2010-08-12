@@ -38,7 +38,6 @@ K_EXPORT_PLUGIN(${name}PluginFactory("webex${name.lower()}plugin"))
 Nepomuk::${classname}::${classname}(QObject* parent, const QList<QVariant>&):
     WebExtractorPlugin(parent)
 {
-    ;
 }
 
 float Nepomuk::${classname}::version()

@@ -44,9 +44,9 @@ namespace Nepomuk  {
     class $classname : public WebExtractor::DataPPReply
 #end if
     {
-	Q_OBJECT;
-	public:
-	    ${classname}(${name}DataPP * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res );
+    Q_OBJECT
+    public:
+        ${classname}(${name}DataPP * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res );
                 virtual void abort() ;
                 virtual bool isValid() const ;
 #if not $use_simple

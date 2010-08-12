@@ -17,13 +17,13 @@ find_package(Nepomuk REQUIRED)
 #raw
 # check for required packages
 if(WEBEXTRACTOR_VERSION_STRING)
-	# if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-	set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-		../libwebextractor/include
-		${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
-	set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
+    # if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
+    set(LIBWEBEXTRACTOR_INCLUDE_DIRS
+        ../libwebextractor/include
+        ${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
+    set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
 else(WEBEXTRACTOR_VERSION_STRING)
-	find_package(LibWebextractor REQUIRED)
+    find_package(LibWebextractor REQUIRED)
 endif(WEBEXTRACTOR_VERSION_STRING)
 
 

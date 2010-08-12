@@ -33,14 +33,12 @@ namespace Nepomuk {
     class ${name}Reply;
     class $classname : public WebExtractor::DataPP 
     {
-	Q_OBJECT;
-	public:
-	    WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
-	    ${classname}(
-			float pluginVersion
-		    );
-	    ~${classname}();
-	    friend class ${name}Reply;
+    Q_OBJECT
+    public:
+        WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
+        ${classname}( float pluginVersion );
+        ~${classname}();
+        friend class ${name}Reply;
     };
 }
 

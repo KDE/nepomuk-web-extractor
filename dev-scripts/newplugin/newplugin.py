@@ -33,7 +33,7 @@ def prepare():
 			exit()
 
 		try :
-			print "Removind directory and recreating it"
+			print "Removing directory and recreating it"
 			subprocess.call(['rm', '-rf' , "./"+output_dir])
 			#os.rmdir(output_dir)
 			os.mkdir(output_dir)

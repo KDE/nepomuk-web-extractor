@@ -32,10 +32,8 @@
 #include #end raw "${lname}datappreply.h"
 
 
-Nepomuk::${classname}::${classname}(
-			float pluginVersion
-		    ):
-    DataPP(pluginVersion)
+Nepomuk::${classname}::${classname}( float pluginVersion )
+    : DataPP(pluginVersion)
 {
 }
 
@@ -50,5 +48,5 @@ Nepomuk::WebExtractor::DataPPReply * Nepomuk::${classname}::requestDecisions(con
 } 
 
 Nepomuk::${classname}::~${classname}()
-{;}
-
+{
+}
