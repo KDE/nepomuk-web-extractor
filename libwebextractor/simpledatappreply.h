@@ -37,16 +37,28 @@ namespace Nepomuk
                 SimpleDataPPReply(DataPP * parent, const  DecisionFactory * factory, const Nepomuk::Resource & res);
                 Decision newDecision();
                 DecisionList newDecisionList();
+                void addDecision(const Decision &);
+                void addDecision(const Decision & , MergePolitics politics, double coff = 1, bool noAuto = false);
                 virtual DecisionList decisions() const;
                 const Nepomuk::Resource & resource();
-                DecisionList & mainDecisionList();
+                //DecisionList & mainDecisionList();
                 virtual ~SimpleDataPPReply() {
                     ;
                 }
                 void setError(DataPPReplyError errorCode);
                 virtual DataPPReplyError error() const;
             public Q_SLOTS:
+                /*! \brief Will finish DataPP
+                 * This function correctly handle situations when it is called from
+                 * constructor of the DataPPReply.
+                 * It will call realFinish() internaly
+                 */
                 void finish();
+            protected Q_SLOTS:
+                /*! \brief This function perform actual finishing.
+                 * This function \b must be called from Qt event loop!
+                 */
+                void realFinish();
             protected:
                 SimpleDataPPReply(DataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource & res , SimpleDataPPReplyPrivate & p);
             private:

@@ -2,6 +2,8 @@
 #include "datapppool.h"
 #include <KDebug>
 #include <QUrl>
+#include <QBrush>
+#include <QColor>
 #include <KMessageBox>
 #include <KStandardDirs>
 #include <Nepomuk/Resource>
@@ -18,6 +20,7 @@
 #include "debug_datapp.h"
 #include "resourceanalyzerfactory.h"
 #include "resourceservicedata.h"
+#include "decisionapplicationrequest.h"
 #include <querybuildersearchwidget.h>
 #include <stdint.h>
 #include <changelog.h>
@@ -57,6 +60,7 @@ ConsoleMainWindow::ConsoleMainWindow(
 
     //connect(this->resWidget, SIGNAL(currentChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)),
     //      this, SLOT(onCurrentResourceChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)));
+    this->resWidget->setQuery(Nepomuk::Query::Query());
     connect(this->resWidget, SIGNAL(selectionChanged()),
             this, SLOT(onCurrentResourceChanged()));
 
@@ -76,6 +80,8 @@ ConsoleMainWindow::ConsoleMainWindow(
 
     // Set Decisions widget
     connect(this->decisionListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(onCurrentDecisionChanged(QListWidgetItem*, QListWidgetItem*)));
+    connect(this->applyDecisionButton, SIGNAL(clicked()), this, SLOT(onApplyDecision()));
+    connect(this->identifyDecisionButton, SIGNAL(clicked()), this, SLOT(onIdentifyDecision()));
 
     // Set service info widget
     this->serviceInfoTableWidget->setColumnCount(2);
@@ -132,7 +138,7 @@ void ConsoleMainWindow::startExtracting()
 
     // Now create a list of parameters
     NW::ExtractParameters * p = new Nepomuk::WebExtractor::ExtractParameters();
-    p->setACrit(Nepomuk::WebExtractor::WE::maxACrit());
+    p->setACrit(Nepomuk::WebExtractor::maxACrit());
     p->setUCrit(this->thresholdNumInput->value());
 
     // Add DataPP
@@ -230,6 +236,12 @@ void ConsoleMainWindow::startExtracting()
 
 void ConsoleMainWindow::cleanAfterAnalyzing()
 {
+
+    // Remove all requests
+    foreach(NW::DecisionApplicationRequest * req, this->m_requestsHash) {
+        delete req;
+    }
+    this->m_requestsHash.clear();
 
     // First remove model data
     delete m_currentAnalyzer;
@@ -417,6 +429,11 @@ void ConsoleMainWindow::updateDecisionsInfo()
     this->decisionListWidget->clear();
     this->m_decisionMap.clear();
 
+    foreach(NW::DecisionApplicationRequest * req, this->m_requestsHash) {
+        delete req;
+    }
+    this->m_requestsHash.clear();
+
     // If there is no analyzer, then return
     if(!m_currentAnalyzer) {
         kDebug() << "No curret analyzer";
@@ -437,6 +454,68 @@ void ConsoleMainWindow::updateDecisionsInfo()
     }
 }
 
+void ConsoleMainWindow::updateIdentificationInfo()
+{
+    NW::Decision dec = this->decisionWidget->decision();
+    this->identificationTableWidget->clear();
+
+    if(!dec.isValid())
+        return;
+
+    // Search for request
+    QHash<QUrl, NW::DecisionApplicationRequest*>::const_iterator fit =
+        this->m_requestsHash.find(dec.uri());
+
+    NW::DecisionApplicationRequest * req = 0;
+    if(fit != this->m_requestsHash.end()) {
+        req = fit.value();
+        QHash<QUrl, QUrl> mcp = req->mappings(); // mcp = Mappincg CoPy
+        kDebug() << "Mappings: " << req->mappings();
+        QSet<QUrl> uncp = req->unidentified(); // uncp = UNidentified CoPy
+        kDebug() << "Unidentified: " << uncp;
+        QSet<QUrl> mainResources = req->mainResources();
+
+        identificationTableWidget->setRowCount(mcp.size() + uncp.size());
+
+        Q_ASSERT(req);
+        int currentRow = 0;
+        QSet<QUrl>::const_iterator uit = uncp.begin();
+        QSet<QUrl>::const_iterator uit_end = uncp.end();
+        for(; uit != uit_end; uit++) {
+            QTableWidgetItem * item = new QTableWidgetItem(uit->toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            QColor color = QColor(255, 0, 0);
+            if(!mainResources.contains(*uit)) {
+                // Addjust color to make it more lighter
+                color = color.lighter();
+            }
+
+            item->setBackground(QBrush(color));
+            identificationTableWidget->setItem(currentRow, 0, item);
+            currentRow++;
+        }
+
+        QHash<QUrl, QUrl>::const_iterator it = mcp.begin();
+        QHash<QUrl, QUrl>::const_iterator it_end = mcp.end();
+        for(; it != it_end; it++) {
+            kDebug() << it.key() << ":" << it.value();
+            QTableWidgetItem * item = new QTableWidgetItem(it.key().toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(0, 255, 0)));
+            identificationTableWidget->setItem(currentRow, 0, item);
+
+            item = new QTableWidgetItem(it.value().toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(0, 255, 0)));
+            identificationTableWidget->setItem(currentRow, 1, item);
+
+
+            currentRow++;
+        }
+
+    }
+    return;
+}
 
 void ConsoleMainWindow::onMarkedExamined(const QString & name, float version)
 {
@@ -542,6 +621,70 @@ void ConsoleMainWindow::onClearAllExamined()
     }
 }
 
+void ConsoleMainWindow::onIdentifyDecision()
+{
+    NW::Decision des = this->decisionWidget->decision();
+
+    // check that there is no application request  already
+    QHash<QUrl, NW::DecisionApplicationRequest*>::const_iterator fit =
+        this->m_requestsHash.find(des.uri());
+
+    NW::DecisionApplicationRequest * req = 0;
+    if(fit != this->m_requestsHash.end()) {
+        req = fit.value();
+    } else {
+        req = des.applicationRequest(Nepomuk::ResourceManager::instance()->mainModel());
+        if(req)  // In case decision was invalid
+
+            this->m_requestsHash.insert(des.uri(), req);
+        else
+            return;
+    }
+
+    Q_ASSERT(req);
+
+    req->identify();
+    updateIdentificationInfo();
+}
+
+void ConsoleMainWindow::onApplyDecision()
+{
+    NW::Decision des = this->decisionWidget->decision();
+
+    // check that there is no application request  already
+    QHash<QUrl, NW::DecisionApplicationRequest*>::const_iterator fit =
+        this->m_requestsHash.find(des.uri());
+
+    NW::DecisionApplicationRequest * req = 0;
+    if(fit != this->m_requestsHash.end()) {
+        req = fit.value();
+    } else {
+        req = des.applicationRequest();
+        if(req)  // In case decision was invalid
+
+            this->m_requestsHash.insert(des.uri(), req);
+        else
+            return;
+    }
+
+    Q_ASSERT(req);
+
+    /*
+    NS::IdentificationRequest * req = des.identificationRequest();
+
+    identReq->load();
+    identReq->identifyAll();
+
+    if (!identReq->done())
+    return false;
+
+    */
+    if(!req->apply())
+        KMessageBox::sorry(this, "Applying Decision failed");
+
+    updateIdentificationInfo();
+}
+
 void ConsoleMainWindow::onCurrentDecisionChanged(QListWidgetItem * current, QListWidgetItem * previous)
 {
     if(!current)
@@ -563,6 +706,7 @@ void ConsoleMainWindow::onCurrentDecisionChanged(QListWidgetItem * current, QLis
 
     this->decisionWidget->setDecision(des);
 
+    updateIdentificationInfo();
 #if 0
     // Display decision
     // Display description

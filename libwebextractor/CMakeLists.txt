@@ -12,6 +12,7 @@ find_package(Nepomuk REQUIRED)
 include(KDE4Defaults)
 include(MacroLibrary)
 
+
 set(WEBEXTRACTOR_VERSION_MAJOR 0 CACHE INT "Major WebExtractor version number" FORCE)
 set(WEBEXTRACTOR_VERSION_MINOR 0 CACHE INT "Minor WebExtractor version number" FORCE)
 set(WEBEXTRACTOR_VERSION_PATCH 1 CACHE INT "Release WebExtractor version number" FORCE)
@@ -24,18 +25,20 @@ set (LIB_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}" CACHE STRING "Li
 
 configure_file(LibWebextractorConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/LibWebextractorConfig.cmake @ONLY )
 
+#build dependencies
+add_subdirectory(ontologyloader)
+
 include_directories(
   ${SOPRANO_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor
+  ${ontologyloader_SOURCE_DIR}
+  #  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  #${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor
   ${CMAKE_CURRENT_BINARY_DIR}
   ${NEPOMUK_INCLUDE_DIR}
-  ${CMAKE_BUILD_DIR}
   ${KDE4_INCLUDES}
   )
-
 
 
 add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
@@ -46,6 +49,7 @@ set( webextractor_SRCS
     decisiondata.cpp
     decisionfactory.cpp
     decisionlist.cpp
+    decisionapplicationrequest.cpp
     datappreply.cpp
     datapp.cpp
     debug_datapp.cpp
@@ -63,13 +67,25 @@ set( webextractor_SRCS
     nepomukservicedatabackend.cpp
     servicedatabackend.cpp
     identsetmanager.cpp
+    # Graph  part
+    modelgraph.cpp
     algorithm.cpp
+    graphalgorithm.cpp
+    copyvisitor.cpp
+    visitednodefilter.cpp
+    dotvisitor.cpp
+    nodefilterinterface.cpp
+    selectedpropertiesfunc.cpp
+    visitednodefilter.cpp
+    resourcenodefilter.cpp
+    plaintextvisitor.cpp
     )
 
 set ( webextractor_MOC    
     resourceanalyzerfactory.h 
     resourceanalyzer.h
     datappreply.h
+    decisionapplicationrequest.h
     datapp.h
     debug_datapp.h
     simplenetworkdatapp.h
@@ -79,6 +95,13 @@ set ( webextractor_MOC
     simplenetworkrequest.h
     nepomukservicedatabackend.h
     servicedatabackend.h
+    # Graph part
+    visitednodefilter.h
+    resourcenodefilter.h
+    selectedpropertiesfunc.h
+    childqueryinterface.h
+    resourcenodefilter.h
+    nodefilterinterface.h
     )
 
 QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )
@@ -100,7 +123,6 @@ set_target_properties(webextractor PROPERTIES
 	DEFINE_SYMBOL MAKE_WEBEXTRACTOR_LIB
 )
 
-#message(STATUS "(NOT) Found Qt network library ${QT_LIBRARIES} ")
 
 target_link_libraries( webextractor 
   ${NEPOMUK_LIBRARIES}
@@ -110,6 +132,7 @@ target_link_libraries( webextractor
   ${QT_QTNETWORK_LIBRARY}
   ${QT_QTCORE_LIBRARY}
   nepomuksync
+  ontologyloader
   )
 
 install(TARGETS webextractor
@@ -135,6 +158,7 @@ set (WEBEXTRACTOR_HEADERS
     decisionfactorybase.h
     decisionfactory.h
     decision.h
+    decisionapplicationrequest.h
     decisionlist.h
     decisiondata.h
     global.h
@@ -158,6 +182,19 @@ set (WEBEXTRACTOR_HEADERS
     algorithm.h
     modelgraphvisitor.h
     ${CMAKE_CURRENT_BINARY_DIR}/ndco.h
+    # Graph  part
+    algorithm.h
+    graphalgorithm.h
+    copyvisitor.h
+    childqueryinterface.h
+    visitednodefilter.h
+    nodefilterinterface.h
+    resourcenodefilter.h
+    dotvisitor.h
+    modelgraphvisitor.h
+    modelgraph.h
+    selectedpropertiesfunc.h
+    plaintextvisitor.h
     ) 
 #set ( WEBEXTRACTOR_HEADERS 
 #    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 

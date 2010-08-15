@@ -28,6 +28,8 @@
 
 namespace Nepomuk
 {
+    class OntologyLoader;
+
     namespace WebExtractor
     {
         class WEBEXTRACTOR_EXPORT ResourceAnalyzerFactory: public QObject
@@ -72,12 +74,13 @@ namespace Nepomuk
                 Soprano::BackendSettings backendSettings() const;
             private:
                 DataPPKeeper  m_dataPPKeeper;
-                WE::LaunchPolitics m_launchPolitics;
-                WE::MergePolitics m_mergePolitics;
+                LaunchPolitics m_launchPolitics;
+                MergePolitics m_mergePolitics;
                 unsigned int m_step;
                 double m_acrit;
                 double m_ucrit;
                 bool m_autoDeleteModelData;
+                bool m_autoManageOntologies;
 
                 /*! \brief The backend that support in-memory models and will be used for storing decisions
                  * Currently it is redland, but in future releases I will add some
@@ -101,6 +104,7 @@ namespace Nepomuk
                 // only if extractParams->manager() was non-null.
                 // ResourceManager * decisionsResourceManager;
                 Soprano::Model * decisionsMainModel;
+                OntologyLoader * decisionsMainModelOntologyLoader;
                 const Soprano::Backend * m_backend;
                 Soprano::BackendSettings m_backendSettings;
         };

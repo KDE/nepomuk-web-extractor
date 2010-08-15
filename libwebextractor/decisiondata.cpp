@@ -27,7 +27,8 @@ namespace NS = Nepomuk::Sync;
 NW::DecisionData::DecisionData():
     manager(0),
     decisionsModel(0),
-    filterModel(0)
+    filterModel(0),
+    identsetManager(0)
 {
 }
 
@@ -47,7 +48,7 @@ NW::DecisionData::DecisionData(
     // Store original model
     this->decisionsModel = decisionsModel;
     // Create filter model
-    this->filterModel = new NS::ChangeLogFilterModel(0, decisionsModel);
+    this->filterModel = new NS::ChangeLogFilterModel(0, decisionsModel, QSet<QUrl>(), NS::ChangeLogFilterModel::Decline);
 
     // Create manager over it
     this->manager = ResourceManager::createManagerForModel(filterModel);

@@ -94,13 +94,13 @@ Nepomuk::AutotagReply::AutotagReply(AutotagDataPP * parent, const WebExtractor::
         static QString descriptionTemplate = QString("Assign tag %1 to the resource %2");
         d.setDescription(descriptionTemplate.arg(tagName, proxyResUrl.toString()));
         // Add Decision to the main list
-        mainDecisionList().addDecision(d);
+        addDecision(d);
 
     } else {
         kDebug() << "File name doesn't match parameter";
     }
     // Finish
-    QTimer::singleShot(0, this, SLOT(finish()));
+    finish();
 
     // Thats all
 }

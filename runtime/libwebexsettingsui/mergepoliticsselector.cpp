@@ -22,13 +22,13 @@
 MergePoliticsSelector::MergePoliticsSelector(QWidget * parent):
     QComboBox(parent)
 {
-    this->addItem(i18n("Lowest"), Nepomuk::WebExtractor::WE::Lowest);
-    this->addItem(i18n("Average"), Nepomuk::WebExtractor::WE::Average);
-    this->addItem(i18n("Highest"), Nepomuk::WebExtractor::WE::Highest);
-    this->addItem(i18n("Adjust"), Nepomuk::WebExtractor::WE::Adjust);
+    this->addItem(i18n("Lowest"), Nepomuk::WebExtractor::Lowest);
+    this->addItem(i18n("Average"), Nepomuk::WebExtractor::Average);
+    this->addItem(i18n("Highest"), Nepomuk::WebExtractor::Highest);
+    this->addItem(i18n("Adjust"), Nepomuk::WebExtractor::Adjust);
 }
 
-Nepomuk::WebExtractor::WE::MergePolitics MergePoliticsSelector::politics() const
+Nepomuk::WebExtractor::MergePolitics MergePoliticsSelector::politics() const
 {
-    return Nepomuk::WebExtractor::WE::MergePolitics(itemData(currentIndex()).toInt());
+    return Nepomuk::WebExtractor::MergePolitics(itemData(currentIndex()).toInt());
 }

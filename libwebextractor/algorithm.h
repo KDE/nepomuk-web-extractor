@@ -20,17 +20,23 @@
 #define __NEPOMUK_ALGORITHM_H_
 
 #include <QUrl>
-#include <Soprano/Model>
 #include <Soprano/Node>
 #include <QUrl>
-#include <Nepomuk/Resource>
-#include <Nepomuk/ResourceManager>
 #include "modelgraphvisitor.h"
 #include "webextractor_export.h"
 
+class QTextStream;
+
+namespace Soprano
+{
+    class Model;
+}
 
 namespace Nepomuk
 {
+
+    class Resource;
+    class ResourceManager;
 
     /*! Make a deep copy of the resource.
      * \param from Resource to copy
@@ -39,7 +45,7 @@ namespace Nepomuk
      * are the same. This will prevent deadlocks
      * \return Url of the new resource
      */
-    QUrl  deep_resource_copy(const Nepomuk::Resource & from,  Nepomuk::ResourceManager * to = 0, bool sameModels = true);
+    WEBEXTRACTOR_EXPORT QUrl  deep_resource_copy(const Nepomuk::Resource & from,  Nepomuk::ResourceManager * to = 0, bool sameModels = true);
 
 
     /*! Make a deep copy or the resource, respecting already copied parts.
@@ -49,126 +55,19 @@ namespace Nepomuk
      * \param convtable This is table of previously copied resources. In form
      * < original resource url, copy resource url>
      */
-    QHash<QUrl, QUrl> *  deep_resource_copy_adjust(const Nepomuk::Resource & from,  Nepomuk::ResourceManager * to = 0,   QHash<QUrl, QUrl> * convtable = 0 , bool sameModels = true);
+    WEBEXTRACTOR_EXPORT QHash<QUrl, QUrl> *  deep_resource_copy_adjust(const Nepomuk::Resource & from,  Nepomuk::ResourceManager * to = 0,   QHash<QUrl, QUrl> * convtable = 0 , bool sameModels = true);
 
-    //WEBEXTRACTOR_EXPORT QUrl  ngUri( const Soprano::Node & node);
-
-    /*! \brief This class will write all recived statements to given model
-     * Also it will convert any subject or object to new object.
-     * So with this function user can perform a deep copy of the resource
-     * T and Node types are ignored
-     * This class should be used as ParseFunc
+    /*! \brief Write graph as text
+     * Use this function only for debugging.
      */
-    template < typename T, typename Node, typename NodeGetter = Graph::NodeCast<T, Node> >
-    class ConvertWriteVisitor: public Graph::NullVisitor<T, Node>
-    {
-        private:
-            Nepomuk::ResourceManager * m_targetManager;
-            QHash< QUrl, QUrl> * m_proxyUrls;
-            Soprano::Node vertexProxy();
-            NodeGetter m_getter;
-        public:
-            ConvertWriteVisitor(Nepomuk::ResourceManager * targetManager, QHash<QUrl, QUrl> * answer , NodeGetter getter = NodeGetter()) {
-                Q_ASSERT(targetManager);
-                Q_ASSERT(answer);
-                m_targetManager = targetManager;
-                m_proxyUrls = answer;
-                m_getter = getter;
-            }
-
-            void enter_vertex(T base, Node node) {
-                // Simply create proxy
-                vertexProxy(m_getter(base, node));
-            }
-
-            void enter_edge(T base, Node n, const Soprano::Node & currentNode,
-                            const Soprano::Node & propertyNode,
-                            const Soprano::Node & childNode) {
-                Q_UNUSED(base); Q_UNUSED(n);
-                Soprano::Node subjProxyNode = vertexProxy(currentNode);
-                Soprano::Node objProxyNode = vertexProxy(childNode);
-
-                // Add statement
-
-                m_targetManager->mainModel()->addStatement(Soprano::Statement(
-                            subjProxyNode,
-                            propertyNode,
-                            objProxyNode
-                        ));
-            }
-
-            Soprano::Node vertexProxy(const Soprano::Node & node) {
-                if(node.isBlank())
-                    return node;
-
-                if(node.isLiteral())
-                    return node;
-
-                Soprano::Node answer;
-                QHash< QUrl, QUrl >::const_iterator it =
-                    m_proxyUrls->find(node.uri());
-                if(it == m_proxyUrls->end()) {
-                    // Create new
-
-                    // Create new url
-                    // FIXME What label should be passed to the generateUniqueUri
-                    answer = Soprano::Node(
-                                 m_targetManager->generateUniqueUri("unknown")
-                             );
-                    Q_ASSERT(!answer.uri().isEmpty());
-
-                    // Add to table
-                    kDebug() << "Adding proxy to " << node.uri() << " : " << answer.uri();
-                    m_proxyUrls->insert(node.uri(), answer.uri());
-                } else {
-                    answer  = Soprano::Node(it.value());
-                }
-
-                return answer;
-            }
-    };
-
-    template < typename T, typename Node,  typename SubFunc = Graph::SelectedResourcePropertiesFunc<T, Node>, typename NodeGetter = Graph::NodeCast<T, Node> >
-    class IgnoreVisitedFunc
-    {
-        private:
-            QSet<QUrl > * m_visited;
-            SubFunc m_subFunc;
-            NodeGetter m_getter;
-            typedef SubFunc sub_type;
-        public:
-            IgnoreVisitedFunc(QSet<QUrl> * visited, NodeGetter getter = NodeGetter(), SubFunc subFunc = SubFunc()) {
-                if(!visited)
-                    m_visited = new QSet<QUrl>();
-                else
-                    this->m_visited = visited;
-
-                m_subFunc = subFunc;
-                m_getter = getter;
-            }
-
-            QString  operator()(T  base, Node node, const Soprano::Model * model) {
-                Q_UNUSED(base); Q_UNUSED(model);
-                Soprano::Node targetNode = m_getter(base, node);
-                if(m_visited->contains(targetNode.uri()))
-                    return QString();
-                else
-                    return m_subFunc(base, node, model);
-
-            }
+    WEBEXTRACTOR_EXPORT void dump_resource_as_text(const Nepomuk::Resource & from, QTextStream & stream, int depth_limit = -1);
+    /*! \brief Write graph as text
+     * Use this function only for debugging.
+     */
+    WEBEXTRACTOR_EXPORT void dump_resource_as_text(const QUrl & from, Soprano::Model * model, QTextStream & stream, int depth_limit = -1);
+    WEBEXTRACTOR_EXPORT void dump_resources_as_text(const QSet<QUrl> & resources, Soprano::Model * model, QTextStream & stream, int depth_limit = -1);
 
 
-    };
-
-    template < typename T>
-    class DummyNodeFunc
-    {
-        public:
-            Soprano::Node operator()(T base, const Soprano::Node & subject) {
-                Q_UNUSED(base);
-                return Soprano::Node(subject);
-            }
-    };
 
 }
 

@@ -26,18 +26,19 @@
 
 class WEBEXTRACTORUI_EXPORT DecisionWidget : public QWidget
 {
-    Q_OBJECT;
+        Q_OBJECT;
     public:
         DecisionWidget(QWidget * parent = 0);
-	DecisionWidget( const Nepomuk::WebExtractor::Decision & dec, QWidget * parent = 0); 
-	~DecisionWidget();
-	void setDecision( const Nepomuk::WebExtractor::Decision & dec); 
+        DecisionWidget(const Nepomuk::WebExtractor::Decision & dec, QWidget * parent = 0);
+        ~DecisionWidget();
+        void setDecision(const Nepomuk::WebExtractor::Decision & dec);
+        Nepomuk::WebExtractor::Decision decision() const;
     public Q_SLOTS:
-	void clear();
+        void clear();
     private:
-	class Private;
-	Private * d;
-	void setupUi();
+        class Private;
+        Private * d;
+        void setupUi();
 };
 
 #endif

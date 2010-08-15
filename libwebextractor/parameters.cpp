@@ -9,9 +9,9 @@ class Nepomuk::WebExtractor::ExtractParameters::Private : public QSharedData
 {
     public:
         // Merging politics
-        WE::MergePolitics m_mergePolitics;
+        MergePolitics m_mergePolitics;
         // DataPP launch politics
-        WE::LaunchPolitics m_launchPolitics;
+        LaunchPolitics m_launchPolitics;
         // DataPP launch step. Used in some launch politics
         unsigned int m_pss;
         // Thresholds
@@ -24,6 +24,8 @@ class Nepomuk::WebExtractor::ExtractParameters::Private : public QSharedData
         Soprano::BackendSettings backendSettings;
 
         bool autoDeleteModelData;
+
+        bool autoManageOntologies;
 
         bool forceModelStorageDir;
 
@@ -40,8 +42,8 @@ Nepomuk::WebExtractor::ExtractParameters::ExtractParameters()
                   new Nepomuk::WebExtractor::ExtractParameters::Private()
               );
     // Set defaults
-    d->m_mergePolitics = NW::WE::Highest;
-    d->m_launchPolitics = NW::WE::StepWise;
+    d->m_mergePolitics = NW::Highest;
+    d->m_launchPolitics = NW::StepWise;
     d->m_pss = 5;
     d->autoDeleteModelData = false;
     d->rsdManager = ResourceServiceDataManager::instance();
@@ -73,30 +75,30 @@ int NW::ExtractParameters::dataPPCount() const
     return d->dataPPlugins.size();
 }
 
-Nepomuk::WebExtractor::WE::MergePolitics Nepomuk::WebExtractor::ExtractParameters::mergePolitics() const
+Nepomuk::WebExtractor::MergePolitics Nepomuk::WebExtractor::ExtractParameters::mergePolitics() const
 {
     return d->m_mergePolitics;
 }
 
-void Nepomuk::WebExtractor::ExtractParameters::setMergePolitics(WE::MergePolitics val)
+void Nepomuk::WebExtractor::ExtractParameters::setMergePolitics(MergePolitics val)
 {
-    if((val < WE::MergePolitics_MIN) or(val > WE::MergePolitics_MAX)) {
+    if((val < MergePolitics_MIN) or(val > MergePolitics_MAX)) {
         kDebug() << "Unknow merge politics :" << val << "Defaulted to MergePolitics::Highest";
-        val = WE::Highest;
+        val = Highest;
     }
     d->m_mergePolitics = val;
 }
 
-Nepomuk::WebExtractor::WE::LaunchPolitics Nepomuk::WebExtractor::ExtractParameters::launchPolitics() const
+Nepomuk::WebExtractor::LaunchPolitics Nepomuk::WebExtractor::ExtractParameters::launchPolitics() const
 {
     return d->m_launchPolitics;
 }
 
-void Nepomuk::WebExtractor::ExtractParameters::setLaunchPolitics(WE::LaunchPolitics val)
+void Nepomuk::WebExtractor::ExtractParameters::setLaunchPolitics(LaunchPolitics val)
 {
-    if((val < WE::LaunchPolitics_MIN) or(val > WE::LaunchPolitics_MAX)) {
+    if((val < LaunchPolitics_MIN) or(val > LaunchPolitics_MAX)) {
         kDebug() << "Unknow merge politics :" << val << "Defaulted to LaunchPolitics::Highest";
-        val = WE::StepWise;
+        val = StepWise;
     }
     d->m_launchPolitics = val;
 }
@@ -189,14 +191,26 @@ void NW::ExtractParameters::setAutoDeleteModelData(bool val)
     d->autoDeleteModelData = val;
 }
 
+bool NW::ExtractParameters::autoManageOntologies() const
+{
+    return d->autoManageOntologies;
+}
+
+void NW::ExtractParameters::setAutoManageOntologies(bool val)
+{
+    d->autoManageOntologies = val;
+}
+
+
 Soprano::Model * NW::ExtractParameters::decisionsModel() const
 {
     return d->decisionsModel;
 }
 
-void NW::ExtractParameters::setDecisionsModel(Soprano::Model * model)
+void NW::ExtractParameters::setDecisionsModel(Soprano::Model * model, bool autoManageOntologies)
 {
     d->decisionsModel = model;
+    d->autoManageOntologies = autoManageOntologies;
 }
 
 NW::ResourceServiceDataManager * NW::ExtractParameters::resourceServiceDataManager() const
@@ -250,7 +264,7 @@ QDebug Nepomuk::WebExtractor::operator<<(QDebug dbg,  const Nepomuk::WebExtracto
     dbg << "Extract parameters:\n";
     dbg << "aCrit: " << p.aCrit() << "\n";
     dbg << "uCrit: " << p.uCrit() << "\n";
-    if(p.launchPolitics() == WE::StepWise) {
+    if(p.launchPolitics() == StepWise) {
         dbg << "Step wise launch politics. Step: " << p.pluginSelectStep() << "\n";
     } else {
         dbg << "All launch politics\n";

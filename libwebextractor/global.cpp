@@ -1,30 +1,30 @@
 #include "global.h"
 #include <KDebug>
 
-double Nepomuk::WebExtractor::WE::minACrit()
+double Nepomuk::WebExtractor::minACrit()
 {
     static double val = 0.0;
     return val;
 }
 
-double Nepomuk::WebExtractor::WE::maxACrit()
+double Nepomuk::WebExtractor::maxACrit()
 {
     static double val = 1.0;
     return val;
 }
 
-double Nepomuk::WebExtractor::WE::minUCrit()
+double Nepomuk::WebExtractor::minUCrit()
 {
     return minACrit();
 }
 
-double Nepomuk::WebExtractor::WE::maxUCrit()
+double Nepomuk::WebExtractor::maxUCrit()
 {
     static double val = 0.999;
     return val;
 }
 
-double Nepomuk::WebExtractor::WE::boundACrit(double val)
+double Nepomuk::WebExtractor::boundACrit(double val)
 {
     if(val < minACrit()) {
         kDebug() << "ACrit value is less than minimun. Fixing";
@@ -38,7 +38,7 @@ double Nepomuk::WebExtractor::WE::boundACrit(double val)
 
 }
 
-double Nepomuk::WebExtractor::WE::boundUCrit(double val)
+double Nepomuk::WebExtractor::boundUCrit(double val)
 {
     if(val < minUCrit()) {
         kDebug() << "UCrit value is less than minimun. Fixing";
@@ -52,40 +52,40 @@ double Nepomuk::WebExtractor::WE::boundUCrit(double val)
 
 }
 
-double Nepomuk::WebExtractor::WE::minRank()
+double Nepomuk::WebExtractor::minRank()
 {
     return 0.0;
 }
 
-double Nepomuk::WebExtractor::WE::maxRank()
+double Nepomuk::WebExtractor::maxRank()
 {
     return 0.9999;
 }
 
 
-double Nepomuk::WebExtractor::WE::boundRank(double val)
+double Nepomuk::WebExtractor::boundRank(double val)
 {
     return qBound(minRank(), maxRank(), val);
 }
 
-double Nepomuk::WebExtractor::WE::minScaleCoff()
+double Nepomuk::WebExtractor::minScaleCoff()
 {
     return -0.9999;
 }
 
-double Nepomuk::WebExtractor::WE::maxScaleCoff()
+double Nepomuk::WebExtractor::maxScaleCoff()
 {
     return 0.9999;
 }
 
 
-double Nepomuk::WebExtractor::WE::boundScaleCoff(double val)
+double Nepomuk::WebExtractor::boundScaleCoff(double val)
 {
     return qBound(minScaleCoff(), maxScaleCoff(), val);
 }
 
 /*
-Soprano::Model * NW::WE::decisionsModel()
+Soprano::Model * NW::decisionsModel()
 {
     // Find necessary backend
     static Soprano::Backend * backend = Soprano::discoverBackendByFeatures(Soprano::BackendOptionStorageMemory);

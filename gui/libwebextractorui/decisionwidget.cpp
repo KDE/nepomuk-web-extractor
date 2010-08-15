@@ -8,9 +8,9 @@ namespace NW = Nepomuk::WebExtractor;
 class DecisionWidget::Private
 {
     public:
-	Ui_DecisionForm * ui;
-	NW::Decision decision;
-	ChangeLogWidget * logWidget;
+        Ui_DecisionForm * ui;
+        NW::Decision decision;
+        ChangeLogWidget * logWidget;
 };
 
 void DecisionWidget::setupUi()
@@ -24,14 +24,14 @@ void DecisionWidget::setupUi()
 
 DecisionWidget::DecisionWidget(QWidget * parent):
     QWidget(parent),
-    d( new Private() )
+    d(new Private())
 {
     setupUi();
 }
 
-DecisionWidget::DecisionWidget( const NW::Decision & decision,QWidget * parent):
+DecisionWidget::DecisionWidget(const NW::Decision & decision, QWidget * parent):
     QWidget(parent),
-    d( new Private() )
+    d(new Private())
 {
     setupUi();
     setDecision(decision);
@@ -43,12 +43,18 @@ DecisionWidget::~DecisionWidget()
     delete d;
 }
 
-void DecisionWidget::setDecision( const NW::Decision & decision)
+void DecisionWidget::setDecision(const NW::Decision & decision)
 {
     d->decision = decision;
     d->logWidget->setLog(decision.log());
     d->ui->descriptionBrowser->setPlainText(decision.description());
 }
+
+Nepomuk::WebExtractor::Decision DecisionWidget::decision() const
+{
+    return d->decision;
+}
+
 void DecisionWidget::clear()
 {
     d->logWidget->clear();

@@ -26,67 +26,92 @@
 #include "nepomuk/changelogrecord.h"
 #include "nepomuk/changelog.h"
 
-namespace Nepomuk {
-    namespace Sync {
-	//template < typename ChangeLogType>
-	//typedef ChangeLog ChangeLogType;
-	class ChangeLogFilterModel : public Soprano::FilterModel
-	{
-	    public:
-		ChangeLogFilterModel(ChangeLog * t, Soprano::Model * parent):
-		    Soprano::FilterModel(parent)
-		{
-		    m_log = t;
-		}
-		
-		void setLog( ChangeLog * t)
-		{
-		    m_log = t;
-		}
-		
-		ChangeLog * log() const { return m_log; }
+namespace Nepomuk
+{
+    namespace Sync
+    {
+        //template < typename ChangeLogType>
+        //typedef ChangeLog ChangeLogType;
+        class ChangeLogFilterModel : public Soprano::FilterModel
+        {
+            public:
+                enum Action { Accept, Decline };
 
-		virtual Soprano::Error::ErrorCode addStatement (const Soprano::Statement &statement)
-		{
-		    Soprano::Error::ErrorCode c = Soprano::FilterModel::addStatement(statement);
+                ChangeLogFilterModel(ChangeLog * t, Soprano::Model * parent, const QSet<QUrl> &  targets = QSet<QUrl>(), Action defaultAction = Accept):
+                    Soprano::FilterModel(parent) {
+                    m_log = t;
+                    m_targets = targets;
+                    m_defaultAction = defaultAction;
+                }
 
-		    // If log not set  
-		    if (!m_log )
-			return c;
+                void setLog(ChangeLog * t) {
+                    m_log = t;
+                }
 
-		    if ( c != Soprano::Error::ErrorNone)
-			return c;
+                void addTarget(const QUrl & target) {
+                    m_targets.insert(target);
+                }
 
-		    // Add to log
-		    //*m_log << ChangeLogRecord(QDateTime::currentDateTime(), true, statement);
-		    *m_log << ChangeLogRecord(statement);
-		    //m_log->add(ChangeLogRecord(statement));
-		    return c;
-		}
-		
-		virtual Soprano::Error::ErrorCode removeStatement (const Soprano::Statement &statement)
-		{
-		    Soprano::Error::ErrorCode c = Soprano::FilterModel::removeStatement(statement);
+                ChangeLog * log() const {
+                    return m_log;
+                }
 
-		    // If log not set  
-		    if (!m_log )
-			return c;
+                QSet<QUrl> targets() const {
+                    return m_targets;
+                }
 
-		    if ( c != Soprano::Error::ErrorNone)
-			return c;
+                virtual Soprano::Error::ErrorCode addStatement(const Soprano::Statement &statement) {
+                    Soprano::Error::ErrorCode c = Soprano::FilterModel::addStatement(statement);
 
-		    // Add to log
-		    *m_log << ChangeLogRecord(QDateTime::currentDateTime(), false, statement);
-		   /* m_log->add(
-			    ChangeLogRecord(QDateTime::currentDateTime(), false, statement)
-			    );*/
-		    return c;
-		}
+                    // If log not set
+                    if(!m_log)
+                        return c;
 
-	    private:
-		ChangeLog * m_log;
+                    if(c != Soprano::Error::ErrorNone)
+                        return c;
 
-	};
+                    // Add to log only if targets are empty( aka log everything ) or
+                    // if subject, object or predicate is in targets
+                    if(
+                        (m_targets.isEmpty() and(m_defaultAction == Accept)) or
+                        (m_targets.contains(statement.subject().uri())) or
+                        (m_targets.contains(statement.object().uri()))
+                    ) {
+                        *m_log << ChangeLogRecord(statement);
+                    }
+                    return c;
+                }
+
+                virtual Soprano::Error::ErrorCode removeStatement(const Soprano::Statement &statement) {
+                    Soprano::Error::ErrorCode c = Soprano::FilterModel::removeStatement(statement);
+
+                    // If log not set
+                    if(!m_log)
+                        return c;
+
+                    if(c != Soprano::Error::ErrorNone)
+                        return c;
+
+                    // Add to log
+                    if(
+                        (m_targets.isEmpty() and(m_defaultAction == Accept)) or
+                        (m_targets.contains(statement.subject().uri())) or
+                        (m_targets.contains(statement.object().uri()))
+                    ) {
+                        *m_log << ChangeLogRecord(QDateTime::currentDateTime(), false, statement);
+                    }
+                    /* m_log->add(
+                        ChangeLogRecord(QDateTime::currentDateTime(), false, statement)
+                        );*/
+                    return c;
+                }
+
+            private:
+                ChangeLog * m_log;
+                QSet<QUrl> m_targets;
+                Action m_defaultAction;
+
+        };
     }
 }
 

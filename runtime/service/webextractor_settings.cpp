@@ -192,19 +192,19 @@ void Nepomuk::WebExtractorSettings::update()
         }
 
 
-        NW::WE::LaunchPolitics pol;
+        NW::LaunchPolitics pol;
         switch(cfg->pluginSelectType()) {
         case(WebExCategory::EnumPluginSelectType::stepwise) : {
-            pol = NW::WE::StepWise;
+            pol = NW::StepWise;
             break;
         }
         case(WebExCategory::EnumPluginSelectType::all) : {
-            pol = NW::WE::All;
+            pol = NW::All;
             break;
         }
         }
         p->setLaunchPolitics(pol);
-        p->setMergePolitics(NW::WE::Highest);
+        p->setMergePolitics(NW::Highest);
         this->m_parameters.insert(cat, NW::ExtractParametersPtr(p));
     }
 }
@@ -286,7 +286,7 @@ NQ::Term Nepomuk::WebExtractorSettings::query(const QString categoryName)
 {
     WebExCategoryConfig * c = m_categories[categoryName];
     Q_CHECK_PTR(c);
-    return NQ::parseTerm(c->query());
+    return NQ::parseTerm(c->queryText());
 }
 
 QString Nepomuk::WebExtractorSettings::queryPrefix(const QString categoryName)

@@ -18,6 +18,7 @@
 
 
 #include "resourceanalyzerfactory.h"
+#include "ontologyloader.h"
 #include <KDebug>
 #include <Soprano/Global>
 #include <Nepomuk/Tag>
@@ -35,11 +36,12 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
     QObject * parent
 ):
     QObject(parent),
-    m_launchPolitics(WE::StepWise),
-    m_mergePolitics(WE::Highest),
+    m_launchPolitics(StepWise),
+    m_mergePolitics(Highest),
     m_step(10),
     //decisionsResourceManager(0),
     decisionsMainModel(0),
+    decisionsMainModelOntologyLoader(0),
     m_backend(0)
 {
     if(extractParams.isNull()) {
@@ -52,7 +54,8 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
         m_mergePolitics = extractParams->mergePolitics() ;
         m_ucrit = extractParams->uCrit() ;
         m_acrit = extractParams->aCrit() ;
-        // We need backend only if ResourceManager is not provided.
+        m_autoManageOntologies = extractParams->autoManageOntologies();
+        // We need backend only if model for Decisions is not provided.
         this->decisionsMainModel = extractParams->decisionsModel();
         if(!this->decisionsMainModel) {
             QString backendName = extractParams->backendName();
@@ -68,7 +71,19 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
             //kDebug() << "ACrit: " << m_acrit;
             //kDebug() << "UCrit: " << m_ucrit;
             m_backendSettings = extractParams->backendSettings();
+        } else {
+            // Model is provided. Check for ontologies.
+            // If autoManageOntologies is set, then we should
+            // load ontologies to the model
+            if(m_autoManageOntologies) {
+                // Init main ontology loader
+                this->decisionsMainModelOntologyLoader =
+                    new OntologyLoader(this->decisionsMainModel, this);
+                this->decisionsMainModelOntologyLoader->updateLocalOntologies(true);
+            }
         }
+
+
 
     }
 
@@ -81,6 +96,15 @@ Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyze
 {
     DecisionFactory * fct = 0;
     if(this->decisionsMainModel) {
+        /*
+         * DecisionFactory(
+         * double ucrit,
+         * double acrit,
+         * Soprano::Model * decisionsModel,
+         * bool autoDeleteModelData,
+         * Soprano::StorageModel * model, // Set this if DecisionFactory own the model
+         * Soprano::BackendSettings settings)
+         */
         fct = new DecisionFactory(m_ucrit, m_acrit, decisionsMainModel, false, 0);
     } else {
         const Soprano::Backend * b = m_backend;
@@ -103,9 +127,13 @@ Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyze
             kDebug() << "Tag successfuly generated: " <<t.resourceUri();
             QUrl uu = adrm->generateUniqueUri("res");
             */
-            // Set this manager to the factory
+
+            // Load ontologies
+            OntologyLoader * loader = new OntologyLoader(decisionsStorageModel);
+            loader->updateLocalOntologies(true);
+            delete loader;
+
             fct = new DecisionFactory(m_ucrit, m_acrit, decisionsStorageModel, m_autoDeleteModelData, decisionsStorageModel, m_backendSettings);
-            //fct->setResourceManager(decisionsResourceManager);
         } else {
             return 0;
         }

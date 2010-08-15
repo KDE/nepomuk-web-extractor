@@ -46,14 +46,14 @@ namespace Nepomuk
                 const ExtractParameters & operator=(const ExtractParameters & rhs);
 
 
-                WE::MergePolitics mergePolitics() const;
-                void setMergePolitics(WE::MergePolitics val) ;
+                MergePolitics mergePolitics() const;
+                void setMergePolitics(MergePolitics val) ;
 
                 unsigned int pluginSelectStep() const;
                 void setPluginSelectStep(unsigned int step);
 
-                WE::LaunchPolitics launchPolitics() const;
-                void setLaunchPolitics(WE::LaunchPolitics politics);
+                LaunchPolitics launchPolitics() const;
+                void setLaunchPolitics(LaunchPolitics politics);
 
                 double aCrit() const;
                 void setACrit(double);
@@ -88,19 +88,36 @@ namespace Nepomuk
                 bool autoDeleteModelData() const;
                 void setAutoDeleteModelData(bool val);
 
+                /*! \brief Enable automatic ontology management
+                 * If enabled, then ontologies will be loaded and  updated automatically.
+                 * This option is usefull only if storage model for Decisions is set with
+                 * setDecisionsModel() call. Ontologies <b>must</b> be loaded to the model
+                 * where Decisions are stored. If you don't want to do this by hand, then
+                 * set this option to true.
+                 * If decisions storage model is generated automatically, then
+                 * this option is always enabled
+                 */
+                bool autoManageOntologies() const;
+                void setAutoManageOntologies(bool val);
+
                 /*
                 bool forceModelStorageDir() const;
                 void setForceModelStorageDir();
                 */
+                Soprano::Model * decisionsModel() const;
                 /*! \brief Instead of creating new model for each ResourceAnalyzer, the shared model for all of them can be used.
                  * To do this, you should provide a Model for Decisions. In this case,
                  * the backendSettings(), backendName(), autoDeleteModelData() parameters
                  *  will be ignored.  The web extractor system will not take ownership
                  *  on the given manager and will not delete or change it in any way.
                  *  If you want to disable this setting, then pass Null as manager
+                         *  \param decisionsModel Model to store Decisions in
+                         *  \param autoManageOntologies Set this flag to true, if you want that
+                         *  ontologies were loaded to the model automatically. You can change you
+                         *  choice later with setAutoManageOntologies() method.
+                         *  \sa setAutoManageOntologies
                  */
-                Soprano::Model * decisionsModel() const;
-                void setDecisionsModel(Soprano::Model * decisionsModel);
+                void setDecisionsModel(Soprano::Model * decisionsModel, bool autoManageOntologies = true);
 
                 /*! \brief Set resource service data manager
                  * ResourceServiceData is responsible for storing information about examined DataPP

@@ -30,6 +30,7 @@
 #include "webextractor_export.h"
 #include "propertiesgroup.h"
 #include <nepomuk/changelog.h>
+#include <nepomuk/identificationrequest.h>
 //#include "soprano_statement_qhash.h"
 
 namespace Nepomuk
@@ -42,6 +43,7 @@ namespace Nepomuk
         class DataPP;
         class PropertiesGroup;
         class IdentificationSetManager;
+        class DecisionApplicationRequest;
 
         class DecisionData;
 
@@ -91,16 +93,82 @@ namespace Nepomuk
                          * will be from decisions model
                  */
                 Nepomuk::Resource proxyResource(const Nepomuk::Resource &);
+
+                /*! \brief Return url of the proxy resource for given one
+                                 * TODO Add checks that given resource is from target model.
+                                 * This is necessary to prevent situations when target resource
+                                 * will be from decisions model
+                         */
                 QUrl proxyUrl(const Nepomuk::Resource &);
+
+                /*! \brief Return all proxy resources of the Decision
+                 * The other names for the proxy resource are 'main Decision resources'
+                 * or 'target Decision resources'
+                 * \return Hash of all proxy resources of the Decision. Key is url of
+                 * the resource in the target ( real-world ) model, value is the url
+                 * in the Decision storage model
+                 */
                 QHash<QUrl, QUrl> proxies() const;
+
+                /*! \brief Return the list of the url of the main Decision resources
+                 * The result is the same as proxies().values() call. This function
+                 * is provided only for convinience
+                 * \return List of the url of the main Decision resources in the Decision
+                 * storage model.
+                 */
+                QList<QUrl> mainResources() const;
+
                 bool isEmpty() const;
+
+                /*! \brief Check the validness of the Decision.
+                 * It is easier to detirmine invalid Decision. Decision created with
+                 * Decision() constructor is invalid. Most others will be valid.
+                 */
                 bool isValid() const;
+
+                /*! \brief Return name of the DataPP that creates this Decision
+                 * If there is more, then one DataPP, then randomly selected one
+                 * will be returned
+                 * \return Name of the DataPP
+                 * \sa pluginVersion
+                 */
                 QString  pluginName() const;
+                /*! \brief Return version of the DataPP that creates this Decision
+                 * If there is more, then one DataPP, then randomly selected one
+                 * will be returned. It is guaranteed that this will be version
+                 * of the DataPP, whose name was returned with pluginName()
+                 * \return Version of the DataPP
+                 * \sa pluginName
+                 */
                 float   pluginVersion() const;
+                /*! \brief Return information about all DataPP that create this Decision
+                 *\return Set of the DataPP
+                 */
                 QSet<DataPP*>  pluginsInformation() const;
+                /*! \brief Return the uri of the Decision.
+                 * Each Decision generated during by one ResourceAnalyzer has
+                 * unique uri
+                 * \return Url of the Decision
+                 */
                 QUrl uri() const;
+                /*! \brief Return the model of the Decision
+                 * This is the model that DataPP should use to create Decision.
+                 * \note It is not Decision storage model. Do not try to reach and
+                 * edit Decision storage model directly.
+                 */
                 Soprano::Model * model() const;
+                /*! \brief Return the manager of the Decision
+                 * This is the ResourceManager that manages the Decision model.
+                 * The manager()->mainModel() will return exactly the same model,
+                 * as model() call.
+                 * \sa model
+                 * \return ResourceManager of the Decision model
+                 */
                 Nepomuk::ResourceManager * manager() const;
+                /*! \brief Return description of the Decision.
+                 * It is rich text. The description is for displaying to user.
+                 * \return Description of the Decision.
+                 */
                 QString description() const;
                 void setDescription(const QString &);
 
@@ -127,6 +195,21 @@ namespace Nepomuk
                  */
                 void freeze();
                 bool isFreezed() const;
+
+                /*! \brief Return application request, that will perform identification for Decision
+                 * \param targetModel you cah specify the model for applying changes
+                 * \return New IdentificationRequest. The user is responsible for deleting
+                 * this object. If Decision is invalid, then 0 will be returned
+                 */
+                DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = ResourceManager::instance()->mainModel()) const;
+                /*! \brief Apply Decision
+                 * Write all statements back to model
+                         * \param targetModel you cah specify the model for applying changes
+                 */
+                bool apply(Soprano::Model * targetModel = ResourceManager::instance()->mainModel()) const;
+                /*! \brief Add statements to the discretion of the user
+                 */
+                void addToUserDiscretion();
                 friend class ResourceAnalyzer;
                 friend class DecisionFactory;
                 friend class DecisionList;
@@ -143,13 +226,6 @@ namespace Nepomuk
                     Soprano::Model * decisionsModel,
                     IdentificationSetManager * identsetManager
                 );
-                /*! \brief Apply Decision
-                 * Write all statements back to model
-                 */
-                void apply() const;
-                /*! \brief Add statements to the discretion of the user
-                 */
-                void addToUserDiscretion();
                 void addAuthor(const DataPP * author);
                 unsigned int timeStamp() const;
                 //QSharedDataPointer<Private> d;

@@ -27,32 +27,31 @@ namespace Nepomuk
 {
     namespace WebExtractor
     {
-	/*! \brief This class manages IdentificationSets
-	 * This is class for internal usage. Each DecisionFactory
-	 * has such cache. When new resource should be copied
-	 * from the main nepomuk model to the decisions model, the
-	 * IdentificationSet of this resources is put here. If there
-	 * is already IdentificationSet for the resource and the resource
-	 * has not changed, then ptr to this IdentificationSet will be
-	 * returned. If the resource has been updated, then new IdentificationSet
-	 * will be created, onl one will be marked as obsolete and ptr to new
-	 * one will be returned.
-	 */
-	typedef QSharedPointer<Nepomuk::Sync::IdentificationSet> IdentificationSetPtr;
-	class IdentificationSetManager
-	{
-	    public:
-		IdentificationSetManager(Soprano::Model * mainModel = ResourceManager::instance()->mainModel() );
-		~IdentificationSetManager();
-		IdentificationSetPtr identificationSet( const QUrl & resourceUrl );
-	    private:
-		// No implementation
-		IdentificationSetManager( const IdentificationSetManager &);
-		IdentificationSetManager & operator=( const IdentificationSetManager &);
+        /*! \brief This class manages IdentificationSets
+         * This is class for internal usage. Each DecisionFactory
+         * has such cache. When new resource should be copied
+         * from the main nepomuk model to the decisions model, the
+         * IdentificationSet of this resources is put here. If there
+         * is already IdentificationSet for the resource and the resource
+         * has not changed, then ptr to this IdentificationSet will be
+         * returned. If the resource has been updated, then new IdentificationSet
+         * will be created, onl one will be marked as obsolete and ptr to new
+         * one will be returned.
+         */
+        class IdentificationSetManager
+        {
+            public:
+                IdentificationSetManager(Soprano::Model * mainModel = ResourceManager::instance()->mainModel());
+                ~IdentificationSetManager();
+                Sync::IdentificationSet identificationSet(const QUrl & resourceUrl);
+            private:
+                // No implementation
+                IdentificationSetManager(const IdentificationSetManager &);
+                IdentificationSetManager & operator=(const IdentificationSetManager &);
 
-		class Private;
-		Private * d;
-	};
+                class Private;
+                Private * d;
+        };
     }
 }
 #endif

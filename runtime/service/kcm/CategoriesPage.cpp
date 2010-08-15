@@ -40,6 +40,7 @@ CategoriesPage::CategoriesPage(Nepomuk::WebExtractorConfig* cfg, QWidget * paren
     this->setupUi(this);
     this->query_edit_widget->hide();
     this->query_prefix_edit->hide();
+    this->queryBuilder->setQuery(NQ::Query());
     this->plugins_selector = new PluginSelector(this);
     this->verticalLayout->insertWidget(0, this->plugins_selector);
     m_oldDelegate = this->plugins_selector->selectedView()->itemDelegate();
@@ -134,7 +135,8 @@ void CategoriesPage::loadCategory()
         return;
     }
     plugins_selector->clear();
-    query_edit->setPlainText(cat->query());
+    query_edit->setPlainText(cat->queryText());
+    this->queryBuilder->setQuery(NQ::Query(NQ::parseTerm(cat->queryText())));
     query_prefix_edit->setPlainText(cat->queryPrefix());
     interval_spinbox->setValue(cat->interval());
 
@@ -174,9 +176,9 @@ void CategoriesPage::saveCategory(QString  p)
     cat->setInterval(interval_spinbox->value());
     // TODO There we must select should we take query from queryBuilder or from raw editor
     if(this->rawQueryEditCheckBox->checkState() == Qt::Unchecked)   {
-        cat->setQuery(NQ::serializeTerm(this->queryBuilder->currentQuery().term()));
+        cat->setQueryText(NQ::serializeTerm(this->queryBuilder->currentQuery().term()));
     } else {
-        cat->setQuery(query_edit->toPlainText());
+        cat->setQueryText(query_edit->toPlainText());
     }
     cat->setQueryPrefix(query_prefix_edit->toPlainText());
 

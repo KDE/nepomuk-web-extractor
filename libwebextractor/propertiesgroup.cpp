@@ -14,6 +14,7 @@ namespace NS = Nepomuk::Sync;
 class NW::PropertiesGroup::Private : public QSharedData
 {
     public:
+        Private();
         ~Private();
         QSet< Soprano::Statement > statements;
         //Decision * parent;
@@ -41,6 +42,14 @@ class NW::PropertiesGroup::Private : public QSharedData
         NS::ChangeLog log;
 
 };
+
+NW::PropertiesGroup::Private::Private():
+    rank(-100),
+    filterModel(0),
+    manager(0),
+    parent(0)
+{
+}
 
 NW::PropertiesGroup::Private::~Private()
 {
@@ -74,9 +83,6 @@ NW::PropertiesGroup::PropertiesGroup(/*QUrl mainResourceUrl, ResourceManager * m
 NW::PropertiesGroup::PropertiesGroup()
 {
     this->d = QSharedPointer<Private>(new NW::PropertiesGroup::Private());
-    d->parent = 0;
-    d->filterModel = 0;
-    d->manager = 0;
 }
 
 NW::PropertiesGroup::~PropertiesGroup()

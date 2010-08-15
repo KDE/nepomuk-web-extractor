@@ -21,7 +21,7 @@
 
 #include "testplugin_config.h"
 
- #include "testdatappreply.h"
+#include "testdatappreply.h"
 
 #include "testdatapp.h"
 
@@ -33,7 +33,7 @@
 
 namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::TestReply::TestReply(TestDataPP * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res ):
+Nepomuk::TestReply::TestReply(TestDataPP * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res):
     SimpleDataPPReply(parent, factory, res)
 {
     bool result = true;
@@ -46,7 +46,7 @@ Nepomuk::TestReply::TestReply(TestDataPP * parent, const WebExtractor::DecisionF
 
     NW::PropertiesGroup grp = d.newGroup();
 
-    QString tagName = (result)? QString("TestSuccess"): QString("TestFailure");
+    QString tagName = (result) ? QString("TestSuccess") : QString("TestFailure");
     Nepomuk::Tag t(tagName, d.manager());
 
     grp.makeCurrent();
@@ -54,10 +54,10 @@ Nepomuk::TestReply::TestReply(TestDataPP * parent, const WebExtractor::DecisionF
 
     d.setDescription(m_testsResults.join("\n"));
 
-    mainDecisionList().addDecision(d);
+    addDecision(d);
 
     // Finish
-    QTimer::singleShot(0,this, SLOT(finish()));
+    QTimer::singleShot(0, this, SLOT(finish()));
 
 }
 
@@ -66,7 +66,7 @@ bool Nepomuk::TestReply::isValid() const
     return true;
 }
 
-void Nepomuk::TestReply::abort() 
+void Nepomuk::TestReply::abort()
 {
     return;
 }
@@ -77,20 +77,20 @@ bool Nepomuk::TestReply::testProxy()
 {
     NW::Decision d = newDecision();
     QUrl first = d.proxyUrl(resource());
-    if (first.isEmpty()) {
-	m_testsResults << "Proxy Test: Failed to create proxy for resource";
-	return false;
+    if(first.isEmpty()) {
+        m_testsResults << "Proxy Test: Failed to create proxy for resource";
+        return false;
     }
 
     QUrl second = d.proxyUrl(resource());
-    if (first.isEmpty()) {
-	m_testsResults << "Proxy Test: Failed to return proxy for resource at second call";
-	return false;
+    if(first.isEmpty()) {
+        m_testsResults << "Proxy Test: Failed to return proxy for resource at second call";
+        return false;
     }
 
-    if ( first != second ) {
-	m_testsResults << "Proxy Test: Urls from first call and from second call are differet: " << first.toString() << " vs " << second.toString();
-	return false;
+    if(first != second) {
+        m_testsResults << "Proxy Test: Urls from first call and from second call are differet: " << first.toString() << " vs " << second.toString();
+        return false;
     }
     m_testsResults << "Proxy Test: SUCCESS";
     return  true ;

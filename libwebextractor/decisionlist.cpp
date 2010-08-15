@@ -17,7 +17,7 @@ Nepomuk::WebExtractor::DecisionList::DecisionList(double threshold):
 }
 
 
-void Nepomuk::WebExtractor::DecisionList::mergeWith(const DecisionList & rhs,  WE::MergePolitics politics, double coff)
+void Nepomuk::WebExtractor::DecisionList::mergeWith(const DecisionList & rhs,  MergePolitics politics, double coff)
 {
     if(&rhs == this)
         return;
@@ -36,7 +36,7 @@ void Nepomuk::WebExtractor::DecisionList::mergeWith(const DecisionList & rhs,  W
 }
 
 /*
-void Nepomuk::WebExtractor::DecisionList::unique( WE::MergePolitics policis , double coff )
+void Nepomuk::WebExtractor::DecisionList::unique( MergePolitics policis , double coff )
 {
     kDebug() << "Not realized yet";
 }
@@ -65,10 +65,10 @@ void Nepomuk::WebExtractor::DecisionList::sort()
 
 void Nepomuk::WebExtractor::DecisionList::addDecision(const Decision &  dec, bool noAuto)
 {
-    addDecision(dec, WE::Highest, 1.0, noAuto);
+    addDecision(dec, Highest, 1.0, noAuto);
 }
 
-void Nepomuk::WebExtractor::DecisionList::addDecision(const Decision &  dec, WE::MergePolitics politics, double coff, bool noAuto)
+void Nepomuk::WebExtractor::DecisionList::addDecision(const Decision &  dec, MergePolitics politics, double coff, bool noAuto)
 {
     Decision d(dec);
     double newRank = scaledRank(dec.rank(), m_scaleCoff);
@@ -81,7 +81,7 @@ void Nepomuk::WebExtractor::DecisionList::addDecision(const Decision &  dec, WE:
     addDecisionUnscaled(d, politics, coff);
 }
 
-void Nepomuk::WebExtractor::DecisionList::addDecisionUnscaled(Decision &  d, WE::MergePolitics politics, double coff)
+void Nepomuk::WebExtractor::DecisionList::addDecisionUnscaled(Decision &  d, MergePolitics politics, double coff)
 {
     // TODO We should freeze decisions after they are added to the list
     double newRank = d.rank();
@@ -95,19 +95,19 @@ void Nepomuk::WebExtractor::DecisionList::addDecisionUnscaled(Decision &  d, WE:
             double nnRank = 0;
             double ditRank = dit->rank();
             switch(politics) {
-            case WE::Lowest : {
+            case Lowest : {
                 nnRank = qMin(newRank, ditRank);
                 break;
             }
-            case WE::Average : {
+            case Average : {
                 nnRank = (newRank + ditRank) / 2.0;
                 break;
             }
-            case WE::Highest : {
+            case Highest : {
                 nnRank = qMax(newRank, ditRank);
                 break;
             }
-            case WE::Adjust : {
+            case Adjust : {
                 nnRank = pow(ditRank, 1 - newRank);
                 break;
             }

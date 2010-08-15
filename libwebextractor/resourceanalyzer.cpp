@@ -44,11 +44,11 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private /*: public QSharedData*/
         // DecisionFactory that will be passed to DataPP
         DecisionFactory * m_fact;
         //QMap< DataPPReply*, double > m_replyAndRanks;
-        WE::LaunchPolitics m_launchPolitics;
+        LaunchPolitics m_launchPolitics;
         unsigned int m_step;
         // All collected Decisions are stored there
         DecisionList m_decisions;
-        WE::MergePolitics m_mergePolitics;
+        MergePolitics m_mergePolitics;
         double m_mergeCoff;
         // This is stored resource we currently analyze. Or are going to analyze.
         Nepomuk::Resource m_res;
@@ -181,8 +181,8 @@ void NW::ResourceAnalyzer::Private::filterExaminedDataPP()
 Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
     const DataPPKeeper & dataPPKeeper,
     DecisionFactory * fac,
-    WE::MergePolitics mergePolitics,
-    WE::LaunchPolitics launchPolitics,
+    MergePolitics mergePolitics,
+    LaunchPolitics launchPolitics,
     double acrit,
     double ucrit,
     unsigned int step,
@@ -255,6 +255,11 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
         return;
     }
 
+    doAnalyze();
+}
+
+void NW::ResourceAnalyzer::doAnalyze()
+{
     // Add all datapp to queue
     QMap< QString, float > examined = d->rsd.examinedDataPPInfo();
     //kDebug() << "Examind info: " << examined;
@@ -283,7 +288,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
     }
 
     // start processing
-    kDebug() << "Extracting data from resource";
+    //kDebug() << "Extracting data from resource";
     kDebug() << "List of DataPP to use:";
     foreach(DataPPWrapper * dppw, d->m_queue) {
         kDebug() << dppw->pluginName() << ":" << dppw->pluginVersion();
@@ -303,6 +308,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
         QTimer::singleShot(0, this, SLOT(finishWithError()));
     }
 }
+
 
 bool NW::ResourceAnalyzer::isRunning() const
 {
@@ -356,9 +362,9 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
     kDebug() << "Total DataPP: " << d->m_dataPPKeeper.size();
 
     int substop = 0;
-    if(d->m_launchPolitics == WE::All)
+    if(d->m_launchPolitics == All)
         substop = d->m_dataPPKeeper.size();
-    else if(d->m_launchPolitics == WE::StepWise)
+    else if(d->m_launchPolitics == StepWise)
         substop = d->m_step;
 
     int i = 0;
@@ -388,7 +394,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
         Q_ASSERT(!d->m_replies.contains(repl));
         d->m_replies.insert(repl);
 
-        //d->m_replyAndRanks[repl] = d->it->second;
+
         // Increase the number of active replies
         d->m_respWaits++;;
 
@@ -417,7 +423,8 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 
 // TODO I am not sure that even after deleting the reply there will not be any
 // queued signals left. May be it is necessary to add filter that will ignore
-// 'obsolete' replies
+// 'obsolete' replies. It is possible to use m_running variable for it. But this
+// wont work in iterative mode.
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinished()
 {
     //kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
@@ -489,20 +496,24 @@ NW::DecisionList NW::ResourceAnalyzer::decisions() const
     return d->m_decisions;
 }
 
-void NW::ResourceAnalyzer::apply()
+bool NW::ResourceAnalyzer::apply()
 {
     // This function can be called only once.
     if(d->m_applied)
-        return;
+        return false;
 
     // Process data
     if(d->m_decisions.hasAutoApplicable()) {
-        d->m_decisions.best().apply();
+        if(!d->m_decisions.best().apply(
+                    d->m_res.manager()->mainModel()
+                ))
+            return false;
     } else {
         d->m_decisions.addToUserDiscretion();
     }
 
     d->m_applied = true;
+    return true;
 }
 
 void NW::ResourceAnalyzer::clear()
@@ -543,7 +554,7 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
 
 
             // Relaunch algorithm
-            QMetaObject::invokeMethod(this, "analyze", Qt::QueuedConnection);
+            QMetaObject::invokeMethod(this, "doAnalyze", Qt::QueuedConnection);
             return;
         }
     }
@@ -563,6 +574,7 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
     }
 
     d->m_applied = false;
+    d->m_running = false;
     emit analyzingFinished();
 }
 

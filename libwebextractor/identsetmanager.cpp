@@ -24,16 +24,16 @@
 namespace NW = Nepomuk::WebExtractor;
 namespace NS = Nepomuk::Sync;
 
-class NW::IdentificationSetManager::Private 
+class NW::IdentificationSetManager::Private
 {
     public:
-    QHash< QUrl, IdentificationSetPtr > sets;
-    Soprano::Model * mainModel;
+        //QHash< QUrl, IdentificationNode > sets;
+        Soprano::Model * mainModel;
 };
 
 
-NW::IdentificationSetManager::IdentificationSetManager( Soprano::Model * mainModel ):
-    d(new IdentificationSetManager::Private() )
+NW::IdentificationSetManager::IdentificationSetManager(Soprano::Model * mainModel):
+    d(new IdentificationSetManager::Private())
 {
     Q_ASSERT(mainModel);
     d->mainModel = mainModel;
@@ -44,22 +44,135 @@ NW::IdentificationSetManager::~IdentificationSetManager()
     delete d;
 }
 
-NW::IdentificationSetPtr NW::IdentificationSetManager::identificationSet( const QUrl & resourceUrl )
+#if 0
+NW::IdentificationGraph NW::IdentificationSetManager::identificationGraph(const QUrl & resourceUrl, IdentificationGraph::UpdateMode mode)
 {
-    Q_ASSERT(d->mainModel);
-    // Check that this indentifications set exists in the manager
-    QHash<QUrl, IdentificationSetPtr>::const_iterator it =
-	d->sets.find(resourceUrl);
-    if ( it != d->sets.end() ) {
-	return it.value();
-    }
-    else {
-	// Create new IdentificationSet for resource
-	IdentificationSetPtr ptr = IdentificationSetPtr( new NS::IdentificationSet() );
-	*(ptr.data()) = NS::IdentificationSet::create(resourceUrl, d->mainModel );
-       // Insert ptr
-       d->sets.insert(resourceUrl, ptr);
-       return ptr;
-    }
-	
+    QHash<QUrl, IdentificationNode>::iterator fit =
+        d->sets.find(resourceUrl);
+
+    if((mode == IdentificationGraph::NoUpdate))
+        if((fit != d->sets.end())) {
+            // No update is necessary and all existing information is already
+            // in database
+            // Just build new graph
+            // TODO Add caching for graphs
+            IdentificationGraph answer(this);
+            QQueue<QUrl> queue;
+            queue << resourceUrl;
+            while(queue.size() > 0) {
+                // Take next
+                QUrl next = queue.dequeue();
+                while(answer.hasNode(next))
+                    next = queue.dequeue();
+
+                Q_ASSERT(d->sets.contains(next));
+                IdentificationNode node = d->sets[next];
+                answer.serviceAddNode(next, node);
+
+                // Add all non-parsed nodes to queue
+                foreach(const QUrl & child, node.childrens()) {
+                    queue << child;
+                }
+            }
+            return answer;
+        } else {
+            // Build nodes for unavailable resources
+            IdentificationGraph answer(this);
+            QQueue<QUrl> queue;
+            queue << resourceUrl;
+            while(queue.size() > 0) {
+                // Take next
+                QUrl next = queue.dequeue();
+                while(answer.hasNode(next))
+                    next = queue.dequeue();
+
+                QHash<QUrl, IdentificationNode>::const_iterator fit =
+                    d->sets.find(next);
+
+                if(fit != d->sets.end()) {
+                    // it is already in datbase
+                    answer.serviceAddNode(next, fit.value());
+
+                } else {
+                    static QString queryTemplate = QString::fromLatin1("select distinct  ?p ?o where { %1 ?p ?o. "
+                                                   "{ ?p %2 %3 .} "
+                                                   "UNION { ?p %2 %4. } "
+                                                   "  } ")
+                                                   .arg(
+                                                       "%1",
+                                                       Soprano::Node::resourceToN3(Soprano::Vocabulary::RDFS::subPropertyOf()),
+                                                       Soprano::Node::resourceToN3(Nepomuk::Vocabulary::backupsync::identifyingProperty()),
+                                                       Soprano::Node::resourceToN3(Soprano::Vocabulary::RDF::type()));
+                    QString query = queryTemplate.arg(
+                                        Soprano::Node::resourceToN3(next)
+                                    );
+                    IdentificationNode newNode;
+                    newNode.parent = 0;
+                    newNode.nodeUrl = next;
+
+                    // Get timestamp
+                    static QString dateQueryTemplate =
+                        QString("select ?d ORDER BY ASC(?d) LIMIT 1 where { %1 %2 ?d }").arg(
+                            "%1",
+                            Soprano::Node::resourceToN3(
+                                Soprano::Vocabulray::NAO::lastModified()
+                            )
+                        );
+                    QString dateQuery = dateQueryTemplate.arg(
+                                            Soprano::Node::resourceToN3(next)
+                                        );
+
+                    Soprano::QueryResultIterator dit =
+                        d->mainModel->executeQuery(
+                            dateQuery,
+                            Soprano::Query::QueryLanguageSparql
+                        );
+                    QDateTime timeStamp = QDateTime::currentTime();
+
+                    while(dit.next()) {
+                        timeStamp = dit.binding("d").literal().toDateTime();
+                    }
+
+                    Soprano::QueryResultIterator rit =
+                        d->mainModel->executeQuery(
+                            query,
+                            Soprano::Query::QueryLanguageSparql
+                        );
+
+
+                    // Get identification properties
+                    while(rit.next()) {
+                        newNode.statements << Soprano::Statement(
+                                               next,
+                                               rit.binding("p"),
+                                               rit.binding("o")
+                                           );
+                    }
+
+                    answer.serviceAddNode(next, newNode);
+
+                    // Add all non-parsed nodes to queue
+                    foreach(const QUrl & child, node.childrens()) {
+                        queue << child;
+                    }
+                }
+            }
+
+            // Return answer
+            return answer;
+        }
+
+
+
+
+}
+
+// Build graph from scratch
+
+}
+#endif
+
+NS::IdentificationSet NW::IdentificationSetManager::identificationSet(const QUrl & resourceUrl)
+{
+    return NS::IdentificationSet::fromResource(resourceUrl, d->mainModel);
 }

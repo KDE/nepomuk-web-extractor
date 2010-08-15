@@ -25,7 +25,7 @@ class MergePoliticsSelector: public QComboBox
         Q_OBJECT;
     public:
         MergePoliticsSelector(QWidget * parent = 0);
-        Nepomuk::WebExtractor::WE::MergePolitics politics() const;
+        Nepomuk::WebExtractor::MergePolitics politics() const;
     private:
         // Only defenition
         // addItem();

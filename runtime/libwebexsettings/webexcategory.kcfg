@@ -8,7 +8,7 @@
 <include>webextractor/global.h</include>
 
 <group name="category">
-    <entry name="query" type="String">
+    <entry key="query" name="queryText" type="String">
 	<label> queury corresgonding to this category </label>
 	<whatsthis> This is part of the query that will be used for selecting resource 
 	    to process. Two queries will be automaticaly generated from this value:

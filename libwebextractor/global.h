@@ -26,42 +26,37 @@ namespace Nepomuk
 {
     namespace WebExtractor
     {
-        class WEBEXTRACTOR_EXPORT WE
-        {
-            public:
-                enum MergePolitics {
-                    Lowest = 1,// Result decision has rank == min(r1,r2)
-                    Average = 2, // Result decision has rank == (r1+r2)/2
-                    Highest = 3,  // Result decision has rank == max(r1,r2)
-                    Adjust = 4, // Result decision has rank r1**(1-r2)
-                    MergePolitics_MAX = 4, MergePolitics_MIN = 1
-                };
-
-                enum LaunchPolitics {
-                    All = 1,
-                    StepWise = 2,
-                    LaunchPolitics_MIN = 1, LaunchPolitics_MAX = 2
-                };
-
-                static double minACrit();
-                static double maxACrit();
-
-                static double minUCrit();
-                static double maxUCrit();
-
-                static double minRank();
-                static double maxRank();
-                static double boundRank(double);
-
-                static double minScaleCoff();
-                static double maxScaleCoff();
-                static double boundScaleCoff(double);
-
-                static double boundACrit(double val);
-                static double boundUCrit(double val);
-
-                //static Soprano::Model * decisionsModel();
+        enum MergePolitics {
+            Lowest = 1,// Result decision has rank == min(r1,r2)
+            Average = 2, // Result decision has rank == (r1+r2)/2
+            Highest = 3,  // Result decision has rank == max(r1,r2)
+            Adjust = 4, // Result decision has rank r1**(1-r2)
+            MergePolitics_MAX = 4, MergePolitics_MIN = 1
         };
+
+        enum LaunchPolitics {
+            All = 1,
+            StepWise = 2,
+            LaunchPolitics_MIN = 1, LaunchPolitics_MAX = 2
+        };
+
+        WEBEXTRACTOR_EXPORT double minACrit();
+        WEBEXTRACTOR_EXPORT double maxACrit();
+
+        WEBEXTRACTOR_EXPORT double minUCrit();
+        WEBEXTRACTOR_EXPORT double maxUCrit();
+
+        WEBEXTRACTOR_EXPORT double minRank();
+        WEBEXTRACTOR_EXPORT double maxRank();
+        WEBEXTRACTOR_EXPORT double boundRank(double);
+
+        WEBEXTRACTOR_EXPORT double minScaleCoff();
+        WEBEXTRACTOR_EXPORT double maxScaleCoff();
+        WEBEXTRACTOR_EXPORT double boundScaleCoff(double);
+
+        WEBEXTRACTOR_EXPORT double boundACrit(double val);
+        WEBEXTRACTOR_EXPORT double boundUCrit(double val);
+
     }
 }
 #endif

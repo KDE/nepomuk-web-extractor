@@ -1,14 +1,15 @@
 #include "decisionfactory.h"
 //#include "datapp.h"
 #include "global.h"
+//#include <Soprano/StatementIterator>
 
 namespace NW = Nepomuk::WebExtractor;
 
 Nepomuk::WebExtractor::DecisionFactory::DecisionFactory(double ucrit, double acrit, Soprano::Model * decisionsModel, bool autoDeleteModelData, Soprano::StorageModel * model, Soprano::BackendSettings settings):
     m_threshold(0)
 {
-    Q_ASSERT(acrit == Nepomuk::WebExtractor::WE::boundACrit(acrit));
-    Q_ASSERT(ucrit == Nepomuk::WebExtractor::WE::boundUCrit(ucrit));
+    Q_ASSERT(acrit == Nepomuk::WebExtractor::boundACrit(acrit));
+    Q_ASSERT(ucrit == Nepomuk::WebExtractor::boundUCrit(ucrit));
     m_threshold = ucrit;
     m_acrit = acrit;
     Q_ASSERT(decisionsModel);
@@ -18,6 +19,14 @@ Nepomuk::WebExtractor::DecisionFactory::DecisionFactory(double ucrit, double acr
     this->m_storageModel = model;
     this->m_identsetManager = new IdentificationSetManager();
 
+    // Debug decisionsModel - list all statements
+#if 0
+    kDebug() << "Decisions model dump";
+    Soprano::StatementIterator stit = decisionsModel->listStatements(Soprano::Node(), Soprano::Node(), Soprano::Node(), Soprano::Node(Nepomuk::Vocabulary::backupsync::backupsyncNamespace()));
+    while(stit.next()) {
+        kDebug() << *stit;
+    }
+#endif
     // Create ResourceManager atop of m_decisionsModel
     // TODO Add log filter model
     //this->m_manager = ResourceManager::createManagerForModel(m_decisionsModel);

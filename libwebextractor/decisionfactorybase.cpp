@@ -5,8 +5,8 @@
 Nepomuk::WebExtractor::DecisionFactory::DecisionFactory(double ucrit, double acrit):
     m_threshold(0)
 {
-    Q_ASSERT(acrit == Nepomuk::WebExtractor::WE::boundACrit(acrit));
-    Q_ASSERT(ucrit == Nepomuk::WebExtractor::WE::boundUCrit(ucrit));
+    Q_ASSERT(acrit == Nepomuk::WebExtractor::boundACrit(acrit));
+    Q_ASSERT(ucrit == Nepomuk::WebExtractor::boundUCrit(ucrit));
     m_threshold = ucrit;
     m_acrit = acrit;
 }
@@ -17,7 +17,7 @@ void Nepomuk::WebExtractor::DecisionFactory::setThreshold(double threshold)
 }
 Nepomuk::WebExtractor::Decision Nepomuk::WebExtractor::DecisionFactory::newDecision(const QString & name, const QString & version) const
 {
-     return Decision(name,version);
+    return Decision(name, version);
 }
 
 Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::newDecisionList() const

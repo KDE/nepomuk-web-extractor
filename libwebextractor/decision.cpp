@@ -16,6 +16,7 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #include "propertiesgroup.h"
+#include "decisionapplicationrequest.h"
 #include "decision.h"
 #include "datapp.h"
 #include <QtCore/QSharedData>
@@ -27,66 +28,68 @@
 #include "decisiondata.h"
 #include "identsetmanager.h"
 #include "algorithm.h"
+#include <nepomuk/mergerequest.h>
+#include <nepomuk/changelog.h>
 
 namespace NW = Nepomuk::WebExtractor;
 namespace NS = Nepomuk::Sync;
 
 
 
-double Nepomuk::WebExtractor::Decision::truncateRank(double rank)
+double NW::Decision::truncateRank(double rank)
 {
-    return WE::boundRank(rank);
+    return boundRank(rank);
 }
 
-double Nepomuk::WebExtractor::Decision::rank() const
+double NW::Decision::rank() const
 {
     return d->rank;
 }
 
-float  Nepomuk::WebExtractor::Decision::pluginVersion() const
+float  NW::Decision::pluginVersion() const
 {
     Q_ASSERT(!d->authorsData.isEmpty());
     return (*(d->authorsData.begin()))->pluginVersion();
 }
 
-QString  Nepomuk::WebExtractor::Decision::pluginName() const
+QString  NW::Decision::pluginName() const
 {
     Q_ASSERT(!d->authorsData.isEmpty());
     return (*(d->authorsData.begin()))->pluginName();
 }
 
-Nepomuk::WebExtractor::Decision::Decision(
+NW::Decision::Decision(
     const DataPP * parent,
     Soprano::Model * decisionsModel,
     IdentificationSetManager * identsetManager
 ):
-    d(new Nepomuk::WebExtractor::DecisionData(parent, decisionsModel, identsetManager))
+    d(new NW::DecisionData(parent, decisionsModel, identsetManager))
 {
 }
 
-Nepomuk::WebExtractor::Decision::Decision(
+NW::Decision::Decision(
 ):
-    d(new Nepomuk::WebExtractor::DecisionData())
+    d(new NW::DecisionData())
 {
 };
 
 
-Nepomuk::WebExtractor::Decision::~Decision()
+NW::Decision::~Decision()
 {
 }
 
-Nepomuk::WebExtractor::Decision::Decision(const Decision & rhs)
+NW::Decision::Decision(const Decision & rhs)
 {
     d = rhs.d;
 }
 
-const Nepomuk::WebExtractor::Decision & Nepomuk::WebExtractor::Decision::operator=(const Decision & rhs)
+const NW::Decision & Nepomuk::WebExtractor::Decision::operator=(const Decision & rhs)
 {
     this->d = rhs.d;
     return *this;
 }
 
-bool Nepomuk::WebExtractor::Decision::operator==(const Decision & rhs) const
+bool NW::Decision::operator==(const Decision & rhs) const
 {
     if(this == &rhs)
         return true;
@@ -99,22 +102,22 @@ bool Nepomuk::WebExtractor::Decision::operator==(const Decision & rhs) const
     //return (d->data == rhs.d->data);
 }
 
-bool Nepomuk::WebExtractor::Decision::operator!=(const Decision & rhs)const
+bool NW::Decision::operator!=(const Decision & rhs)const
 {
     return !(*this == rhs);
 }
 
-bool Nepomuk::WebExtractor::Decision::isEmpty() const
+bool NW::Decision::isEmpty() const
 {
     return d->data.isEmpty();
 }
 
-bool Nepomuk::WebExtractor::Decision::isValid() const
+bool NW::Decision::isValid() const
 {
     return (!d->contextUrl.isEmpty()) and(!d->authorsData.isEmpty());
 }
 
-void Nepomuk::WebExtractor::Decision::setRank(double rank)
+void NW::Decision::setRank(double rank)
 {
     // If freezed
     if(d->isFreezed())
@@ -234,10 +237,6 @@ QUrl NW::Decision::proxyUrl(const Nepomuk::Resource & res)
 
     if(fit == d->resourceProxyMap.end()) { // Resource not found
 
-        IdentificationSetPtr ptr = d->identsetManager->identificationSet(res.resourceUri());
-        if(!ptr)
-            return QUrl();
-        d->resourceProxyISMap.insert(res.resourceUri(), ptr);
 
         // First disable any current group
         PropertiesGroup save = d->resetCurrentGroup();
@@ -253,10 +252,15 @@ QUrl NW::Decision::proxyUrl(const Nepomuk::Resource & res)
         // Add to the list of copied resources
         d->resourceProxyMap.insert(sourceUrl, newUrl);
 
+        // Create ignore list
+        QSet<QUrl> ignoreList = d->resourceProxyISMap.keys().toSet();
 
+        // Create identification set
+        NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
+        // Add url to the ACL of the filter log model
+        d->filterModel->addTarget(newUrl);
 
-
-
+        d->resourceProxyISMap.insert(sourceUrl, set);
         // Add a hint
         Q_ASSERT(d->decisionsModel);
         /*
@@ -270,7 +274,20 @@ QUrl NW::Decision::proxyUrl(const Nepomuk::Resource & res)
             */
         return newUrl;
     } else {
-        kDebug() << "Resource " << sourceUrl << " has already been copied";
+        // Now it is possible situation that resource was copied,
+        // but it wasn't marked as target  resource and it's identification set
+        // was not created.
+        if(!d->resourceProxyISMap.contains(sourceUrl)) {
+            // Create ignore list
+            QSet<QUrl> ignoreList = d->resourceProxyISMap.keys().toSet();
+            // Create identification set
+            NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
+            // Add to the ACL of fiter model
+            d->filterModel->addTarget(fit.value());
+            // Insert to the map of the identification sets
+            d->resourceProxyISMap.insert(sourceUrl, set);
+        }
+        //kDebug() << "Resource " << sourceUrl << " has already been copied";
     }
 
     QUrl answer = fit.value();
@@ -294,7 +311,7 @@ QHash<QUrl, QUrl> NW::Decision::proxies() const
 }
 
 /*
-void Nepomuk::WebExtractor::Decision::addStatement(const Soprano::Statement & statement, double rank)
+void NW::Decision::addStatement(const Soprano::Statement & statement, double rank)
 {
     PropertiesGroup grp;
     grp << statement;
@@ -303,7 +320,7 @@ void Nepomuk::WebExtractor::Decision::addStatement(const Soprano::Statement & st
 }
 */
 /*
-void Nepomuk::WebExtractor::Decision::addGroup( const PropertiesGroup & grp)
+void NW::Decision::addGroup( const PropertiesGroup & grp)
 {
     //rank = Private::truncateRank(rank);
 
@@ -329,22 +346,36 @@ bool NW::Decision::isFreezed() const
     return this->d->isFreezed();
 }
 
-void Nepomuk::WebExtractor::Decision::apply() const
+NW::DecisionApplicationRequest * NW::Decision::applicationRequest(Soprano::Model * targetModel) const
 {
+    Q_ASSERT(targetModel);
+    if(!isValid())
+        return 0;
+
+    // Get changelog
     NS::ChangeLog log = this->log();
-    /*
-    kDebug() << "Write statements to storage";
-    foreach ( const PropertiesGroup & lst, d->data )
-    {
-    foreach( const Soprano::Statement  & st, lst.data() )
-    {
-        kDebug() << st;
-    }
-    }
-    */
+
+    return new DecisionApplicationRequest(d, log, targetModel);
 }
 
-void Nepomuk::WebExtractor::Decision::addToUserDiscretion()
+
+bool NW::Decision::apply(Soprano::Model * targetModel) const
+{
+
+    Q_ASSERT(targetModel);
+
+    if(!isValid())
+        return false;
+
+    DecisionApplicationRequest * req = this->applicationRequest(targetModel);
+
+    bool answer = req->apply();
+    delete req;
+    return answer;
+
+}
+
+void NW::Decision::addToUserDiscretion()
 {
     /*
     kDebug() << "Write Decision to user discretion list";
@@ -358,12 +389,17 @@ void Nepomuk::WebExtractor::Decision::addToUserDiscretion()
     */
 }
 
-void Nepomuk::WebExtractor::Decision::addAuthor(const DataPP * author)
+QList<QUrl> NW::Decision::mainResources() const
+{
+    return d->resourceProxyMap.values();
+}
+
+void NW::Decision::addAuthor(const DataPP * author)
 {
     d->authorsData.insert(author);
 }
 
-unsigned int Nepomuk::WebExtractor::qHash(const Nepomuk::WebExtractor::Decision & des)
+unsigned int NW::qHash(const Nepomuk::WebExtractor::Decision & des)
 {
     return des.d->hash;
 }

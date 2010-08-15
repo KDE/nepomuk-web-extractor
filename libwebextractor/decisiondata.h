@@ -50,8 +50,8 @@ namespace Nepomuk
                 QSet<const DataPP*>  authorsData;
                 unsigned int hash;
                 QTime timeStamp;
-                //QString pluginName;
-                //QString pluginVersion;
+
+
                 // Manager of the filter model
                 ResourceManager * manager;
 
@@ -72,7 +72,7 @@ namespace Nepomuk
                 IdentificationSetManager * identsetManager;
                 // This is our storage for all IdentificationSets for all our
                 // proxied resources
-                QHash< QUrl, IdentificationSetPtr > resourceProxyISMap;
+                QHash< QUrl, Nepomuk::Sync::IdentificationSet > resourceProxyISMap;
 
                 // This is url of the Decision itself
                 QUrl contextUrl;

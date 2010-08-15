@@ -54,6 +54,12 @@ NW::DataPPReply::DataPPReplyError NW::SimpleDataPPReply::error() const
 
 void NW::SimpleDataPPReply::finish()
 {
+    // Call realFinish() with qt metacall
+    QMetaObject::invokeMethod(this, "realFinish", Qt::QueuedConnection);
+}
+
+void  NW::SimpleDataPPReply::realFinish()
+{
     // If there is no error, then emit only finished signal.
     // If there is an error, them first emit error signal, then finished signal
     Q_D(SimpleDataPPReply);
@@ -93,8 +99,23 @@ const Nepomuk::Resource & NW::SimpleDataPPReply::resource()
     return d->m_res;
 }
 
+/*
 NW::DecisionList & NW::SimpleDataPPReply::mainDecisionList()
 {
     Q_D(SimpleDataPPReply);
     return d->m_decisions;
+}
+*/
+
+void NW::SimpleDataPPReply::addDecision(const Decision & decision)
+{
+    Q_D(SimpleDataPPReply);
+    d->m_decisions.addDecision(decision);
+    return;
+}
+void NW::SimpleDataPPReply::addDecision(const Decision & decision , MergePolitics politics, double coff , bool noAuto)
+{
+    Q_D(SimpleDataPPReply);
+    d->m_decisions.addDecision(decision, politics, coff, noAuto);
+    return;
 }

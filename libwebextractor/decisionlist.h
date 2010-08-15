@@ -49,11 +49,11 @@ namespace Nepomuk
                  * \param politics Merging politics
                  * \param coff Ignored
                  */
-                void addDecision(const Decision & , WE::MergePolitics politics, double coff = 1, bool noAuto = false);
+                void addDecision(const Decision & , MergePolitics politics, double coff = 1, bool noAuto = false);
                 /*! \brief Merge one DecisionLis with another
                  * The same as add all Decisions from one list to another using given settings
                  */
-                void mergeWith(const DecisionList & rhs, WE::MergePolitics policis = WE::Highest, double coff = 1);
+                void mergeWith(const DecisionList & rhs, MergePolitics policis = Highest, double coff = 1);
                 using QSet<Decision>::constBegin ;
                 using QSet<Decision>::constEnd ;
                 using QSet<Decision>::const_iterator;
@@ -72,11 +72,11 @@ namespace Nepomuk
             private:
                 DecisionList(double threshold = 0);
                 // Leave only unique instances
-                //void unique( WE::MergePolitics policis = WE::Highest, double coff = 1 );
+                //void unique( MergePolitics policis = Highest, double coff = 1 );
                 //void sort();
                 bool hasAutoApplicable() const;
                 QSet<const DataPP*> filterObsolete();
-                void addDecisionUnscaled(Decision & , WE::MergePolitics politics, double coff = 1);
+                void addDecisionUnscaled(Decision & , MergePolitics politics, double coff = 1);
                 void filter(double threshold);
                 void addToUserDiscretion() const;
                 const Decision & best() const;

@@ -58,10 +58,13 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
         void onClearExamined();
         void onClearAllExamined();
         void onCurrentDecisionChanged(QListWidgetItem * current, QListWidgetItem * previous);
+        void onApplyDecision();
+        void onIdentifyDecision();
     private:
         void updateExaminedInfo();
         void updateServiceInfo();
         void updateDecisionsInfo();
+        void updateIdentificationInfo();
         void cleanAfterAnalyzing();
         QThread * workThread;
         Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;
@@ -81,6 +84,7 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
 
         // Map that store current list of the Decisions. Key is the url.
         QMap< QUrl, Nepomuk::WebExtractor::Decision > m_decisionMap;
+        QHash< QUrl, Nepomuk::WebExtractor::DecisionApplicationRequest* > m_requestsHash;
 
         KTempDir * m_tmpDir;
         const Soprano::Backend * m_usedBackend;

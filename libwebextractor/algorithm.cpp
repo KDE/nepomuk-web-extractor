@@ -17,13 +17,21 @@
  */
 
 #include "algorithm.h"
-#include "modelgraphvisitor.h"
 #include <Soprano/Node>
 #include <Nepomuk/ResourceManager>
+#include <Nepomuk/Resource>
+#include "modelgraphvisitor.h"
+#include "copyvisitor.h"
+#include "plaintextvisitor.h"
+#include "visitednodefilter.h"
+#include "graphalgorithm.h"
+#include "selectedpropertiesfunc.h"
+#include "plaintextvisitor.h"
+#include "modelgraph.h"
 
+namespace NG = Nepomuk::Graph;
 
-
-QUrl Nepomuk::deep_resource_copy(const Nepomuk::Resource & from,  Nepomuk::ResourceManager * to , bool sameModels)
+QUrl Nepomuk::deep_resource_copy(const Nepomuk::Resource & from,  Nepomuk::ResourceManager * to, bool sameModels)
 {
     // Fix parameters
     if(!to) {
@@ -31,30 +39,25 @@ QUrl Nepomuk::deep_resource_copy(const Nepomuk::Resource & from,  Nepomuk::Resou
     }
 
     // Make a copy
-    QList<QUrl> targets;
+    QSet<QUrl> targets;
     QHash<QUrl, QUrl> convtable;
     targets << from.resourceUri();
-    typedef void * BaseType; /* Base class, because we don't need it */
-    typedef Soprano::Node NodeType; /* Type of the Node. It can be ignored too */
-    typedef DummyNodeFunc<void*> NodeFunc; /* For given Node return itself as Node descriptor */
-    typedef ConvertWriteVisitor<void*, Soprano::Node> ParseFunc; /* Conversation func. This function will perform actual copying */
-    typedef Nepomuk::Graph::SelectedResourcePropertiesFunc<void*, Soprano::Node> NextFunc;/* This function will return as childs all nodes that are resource and there is triple ( subject, ?p, child )*/
-    Nepomuk::Graph::visit_model_graph <
-    BaseType,
-    NodeType,
-    NodeFunc,
-    ParseFunc,
-    NextFunc
-    > (
-        0,
-        from.manager()->mainModel(),
+    NG::CopyVisitor * visitor = new NG::CopyVisitor(to, &convtable);
+    NG::SelectedPropertiesFunc * childrenFunc = new NG::SelectedPropertiesFunc();
+    NG::ModelGraph * mg = new NG::ModelGraph(from.manager()->mainModel(), childrenFunc);
+
+    Nepomuk::Graph::visit_model_graph
+    (
+        mg,
         targets,
-        -1,
-        NodeFunc(),
-        ParseFunc(to, &convtable),
-        NextFunc(),
+        visitor
+        - 1,
         sameModels
     );
+
+    delete visitor;
+    delete childrenFunc;
+    delete mg;
 
     return convtable[from.resourceUri()];
 
@@ -78,42 +81,72 @@ QHash<QUrl, QUrl> *  Nepomuk::deep_resource_copy_adjust(
     }
 
     // Make a copy
-    QList<QUrl> targets;
+    QSet<QUrl> targets;
     targets << from.resourceUri();
 
+    NG::CopyVisitor * visitor = new NG::CopyVisitor(to, convtable);
+    NG::VisitedNodeFilter * childrenFunc = new NG::VisitedNodeFilter(
+        visited,
+        new NG::SelectedPropertiesFunc()
+    );
+    NG::ModelGraph * mg = new NG::ModelGraph(from.manager()->mainModel(), childrenFunc);
 
-    typedef void * BaseType; /* Base class, because we don't need it */
-    typedef Soprano::Node NodeType; /* Type of the Node. It can be ignored too */
-    typedef DummyNodeFunc<void*> NodeFunc; /* For given Node return itself as Node descriptor */
-    typedef ConvertWriteVisitor <BaseType, NodeType>
-    Visitor; /* Conversation func. This function will perform actual copying */
-    typedef IgnoreVisitedFunc <
-    BaseType,
-    NodeType,
-    Nepomuk::Graph::SelectedResourcePropertiesFunc<void*, Soprano::Node>
-    > NextFunc;/* This function will return as childs all nodes that are resource and there is triple ( subject, ?p, child )*/
-    Nepomuk::Graph::visit_model_graph <
-    BaseType,
-    NodeType,
-    NodeFunc,
-    Visitor,
-    NextFunc
-    > (
-        0,
-        from.manager()->mainModel(),
+    Nepomuk::Graph::visit_model_graph
+    (
+        mg,
         targets,
+        visitor,
         -1,
-        NodeFunc(),
-        Visitor(to, convtable),
-        NextFunc(&visited),
         sameModels
     );
+
+    delete visitor;
+    delete childrenFunc;
+    delete mg;
 
     return convtable;
 }
 
 
+void Nepomuk::dump_resource_as_text(const Nepomuk::Resource & resource, QTextStream & stream, int depth_limit)
+{
+    dump_resource_as_text(
+        resource.resourceUri(),
+        resource.manager()->mainModel(),
+        stream,
+        depth_limit);
+}
 
+void Nepomuk::dump_resource_as_text(const QUrl & resource, Soprano::Model * model, QTextStream & stream, int depth_limit)
+{
+    // Make a copy
+    QSet<QUrl> targets;
+    targets << resource;
+
+    dump_resources_as_text(targets, model, stream, depth_limit);
+
+}
+
+void Nepomuk::dump_resources_as_text(const QSet<QUrl> & resources, Soprano::Model * model, QTextStream & stream, int depth_limit)
+{
+    NG::PlainTextVisitor * visitor = new NG::PlainTextVisitor(&stream);
+    NG::SelectedPropertiesFunc * childrenFunc = new NG::SelectedPropertiesFunc();
+
+    NG::ModelGraph * mg = new NG::ModelGraph(model, childrenFunc);
+
+    Nepomuk::Graph::visit_model_graph
+    (
+        mg,
+        resources,
+        visitor,
+        depth_limit,
+        false
+    );
+
+    delete visitor;
+    delete childrenFunc;
+    delete mg;
+}
 /*
 QUrl Nepomuk::ngUri( const Soprano::Node & node)
 {

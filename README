@@ -1,0 +1,4 @@
+Top-level CMakeLists will not work
+First compile  libwebextractor
+Then compile gui
+then - runtime

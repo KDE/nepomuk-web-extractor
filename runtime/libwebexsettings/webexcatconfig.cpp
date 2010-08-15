@@ -108,7 +108,7 @@ QDebug Nepomuk::operator<<(QDebug dbg,  const WebExCategoryConfig & cat)
 {
     dbg << "Category name(filename)" << cat.m_name << '\n';
     dbg << "Description: " << cat.description() << '\n';
-    dbg << "Query: " << cat.query() << '\n';
+    dbg << "Query: " << cat.queryText() << '\n';
     dbg << "Update interval: " << cat.interval() << '\n';
     dbg << "Plugins:(" << cat.m_pluginsNames.size() << ")" << '\n';
     foreach(const QString & plg, cat.m_pluginsNames) {

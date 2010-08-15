@@ -147,8 +147,9 @@ namespace Nepomuk
                 /*! \brief Apply any Decision with rank > a_crit or store Decision for the user discrition
                  *
                  * This function can be called only once. Next calls of this method will do nothing
+                         * \return True if applying the best decision was successfull
                  */
-                void apply();
+                bool apply();
 
                 /*! Remove list of decisions.
                  *
@@ -260,8 +261,8 @@ namespace Nepomuk
                 ResourceAnalyzer(
                     const DataPPKeeper & ,
                     DecisionFactory * fact, // Take ownership
-                    WE::MergePolitics mergePolitics,
-                    WE::LaunchPolitics launchPolitics,
+                    MergePolitics mergePolitics,
+                    LaunchPolitics launchPolitics,
                     double acrit,
                     double ucrit,
                     unsigned int step,
@@ -286,6 +287,8 @@ namespace Nepomuk
                 // error must be set BEFORE calling this slot.
                 void finishWithError();
 
+                // Perform actual analyzing
+                void doAnalyze();
             private:
                 // emit error signal and then analyzingFinished signal.
                 // Also set m_error variable to code
