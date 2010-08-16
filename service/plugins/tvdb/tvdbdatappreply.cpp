@@ -30,10 +30,10 @@
 #include <Nepomuk/Resource>
 #include <KDebug>
 
-Nepomuk::TvdbReply::TvdbReply(TvdbDataPP* parent,
-                              const WebExtractor::DecisionFactory* factory,
-                              const Nepomuk::Resource& res,
-                              const QString& name, int season, int episode ):
+Nepomuk::TvdbReply::TvdbReply( TvdbDataPP* parent,
+                               const WebExtractor::DecisionFactory* factory,
+                               const Nepomuk::Resource& res,
+                               const QString& name, int season, int episode ):
     SimpleDataPPReply(parent, factory, res),
     m_name( name ),
     m_season( season ),
@@ -59,15 +59,22 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
 {
     if ( id == m_seriesCacheId ) {
         Q_FOREACH( const Tvdb::Series& series, results ) {
+            // 1. make sure this series actually has an episode that matches our values
+            if ( series.numSeasons() < m_season ||
+                 series[m_season].numEpisodes() < m_episode ) {
+                continue;
+            }
+
+            // 2. create the new decision
             WebExtractor::Decision d = newDecision();
             WebExtractor::PropertiesGroup g = d.newGroup();
 
-            // 1. create the series resource
+            // 3. create the series resource
             TVSeries tvSeries( QUrl(), g.manager() );
             tvSeries.setLabel( series.name() );
             tvSeries.setDescription( series.overview() );
 
-            // 2. add the data to the file resource: the TVShow type and the rest
+            // 4. add the data to the file resource: the TVShow type and the rest
             TVShow proxyRes( d.proxyUrl(resource()), g.manager() );
             proxyRes.addType( QUrl( TVShow::resourceTypeUri() ) );
             proxyRes.setSeries( tvSeries );
@@ -76,6 +83,10 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
             proxyRes.setSeason( m_season );
             proxyRes.setSynopsis( series[m_season][m_episode].overview() );
 
+            // 5. calculate the probability of the match the dumb way
+            d.setRank( double( series.name().length() - m_name.length() ) / double( series.name().length() ) );
+
+            // 6. add the decision to the pool of applicable ones
             addDecision( d );
         }
     }
