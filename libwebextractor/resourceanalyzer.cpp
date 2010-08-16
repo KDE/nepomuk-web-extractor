@@ -20,7 +20,6 @@
 #include <KDebug>
 #include <QDateTime>
 #include <QtCore/QTimer>
-#include <assert.h>
 #include <stdint.h>
 #include <QSharedData>
 #include <Nepomuk/Resource>
@@ -83,6 +82,14 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private /*: public QSharedData*/
         // stored there
         QMap<DataPPWrapper*, QDateTime > examinedDates;
 
+        // This is the counter. Each time an obsolete Decision is detected,
+        // this counter increased. When it reach maximum limit, all analyzing
+        // process will exit with error
+        int obsoleteDecisionIterationCounter;
+
+        // This is the maximum limit for previously described counter of
+        // iterations caused by obsolete Decisions
+        int maxObsoleteDecisionIterationCounter;
 
         // Convinience method to add set of DataPP* to queue
         void enqueue(const QSet<const DataPP*> &);
@@ -105,7 +112,9 @@ Nepomuk::WebExtractor::ResourceAnalyzer::Private::Private(
     m_applied(false),
     m_running(false),
     m_error(ResourceAnalyzer::NoError),
-    m_apolitics(ResourceAnalyzer::SingleStep)
+    m_apolitics(ResourceAnalyzer::SingleStep),
+    obsoleteDecisionIterationCounter(0),
+    maxObsoleteDecisionIterationCounter(10)
 {
     //DataPPKeeper::const_iterator it = m_dataPPKeeper.begin();
 
@@ -233,7 +242,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
         // and delete ResourceAnalyzer, thus avoiding error signal(I hope Qt
         // doesn't pass signals from destroyed objects.)
         d->m_error = InvalidResource;
-        QTimer::singleShot(0, this, SLOT(finishWithError()));
+        QTimer::singleShot(0, this, SLOT(exitWithError()));
         return;
     }
 
@@ -251,7 +260,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
     // resource unexisting resource
     if(!res.exists()) {
         d->m_error = UnexistingResource;
-        QTimer::singleShot(0, this, SLOT(finishWithError()));
+        QTimer::singleShot(0, this, SLOT(exitWithError()));
         return;
     }
 
@@ -296,8 +305,10 @@ void NW::ResourceAnalyzer::doAnalyze()
 
     d->m_running = true;
     d->m_applied = false;
+    // TODO Add correct error
     if(!launchNext()) {
-        // Can not analyze - no DataPP or any other problem
+        // Can not analyze - no DataPP. This is because all
+        // DataPP are already analyzed of becase no DataPP was assigned
         // to avoid infinite recursion the analyzingFinished signal will
         // be called via QTimer::singleShot(0)
         if(d->m_error == NoError) {
@@ -305,15 +316,10 @@ void NW::ResourceAnalyzer::doAnalyze()
         }
         d->m_running = false;
         kDebug() << "Failed to analyze resource. Check parameters.";
-        QTimer::singleShot(0, this, SLOT(finishWithError()));
+        QTimer::singleShot(0, this, SLOT(exitWithError()));
     }
 }
 
-
-bool NW::ResourceAnalyzer::isRunning() const
-{
-    return d->m_running;
-}
 
 void NW::ResourceAnalyzer::abort()
 {
@@ -354,12 +360,12 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 {
     //kDebug() << "DISABLED";
     //return false;
-    assert(d->m_respWaits == 0);
+    Q_ASSERT(d->m_respWaits == 0);
     //if (!tmp_count)
     //  return false;
 
     kDebug() << "Launching next portion of plugins";
-    kDebug() << "Total DataPP: " << d->m_dataPPKeeper.size();
+    //kDebug() << "Total DataPP: " << d->m_dataPPKeeper.size();
 
     int substop = 0;
     if(d->m_launchPolitics == All)
@@ -376,20 +382,18 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
         //kDebug() << "Datappwrapper: " << uintptr_t(dpp) << " DataPP: " << uintptr_t(dpp->data());
 
         // launch
-        //DataPPReply * repl = dpp->requestDecisions(d->m_fact, d->m_res,this, SLOT( pluginFinished()), SLOT(pluginFinished()));
         DataPPReply * repl = dpp->requestDecisions(d->m_fact, d->m_res);
         // ATTENTION! repl object is executed in another thread!
         //repl->setParent(this);
 
         if(!repl) {
-            kDebug() << "DataPP return 0 as reply. How should I handle it? Ignoring.";
             continue;
         }
 
         // Connect signals of this reply
         // FIXME Change error() signal to pluginError slot
         connect(repl, SIGNAL(finished()), this, SLOT(pluginFinished()));
-        connect(repl, SIGNAL(error(DataPPReply::DataPPReplyError)), this, SLOT(pluginFinished()));
+        connect(repl, SIGNAL(error(DataPPReply::DataPPReplyError)), this, SLOT(pluginError()));
 
         Q_ASSERT(!d->m_replies.contains(repl));
         d->m_replies.insert(repl);
@@ -421,68 +425,67 @@ void Nepomuk::WebExtractor::ResourceAnalyzer::launchOrFinish()
 }
 
 
+NW::DataPPReply * NW::ResourceAnalyzer::acceptReply()
+{
+    // Process data plugin has returned
+    DataPPReply * reply = qobject_cast<DataPPReply*>(QObject::sender());
+    if(reply) {
+        //Q_ASSERT(d->m_replies.contains(repl));
+        // Remove reply from set
+        if(d->m_replies.remove(reply)) {
+            // If reply was in set, then
+            // decrease replies counter
+            d->m_respWaits--;
+        }
+        const DataPP * parent = reply->parentDataPP();
+        // Error check - check that this reply is not from unknown DataPP
+        if(d->m_dataPPKeeper.contains(parent)) {
+            return reply;
+        }
+        kError() << "Recived answer from unregistred DataPP";
+        reply->deleteLater();
+    } else {
+        kError() << "Recive answer not from DataPPReply object";
+    }
+    return 0;
+}
+
 // TODO I am not sure that even after deleting the reply there will not be any
 // queued signals left. May be it is necessary to add filter that will ignore
 // 'obsolete' replies. It is possible to use m_running variable for it. But this
 // wont work in iterative mode.
+// Another variant is to add 'so-called' sessionID. If it's type will be int64 ( long ),
+// then it will be enough for the rest of the Universe lifetime. It is possible to
+// use system time as sessionID.
 void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinished()
 {
     //kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
-    d->m_respWaits--;
     kDebug() << "Recived answer from plugin.";
 
-    // Process data plugin has returned
-    DataPPReply * repl = qobject_cast<DataPPReply*>(QObject::sender());
-    if(repl) {
-        //Q_ASSERT(d->m_replies.contains(repl));
-        // Remove reply from set
-        d->m_replies.remove(repl);
+    DataPPReply * repl = acceptReply();
+
+    if(repl->isValid()) {
         const DataPP * parent = repl->parentDataPP();
-        // Error check - check that this reply is not from unknown DataPP
-        if(d->m_dataPPKeeper.contains(parent)) {
-            // Delete it from map and call deleteLater
-            //double repl_rank = d->m_replyAndRanks[repl];
-            //double repl_rank = d->m_dataPPKeeper[parent]->rank();
-
-
-            if(repl->isValid()) {
-                kDebug() << "Reply has " << repl->decisions().size() << " decisions";
-                // Process Decision list
-                d->m_decisions.mergeWith(repl->decisions(), d->m_mergePolitics, d->m_mergeCoff);
-                // Mark DataPP as examined. Not in ResourceServiceData, but in
-                // internal storage. This is necessary to reduce amount of
-                // requests to examined info storage in case ResourceAnalyzer is
-                // working in Iterative mode.
-                DataPPWrapper * dppw = d->m_dataPPKeeper[parent];
-                d->examinedDates[dppw] = QDateTime::currentDateTime();
-            } else {
-                kDebug() << "Reply is invalid";
-            }
-
-            repl->deleteLater();
-        } else {
-            kDebug() << "Recived answer from unregistred DataPP";
-        }
+        kDebug() << "Reply has " << repl->decisions().size() << " decisions";
+        // Process Decision list
+        d->m_decisions.mergeWith(repl->decisions(), d->m_mergePolitics, d->m_mergeCoff);
+        // Mark DataPP as examined. Not in ResourceServiceData, but in
+        // internal storage. This is necessary to reduce amount of
+        // requests to examined info storage in case ResourceAnalyzer is
+        // working in Iterative mode.
+        DataPPWrapper * dppw = d->m_dataPPKeeper[parent];
+        d->examinedDates[dppw] = QDateTime::currentDateTime();
     } else {
-        kDebug() << "Recive answer not from DataPPReply object";
+        kDebug() << "Reply is invalid";
     }
+
+    repl->deleteLater();
 
 
 
 
     if(d->m_respWaits == 0) {
-        // All launched plugins return data
-        // Process it
-        // Filter obsolete Decisions and add the DataPP that generate
-        // this obsolete Decisions back to queue
-        // FIXME Fix infinite loop that is possible there
-        QSet< const DataPP*> set = d->m_decisions.filterObsolete();
-        if(set.size()) {
-            d->enqueue(set);
-        }
-
-        // Launching other plugins if necessary
-        launchOrFinish();
+        pluginPackFinished();
     }
     /*
     else {
@@ -491,10 +494,62 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginFinish
     */
 }
 
-NW::DecisionList NW::ResourceAnalyzer::decisions() const
+void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::pluginError()
 {
-    return d->m_decisions;
+    //kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
+    kDebug() << "Recived error answer from plugin.";
+
+    DataPPReply * repl = acceptReply();
+
+    // Do nothing because it is error
+    repl->deleteLater();
+
+
+
+
+    if(d->m_respWaits == 0) {
+        pluginPackFinished();
+    }
+    /*
+    else {
+       kDebug() << "Only " << m_respWaits << " answers remaining";
+    }
+    */
 }
+
+void NW::ResourceAnalyzer::pluginPackFinished()
+{
+    // All launched plugins return data
+    // Process it
+    // Filter obsolete Decisions and add the DataPP that generate
+    // this obsolete Decisions back to queue
+    // FIXME Fix infinite loop that is possible there
+    QSet< const DataPP*> set = d->m_decisions.filterObsolete();
+    if(set.size()) {
+        // If resource is changing very quickly in the original model,
+        // then infinite loop is possible here, because each time all decision
+        // will be obsolete and all DataPP will be added to the queue.
+        // To prevent this, the obsolete iteration counter was introduced.
+        // When some decisions are detected as obsolete, this counter is
+        // increased. If it reach maximum litim, then all analyzing will stop
+        // with apropriate error
+        d->obsoleteDecisionIterationCounter++;
+        if(d->obsoleteDecisionIterationCounter >=
+                d->maxObsoleteDecisionIterationCounter) {
+            // Then we must return with error
+            abortWithError(ActiveUsage);
+            return;
+        }
+        // The maximum is not reached. Add DataPP back to the queue
+        d->enqueue(set);
+    }
+
+
+    // Launching other plugins if necessary
+    // or exit if there are no more plugins to launch
+    launchOrFinish();
+}
+
 
 bool NW::ResourceAnalyzer::apply()
 {
@@ -516,29 +571,16 @@ bool NW::ResourceAnalyzer::apply()
     return true;
 }
 
-void NW::ResourceAnalyzer::clear()
+bool NW::ResourceAnalyzer::clear()
 {
     if(d->m_running)
-        return;
+        return false;
 
     d->m_decisions.clear();
     d->m_examined.clear();
     d->examinedDates.clear();
-}
-
-NW::ResourceAnalyzer::AnalyzingPolitics NW::ResourceAnalyzer::analyzingPolitics() const
-{
-    return d->m_apolitics;
-}
-
-void NW::ResourceAnalyzer::setAnalyzingPolitics(AnalyzingPolitics politics)
-{
-    d->m_apolitics = politics;
-}
-
-NW::ResourceAnalyzer::AnalyzingError NW::ResourceAnalyzer::error() const
-{
-    return d->m_error;
+    d->obsoleteDecisionIterationCounter = 0;
+    return true;
 }
 
 void NW::ResourceAnalyzer::analyzingSessionFinished()
@@ -578,19 +620,53 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
     emit analyzingFinished();
 }
 
-void NW::ResourceAnalyzer::finishWithError()
+void NW::ResourceAnalyzer::exitWithError()
 {
     emit error(d->m_error);
     emit analyzingFinished();
 }
 
-void NW::ResourceAnalyzer::finishWithError(AnalyzingError code)
+void NW::ResourceAnalyzer::exitWithError(AnalyzingError code)
 {
     d->m_error = code;
-    finishWithError();
+    exitWithError();
+}
+
+void NW::ResourceAnalyzer::abortWithError(AnalyzingError code)
+{
+    abort();
+    d->m_error = code;
+    exitWithError();
 }
 
 
+NW::ResourceAnalyzer::AnalyzingPolitics NW::ResourceAnalyzer::analyzingPolitics() const
+{
+    return d->m_apolitics;
+}
+
+void NW::ResourceAnalyzer::setAnalyzingPolitics(AnalyzingPolitics politics)
+{
+    if(d->m_running)
+        return;
+
+    d->m_apolitics = politics;
+}
+
+NW::ResourceAnalyzer::AnalyzingError NW::ResourceAnalyzer::error() const
+{
+    return d->m_error;
+}
+
+NW::DecisionList NW::ResourceAnalyzer::decisions() const
+{
+    return d->m_decisions;
+}
+
+bool NW::ResourceAnalyzer::isRunning() const
+{
+    return d->m_running;
+}
 
 /*
 void NW::ResourceAnalyzer::setDebugInterrupter( void (*newInterrupter)() )

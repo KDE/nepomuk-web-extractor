@@ -68,7 +68,6 @@ void  NW::SimpleDataPPReply::realFinish()
         return;
     } else {
         emit DataPPReply::error(d->m_error);
-        emit finished();
         return;
     }
 

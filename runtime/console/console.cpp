@@ -38,8 +38,22 @@ ConsoleMainWindow::ConsoleMainWindow(
     m_tmpDir(0)
 {
     this->setupUi(this);
-    //new ModelTest(Nepomuk::DataPPPool::self(), this);
+
+    // Set properties of the DataPPView
     this->dataPPView->setModel(Nepomuk::DataPPPool::self());
+#if 0
+    connect(Nepomuk::DataPPPool::self(),
+            SIGNAL(dataChanged(const QModelIndex & , const QModelIndex &)),
+            this->dataPPView,
+            SLOT(resizeColumnToContents())
+           );
+    connect(this->dataPPView, SIGNAL(expanded(const QModelIndex &)),
+            this->dataPPView, SLOT(resizeColumnToContents()));
+    connect(this->dataPPView, SIGNAL(collapsed(const QModelIndex &)),
+            this->dataPPView, SLOT(resizeColumnToContents()));
+    this->dataPPView->resizeColumnToContents();
+#endif
+
     kDebug() << *Nepomuk::DataPPPool::self();
     connect(this->startButton, SIGNAL(clicked()),
             this, SLOT(startExtracting()));
@@ -375,6 +389,7 @@ void ConsoleMainWindow::updateExaminedInfo()
 
         currentRow++;
     }
+    examinedDataPPWidget->resizeColumnsToContents();
 }
 
 void ConsoleMainWindow::updateServiceInfo()
@@ -418,6 +433,7 @@ void ConsoleMainWindow::updateServiceInfo()
 
         siCurrentRow++;
     }
+    serviceInfoTableWidget->resizeColumnsToContents();
 }
 
 void ConsoleMainWindow::updateDecisionsInfo()
@@ -514,6 +530,7 @@ void ConsoleMainWindow::updateIdentificationInfo()
         }
 
     }
+    identificationTableWidget->resizeColumnsToContents();
     return;
 }
 
@@ -579,6 +596,8 @@ void ConsoleMainWindow::onMarkedExamined(const QString & name, float version)
     } else {
         KMessageBox::sorry(this, "Please select any existing resource");
     }
+
+    examinedDataPPWidget->resizeColumnsToContents();
 }
 void ConsoleMainWindow::onClearExamined()
 {

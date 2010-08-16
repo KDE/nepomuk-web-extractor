@@ -67,7 +67,12 @@ namespace Nepomuk
                 virtual DataPPReplyError error() const = 0;
                 //const QString & pluginVersion() const;
             Q_SIGNALS:
+                /*! This signal is emited after reply is finished and if no error occured.
+                 */
                 void finished();
+                /*! This signal is emited if any error occured.
+                 * The finished signal MUST NOT be called after it
+                 */
                 void error(DataPPReply::DataPPReplyError errorCode);
             protected:
                 DataPPReply(DataPPReplyPrivate & p, DataPP*);

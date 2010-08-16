@@ -45,8 +45,6 @@ namespace Nepomuk
          * To apply decisionlist - apply the best decision with rank > a_crit or
          * add decisions with rank > u_crit to the storage call apply() method
          *
-         * TODO Add counter for counting how often decisions become obsolete right
-         * after the retriving. If too often then refuse from analyzing.
          */
         class WEBEXTRACTOR_EXPORT ResourceAnalyzer : public QObject
         {
@@ -146,7 +144,10 @@ namespace Nepomuk
 
                 /*! \brief Apply any Decision with rank > a_crit or store Decision for the user discrition
                  *
-                 * This function can be called only once. Next calls of this method will do nothing
+                 * This function can be called only once. Next calls of this method
+                         * will do nothing. It is not very usefull method. In all cases, except
+                         * the simplest one you should take DecisionList ( via decisions() )
+                         * and work with it.
                          * \return True if applying the best decision was successfull
                  */
                 bool apply();
@@ -156,9 +157,10 @@ namespace Nepomuk
                  * Call this method if you want to delete collected information.
                          * Calling this method when analyzing process is running will result
                          * in ignoring this function. Call abort() first, then clear()
-                         * TODO Make this function bool instead of void
+                         * \return True if clearing was succesfull, false otherwise. False
+                         * means that analyzer was running
                  */
-                void clear();
+                bool clear();
 
                 /*! \brief return error code
                  */
@@ -183,8 +185,10 @@ namespace Nepomuk
                 /*! \brief Abort analyzing. No signal will be send
                  * The method will abort analyzing but will not clear already
                  * collected data. Call clear() to do this.
-                 * TODO Add overloaded method that will send error() and finished()
-                 * signals after aborting
+                         * No information about examined DataPP  will be written back
+                         * to storage.
+                         * The already generated Decisions still can be retrived
+                         * with decisions() method.
                  */
                 void abort();
 
@@ -196,11 +200,14 @@ namespace Nepomuk
                 ~ResourceAnalyzer();
 
                 /*! \brief Return the current analyzing politics
+                         * \return Analyzing politics of the current analyzing process
                  */
                 AnalyzingPolitics analyzingPolitics() const;
+
                 /*! \brief Set new analyzing politics
-                 * Changing analyzing politics while extraction process is running
-                 * can lead to strange consequenceses
+                         * Changing politics while analyzer is running cause ignoring
+                         * this function. Call abort() first.
+                         * \sa analyzingPolitics
                  */
                 void setAnalyzingPolitics(AnalyzingPolitics politics);
 
@@ -251,7 +258,9 @@ namespace Nepomuk
                 void nextIteration();
 
                 /*! \brief indicates an error during analyzer
-                         * This signal will be emited when any error occure.
+                         * This signal will be emited when any fatal error occure.
+                         * Fatal errors are errors that make impossible further analyzing
+                         * process. For example resource doesn't exist.
                  * The analyzingFinished signal will folow this one
                  */
                 void error(AnalyzingError error);
@@ -274,9 +283,26 @@ namespace Nepomuk
                 const ResourceAnalyzer & operator=(const ResourceAnalyzer &);
 
             private Q_SLOTS:
+                /*! \brief This slot is called when DataPP has finished without error
+                 */
                 void pluginFinished();
-                //void pluginError();
+                /*! \brief This slot is callde when DataPP has finished with error
+                      */
+                void pluginError();
+
+                //  This is service slot. It tries to launch next pack of the DataPP.
+                //  It return true if any DataPP was launched and false - otherwise.
+                //  The only reason for returning false is that there is no more
+                //  DataPP to launch.
                 bool launchNext();
+
+                // This is service slot. It is just a shorthand for
+                // if ( canLaunch )
+                //    launch
+                // else
+                //    finish analyzig.
+                // This method was provide to increase readability of the program
+                // logic. Unfortunately, looks like it serves the oposite goal
                 void launchOrFinish();
 
                 // Behaviour depends from selected politics
@@ -285,15 +311,47 @@ namespace Nepomuk
 
                 // This method will emit error signal and then analyzingFinished signal
                 // error must be set BEFORE calling this slot.
-                void finishWithError();
+                void exitWithError();
+
+
 
                 // Perform actual analyzing
                 void doAnalyze();
             private:
+                // This method is called when all launched plugins returns their data.
+                // In this method this data are handled. Then if there are more plugins
+                // in the queue, these plugins are launched.
+                void pluginPackFinished();
+
+
+                // This method set m_error variable to code, then
                 // emit error signal and then analyzingFinished signal.
-                // Also set m_error variable to code
-                void finishWithError(AnalyzingError code);
-                //void clearPreviousData();
+                // This method should be used only when analyzer is not
+                // running. To exit from running analyzer call
+                // abortWithError()
+                void exitWithError(AnalyzingError code);
+
+                // This method will abort execution of analyzer,
+                // set error to given one and exit. Use this method
+                // if analyzer was launched, but encounter a serious
+                // error and can not work anymore
+                // You should not perform any actions after you call
+                // this method and return directly back to Qt main loop
+                void abortWithError(AnalyzingError code);
+
+                // This method will return DataPPReply * pointer retrived from
+                // QObject::sender(). If the sender is not DataPPReply, 0 will
+                // be returned. Is reply is from unregistered DataPP, then
+                // 0 will be returned.
+                //  The reply  will be deleted from the m_replies variable.
+                //  If reply is registered, then counter of replies will be
+                //  decreased.
+                // This method is necessary only to avoid code duplicates in
+                // pluginFinished() and pluginError()
+                // Again, ATTENTION: Reply will be deleted form the m_replies
+                // For unregistered DataPPReply, deleteLater will also be called,
+                DataPPReply * acceptReply();
+
             public:
                 friend class ResourceAnalyzerFactory;
                 class Private;
