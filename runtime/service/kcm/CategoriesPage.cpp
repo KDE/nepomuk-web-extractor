@@ -28,7 +28,6 @@
 #include <QStandardItem>
 #include <Nepomuk/Query/Query>
 #include <Nepomuk/Query/Term>
-#include "nepomuk/queryserializer.h"
 
 namespace NQ = Nepomuk::Query;
 
@@ -136,7 +135,12 @@ void CategoriesPage::loadCategory()
     }
     plugins_selector->clear();
     query_edit->setPlainText(cat->queryText());
-    this->queryBuilder->setQuery(NQ::Query(NQ::parseTerm(cat->queryText())));
+    this->queryBuilder->setQuery(
+        NQ::Query(
+            NQ::Term::fromString(cat->queryText())
+        )
+    );
+
     query_prefix_edit->setPlainText(cat->queryPrefix());
     interval_spinbox->setValue(cat->interval());
 
@@ -176,7 +180,7 @@ void CategoriesPage::saveCategory(QString  p)
     cat->setInterval(interval_spinbox->value());
     // TODO There we must select should we take query from queryBuilder or from raw editor
     if(this->rawQueryEditCheckBox->checkState() == Qt::Unchecked)   {
-        cat->setQueryText(NQ::serializeTerm(this->queryBuilder->currentQuery().term()));
+        cat->setQueryText(this->queryBuilder->currentQuery().term().toString());
     } else {
         cat->setQueryText(query_edit->toPlainText());
     }

@@ -32,9 +32,11 @@
 #include "datapppool.h"
 // use absolute path to prevent linking with libwebextractor/global.h
 #include "libwebexsettings/global.h"
-#include <nepomuk/queryserializer.h>
 
 namespace NW = Nepomuk::WebExtractor;
+namespace NQ = Nepomuk::Query;
+
+
 Nepomuk::WebExtractorSettings::WebExtractorSettings():
     WebExtractorConfig(),
     m_globalTempDir(0)
@@ -286,7 +288,7 @@ NQ::Term Nepomuk::WebExtractorSettings::query(const QString categoryName)
 {
     WebExCategoryConfig * c = m_categories[categoryName];
     Q_CHECK_PTR(c);
-    return NQ::parseTerm(c->queryText());
+    return NQ::Term::fromString(c->queryText());
 }
 
 QString Nepomuk::WebExtractorSettings::queryPrefix(const QString categoryName)

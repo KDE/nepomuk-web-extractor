@@ -1,5 +1,6 @@
-
 project(webexplugin_autotag)
+
+cmake_minimum_required(VERSION 2.6)
 
 set (QT_MIN_VERSION "4.6.0")
 set (QT_USE_QTNETWORK true)
