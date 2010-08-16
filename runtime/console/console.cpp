@@ -21,9 +21,9 @@
 #include "resourceanalyzerfactory.h"
 #include "resourceservicedata.h"
 #include "decisionapplicationrequest.h"
-#include <querybuildersearchwidget.h>
+#include <nepomuk/querybuildersearchwidget.h>
 #include <stdint.h>
-#include <changelog.h>
+#include <nepomuk/changelog.h>
 //#include "modeltest.h"
 
 using namespace Nepomuk;
