@@ -17,13 +17,13 @@
  */
 
 #include "tvdbplugin_config.h"
-
 #include "tvdbdatapp.h"
+#include "tvdbdatappreply.h"
 #include "seriescache.h"
 
 #include <webextractor/datappreply.h>
 
-#include "tvdbdatappreply.h"
+#include <Nepomuk/File>
 
 
 Nepomuk::TvdbDataPP::TvdbDataPP( float pluginVersion )

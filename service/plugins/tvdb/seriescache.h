@@ -55,9 +55,12 @@ private Q_SLOTS:
 
 private:
     struct Request {
+        Request()
+            : seriesId( -1 ),
+              id( -1 ) {
+        }
         Request( const QString& q,
-                 int id_,
-                 int pid = -1 )
+                 int id_ )
             : query( q ),
               seriesId( -1 ),
               id( id_ ) {

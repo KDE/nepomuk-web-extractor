@@ -17,12 +17,16 @@
  */
 
 #include "tvdbplugin_config.h"
-
 #include "tvdbdatappreply.h"
-
 #include "tvdbdatapp.h"
+#include "seriescache.h"
+
+#include "tvseries.h"
+#include "tvshow.h"
 
 #include <webextractor/decisionfactory.h>
+#include <webextractor/decision.h>
+
 #include <Nepomuk/Resource>
 #include <KDebug>
 
@@ -36,13 +40,13 @@ Nepomuk::TvdbReply::TvdbReply(TvdbDataPP* parent,
     m_episode( episode )
 {
     connect( parent->seriesCache(), SIGNAL( requestDone( int, QList<Tvdb::Series> ) ),
-             SLOT( slotRequestDone( requestDone( int, QList<Tvdb::Series> ) ) );
+             SLOT( slotRequestDone( requestDone( int, QList<Tvdb::Series> ) ) ) );
     m_seriesCacheId = parent->seriesCache()->querySeries( name );
 }
 
 bool Nepomuk::TvdbReply::isValid() const
 {
-    kError() <<  "ATTENTION: Not implemented";
+    return true;
 }
 
 void Nepomuk::TvdbReply::abort()
@@ -55,12 +59,24 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
 {
     if ( id == m_seriesCacheId ) {
         Q_FOREACH( const Tvdb::Series& series, results ) {
-            Decision d = newDecision();
+            WebExtractor::Decision d = newDecision();
+            WebExtractor::PropertiesGroup g = d.newGroup();
 
+            // 1. create the series resource
+            TVSeries tvSeries( QUrl(), g.manager() );
+            tvSeries.setLabel( series.name() );
+            tvSeries.setDescription( series.overview() );
 
+            // 2. add the data to the file resource: the TVShow type and the rest
+            TVShow proxyRes( d.proxyUrl(resource()), g.manager() );
+            proxyRes.addType( QUrl( TVShow::resourceTypeUri() ) );
+            proxyRes.setSeries( tvSeries );
+            tvSeries.addEpisode( proxyRes );
+            proxyRes.setEpisodeNumber( m_episode );
+            proxyRes.setSeason( m_season );
+            proxyRes.setSynopsis( series[m_season][m_episode].overview() );
 
             addDecision( d );
         }
-
     }
 }

@@ -1,4 +1,3 @@
-
 project(webexplugin_tvdb)
 
 set (QT_MIN_VERSION "4.6.0")
@@ -41,7 +40,11 @@ set (tvdb_plugin_SRCS
     tvdbdatappreply.cpp
     tvdbdatapp.cpp
     tvshowfilenameanalyzer.cpp
+    seriescache.cpp
     )
+
+nepomuk_add_ontology_classes(tvdb_plugin_SRCS
+  ONTOLOGIES ${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nie/nmm.trig)
 
 set (TVDB_PLUGIN_VERSION 0.1)
 
@@ -59,6 +62,7 @@ target_link_libraries( webexplugin_tvdb
     ${NEPOMUK_LIBRARIES}
     ${KDE4_NEPOMUK_LIBS}
     ${QT_LIBRARIES}
+    ${LIBTVDB_LIBRARIES}
     )
 
 install(

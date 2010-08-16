@@ -16,13 +16,15 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-
-
 #ifndef __webextractor_datappreply_tvdb_h_
 #define __webextractor_datappreply_tvdb_h_
 
 #include "simpledatappreply.h"
 #include "tvshowfilenameanalyzer.h"
+
+#include <QtCore/QList>
+
+#include <tvdb/series.h>
 
 namespace Nepomuk  {
     class TvdbDataPP;

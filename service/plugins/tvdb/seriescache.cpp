@@ -16,6 +16,8 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include "seriescache.h"
+
 #include <tvdb/client.h>
 #include <tvdb/series.h>
 
@@ -52,7 +54,7 @@ void SeriesCache::nextRequest()
          !m_requests.isEmpty() ) {
         m_currentRequest = m_requests.dequeue();
         if ( m_series.contains( m_currentRequest.query ) ) {
-            emit requestDone( m_currentRequest.id, m_series[m_currentRequest.id] );
+            emit requestDone( m_currentRequest.id, m_series[m_currentRequest.query] );
             QMetaObject::invokeMethod( this, "nextRequest", Qt::QueuedConnection );
         }
         else {
@@ -81,11 +83,11 @@ void SeriesCache::slotFinished( const Tvdb::Series& series )
 
     // build the cache value
     if ( series.isValid() )
-        m_series[m_currentRequest.query].append( resultList );
+        m_series[m_currentRequest.query].append( series );
 
     // in case there is a sub request left handle that
     if ( m_currentRequest.subRequests.isEmpty() ) {
-        emit requestDone( m_currentRequest.id, resultList );
+        emit requestDone( m_currentRequest.id, m_series[m_currentRequest.query] );
         QMetaObject::invokeMethod( this, "nextRequest", Qt::QueuedConnection );
     }
     else {
@@ -105,3 +107,5 @@ void SeriesCache::slotMultipleResultFound( const QList<Tvdb::Series>& results )
     }
     nextSubRequest();
 }
+
+#include "seriescache.moc"
