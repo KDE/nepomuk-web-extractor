@@ -27,8 +27,8 @@
 
 Q_DECLARE_METATYPE(QList<Tvdb::Series>)
 
-Nepomuk::TvdbPlugin::TvdbPlugin(QObject* parent, const QList<QVariant>&):
-    WebExtractorPlugin(parent)
+Nepomuk::TvdbPlugin::TvdbPlugin(QObject* parent, const QList<QVariant>&)
+    : WebExtractorPlugin(parent)
 {
     // apparently DataPP and DataPPReply can live in different threads.
     qRegisterMetaType<QList<Tvdb::Series> >();

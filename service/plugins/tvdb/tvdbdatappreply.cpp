@@ -34,11 +34,11 @@
 Nepomuk::TvdbReply::TvdbReply( TvdbDataPP* parent,
                                const WebExtractor::DecisionFactory* factory,
                                const Nepomuk::Resource& res,
-                               const QString& name, int season, int episode ):
-    SimpleDataPPReply(parent, factory, res),
-    m_name( name ),
-    m_season( season ),
-    m_episode( episode )
+                               const QString& name, int season, int episode )
+    : SimpleDataPPReply(parent, factory, res),
+      m_name( name ),
+      m_season( season ),
+      m_episode( episode )
 {
     connect( parent->seriesCache(), SIGNAL( requestDone( int, QList<Tvdb::Series> ) ),
              SLOT(slotRequestDone(int, QList<Tvdb::Series>)) );
@@ -59,12 +59,16 @@ void Nepomuk::TvdbReply::abort()
 void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& results )
 {
     if ( id == m_seriesCacheId ) {
+        kDebug();
         Q_FOREACH( const Tvdb::Series& series, results ) {
             // 1. make sure this series actually has an episode that matches our values
             if ( series.numSeasons() < m_season ||
                  series[m_season].numEpisodes() < m_episode ) {
+                kDebug() << "Ignoring" << series.name() << "since it does not contain the requested episode";
                 continue;
             }
+
+            kDebug() << "Creating decision for" << series.name();
 
             // 2. create the new decision
             WebExtractor::Decision d = newDecision();
@@ -90,5 +94,8 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
             // 6. add the decision to the pool of applicable ones
             addDecision( d );
         }
+
+        // we are done
+        finish();
     }
 }
