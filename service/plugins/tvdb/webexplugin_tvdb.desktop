@@ -1,9 +1,7 @@
 [Desktop Entry]
- Type=Service
- X-KDE-ServiceTypes=Nepomuk/WebExtractorPlugin
- X-KDE-Library=webexplugin_tvdb
- X-WebExtractor-Name=tvdb
- Name=Put name here
- Comment=Put comment here
-
-
+Type=Service
+X-KDE-ServiceTypes=Nepomuk/WebExtractorPlugin
+X-KDE-Library=webexplugin_tvdb
+X-WebExtractor-Name=tvdb
+Name=thetvdb webextractor plugin
+Comment=A webextractor plugin which fetches TV series information from thetvdb.com.
