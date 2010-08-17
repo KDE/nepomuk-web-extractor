@@ -137,6 +137,8 @@ NW::DecisionFactory::~DecisionFactory()
         }
     }
 
+    delete d;
+
 
 
 }
