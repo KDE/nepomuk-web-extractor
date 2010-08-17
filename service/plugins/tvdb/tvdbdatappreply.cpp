@@ -20,6 +20,7 @@
 #include "tvdbdatappreply.h"
 #include "tvdbdatapp.h"
 #include "seriescache.h"
+#include "tvdbplugin.h"
 
 #include "tvseries.h"
 #include "tvshow.h"
@@ -40,7 +41,7 @@ Nepomuk::TvdbReply::TvdbReply( TvdbDataPP* parent,
     m_episode( episode )
 {
     connect( parent->seriesCache(), SIGNAL( requestDone( int, QList<Tvdb::Series> ) ),
-             SLOT( slotRequestDone( requestDone( int, QList<Tvdb::Series> ) ) ) );
+             SLOT(slotRequestDone(int, QList<Tvdb::Series>)) );
     m_seriesCacheId = parent->seriesCache()->querySeries( name );
 }
 
@@ -84,7 +85,7 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
             proxyRes.setSynopsis( series[m_season][m_episode].overview() );
 
             // 5. calculate the probability of the match the dumb way
-            d.setRank( double( series.name().length() - m_name.length() ) / double( series.name().length() ) );
+            d.setRank( TvdbPlugin::calculateRankTheDumbWay( m_name, series.name() ) );
 
             // 6. add the decision to the pool of applicable ones
             addDecision( d );

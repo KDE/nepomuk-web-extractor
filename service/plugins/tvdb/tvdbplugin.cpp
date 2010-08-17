@@ -17,29 +17,40 @@
  */
 
 #include "tvdbplugin.h"
-
 #include "tvdbplugin_config.h"
-
 #include "tvdbdatapp.h"
 
 #include <KPluginFactory>
 #include <KDebug>
 
+#include <tvdb/series.h>
 
-K_PLUGIN_FACTORY(TvdbPluginFactory, registerPlugin< Nepomuk::TvdbPlugin >();)
-K_EXPORT_PLUGIN(TvdbPluginFactory("webextvdbplugin"))
+Q_DECLARE_METATYPE(QList<Tvdb::Series>)
 
 Nepomuk::TvdbPlugin::TvdbPlugin(QObject* parent, const QList<QVariant>&):
     WebExtractorPlugin(parent)
 {
+    // apparently DataPP and DataPPReply can live in different threads.
+    qRegisterMetaType<QList<Tvdb::Series> >();
 }
+
 
 float Nepomuk::TvdbPlugin::version()
 {
     return (TVDB_PLUGIN_VERSION);
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::TvdbPlugin::getDataPP(KSharedConfigPtr configFile)
+
+Nepomuk::WebExtractor::DataPP* Nepomuk::TvdbPlugin::getDataPP(KSharedConfigPtr configFile)
 {
     return new TvdbDataPP(version());
 }
+
+
+double Nepomuk::TvdbPlugin::calculateRankTheDumbWay( const QString& queryString, const QString& name )
+{
+    return double( name.length() - queryString.length() ) / double( name.length() );
+}
+
+K_PLUGIN_FACTORY(TvdbPluginFactory, registerPlugin< Nepomuk::TvdbPlugin >();)
+K_EXPORT_PLUGIN(TvdbPluginFactory("webextvdbplugin"))

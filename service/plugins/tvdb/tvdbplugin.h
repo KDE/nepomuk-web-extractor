@@ -16,7 +16,6 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-
 #ifndef __webextractor_plugin_tvdb_h_
 #define __webextractor_plugin_tvdb_h_
 
@@ -31,13 +30,15 @@ namespace Nepomuk {
 
     class TvdbPlugin : public WebExtractorPlugin
     {
-
         Q_OBJECT
 
     public:
         TvdbPlugin(QObject*, const QList<QVariant>&);
-        virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
-        static float  version();
+        Nepomuk::WebExtractor::DataPP* getDataPP(KSharedConfigPtr configFile);
+        static float version();
+
+        static double calculateRankTheDumbWay( const QString& queryString, const QString& name );
     };
 }
+
 #endif

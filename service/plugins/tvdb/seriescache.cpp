@@ -17,6 +17,7 @@
  */
 
 #include "seriescache.h"
+#include "tvdbplugin.h"
 
 #include <tvdb/client.h>
 #include <tvdb/series.h>

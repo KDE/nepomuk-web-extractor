@@ -40,6 +40,12 @@ Nepomuk::WebExtractor::DataPPReply* Nepomuk::TvdbDataPP::requestDecisions(const 
         if ( m_filenameAnalyzer.analyzeFilename( url.toLocalFile() ) ) {
             return new TvdbReply( this, factory, res, m_filenameAnalyzer.name(), m_filenameAnalyzer.season(), m_filenameAnalyzer.episode() );
         }
+        else {
+            kDebug() << res.resourceUri() << "failed to analyze the filename - no tv show file?";
+        }
+    }
+    else {
+        kDebug() << res.resourceUri() << "is not a file";
     }
     return 0;
 }
