@@ -94,6 +94,9 @@ void TVShowFilenameAnalyzerTest::testAnalyzeFilename_data()
     QTest::newRow("foobar47") << QString::fromLatin1("foobar_0203_hello.avi") << QString::fromLatin1( "foobar" ) << 2 << 3;
     QTest::newRow("foobar48") << QString::fromLatin1("foobar-0203-hello.avi") << QString::fromLatin1( "foobar" ) << 2 << 3;
     QTest::newRow("foobar49") << QString::fromLatin1("foobar 0203 hello.avi") << QString::fromLatin1( "foobar" ) << 2 << 3;
+
+    // misc
+    QTest::newRow("misc1") << QString::fromLatin1("How I Met Your Mother - 01x01 - Pilot.avi") << QString::fromLatin1( "How I Met Your Mother" ) << 1 << 1;
 }
 
 
