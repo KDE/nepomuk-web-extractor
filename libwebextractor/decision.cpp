@@ -27,7 +27,6 @@
 #include "ndco.h"
 #include "decisiondata.h"
 #include "identsetmanager.h"
-#include "algorithm.h"
 #include <nepomuk/mergerequest.h>
 #include <nepomuk/changelog.h>
 
@@ -114,7 +113,7 @@ bool NW::Decision::isEmpty() const
 
 bool NW::Decision::isValid() const
 {
-    return (!d->contextUrl.isEmpty()) and(!d->authorsData.isEmpty());
+    return d->isValid();
 }
 
 void NW::Decision::setRank(double rank)
@@ -215,85 +214,7 @@ void NW::Decision::resetCurrentGroup()
 
 QUrl NW::Decision::proxyUrl(const Nepomuk::Resource & res)
 {
-    // Check that decision is valid
-    if(!isValid())
-        return QUrl();
-
-    // If freezed
-    if(d->isFreezed())
-        return QUrl();
-
-    /*
-    QMap< QUrl, QUrl>::iterator it = d->resourceProxyUrlMap.find(res.resourceUri());
-    if(it != d->resourceProxyUrlMap.end())
-        return it.value();
-    */
-    QUrl sourceUrl = res.resourceUri();
-
-    // Now we should create/obtain a IdentificationSet for original resource
-    // and perform a deep copy of the original resource to the decisions model
-    QHash<QUrl, QUrl>::const_iterator fit =
-        d->resourceProxyMap.find(sourceUrl);
-
-    if(fit == d->resourceProxyMap.end()) { // Resource not found
-
-
-        // First disable any current group
-        PropertiesGroup save = d->resetCurrentGroup();
-        // Perform actual copying
-        QUrl newUrl =
-            Nepomuk::deep_resource_copy_adjust(res, d->manager, &(d->resourceProxyMap))->operator[](res.resourceUri());
-        //kDebug() << "Proxy for " << res.resourceUri() << " is: " << newUrl;
-        Q_ASSERT(!newUrl.isEmpty());
-
-        // Restore current group
-        d->setCurrentGroup(save);
-
-        // Add to the list of copied resources
-        d->resourceProxyMap.insert(sourceUrl, newUrl);
-
-        // Create ignore list
-        QSet<QUrl> ignoreList = d->resourceProxyISMap.keys().toSet();
-
-        // Create identification set
-        NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
-        // Add url to the ACL of the filter log model
-        d->filterModel->addTarget(newUrl);
-
-        d->resourceProxyISMap.insert(sourceUrl, set);
-        // Add a hint
-        Q_ASSERT(d->decisionsModel);
-        /*
-        d->decisionsModel->addStatement(
-            newUrl,
-            NW::Vocabulary::NDCO::aliasHint(),
-            Soprano::LiteralValue(
-            res.resourceUri().toString()
-            ),
-            d->contextUrl
-            */
-        return newUrl;
-    } else {
-        // Now it is possible situation that resource was copied,
-        // but it wasn't marked as target  resource and it's identification set
-        // was not created.
-        if(!d->resourceProxyISMap.contains(sourceUrl)) {
-            // Create ignore list
-            QSet<QUrl> ignoreList = d->resourceProxyISMap.keys().toSet();
-            // Create identification set
-            NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
-            // Add to the ACL of fiter model
-            d->filterModel->addTarget(fit.value());
-            // Insert to the map of the identification sets
-            d->resourceProxyISMap.insert(sourceUrl, set);
-        }
-        //kDebug() << "Resource " << sourceUrl << " has already been copied";
-    }
-
-    QUrl answer = fit.value();
-    Q_ASSERT(!answer.isEmpty());
-    return answer;
-
+    return d->proxyUrl(res);
 }
 
 Nepomuk::Resource NW::Decision::proxyResource(const Nepomuk::Resource & res)

@@ -18,6 +18,7 @@
 
 
 #include "decisiondata.h"
+#include "algorithm.h"
 #include <KDebug>
 #include "ndco.h"
 
@@ -106,6 +107,96 @@ NW::PropertiesGroup NW::DecisionData::currentGroup() const
 {
     return this->m_currentGroup;
 }
+
+bool NW::DecisionData::isValid() const
+{
+    return (!contextUrl.isEmpty()) and(!authorsData.isEmpty());
+}
+
+QUrl NW::DecisionData::proxyUrl(const Nepomuk::Resource & res)
+{
+    // Check that decision is valid
+    if(!isValid())
+        return QUrl();
+
+    // If freezed
+    if(m_freeze)
+        return QUrl();
+
+    /*
+    QMap< QUrl, QUrl>::iterator it = d->resourceProxyUrlMap.find(res.resourceUri());
+    if(it != d->resourceProxyUrlMap.end())
+        return it.value();
+    */
+    QUrl sourceUrl = res.resourceUri();
+
+    // Now we should create/obtain a IdentificationSet for original resource
+    // and perform a deep copy of the original resource to the decisions model
+    QHash<QUrl, QUrl>::const_iterator fit =
+        resourceProxyMap.find(sourceUrl);
+
+    if(fit == resourceProxyMap.end()) { // Resource not found
+
+
+        // First disable any current group
+        PropertiesGroup save = resetCurrentGroup();
+        // Perform actual copying
+        QUrl newUrl =
+            Nepomuk::deep_resource_copy_adjust(res, manager, &(resourceProxyMap))->operator[](res.resourceUri());
+        //kDebug() << "Proxy for " << res.resourceUri() << " is: " << newUrl;
+        Q_ASSERT(!newUrl.isEmpty());
+
+        // Restore current group
+        setCurrentGroup(save);
+
+        // Add to the list of copied resources
+        resourceProxyMap.insert(sourceUrl, newUrl);
+
+        // Create ignore list
+        QSet<QUrl> ignoreList = resourceProxyISMap.keys().toSet();
+
+        // Create identification set
+        NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
+        // Add url to the ACL of the filter log model
+        filterModel->addTarget(newUrl);
+
+        resourceProxyISMap.insert(sourceUrl, set);
+        // Add a hint
+        Q_ASSERT(decisionsModel);
+        /*
+        decisionsModel->addStatement(
+            newUrl,
+            NW::Vocabulary::NDCO::aliasHint(),
+            Soprano::LiteralValue(
+            res.resourceUri().toString()
+            ),
+            contextUrl
+            */
+        return newUrl;
+    } else {
+        // Now it is possible situation that resource was copied,
+        // but it wasn't marked as target  resource and it's identification set
+        // was not created.
+        if(!resourceProxyISMap.contains(sourceUrl)) {
+            // Create ignore list
+            QSet<QUrl> ignoreList = resourceProxyISMap.keys().toSet();
+            // Create identification set
+            NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
+            // Add to the ACL of fiter model
+            filterModel->addTarget(fit.value());
+            // Insert to the map of the identification sets
+            resourceProxyISMap.insert(sourceUrl, set);
+        }
+        //kDebug() << "Resource " << sourceUrl << " has already been copied";
+    }
+
+    QUrl answer = fit.value();
+    Q_ASSERT(!answer.isEmpty());
+    return answer;
+
+}
+
+
 #if 0
 QUrl NW::DecisionData::createPropertiesGroupUrl()
 {

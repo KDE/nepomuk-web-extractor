@@ -80,10 +80,6 @@ namespace Nepomuk
                 //Nepomuk::Resource mainProxyResource();
                 //QUrl mainProxyResourceUrl();
 
-                /*! \brief Return proxy resource for given one
-                 */
-                //Nepomuk::Resource proxyResource( const Nepomuk::Resource & );
-                QUrl proxyResource(const Nepomuk::Resource &);
 
                 /*! Return ResourceManager over main Decisions model.
                  * All changes that will be done with this ResourceManager will
@@ -127,6 +123,11 @@ namespace Nepomuk
                  * properly
                  */
                 bool isValid() const;
+
+                /*! \brief Return proxy resource for given one
+                 */
+                Nepomuk::Resource proxyResource(const Nepomuk::Resource &);
+                QUrl proxyUrl(const Nepomuk::Resource &);
                 bool operator==(const PropertiesGroup & rhs)const;
                 bool operator!=(const PropertiesGroup & rhs)const;
                 friend PropertiesGroup & operator<<(PropertiesGroup &, const Soprano::Statement &);

@@ -109,6 +109,8 @@ namespace Nepomuk
                 // untill unfreezed.
                 bool m_freeze;
                 void setFreeze(bool val);
+                bool isValid() const;
+                QUrl proxyUrl(const Nepomuk::Resource &);
         };
     }
 }

@@ -90,6 +90,19 @@ NW::PropertiesGroup::~PropertiesGroup()
     ;
 }
 
+QUrl NW::PropertiesGroup::proxyUrl(const Nepomuk::Resource & res)
+{
+    return d->parent->proxyUrl(res);
+}
+
+Nepomuk::Resource NW::PropertiesGroup::proxyResource(const Nepomuk::Resource & res)
+{
+    // Call proxyUrl
+    QUrl answer = proxyUrl(res);
+    // Create resoruce and return it.
+    return Nepomuk::Resource(answer, QUrl(), d->manager);
+}
+
 /*
 void NW::PropertiesGroup::setUrl( const QUrl & url)
 {

@@ -23,8 +23,6 @@
 #include <QtCore/QString>
 #include <QtCore/QSharedDataPointer>
 #include <Nepomuk/Resource>
-#include <Soprano/Statement>
-#include <Soprano/Model>
 #include <QUrl>
 #include <QSharedPointer>
 #include "webextractor_export.h"
@@ -32,6 +30,11 @@
 #include <nepomuk/changelog.h>
 #include <nepomuk/identificationrequest.h>
 //#include "soprano_statement_qhash.h"
+
+namespace Soprano
+{
+    class Model;
+}
 
 namespace Nepomuk
 {
@@ -62,7 +65,6 @@ namespace Nepomuk
                 Decision();
                 double rank() const;
                 void setRank(double rank);
-                //void addStatement(const Soprano::Statement &, double rank);
                 //void addGroup(const PropertiesGroup &);
                 /*! \brief Create new group bounded to the Decision
                  * Return pointer to the new PropertiesGroup or 0 if any error has
