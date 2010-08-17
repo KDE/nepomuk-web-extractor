@@ -11,3 +11,10 @@ target_link_libraries(tvshowfilenameanalyzertest
   ${QT_QTTEST_LIBRARY}
   ${KDE4_KDECORE_LIBS}
 )
+
+kde4_add_executable(seriescachetest seriescachetest.cpp ../seriescache.cpp)
+target_link_libraries(seriescachetest
+  ${LIBTVDB_LIBRARIES}
+  ${QT_QTCORE_LIBRARY}
+  ${KDE4_KDECORE_LIBS}
+)

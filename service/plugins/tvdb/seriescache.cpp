@@ -21,6 +21,7 @@
 #include <tvdb/client.h>
 #include <tvdb/series.h>
 
+#include <KDebug>
 
 SeriesCache::SeriesCache( QObject* parent )
     : QObject( parent ),
@@ -54,10 +55,12 @@ void SeriesCache::nextRequest()
          !m_requests.isEmpty() ) {
         m_currentRequest = m_requests.dequeue();
         if ( m_series.contains( m_currentRequest.query ) ) {
+            kDebug() << "Reusing from cache:" << m_currentRequest.query;
             emit requestDone( m_currentRequest.id, m_series[m_currentRequest.query] );
             QMetaObject::invokeMethod( this, "nextRequest", Qt::QueuedConnection );
         }
         else {
+            kDebug() << "Starting query:" << m_currentRequest.query;
             m_requestInProcess = true;
             m_tvdbClient->getSeriesByName( m_currentRequest.query );
         }
@@ -78,6 +81,8 @@ void SeriesCache::nextSubRequest()
 
 void SeriesCache::slotFinished( const Tvdb::Series& series )
 {
+    kDebug() << m_currentRequest.query;
+
     // reset state
     m_requestInProcess = false;
 
@@ -98,6 +103,8 @@ void SeriesCache::slotFinished( const Tvdb::Series& series )
 
 void SeriesCache::slotMultipleResultFound( const QList<Tvdb::Series>& results )
 {
+    kDebug() << m_currentRequest.query;
+
     // reset state
     m_requestInProcess = false;
 
