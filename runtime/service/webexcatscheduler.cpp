@@ -32,6 +32,7 @@
 #include "webexcatscheduler.h"
 #include "resourceservicedatamanager.h"
 #include "resourceservicedata.h"
+#include "resourceanalyzer.h"
 
 namespace NW = Nepomuk::WebExtractor;
 namespace NQ = Nepomuk::Query;

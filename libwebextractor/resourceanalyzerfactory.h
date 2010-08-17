@@ -20,12 +20,16 @@
 #define _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_FACTORY_H_
 
 #include <QtCore/QObject>
-#include "resourceanalyzer.h"
 #include "webextractor_export.h"
-#include "datapp.h"
 #include "parameters.h"
 #include <Nepomuk/Resource>
+#include <Soprano/BackendSettings>
 
+
+namespace Soprano
+{
+    class Backend;
+}
 namespace Nepomuk
 {
     class OntologyLoader;
@@ -40,6 +44,7 @@ namespace Nepomuk
                     ExtractParametersPtr extractParams,
                     QObject * parent = 0
                 );
+                ~ResourceAnalyzerFactory();
                 /*! \brief Create new ResourceAnalyzer
                  * If settings that were passed are incorrect, or can not be
                  * satisfied, then NULL will be returned. So you should check
@@ -73,40 +78,8 @@ namespace Nepomuk
                  */
                 Soprano::BackendSettings backendSettings() const;
             private:
-                DataPPKeeper  m_dataPPKeeper;
-                LaunchPolitics m_launchPolitics;
-                MergePolitics m_mergePolitics;
-                unsigned int m_step;
-                double m_acrit;
-                double m_ucrit;
-                bool m_autoDeleteModelData;
-                bool m_autoManageOntologies;
-
-                /*! \brief The backend that support in-memory models and will be used for storing decisions
-                 * Currently it is redland, but in future releases I will add some
-                 * functions to allow user select different backends
-                 */
-                //const Soprano::Backend * usedBackend();
-                // This is function pointer that is used for introspection of analyzer between
-                // iterations ( when politics is Iterative)
-                //void (*debug_interrupter)();
-
-                // The folowing 2 variables are used to store Decisions while processing
-                // them. This is necessary because we need some sparql support and can't
-                // use Soprano::Graph.
-                // When starting analyzing new resource the model must be totall reset.
-                // ResourceManager is manager for model. It is not very necessary now, but
-                // will be defenetely used in the future.
-
-                // Model for storing Decisions in memory
-                //Soprano::StorageModel * decisionsStorageModel;
-                // ResourceManager that manages this model. This pointer is non-null
-                // only if extractParams->manager() was non-null.
-                // ResourceManager * decisionsResourceManager;
-                Soprano::Model * decisionsMainModel;
-                OntologyLoader * decisionsMainModelOntologyLoader;
-                const Soprano::Backend * m_backend;
-                Soprano::BackendSettings m_backendSettings;
+                class Private;
+                Private * const d;
         };
     }
 }

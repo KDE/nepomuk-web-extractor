@@ -17,9 +17,12 @@
  */
 #include "resourceanalyzer.h"
 #include "resourceservicedata.h"
+#include "datappwrapper.h"
 #include <KDebug>
+#include <Soprano/Backend>
 #include <QDateTime>
 #include <QtCore/QTimer>
+#include <QtCore/QQueue>
 #include <stdint.h>
 #include <QSharedData>
 #include <Nepomuk/Resource>

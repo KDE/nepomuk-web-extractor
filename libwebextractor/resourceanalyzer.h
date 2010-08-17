@@ -20,12 +20,9 @@
 #define _NEPOMUK_WEBEXTRCT_RESOURCE_ANALYZER_H_
 
 #include <QtCore/QObject>
-#include <QtCore/QQueue>
 #include <QSharedDataPointer>
 #include <Nepomuk/Resource>
-#include <Soprano/Backend>
 #include "webextractor_export.h"
-#include "datappwrapper.h"
 #include "datappwrapper.h"
 #include "global.h"
 #include "decisionlist.h"

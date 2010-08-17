@@ -30,6 +30,7 @@
 #include "global.h"
 #include "parameters.h"
 #include "datapppool.h"
+#include <Soprano/StorageModel>
 // use absolute path to prevent linking with libwebextractor/global.h
 #include "libwebexsettings/global.h"
 
