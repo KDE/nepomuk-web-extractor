@@ -1,11 +1,11 @@
 #include "propertiesgroup.h"
-#include "soprano_statement_qhash.h"
-#include "decision.h"
 #include <QtCore/QSet>
 #include <QtCore/QSharedData>
 #include "decisiondata.h"
 #include "nepomuk/changelog.h"
 #include "changelogfiltermodel.h"
+#include <Soprano/Model>
+#include <Nepomuk/ResourceManager>
 
 
 namespace NW = Nepomuk::WebExtractor;

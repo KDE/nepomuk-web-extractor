@@ -155,7 +155,6 @@ set (WEBEXTRACTOR_HEADERS
     datapprequest.h
     datappwrapper.h
     debug_datapp.h
-    decisionfactorybase.h
     decisionfactory.h
     decision.h
     decisionapplicationrequest.h

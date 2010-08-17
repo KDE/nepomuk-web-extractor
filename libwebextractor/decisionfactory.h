@@ -22,11 +22,12 @@
 #include "webextractor_export.h"
 #include "decision.h"
 #include "decisionlist.h"
-#include "propertiesgroup.h"
-#include "identsetmanager.h"
 #include <Soprano/BackendSettings>
-#include <Nepomuk/ResourceManager>
-#include <Soprano/StorageModel>
+
+namespace Soprano
+{
+    class StorageModel;
+}
 
 namespace Nepomuk
 {
@@ -34,6 +35,7 @@ namespace Nepomuk
     {
         class ResourceAnalyzerFactory;
         class DataPPReply;
+        class IdentificationSetManager;
         class WEBEXTRACTOR_EXPORT DecisionFactory
         {
             public:
@@ -42,7 +44,6 @@ namespace Nepomuk
                 friend class DataPPReply;
                 Decision newDecision(const DataPP * author) const;
                 DecisionList  newDecisionList(const DataPP *) const;
-                PropertiesGroup newPropertiesGroup(const DataPP *) const;
                 /*! \brief Debugging function
                  * Return DecisionFactory that can be used for debugging propose
                  * to avoid creation on unnecessary
@@ -65,22 +66,12 @@ namespace Nepomuk
                  * given storage model for storing statements.
                  * \param settings Settings that were used to create storage model. This is necessary to correctly remove it's data ( If requested)
                  */
-                DecisionFactory(double ucrit, double acrit, Soprano::Model * decisionsModel, bool autoDeleteModelData, Soprano::StorageModel * model, Soprano::BackendSettings settings = Soprano::BackendSettings());
+                DecisionFactory(double ucrit, double acrit, Soprano::Model * decisionsModel, bool autoDeleteModelData, Soprano::StorageModel * model, Soprano::BackendSettings  settings = Soprano::BackendSettings());
                 ~DecisionFactory();
                 DecisionList  newDecisionList() const;
                 void setThreshold(double);
-                // This method is used by ResourceAnalyzer to set ResourceManager
-                // DecisionFactory can not be used without ResourceManager set to
-                // non-0 value.
-                //void setResourceManager( ResourceManager *);
-                double m_threshold; // ucrit;
-                double m_acrit;
-                Soprano::Model * m_decisionsModel;
-                //Nepomuk::ResourceManager * m_manager;
-                bool m_autoDeleteModelData;
-                Soprano::BackendSettings m_settings;
-                Soprano::StorageModel * m_storageModel;
-                IdentificationSetManager * m_identsetManager;
+                class Private;
+                Private * const d;
         };
     }
 }

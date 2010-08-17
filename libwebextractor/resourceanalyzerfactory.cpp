@@ -22,6 +22,7 @@
 #include <KDebug>
 #include <Soprano/Global>
 #include <Nepomuk/Tag>
+#include <Soprano/StorageModel>
 
 namespace NW = Nepomuk::WebExtractor;
 Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(

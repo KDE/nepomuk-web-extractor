@@ -22,14 +22,22 @@
 #include <QtCore/QSharedDataPointer>
 #include <QSharedPointer>
 #include <QtCore/QSet>
-#include <Soprano/Statement>
+#include <QUrl>
+#include <QString>
 #include <Nepomuk/Resource>
-#include <Nepomuk/ResourceManager>
 #include "webextractor_export.h"
 
 
+namespace Soprano
+{
+    class Model;
+    class Statement;
+}
+
 namespace Nepomuk
 {
+    class ResourceManager;
+
     namespace Sync
     {
         class ChangeLog;
