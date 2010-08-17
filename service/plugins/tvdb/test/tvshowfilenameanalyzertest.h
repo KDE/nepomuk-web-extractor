@@ -18,31 +18,18 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QtCore/QCoreApplication>
-#include <QtCore/QTextStream>
-#include <QtCore/QStringList>
+#ifndef _TVSHOW_FILENAME_ANALYZER_TEST_H_
+#define _TVSHOW_FILENAME_ANALYZER_TEST_H_
 
-#include <KComponentData>
-#include <KDebug>
+#include <QtCore/QObject>
 
-#include "../tvshowfilenameanalyzer.h"
-
-#include "stdio.h"
-
-int main( int argc, char **argv )
+class TVShowFilenameAnalyzerTest : public QObject
 {
-    QCoreApplication app( argc, argv );
-    KComponentData comp( "filenameanalyzer" );
+    Q_OBJECT
 
-    QTextStream err( stderr );
+private Q_SLOTS:
+    void testAnalyzeFilename_data();
+    void testAnalyzeFilename();
+};
 
-    const QString path = app.arguments()[1];
-
-    TVShowFilenameAnalyzer fna;
-    if ( fna.analyzeFilename( path ) ) {
-        err << "Extracted name: '" << fna.name() << "', Season: '" << fna.season() << "', Episode: '" << fna.episode() << "'" << endl;
-    }
-    else {
-        err << "Failed to extract series name from " << path << endl;
-    }
-}
+#endif
