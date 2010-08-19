@@ -23,6 +23,7 @@
 
 #include <QtCore/QList>
 #include <QtCore/QRegExp>
+#include <QtCore/QMutex>
 
 /**
  * The filename analyzis is wrapped in a class
@@ -35,17 +36,27 @@ public:
     TVShowFilenameAnalyzer();
     ~TVShowFilenameAnalyzer();
 
-    bool analyzeFilename( const QString& name );
+    struct AnalysisResult {
+        AnalysisResult()
+            : season( -1 ),
+              episode( -1 ) {
+        }
 
-    QString name() const;
-    int season() const;
-    int episode() const;
+        bool isValid() const {
+            return( !name.isEmpty() && season >= 0 && episode >= 0 );
+        }
+
+        QString name;
+        int season;
+        int episode;
+    };
+
+    AnalysisResult analyzeFilename( const QString& name );
 
 private:
     QList<QRegExp> m_filenameRegExps;
-    QString m_extractedName;
-    int m_extractedSeason;
-    int m_extractedEpisode;
+
+    QMutex m_mutex;
 };
 
 #endif

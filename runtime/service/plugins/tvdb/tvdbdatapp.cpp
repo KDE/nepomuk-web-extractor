@@ -37,8 +37,9 @@ Nepomuk::WebExtractor::DataPPReply* Nepomuk::TvdbDataPP::requestDecisions(const 
 {
     if ( res.isFile() ) {
         const KUrl url = res.toFile().url();
-        if ( m_filenameAnalyzer.analyzeFilename( url.toLocalFile() ) ) {
-            return new TvdbReply( this, factory, res, m_filenameAnalyzer.name(), m_filenameAnalyzer.season(), m_filenameAnalyzer.episode() );
+        TVShowFilenameAnalyzer::AnalysisResult result = m_filenameAnalyzer.analyzeFilename( url.toLocalFile() );
+        if ( result.isValid() ) {
+            return new TvdbReply( this, factory, res, result.name, result.season, result.episode );
         }
         else {
             kDebug() << res.resourceUri() << "failed to analyze the filename - no tv show file?";

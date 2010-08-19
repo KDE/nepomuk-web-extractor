@@ -1,10 +1,5 @@
 project(webexplugin_tvdb)
 
-set (QT_MIN_VERSION "4.6.0")
-set (QT_USE_QTNETWORK true)
-find_package(KDE4  REQUIRED)
-find_package(Nepomuk REQUIRED)
-
 find_package(LibTvdb 0.2 QUIET)
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(LibTvdb DEFAULT_MSG LIBTVDB_INCLUDE_DIR)

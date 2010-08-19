@@ -23,12 +23,11 @@
 #include <QtCore/QList>
 #include <QtCore/QRegExp>
 #include <QtCore/QFileInfo>
+#include <QtCore/QMutexLocker>
 
 #include <KDebug>
 
 TVShowFilenameAnalyzer::TVShowFilenameAnalyzer()
-    : m_extractedSeason( -1 ),
-      m_extractedEpisode( -1 )
 {
     // Regular expressions to parse file based on the ones from tvnamer.py
     // Copyright dbr/Ben
@@ -67,8 +66,10 @@ TVShowFilenameAnalyzer::~TVShowFilenameAnalyzer()
 }
 
 
-bool TVShowFilenameAnalyzer::analyzeFilename( const QString& path )
+TVShowFilenameAnalyzer::AnalysisResult TVShowFilenameAnalyzer::analyzeFilename( const QString& path )
 {
+    QMutexLocker lock( &m_mutex );
+
     // 1. extract base name of the file
     // TODO: analyze the path, too. In case we have something like: "foobar - Season 2/02x12 - blabla.avi"
     QFileInfo fi( path );
@@ -81,39 +82,23 @@ bool TVShowFilenameAnalyzer::analyzeFilename( const QString& path )
     for ( int i = 0; i < m_filenameRegExps.count(); ++i ) {
         QRegExp& exp = m_filenameRegExps[i];
         if ( exp.exactMatch( name ) ) {
+            AnalysisResult result;
+
             kDebug() << "Regexp matched:"<<i;
-            m_extractedName = exp.cap( 1 ).simplified();
-            m_extractedSeason = exp.cap( 2 ).toInt();
-            m_extractedEpisode = exp.cap( 3 ).toInt();
+            result.name = exp.cap( 1 ).simplified();
+            result.season = exp.cap( 2 ).toInt();
+            result.episode = exp.cap( 3 ).toInt();
 
             // 3. clean up tv show name
-            m_extractedName.replace( '.', ' ' );
-            m_extractedName.replace( '_', ' ' );
-            if ( m_extractedName.endsWith( '-' ) )
-                m_extractedName.truncate( m_extractedName.length()-1 );
-            m_extractedName = m_extractedName.simplified();
+            result.name.replace( '.', ' ' );
+            result.name.replace( '_', ' ' );
+            if ( result.name.endsWith( '-' ) )
+                result.name.truncate( result.name.length()-1 );
+            result.name = result.name.simplified();
 
-            return true;
+            return result;
         }
     }
 
-    return false;
-}
-
-
-QString TVShowFilenameAnalyzer::name() const
-{
-    return m_extractedName;
-}
-
-
-int TVShowFilenameAnalyzer::season() const
-{
-    return m_extractedSeason;
-}
-
-
-int TVShowFilenameAnalyzer::episode() const
-{
-    return m_extractedEpisode;
+    return AnalysisResult();
 }

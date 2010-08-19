@@ -108,10 +108,11 @@ void TVShowFilenameAnalyzerTest::testAnalyzeFilename()
     QFETCH( int, episode );
 
     TVShowFilenameAnalyzer tva;
-    QVERIFY( tva.analyzeFilename( filename ) );
-    QCOMPARE( tva.name(), name );
-    QCOMPARE( tva.season(), season );
-    QCOMPARE( tva.episode(), episode );
+    TVShowFilenameAnalyzer::AnalysisResult result = tva.analyzeFilename( filename );
+    QVERIFY( result.isValid() );
+    QCOMPARE( result.name, name );
+    QCOMPARE( result.season, season );
+    QCOMPARE( result.episode, episode );
 }
 
 QTEST_KDEMAIN_CORE( TVShowFilenameAnalyzerTest )

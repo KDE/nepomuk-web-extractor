@@ -49,7 +49,7 @@ Nepomuk::WebExtractor::DataPP* Nepomuk::TvdbPlugin::getDataPP(KSharedConfigPtr c
 
 double Nepomuk::TvdbPlugin::calculateRankTheDumbWay( const QString& queryString, const QString& name )
 {
-    return double( name.length() - queryString.length() ) / double( name.length() );
+    return 1.0 - double( name.length() - queryString.length() ) / double( name.length() );
 }
 
 K_PLUGIN_FACTORY(TvdbPluginFactory, registerPlugin< Nepomuk::TvdbPlugin >();)
