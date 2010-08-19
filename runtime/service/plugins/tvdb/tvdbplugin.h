@@ -23,21 +23,23 @@
 #include <KSharedConfig>
 #include <QString>
 
-namespace Nepomuk {
-    namespace WebExtractor {
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
         class DataPP;
     }
 
     class TvdbPlugin : public WebExtractorPlugin
     {
-        Q_OBJECT
+            Q_OBJECT
 
-    public:
-        TvdbPlugin(QObject*, const QList<QVariant>&);
-        Nepomuk::WebExtractor::DataPP* getDataPP(KSharedConfigPtr configFile);
-        static float version();
+        public:
+            TvdbPlugin(QObject*, const QList<QVariant>&);
+            Nepomuk::WebExtractor::DataPP* getDataPP(KSharedConfigPtr configFile);
+            static int version();
 
-        static double calculateRankTheDumbWay( const QString& queryString, const QString& name );
+            static double calculateRankTheDumbWay(const QString& queryString, const QString& name);
     };
 }
 

@@ -28,11 +28,11 @@ namespace Nepomuk
 {
     class TestPlugin : public WebExtractorPlugin
     {
-	Q_OBJECT;
+            Q_OBJECT;
         public:
             TestPlugin(QObject*, const QList<QVariant>&);
             virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
-            static float  version();
+            static int  version();
     };
 }
-#endif 
+#endif

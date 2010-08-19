@@ -21,6 +21,7 @@
 #define __webextractor_plugin_config_tvdb 
 
 #define TVDB_PLUGIN_VERSION @TVDB_PLUGIN_VERSION@
+#define TVDB_PLUGIN_INTERNAL_VERSION @TVDB_PLUGIN_INTERNAL_VERSION@
 
 
 #endif 

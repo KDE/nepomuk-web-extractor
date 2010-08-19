@@ -40,7 +40,7 @@ namespace Nepomuk
                 static ResourceServiceDataManager * instance();
                 void setOverrideBackend(ServiceDataBackendFactory * backendFactory);
                 ServiceDataBackend * resourceData(const QUrl &);
-                Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, float> & assignedDataPP);
+                Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP);
             private:
                 class Private;
                 QSharedDataPointer<Private> d;

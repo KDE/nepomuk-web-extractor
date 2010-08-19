@@ -26,8 +26,8 @@
 
 
 Nepomuk::TestDataPP::TestDataPP(
-			float pluginVersion
-		    ):
+    int pluginVersion
+):
     DataPP(pluginVersion)
 {
 }
@@ -36,10 +36,12 @@ Nepomuk::TestDataPP::TestDataPP(
 Nepomuk::WebExtractor::DataPPReply * Nepomuk::TestDataPP::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
 {
 
-    return new TestReply(this, factory, res ); 
+    return new TestReply(this, factory, res);
 
-} 
+}
 
 Nepomuk::TestDataPP::~TestDataPP()
-{;}
+{
+    ;
+}
 

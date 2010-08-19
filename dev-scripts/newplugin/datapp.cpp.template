@@ -32,7 +32,7 @@
 #include #end raw "${lname}datappreply.h"
 
 
-Nepomuk::${classname}::${classname}( float pluginVersion )
+Nepomuk::${classname}::${classname}( int pluginVersion )
     : DataPP(pluginVersion)
 {
 }

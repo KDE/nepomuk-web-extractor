@@ -6,6 +6,7 @@
 #set evalsrc = "${"+$src+"}"
 
 project($tname)
+cmake_minimum_required(VERSION 2.6)
 
 set (QT_MIN_VERSION "4.6.0")
 set (QT_USE_QTNETWORK true)
@@ -48,6 +49,7 @@ set (${src}
     )
 
 set (${uname}_PLUGIN_VERSION $version)
+set (${uname}_PLUGIN_INTERNAL_VERSION $internal_version)
 
 configure_file(${lname}plugin_config.h.in ${binp}${lname}plugin_config.h  )
 

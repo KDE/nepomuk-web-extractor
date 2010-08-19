@@ -41,11 +41,11 @@ namespace Nepomuk
                 NepomukServiceDataBackend(const QUrl &);
                 /*! \brief Add/Update information about examined DataPP ( name, version)
                  */
-                virtual void setExaminedDataPPInfo(const QString & dataPPName, float dataPPVersion, const QDateTime & = QDateTime());
+                virtual void setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & = QDateTime());
 
                 /*! \brief Return map (name, version ) about all examined DataPP
                  */
-                virtual QMap< QString, float > examinedDataPPInfo();
+                virtual QMap< QString, int > examinedDataPPInfo();
 
                 /*! \brief Clear all information about examined DataPP
                  */
@@ -85,7 +85,7 @@ namespace Nepomuk
                  */
                 virtual QDateTime examinedDate(const QString & name);
 
-                static Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, float> & assignedDataPP);
+                static Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP);
 
             private:
                 /*! \brief This function tries to found graph where all information should be stored
@@ -100,7 +100,7 @@ namespace Nepomuk
                  * name is the name of the DataPP, version is its version.
                  * If name or version are invalid(empty) invalid url will be returned
                  */
-                static QUrl dataPPResourceUrl(const QString & name, float version);
+                static QUrl dataPPResourceUrl(const QString & name, int version);
                 /*! \brief This function remove unnecessary DataPP resources
                  * TODO Enable it usage
                  */

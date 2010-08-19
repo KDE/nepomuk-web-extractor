@@ -41,7 +41,7 @@ QMap< QString, QDateTime > NW::ServiceDataBackend::examinedDataPPDates()
     return QMap< QString, QDateTime >();
 }
 
-bool NW::ServiceDataBackend::checkExaminedDataPPInfo(const QMap< QString, float> & dataPP)
+bool NW::ServiceDataBackend::checkExaminedDataPPInfo(const QMap< QString, int> & dataPP)
 {
     return (examinedDataPPInfo() == dataPP);
 }

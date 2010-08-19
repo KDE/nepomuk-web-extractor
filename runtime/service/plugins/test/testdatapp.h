@@ -17,26 +17,27 @@
  */
 
 
-#ifndef __webextractor_datapp_test 
+#ifndef __webextractor_datapp_test
 
-#define __webextractor_datapp_test 
+#define __webextractor_datapp_test
 
 #include "datapp.h"
 
-namespace Nepomuk {
+namespace Nepomuk
+{
     class TestReply;
-    class TestDataPP : public WebExtractor::DataPP 
+    class TestDataPP : public WebExtractor::DataPP
     {
-	Q_OBJECT;
-	public:
-	    WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
-	    TestDataPP(
-			float pluginVersion
-		    );
-	    ~TestDataPP();
-	    friend class TestReply;
+            Q_OBJECT;
+        public:
+            WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
+            TestDataPP(
+                int pluginVersion
+            );
+            ~TestDataPP();
+            friend class TestReply;
     };
 }
 
-#endif 
+#endif
 

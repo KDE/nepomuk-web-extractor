@@ -30,7 +30,7 @@ class ExaminedWidget : public QTableWidget
     public:
         ExaminedWidget(QWidget * parent);
     Q_SIGNALS:
-        void setExaminedDataPP(const QString & name, float version);
+        void setExaminedDataPP(const QString & name, int version);
     protected:
         //virtual bool dropMimeData(int row, int column, const QMimeData * data, Qt::DropAction action );
         //virtual Qt::DropActions supportedDropActions() const;

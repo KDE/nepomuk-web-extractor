@@ -26,6 +26,9 @@
 #raw 
 #define #end raw ${name.upper()}_PLUGIN_VERSION @${name.upper()}_PLUGIN_VERSION@
 
+#raw 
+#define #end raw ${name.upper()}_PLUGIN_INTERNAL_VERSION @${name.upper()}_PLUGIN_INTERNAL_VERSION@
+
 
 #raw 
 #endif #end raw

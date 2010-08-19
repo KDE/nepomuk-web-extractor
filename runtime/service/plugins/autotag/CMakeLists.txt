@@ -1,5 +1,5 @@
-project(webexplugin_autotag)
 
+project(webexplugin_autotag)
 cmake_minimum_required(VERSION 2.6)
 
 set (QT_MIN_VERSION "4.6.0")
@@ -11,23 +11,15 @@ find_package(Nepomuk REQUIRED)
 
 # check for required packages
 if(WEBEXTRACTOR_VERSION_STRING)
-	# if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-	set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-		../libwebextractor
-		${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor)
-	set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
+    # if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
+    set(LIBWEBEXTRACTOR_INCLUDE_DIRS
+        ../libwebextractor/include
+        ${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
+    set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
 else(WEBEXTRACTOR_VERSION_STRING)
-	find_package(LibWebextractor REQUIRED)
+    find_package(LibWebextractor REQUIRED)
 endif(WEBEXTRACTOR_VERSION_STRING)
 
-
-if(WEBEXTRACTOR_SERVICE_VERSION_STRING)
-    # if WEBEXTRACTOR_SERVICE_VERSION_STRING is defined then plugins are compiled together with service
-    set( WEBEXSERVICE_INCLUDE_DIRS
-	webextractorservice_SOURCE_DIR
-	webextractorservice_BINARY_DIR
-    )	
-endif(WEBEXTRACTOR_SERVICE_VERSION_STRING)
 
 include_directories(
   ${SOPRANO_INCLUDE_DIR}
@@ -37,7 +29,6 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${KDE4_INCLUDES}
   ${LIBWEBEXTRACTOR_INCLUDE_DIRS}
-  ${WEBEXSERVICE_INCLUDE_DIRS}
   )
 
 
@@ -48,14 +39,13 @@ set (autotag_plugin_SRCS
     autotagdatappreply.cpp
     autotagdatapp.cpp
     )
+soprano_add_ontology(autotag_plugin_SRCS "${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nie/nfo.trig" "NFO" "Nepomuk::Vocabulary" "trig")
 
 set (AUTOTAG_PLUGIN_VERSION 0.1)
+set (AUTOTAG_PLUGIN_INTERNAL_VERSION 0)
 
 configure_file(autotagplugin_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/autotagplugin_config.h  )
 
-include_directories(
-    ${CMAKE_CURRENT_BINARY_DIR}
-    )
 
 kde4_add_plugin(webexplugin_autotag ${autotag_plugin_SRCS})
 
@@ -65,7 +55,6 @@ target_link_libraries( webexplugin_autotag
     ${NEPOMUK_LIBRARIES}
     ${KDE4_NEPOMUK_LIBS}
     ${QT_LIBRARIES}
-    nepomukutils
     )
 
 install(

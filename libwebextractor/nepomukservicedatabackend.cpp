@@ -1,3 +1,21 @@
+/*
+   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 #include "nepomukservicedatabackend.h"
 #include <QUrl>
 #include <Soprano/Node>
@@ -52,7 +70,7 @@ NW::NepomukServiceDataBackend::NepomukServiceDataBackend(const QUrl & url)
 
 }
 
-void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPPName, float dataPPVersion, const QDateTime & ed)
+void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & ed)
 {
     // Get graph node
     loadCreateGraph();
@@ -118,14 +136,14 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
 }
 
 
-QMap< QString, float> NW::NepomukServiceDataBackend::examinedDataPPInfo()
+QMap< QString, int> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 {
     //Nepomuk::Resource m_res(m_url);
     loadGraph();
     // if(!m_res.isValid() or !m_res.exists())
     if(!m_graphNode.isValid()) {
         kDebug() << "No graph  with examined info found";
-        return QMap<QString, float>();
+        return QMap<QString, int>();
     }
 
     QDateTime lmd = m_res.property(Soprano::Vocabulary::NAO::lastModified()).toDateTime();
@@ -141,7 +159,7 @@ QMap< QString, float> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 
 
 
-    QMap< QString, float >  answer;
+    QMap< QString, int >  answer;
     Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
                                           m_dataPPQuery.toSparqlQuery(), Soprano::Query::QueryLanguageSparql
                                       );
@@ -167,7 +185,7 @@ QMap< QString, float> NW::NepomukServiceDataBackend::examinedDataPPInfo()
         }
 
         //QString name = ln[0];
-        float version = vv.variant().toFloat();
+        int version = vv.variant().toInt();
 
         // Now found date of extraction
         // Use QString because it is much easier to read and understand
@@ -345,7 +363,7 @@ void NW::NepomukServiceDataBackend::loadGraph()
     return;
 }
 
-QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, float version)
+QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int version)
 {
     if(name.isEmpty())
         return QUrl();
@@ -663,7 +681,7 @@ QDateTime NW::NepomukServiceDataBackend::examinedDate(const QString & name)
 
 }
 
-NQ::Query NW::NepomukServiceDataBackend::queryUnparsedResources(const NQ::Term mainTerm, const QMap<QString, float> & assignedDataPP)
+NQ::Query NW::NepomukServiceDataBackend::queryUnparsedResources(const NQ::Term mainTerm, const QMap<QString, int> & assignedDataPP)
 {
     // TODO Implement advanced quering for resource that has not been parsed ( of parsing
     // information is obsolete

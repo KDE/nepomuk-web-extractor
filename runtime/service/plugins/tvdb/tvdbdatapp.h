@@ -25,22 +25,25 @@
 
 class SeriesCache;
 
-namespace Nepomuk {
+namespace Nepomuk
+{
     class TvdbReply;
     class TvdbDataPP : public WebExtractor::DataPP
     {
-    Q_OBJECT
-    public:
-        TvdbDataPP( float pluginVersion );
-        ~TvdbDataPP();
+            Q_OBJECT
+        public:
+            TvdbDataPP(int pluginVersion);
+            ~TvdbDataPP();
 
-        SeriesCache* seriesCache() const { return m_seriesCache; }
+            SeriesCache* seriesCache() const {
+                return m_seriesCache;
+            }
 
-        WebExtractor::DataPPReply* requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
+            WebExtractor::DataPPReply* requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
 
-    private:
-        TVShowFilenameAnalyzer m_filenameAnalyzer;
-        SeriesCache* m_seriesCache;
+        private:
+            TVShowFilenameAnalyzer m_filenameAnalyzer;
+            SeriesCache* m_seriesCache;
     };
 }
 

@@ -273,7 +273,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
 void NW::ResourceAnalyzer::doAnalyze()
 {
     // Add all datapp to queue
-    QMap< QString, float > examined = d->rsd.examinedDataPPInfo();
+    QMap< QString, int > examined = d->rsd.examinedDataPPInfo();
     //kDebug() << "Examind info: " << examined;
     foreach(DataPPWrapper * dppw, d->m_dataPPKeeper) {
         // The algorithm is the folowing:
@@ -288,7 +288,7 @@ void NW::ResourceAnalyzer::doAnalyze()
         // See description of ResourceAnalyzer and ResourceAnalyzer::Iterative about
         // why do we need such behaviour
         QString n = dppw->pluginName();
-        QMap< QString, float >::const_iterator it = examined.find(n);
+        QMap< QString, int >::const_iterator it = examined.find(n);
         if(it != examined.end()) {
             // Check version
             //kDebug() << "Check version: " << it.value() << " vs " << dppw->pluginVersion();
@@ -308,18 +308,18 @@ void NW::ResourceAnalyzer::doAnalyze()
 
     d->m_running = true;
     d->m_applied = false;
-    // TODO Add correct error
-    if(!launchNext()) {
+
+    if(d->m_queue.isEmpty()) {
         // Can not analyze - no DataPP. This is because all
         // DataPP are already analyzed of becase no DataPP was assigned
         // to avoid infinite recursion the analyzingFinished signal will
         // be called via QTimer::singleShot(0)
-        if(d->m_error == NoError) {
-            d->m_error = UnknownError;
-        }
+        d->m_error = NoUnexaminedDataPP;
         d->m_running = false;
-        kDebug() << "Failed to analyze resource. Check parameters.";
+        kDebug() << "No unexamined DataPP.";
         QTimer::singleShot(0, this, SLOT(exitWithError()));
+    } else {
+        QTimer::singleShot(0, this, SLOT(launchOrFinish()));
     }
 }
 
@@ -341,21 +341,6 @@ void NW::ResourceAnalyzer::abort()
         d->m_running = false;
     }
     return;
-}
-
-void NW::ResourceAnalyzer::setResource(const Nepomuk::Resource & res)
-{
-    if(d->m_running) {
-        abort();
-    }
-    if(!res.isValid())
-        return;
-
-    // Clear previously collected data
-    clear();
-    // Set new resource and return
-    d->m_res = res;
-
 }
 
 
@@ -380,7 +365,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 
 
 
-    for(; ((d->m_queue.size()) and(i < substop)); i++) {
+    while((d->m_queue.size()) and(i < substop)) {
         const DataPPWrapper * dpp = d->m_queue.dequeue();
         //kDebug() << "Datappwrapper: " << uintptr_t(dpp) << " DataPP: " << uintptr_t(dpp->data());
 
@@ -404,6 +389,9 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
 
         // Increase the number of active replies
         d->m_respWaits++;;
+
+        // Increase number of launched DataPP
+        i++;
 
     }
 
@@ -669,6 +657,21 @@ NW::DecisionList NW::ResourceAnalyzer::decisions() const
 bool NW::ResourceAnalyzer::isRunning() const
 {
     return d->m_running;
+}
+
+void NW::ResourceAnalyzer::setResource(const Nepomuk::Resource & res)
+{
+    if(d->m_running) {
+        abort();
+    }
+    if(!res.isValid())
+        return;
+
+    // Clear previously collected data
+    clear();
+    // Set new resource and return
+    d->m_res = res;
+
 }
 
 /*

@@ -26,26 +26,24 @@
 #include <Nepomuk/File>
 
 
-Nepomuk::TvdbDataPP::TvdbDataPP( float pluginVersion )
+Nepomuk::TvdbDataPP::TvdbDataPP(int pluginVersion)
     : DataPP(pluginVersion)
 {
-    m_seriesCache = new SeriesCache( this );
+    m_seriesCache = new SeriesCache(this);
 }
 
 
 Nepomuk::WebExtractor::DataPPReply* Nepomuk::TvdbDataPP::requestDecisions(const WebExtractor::DecisionFactory* factory, const Nepomuk::Resource & res)
 {
-    if ( res.isFile() ) {
+    if(res.isFile()) {
         const KUrl url = res.toFile().url();
-        TVShowFilenameAnalyzer::AnalysisResult result = m_filenameAnalyzer.analyzeFilename( url.toLocalFile() );
-        if ( result.isValid() ) {
-            return new TvdbReply( this, factory, res, result.name, result.season, result.episode );
-        }
-        else {
+        TVShowFilenameAnalyzer::AnalysisResult result = m_filenameAnalyzer.analyzeFilename(url.toLocalFile());
+        if(result.isValid()) {
+            return new TvdbReply(this, factory, res, result.name, result.season, result.episode);
+        } else {
             kDebug() << res.resourceUri() << "failed to analyze the filename - no tv show file?";
         }
-    }
-    else {
+    } else {
         kDebug() << res.resourceUri() << "is not a file";
     }
     return 0;

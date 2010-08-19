@@ -43,9 +43,8 @@ Nepomuk::WebExtractor::DataPP* Nepomuk::DebugPlugin::getDataPP(KSharedConfigPtr 
     return m_dataPP;
 }
 
-float Nepomuk::DebugPlugin::version()
+int Nepomuk::DebugPlugin::version()
 {
-    //static QString v = QString(DEBUG_PLUGIN_VERSION);
-    return 0.1;
+    return DEBUG_PLUGIN_INTERNAL_VERSION;
 }
 

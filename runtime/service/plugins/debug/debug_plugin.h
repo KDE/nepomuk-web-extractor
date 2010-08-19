@@ -27,7 +27,7 @@ namespace Nepomuk
         public:
             DebugPlugin(QObject*, const QList<QVariant>&);
             virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
-            static float  version();
+            static int  version();
         protected:
     };
 }

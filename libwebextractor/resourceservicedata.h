@@ -43,15 +43,15 @@ namespace Nepomuk
                 ~ResourceServiceData();
                 /*! \brief Add/Update information about examined DataPP ( name, version)
                  */
-                void setExaminedDataPPInfo(const QString & dataPPName, float  dataPPVersion) ;
+                void setExaminedDataPPInfo(const QString & dataPPName, int  dataPPVersion) ;
 
                 /*! \brief Return map (name, version ) about all examined DataPP
                  */
-                QMap< QString, float > examinedDataPPInfo();
+                QMap< QString, int > examinedDataPPInfo();
 
                 /*! \brief Return true if all given DataPP has been examined for the resource
                  */
-                bool checkExaminedDataPPInfo(const QMap< QString, float> & dataPP) const;
+                bool checkExaminedDataPPInfo(const QMap< QString, int> & dataPP) const;
 
                 /*! \brief Clear all information about examined DataPP
                  */

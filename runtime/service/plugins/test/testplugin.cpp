@@ -19,7 +19,7 @@
 #include "testplugin.h"
 
 #include "testplugin_config.h"
-#include "testdatapp.h";
+#include "testdatapp.h"
 
 #include <KPluginFactory>
 #include <KDebug>
@@ -34,9 +34,9 @@ Nepomuk::TestPlugin::TestPlugin(QObject* parent, const QList<QVariant>&):
     ;
 }
 
-float Nepomuk::TestPlugin::version()
+int Nepomuk::TestPlugin::version()
 {
-    return (TEST_PLUGIN_VERSION);
+    return (TEST_PLUGIN_INTERNAL_VERSION);
 }
 
 Nepomuk::WebExtractor::DataPP * Nepomuk::TestPlugin::getDataPP(KSharedConfigPtr configFile)

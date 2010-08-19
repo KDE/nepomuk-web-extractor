@@ -73,12 +73,12 @@ void NW::ResourceServiceData::clearServiceInfo()
 
 }
 
-void NW::ResourceServiceData::setExaminedDataPPInfo(const QString & dataPPName, float dataPPVersion)
+void NW::ResourceServiceData::setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion)
 {
     d->backend->setExaminedDataPPInfo(dataPPName, dataPPVersion);
 }
 
-QMap< QString, float > NW::ResourceServiceData::examinedDataPPInfo()
+QMap< QString, int > NW::ResourceServiceData::examinedDataPPInfo()
 {
     return d->backend->examinedDataPPInfo();
 }
@@ -93,7 +93,7 @@ void NW::ResourceServiceData::clearExaminedInfo(const QString & dataPPName)
     d->backend->clearExaminedInfo(dataPPName);
 }
 
-bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QMap< QString, float> & dataPP) const
+bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QMap< QString, int> & dataPP) const
 {
     d->backend->checkExaminedDataPPInfo(dataPP);
 }

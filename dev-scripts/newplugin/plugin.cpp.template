@@ -40,9 +40,9 @@ Nepomuk::${classname}::${classname}(QObject* parent, const QList<QVariant>&):
 {
 }
 
-float Nepomuk::${classname}::version()
+int Nepomuk::${classname}::version()
 {
-    return (${name.upper()}_PLUGIN_VERSION);
+    return (${name.upper()}_PLUGIN_INTERNAL_VERSION);
 }
 
 Nepomuk::WebExtractor::DataPP * Nepomuk::${classname}::getDataPP(KSharedConfigPtr configFile)

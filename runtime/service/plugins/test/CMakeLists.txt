@@ -1,3 +1,4 @@
+
 project(webexplugin_test)
 cmake_minimum_required(VERSION 2.6)
 
@@ -10,13 +11,13 @@ find_package(Nepomuk REQUIRED)
 
 # check for required packages
 if(WEBEXTRACTOR_VERSION_STRING)
-	# if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-	set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-		../libwebextractor/include
-		${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
-	set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
+    # if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
+    set(LIBWEBEXTRACTOR_INCLUDE_DIRS
+        ../libwebextractor/include
+        ${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
+    set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
 else(WEBEXTRACTOR_VERSION_STRING)
-	find_package(LibWebextractor REQUIRED)
+    find_package(LibWebextractor REQUIRED)
 endif(WEBEXTRACTOR_VERSION_STRING)
 
 
@@ -40,6 +41,7 @@ set (test_plugin_SRCS
     )
 
 set (TEST_PLUGIN_VERSION 0.1)
+set (TEST_PLUGIN_INTERNAL_VERSION 0)
 
 configure_file(testplugin_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/testplugin_config.h  )
 

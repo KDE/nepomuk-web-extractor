@@ -34,7 +34,7 @@ namespace Nepomuk
         public:
             WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
             AutotagDataPP(
-                float pluginVersion,
+                int pluginVersion,
                 const QRegExp & regexp,
                 const QString & tag
             );

@@ -41,8 +41,9 @@ namespace Nepomuk
                  * recived that any of the given DataPP has not be examined for the resources. If such query can not be created,
                  * then invalid Query must be returned. Default implementation will return invalid query;
                  * \param assignedDataPP Map of DataPP name, DataPP version
+                         * \return Query for selecting all unparsed resource or invalid query if this feature is not supported
                  */
-                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, float> & assignedDataPP) {
+                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP) {
                     Q_UNUSED(mainTerm);
                     Q_UNUSED(assignedDataPP);
                     return Nepomuk::Query::Query();

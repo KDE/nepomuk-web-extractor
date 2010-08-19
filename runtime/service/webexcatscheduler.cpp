@@ -120,7 +120,7 @@ void Nepomuk::WebExtractorCategoryScheduler::cacheUrls()
         return;
 
     // First we will execute query to check that there is any resource
-    QMap< QString, float> dataPPInfo = m_extractParams->dataPPInfo();
+    QMap< QString, int> dataPPInfo = m_extractParams->dataPPInfo();
     NW::ResourceServiceDataManager * rsdManager = m_extractParams->resourceServiceDataManager();
     NQ::Query advancedQuery = rsdManager->queryUnparsedResources(m_query.term(), dataPPInfo);
 

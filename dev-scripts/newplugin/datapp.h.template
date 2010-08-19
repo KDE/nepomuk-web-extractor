@@ -36,7 +36,7 @@ namespace Nepomuk {
     Q_OBJECT
     public:
         WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
-        ${classname}( float pluginVersion );
+        ${classname}( int pluginVersion );
         ~${classname}();
         friend class ${name}Reply;
     };

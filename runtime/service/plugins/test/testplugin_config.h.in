@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by Artem Serebriyskiy <v.for.vandal@gmail.com>
+   Copyright (C) 2010 by  <>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 #define __webextractor_plugin_config_test 
 
 #define TEST_PLUGIN_VERSION @TEST_PLUGIN_VERSION@
+
+#define TEST_PLUGIN_INTERNAL_VERSION @TEST_PLUGIN_INTERNAL_VERSION@
 
 
 #endif 

@@ -31,7 +31,7 @@
 #include <Nepomuk/Tag>
 #include <Soprano/Vocabulary/NAO>
 #include <Soprano/Statement>
-#include <nepomuk/nfo.h>
+#include "nfo.h"
 #include <KDebug>
 #include <QTimer>
 

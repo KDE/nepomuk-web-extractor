@@ -30,7 +30,7 @@ QString NW::DebugDataPP::name()
     return name;
 }
 
-float  NW::DebugDataPP::version()
+int  NW::DebugDataPP::version()
 {
     //static QString version = QString("0.0.1");
     return 0.1;

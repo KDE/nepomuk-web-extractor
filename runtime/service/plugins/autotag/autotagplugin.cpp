@@ -36,10 +36,9 @@ Nepomuk::AutotagPlugin::AutotagPlugin(QObject* parent, const QList<QVariant>&):
     ;
 }
 
-float Nepomuk::AutotagPlugin::version()
+int Nepomuk::AutotagPlugin::version()
 {
-    //static QString v = QString(AUTOTAG_PLUGIN_VERSION);
-    return AUTOTAG_PLUGIN_VERSION;
+    return (AUTOTAG_PLUGIN_INTERNAL_VERSION);
 }
 
 Nepomuk::WebExtractor::DataPP * Nepomuk::AutotagPlugin::getDataPP(KSharedConfigPtr configFile)

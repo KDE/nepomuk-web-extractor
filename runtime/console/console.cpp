@@ -1,3 +1,21 @@
+/*
+   Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
 #include "console.h"
 #include "datapppool.h"
 #include <KDebug>
@@ -83,7 +101,7 @@ ConsoleMainWindow::ConsoleMainWindow(
     this->examinedDataPPWidget->setVerticalHeaderItem(1, new QTableWidgetItem("Version"));
     this->examinedDataPPWidget->setVerticalHeaderItem(2, new QTableWidgetItem("Last extraction date"));
     this->examinedDataPPWidget->viewport()->setAcceptDrops(true);
-    connect(this->examinedDataPPWidget, SIGNAL(setExaminedDataPP(const QString &, float)), this, SLOT(onMarkedExamined(const QString &, float)));
+    connect(this->examinedDataPPWidget, SIGNAL(setExaminedDataPP(const QString &, int)), this, SLOT(onMarkedExamined(const QString &, int)));
 
     // Connect signals
     connect(this->uriLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT(onSelectedResourceChanged()));
@@ -364,13 +382,13 @@ void ConsoleMainWindow::updateExaminedInfo()
 
     // Change examined widget
 
-    QMap< QString, float > ed = rsd.examinedDataPPInfo();
+    QMap< QString, int > ed = rsd.examinedDataPPInfo();
     QMap< QString, QDateTime > edd = rsd.examinedDataPPDates();
     kDebug() << "Examined info: " << ed;
     int currentRow = 0;
     this->examinedDataPPWidget->setRowCount(ed.size());
     for(
-        QMap< QString, float >::iterator it = ed.begin();
+        QMap< QString, int >::iterator it = ed.begin();
         it != ed.end();
         it++
     ) {
@@ -534,7 +552,7 @@ void ConsoleMainWindow::updateIdentificationInfo()
     return;
 }
 
-void ConsoleMainWindow::onMarkedExamined(const QString & name, float version)
+void ConsoleMainWindow::onMarkedExamined(const QString & name, int version)
 {
     QUrl url = uriLineEdit->text();
     Nepomuk::Resource res(url);

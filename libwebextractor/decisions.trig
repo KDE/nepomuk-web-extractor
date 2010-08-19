@@ -30,7 +30,7 @@ ndco: {
 	    rdfs:comment "Property represents version of the DataPP";
 	    rdfs:label "DataPP version";
 	    rdfs:domain ndco:DataPP;
-	    rdfs:range  xsd:float.
+	    rdfs:range  xsd:int.
 	   
 	ndco:lastExtracted
 	    a	rdf:Property;

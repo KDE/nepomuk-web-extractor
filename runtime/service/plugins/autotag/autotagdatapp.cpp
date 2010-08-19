@@ -26,7 +26,7 @@
 
 
 Nepomuk::AutotagDataPP::AutotagDataPP(
-    float pluginVersion,
+    int pluginVersion,
     const QRegExp & regexp,
     const QString & tag
 ):

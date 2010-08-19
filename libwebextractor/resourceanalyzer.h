@@ -83,11 +83,9 @@ namespace Nepomuk
                      */
                     InvalidResource,
 
-                    /*! \brief There is no necessary model
-                     * There is no model installed in the system that supports
-                     * in-memory models
+                    /*! No unexamined DataPP
                      */
-                    NoModelAvailable,
+                    NoUnexaminedDataPP,
 
                     /*! Unknown resource.
                      * This is usually a bug in system

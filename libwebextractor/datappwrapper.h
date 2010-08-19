@@ -44,7 +44,7 @@ namespace Nepomuk
                 QString  pluginName() const {
                     return m_data->pluginName();
                 }
-                float  pluginVersion() const {
+                int  pluginVersion() const {
                     return m_data->pluginVersion();
                 }
                 DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)const;

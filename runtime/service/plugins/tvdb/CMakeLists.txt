@@ -42,6 +42,7 @@ nepomuk_add_ontology_classes(tvdb_plugin_SRCS
   ONTOLOGIES ${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nie/nmm.trig)
 
 set (TVDB_PLUGIN_VERSION 0.1)
+set (TVDB_PLUGIN_INTERNAL_VERSION 0.1)
 
 configure_file(tvdbplugin_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/tvdbplugin_config.h  )
 

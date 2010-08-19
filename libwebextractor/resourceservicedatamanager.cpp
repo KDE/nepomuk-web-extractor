@@ -68,7 +68,7 @@ NW::ServiceDataBackend * NW::ResourceServiceDataManager::resourceData(const QUrl
     return d->backendFactory->backend(url);
 }
 
-Nepomuk::Query::Query NW::ResourceServiceDataManager::queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, float> & assignedDataPP)
+Nepomuk::Query::Query NW::ResourceServiceDataManager::queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP)
 {
     return d->backendFactory->queryUnparsedResources(mainTerm, assignedDataPP);
 }

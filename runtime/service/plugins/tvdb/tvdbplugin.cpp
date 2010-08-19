@@ -35,9 +35,9 @@ Nepomuk::TvdbPlugin::TvdbPlugin(QObject* parent, const QList<QVariant>&)
 }
 
 
-float Nepomuk::TvdbPlugin::version()
+int Nepomuk::TvdbPlugin::version()
 {
-    return (TVDB_PLUGIN_VERSION);
+    return (TVDB_PLUGIN_INTERNAL_VERSION);
 }
 
 
@@ -47,9 +47,9 @@ Nepomuk::WebExtractor::DataPP* Nepomuk::TvdbPlugin::getDataPP(KSharedConfigPtr c
 }
 
 
-double Nepomuk::TvdbPlugin::calculateRankTheDumbWay( const QString& queryString, const QString& name )
+double Nepomuk::TvdbPlugin::calculateRankTheDumbWay(const QString& queryString, const QString& name)
 {
-    return 1.0 - double( name.length() - queryString.length() ) / double( name.length() );
+    return 1.0 - double(name.length() - queryString.length()) / double(name.length());
 }
 
 K_PLUGIN_FACTORY(TvdbPluginFactory, registerPlugin< Nepomuk::TvdbPlugin >();)

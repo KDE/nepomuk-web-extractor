@@ -25,21 +25,22 @@
 #include "servicedatabackendfactory.h"
 #include "nepomukservicedatabackend.h"
 
-namespace Nepomuk {
-    namespace WebExtractor {
-	class WEBEXTRACTOR_EXPORT NepomukServiceDataBackendFactory : public ServiceDataBackendFactory
-	{
+namespace Nepomuk
+{
+    namespace WebExtractor
+    {
+        class WEBEXTRACTOR_EXPORT NepomukServiceDataBackendFactory : public ServiceDataBackendFactory
+        {
                 ServiceDataBackend * backend(const QUrl & res) {
                     return new NepomukServiceDataBackend(res);
                 }
                 ~NepomukServiceDataBackendFactory() {
                     ;
                 }
-		virtual Nepomuk::Query::Query queryUnparsedResources( const Nepomuk::Query::Term mainTerm, const QMap<QString, float> & assignedDataPP)
-		{
-		    return NepomukServiceDataBackend::queryUnparsedResources(mainTerm, assignedDataPP);
-		}
-	};
+                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP) {
+                    return NepomukServiceDataBackend::queryUnparsedResources(mainTerm, assignedDataPP);
+                }
+        };
     }
 }
 #endif

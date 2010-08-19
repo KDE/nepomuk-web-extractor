@@ -4,6 +4,7 @@ set (debug_plugin_SRCS
     )
 
 set (DEBUG_PLUGIN_VERSION "0.1")
+set (DEBUG_PLUGIN_INTERNAL_VERSION 0)
 
 configure_file(debug_plugin_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/debug_plugin_config.h)
 

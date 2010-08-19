@@ -53,7 +53,7 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
 
         /*! \brief mark given datapp as examined for given resource
          */
-        void onMarkedExamined(const QString & name, float version);
+        void onMarkedExamined(const QString & name, int version);
 
         void onClearExamined();
         void onClearAllExamined();

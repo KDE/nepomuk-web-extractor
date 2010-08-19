@@ -45,12 +45,12 @@ namespace Nepomuk
                          * \param dataPPName Name of the DataPP
                          * \param dataPPVersion Version of the DataPP
                  */
-                virtual void setExaminedDataPPInfo(const QString & dataPPName, float dataPPVersion, const QDateTime & date = QDateTime()) = 0;
+                virtual void setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & date = QDateTime()) = 0;
 
                 /*! \brief This function checks that all given DataPP has been examined for the resource.
                  * Default implementation will compare examinedDataPPInfo() with given map
                  */
-                virtual bool checkExaminedDataPPInfo(const QMap< QString, float> & dataPPInfo) ;
+                virtual bool checkExaminedDataPPInfo(const QMap< QString, int> & dataPPInfo) ;
                 /*! \brief Return map (name, version ) about all examined DataPP
                          * This function must return the set of non-obsolete ( this is important ) records about DataPP that
                          * has been examined. Usually this mean then implementations of this function should clear
@@ -60,7 +60,7 @@ namespace Nepomuk
                          *
                          * \return Return the map <name, version>
                  */
-                virtual QMap< QString, float > examinedDataPPInfo() = 0;
+                virtual QMap< QString, int > examinedDataPPInfo() = 0;
 
                 /*! \brief This is optional function, that returns map of (DataPP name, last extraction date)
                  * This function is for introspection proporses only.

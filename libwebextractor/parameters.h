@@ -129,7 +129,7 @@ namespace Nepomuk
                  */
                 void setResourceServiceDataManager(ResourceServiceDataManager * manager);
 
-                QMap<QString, float> dataPPInfo() const;
+                QMap<QString, int> dataPPInfo() const;
 
                 friend QDebug operator<<(QDebug dbg,  const ExtractParameters & cat);
 

@@ -149,7 +149,6 @@ remove_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 set (WEBEXTRACTOR_HEADERS 
     datapp.h
     datappkeeper.h
-    datappproxy.h
     datappreply.h
     datappreply_p.h
     datapprequest.h

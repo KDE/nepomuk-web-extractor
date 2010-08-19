@@ -39,7 +39,7 @@ namespace Nepomuk
                 Q_OBJECT;
             public:
                 // SimpleNetworkDataPP will take parentship on factory
-                SimpleNetworkDataPP(float dataPPVersion, const QString & endpointUrl, SimpleReplyFactory * factory);
+                SimpleNetworkDataPP(int dataPPVersion, const QString & endpointUrl, SimpleReplyFactory * factory);
                 // Safe therad. Called from another thread - now from thread where
                 // Datapp leaves
                 virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res);
@@ -62,7 +62,7 @@ namespace Nepomuk
                 void getRequest(SimpleNetworkDataPPRequest * request);
                 // void enqueue(SimpleNetworkDataPPReply*);
                 // This is constuctor for class that inherit this one and doesn't require factory
-                SimpleNetworkDataPP(float dataPPVersion, const QString & serverName, const QString & endpointUrl);
+                SimpleNetworkDataPP(int dataPPVersion, const QString & serverName, const QString & endpointUrl);
                 QNetworkAccessManager * m_net;
                 QTimer * m_reqTimer;
                 bool m_timeout;
