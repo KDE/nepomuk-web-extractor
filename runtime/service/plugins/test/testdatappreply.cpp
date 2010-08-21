@@ -28,6 +28,8 @@
 #include <webextractor/decisionfactory.h>
 #include <Nepomuk/Resource>
 #include <Nepomuk/Tag>
+#include <Nepomuk/Variant>
+#include <Soprano/Vocabulary/NAO>
 #include <KDebug>
 #include <QTimer>
 
@@ -48,6 +50,8 @@ Nepomuk::TestReply::TestReply(TestDataPP * parent, const WebExtractor::DecisionF
 
     QString tagName = (result) ? QString("TestSuccess") : QString("TestFailure");
     Nepomuk::Tag t(tagName, d.manager());
+    t.setLabel("Tag indicating result of the tests");
+    t.setProperty(Soprano::Vocabulary::NAO::prefLabel(), Nepomuk::Variant(tagName));
 
     grp.makeCurrent();
     r.addTag(t);

@@ -60,11 +60,12 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
         void onCurrentDecisionChanged(QListWidgetItem * current, QListWidgetItem * previous);
         void onApplyDecision();
         void onIdentifyDecision();
+        void onIdentifyMain();
+        void updateIdentificationInfo();
     private:
         void updateExaminedInfo();
         void updateServiceInfo();
         void updateDecisionsInfo();
-        void updateIdentificationInfo();
         void cleanAfterAnalyzing();
         QThread * workThread;
         Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;

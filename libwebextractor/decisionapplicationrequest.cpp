@@ -33,6 +33,7 @@ NW::DecisionApplicationRequest::DecisionApplicationRequest(QSharedPointer<Decisi
     d->decisionData = target;
     d->applied = false;
     d->identified = false;
+    d->mainIdentified = false;
     d->targetModel = targetModel;
     d->log = log;
 }
@@ -45,6 +46,7 @@ NW::DecisionApplicationRequest::DecisionApplicationRequest(QSharedPointer<Decisi
     d->decisionData = target;
     d->applied = false;
     d->identified = false;
+    d->mainIdentified = false;
     d->targetModel = targetModel;
     d->log = log;
 }
@@ -57,13 +59,74 @@ void NW::DecisionApplicationRequest::reset()
     d->mainRequest = 0;
     d->identified = false;
     d->applied = false;
+    d->mainIdentified  = false;
     d->mainResourceIdentificationHash.clear();
 }
 
 
+void NW::DecisionApplicationRequest::identifyMain(bool reset)
+{
+    Q_D(DecisionApplicationRequest);
+    if(d->mainIdentified and !reset)
+        return;
+
+    if(reset) {
+        DecisionApplicationRequest::reset();
+    }
+
+    // Now it is necessary to identify the Decision main resources.
+
+    bool success = true;
+    QHash<QUrl, NS::IdentificationSet>::const_iterator it = d->decisionData->resourceProxyISMap.begin();
+    QHash<QUrl, NS::IdentificationSet>::const_iterator it_end = d->decisionData->resourceProxyISMap.end();
+    for(; it != it_end; it++) {
+        // proxyUrl is like url of the main resource in the Decision storage model
+        // Thats why it is called 'proxy'
+        QUrl proxyUrl = d->decisionData->resourceProxyMap[it.key()];
+        Q_ASSERT(!proxyUrl.isEmpty());
+
+        kDebug() << "Identification set for the resource " << it.key() << "is:";
+        kDebug() << it.value().toList();
+
+        NS::IdentificationRequest * req = new NS::IdentificationRequest(NS::ChangeLog(), it.value(), d->targetModel);
+        connect(req, SIGNAL(identified(QUrl, QUrl)), this, SIGNAL(identified(QUrl, QUrl)));
+        req->load();
+
+        kDebug() << "The following resources are going to be identified: " << req->unidentified();
+        req->identifyAll();
+
+        if(!req->done()) {
+            kDebug() << "Identification of target resource failed. Unidentified:";
+            kDebug() << req->unidentified();
+            success = false;
+            break;
+        }
+
+        // The identified uri in the target model
+        // mpUri == (m)a(p)ped (Uri)
+        QUrl mpUri = req->mappedUri(it.key());
+        kDebug() << "Target resource " << it.key() << " was identified as :" <<
+                 mpUri << '\n' <<
+                 "It's proxy (" << proxyUrl << ")" <<
+                 "will be forced to match this resource";
+
+
+
+        // Add to our own database
+        d->mainResourceIdentificationHash.insert(proxyUrl, mpUri);
+
+        delete req;
+    }
+
+    // Set mainIdentified
+    d->mainIdentified = success;
+}
+
 void NW::DecisionApplicationRequest::identify(bool reset)
 {
     Q_D(DecisionApplicationRequest);
+    // If identification stage has already be successfuly performed
+    // and it should not be reseted
     if(d->identified and !reset)
         return;
 
@@ -73,7 +136,17 @@ void NW::DecisionApplicationRequest::identify(bool reset)
 
     d->identified = false;
 
-    // Firts create main identification request.
+    // Identify main resources
+    if(!d->mainIdentified) {
+        identifyMain();
+        // If identification was unsuccessfull,
+        // then return
+        if(!d->mainIdentified) {
+            return;
+        }
+    }
+
+    // Create main identification request.
     // But do not launch it. In this iset the identification statements
     // of resources that are Decision target resources should be excluded.
     QSet<QUrl> ignoreset;
@@ -81,6 +154,10 @@ void NW::DecisionApplicationRequest::identify(bool reset)
         d->decisionData->resourceProxyISMap.begin();
     QHash<QUrl, NS::IdentificationSet>::const_iterator isit_end =
         d->decisionData->resourceProxyISMap.end();
+    // Iteration is done over resourceProxyISMap
+    // ( the hash main resource -> identification set ),
+    // but values are taken from resourceProxyMap
+    // ( the hash original resource -> copy resource )
     for(; isit != isit_end; isit++) {
         ignoreset << d->decisionData->resourceProxyMap[isit.key()];
     }
@@ -102,53 +179,24 @@ void NW::DecisionApplicationRequest::identify(bool reset)
     d->mainRequest = new NS::IdentificationRequest(d->log, iset, d->targetModel);
     d->mainRequest->load();
 
+    QHash<QUrl, QUrl>::const_iterator mit = d->mainResourceIdentificationHash.begin();
+    QHash<QUrl, QUrl>::const_iterator mit_end = d->mainResourceIdentificationHash.end();
+
+    // Add main resources to the main request database
+    for(; mit != mit_end; mit++) {
+        d->mainRequest->provideResourceUri(
+            mit.key(),
+            mit.value()
+        );
+    }
+
     kDebug() << "Main unidentified: " << d->mainRequest->unidentified();
 
-    // Now it is necessary to identify the Decision main resources.
-
-    QHash<QUrl, NS::IdentificationSet>::const_iterator it = d->decisionData->resourceProxyISMap.begin();
-    QHash<QUrl, NS::IdentificationSet>::const_iterator it_end = d->decisionData->resourceProxyISMap.end();
-    for(; it != it_end; it++) {
-        // proxyUrl is like url of the main resource in the Decision storage model
-        // Thats why it is called 'proxy'
-        QUrl proxyUrl = d->decisionData->resourceProxyMap[it.key()];
-        Q_ASSERT(!proxyUrl.isEmpty());
-
-        NS::IdentificationRequest * req = new NS::IdentificationRequest(NS::ChangeLog(), it.value(), d->targetModel);
-        connect(req, SIGNAL(identified(QUrl, QUrl)), this, SIGNAL(identified(QUrl, QUrl)));
-        req->load();
-        req->identifyAll();
-
-        if(!req->done()) {
-            kDebug() << "Identification of target resource failed";
-            return;
-        }
-
-        // The identified uri in the target model
-        // mpUri == (m)a(p)ped (Uri)
-        QUrl mpUri = req->mappedUri(it.key());
-        kDebug() << "Target resource " << it.key() << " was identified as :" <<
-                 mpUri << '\n' <<
-                 "It's proxy (" << proxyUrl << ")" <<
-                 "will be forced to match this resource";
-
-
-        // Add to the main request database
-        d->mainRequest->provideResourceUri(
-            proxyUrl,
-            mpUri
-        );
-
-        // Add to our own database
-        d->mainResourceIdentificationHash.insert(proxyUrl, mpUri);
-
-        delete req;
-    }
 
     // Start main identification
     d->mainRequest->identifyAll();
 
-    d->identified = true;
+    d->identified = d->mainRequest->done();
 
 
 
@@ -210,6 +258,12 @@ QHash<QUrl, QUrl> NW::DecisionApplicationRequest::mainMappings() const
 {
     Q_D(const DecisionApplicationRequest);
     return d->mainResourceIdentificationHash;
+}
+
+bool NW::DecisionApplicationRequest::isMainIdentified() const
+{
+    Q_D(const DecisionApplicationRequest);
+    return d->mainIdentified;
 }
 
 NW::DecisionApplicationRequest::~DecisionApplicationRequest()

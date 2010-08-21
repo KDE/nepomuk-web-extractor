@@ -39,7 +39,7 @@
 #include "resourceanalyzerfactory.h"
 #include "resourceservicedata.h"
 #include "decisionapplicationrequest.h"
-#include <nepomuk/querybuildersearchwidget.h>
+#include <nepomuk/querybuilderwidget.h>
 #include <stdint.h>
 #include <nepomuk/changelog.h>
 //#include "modeltest.h"
@@ -114,6 +114,8 @@ ConsoleMainWindow::ConsoleMainWindow(
     connect(this->decisionListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(onCurrentDecisionChanged(QListWidgetItem*, QListWidgetItem*)));
     connect(this->applyDecisionButton, SIGNAL(clicked()), this, SLOT(onApplyDecision()));
     connect(this->identifyDecisionButton, SIGNAL(clicked()), this, SLOT(onIdentifyDecision()));
+    connect(this->identifyMainButton, SIGNAL(clicked()), this, SLOT(onIdentifyMain()));
+    connect(this->onlyMainCheckBox, SIGNAL(toggled(bool)), this, SLOT(updateIdentificationInfo()));
 
     // Set service info widget
     this->serviceInfoTableWidget->setColumnCount(2);
@@ -503,48 +505,90 @@ void ConsoleMainWindow::updateIdentificationInfo()
     NW::DecisionApplicationRequest * req = 0;
     if(fit != this->m_requestsHash.end()) {
         req = fit.value();
-        QHash<QUrl, QUrl> mcp = req->mappings(); // mcp = Mappincg CoPy
-        kDebug() << "Mappings: " << req->mappings();
+        QHash<QUrl, QUrl> mcp; // mcp = Mappincg CoPy
+
         QSet<QUrl> uncp = req->unidentified(); // uncp = UNidentified CoPy
         kDebug() << "Unidentified: " << uncp;
         QSet<QUrl> mainResources = req->mainResources();
 
-        identificationTableWidget->setRowCount(mcp.size() + uncp.size());
 
         Q_ASSERT(req);
         int currentRow = 0;
-        QSet<QUrl>::const_iterator uit = uncp.begin();
-        QSet<QUrl>::const_iterator uit_end = uncp.end();
-        for(; uit != uit_end; uit++) {
-            QTableWidgetItem * item = new QTableWidgetItem(uit->toString());
-            item->setFlags(Qt::ItemIsEnabled);
-            QColor color = QColor(255, 0, 0);
-            if(!mainResources.contains(*uit)) {
-                // Addjust color to make it more lighter
-                color = color.lighter();
+        if(
+            /* User select to display only main resources*/
+            this->onlyMainCheckBox->isChecked() or
+            /* Only an attempt of identification of main resources
+             * was performed
+             */
+            (uncp.isEmpty() and req->mappings().isEmpty())
+        ) {
+            mcp = req->mainMappings();
+            kDebug() << "Mappings: " << mcp;
+            identificationTableWidget->setRowCount(mainResources.size());
+            QSet<QUrl>::const_iterator mrit = mainResources.begin();
+            QSet<QUrl>::const_iterator mrit_end = mainResources.end();
+            for(; mrit != mrit_end; mrit++) {
+                QTableWidgetItem * item = new QTableWidgetItem(mrit->toString());
+                item->setFlags(Qt::ItemIsEnabled);
+                QColor color;
+                // If resource is not exist in mappings
+                // then print it
+                QHash<QUrl, QUrl>::const_iterator fit = mcp.find(*mrit);
+                if(fit == mcp.end()) {
+                    color = QColor(255, 0, 0);
+                } else {
+                    color = QColor(0, 255, 0);
+                    // Add item to the second column
+                    QTableWidgetItem * sitem = new QTableWidgetItem(fit.value().toString());
+                    sitem->setFlags(Qt::ItemIsEnabled);
+                    sitem->setBackground(QBrush(color));
+                    identificationTableWidget->setItem(currentRow, 1, sitem);
+
+                }
+                item->setBackground(QBrush(color));
+                identificationTableWidget->setItem(currentRow, 0, item);
+                currentRow++;
+            }
+        } else {
+            mcp = req->mappings();
+            kDebug() << "Mappings: " << mcp;
+            QSet<QUrl>::const_iterator uit ;
+            QSet<QUrl>::const_iterator uit_end ;
+            uit = uncp.begin();
+            uit_end = uncp.end();
+
+            identificationTableWidget->setRowCount(mcp.size() + uncp.size());
+            for(; uit != uit_end; uit++) {
+                QTableWidgetItem * item = new QTableWidgetItem(uit->toString());
+                item->setFlags(Qt::ItemIsEnabled);
+                QColor color = QColor(255, 0, 0);
+                if(!mainResources.contains(*uit)) {
+                    // Addjust color to make it more lighter
+                    color = color.lighter();
+                }
+
+                item->setBackground(QBrush(color));
+                identificationTableWidget->setItem(currentRow, 0, item);
+                currentRow++;
             }
 
-            item->setBackground(QBrush(color));
-            identificationTableWidget->setItem(currentRow, 0, item);
-            currentRow++;
-        }
+            QHash<QUrl, QUrl>::const_iterator it = mcp.begin();
+            QHash<QUrl, QUrl>::const_iterator it_end = mcp.end();
+            for(; it != it_end; it++) {
+                kDebug() << it.key() << ":" << it.value();
+                QTableWidgetItem * item = new QTableWidgetItem(it.key().toString());
+                item->setFlags(Qt::ItemIsEnabled);
+                item->setBackground(QBrush(QColor(0, 255, 0)));
+                identificationTableWidget->setItem(currentRow, 0, item);
 
-        QHash<QUrl, QUrl>::const_iterator it = mcp.begin();
-        QHash<QUrl, QUrl>::const_iterator it_end = mcp.end();
-        for(; it != it_end; it++) {
-            kDebug() << it.key() << ":" << it.value();
-            QTableWidgetItem * item = new QTableWidgetItem(it.key().toString());
-            item->setFlags(Qt::ItemIsEnabled);
-            item->setBackground(QBrush(QColor(0, 255, 0)));
-            identificationTableWidget->setItem(currentRow, 0, item);
-
-            item = new QTableWidgetItem(it.value().toString());
-            item->setFlags(Qt::ItemIsEnabled);
-            item->setBackground(QBrush(QColor(0, 255, 0)));
-            identificationTableWidget->setItem(currentRow, 1, item);
+                item = new QTableWidgetItem(it.value().toString());
+                item->setFlags(Qt::ItemIsEnabled);
+                item->setBackground(QBrush(QColor(0, 255, 0)));
+                identificationTableWidget->setItem(currentRow, 1, item);
 
 
-            currentRow++;
+                currentRow++;
+            }
         }
 
     }
@@ -681,6 +725,34 @@ void ConsoleMainWindow::onIdentifyDecision()
     Q_ASSERT(req);
 
     req->identify();
+    updateIdentificationInfo();
+}
+
+void ConsoleMainWindow::onIdentifyMain()
+{
+    NW::Decision des = this->decisionWidget->decision();
+
+    // check that there is no application request  already
+    QHash<QUrl, NW::DecisionApplicationRequest*>::const_iterator fit =
+        this->m_requestsHash.find(des.uri());
+
+    NW::DecisionApplicationRequest * req = 0;
+    if(fit != this->m_requestsHash.end()) {
+        req = fit.value();
+    } else {
+        req = des.applicationRequest(Nepomuk::ResourceManager::instance()->mainModel());
+        if(req)  // In case decision was invalid
+
+            this->m_requestsHash.insert(des.uri(), req);
+        else
+            return;
+    }
+
+    Q_ASSERT(req);
+
+    req->identifyMain();
+    if(!req->isMainIdentified())
+        KMessageBox::sorry(this, "Identification of main Decision's resources failed");
     updateIdentificationInfo();
 }
 

@@ -50,6 +50,13 @@ namespace Nepomuk
         {
                 Q_OBJECT;
             public Q_SLOTS:
+                /*! \brief Identify main Decision resources
+                 * This function will identify only the main Decision resources.
+                 * This is partof the identification stage. It is extracted into
+                 * separate function only for more comprehensive user interface
+                 * and debugging functionality.
+                 */
+                void identifyMain(bool reset = false);
                 /*! \brief Perform identification
                  * \param reset It is possible to call this method more than once. But
                  * all calls after first one will be ignored. Set this parameter to true
@@ -76,6 +83,10 @@ namespace Nepomuk
                  * This function is useless before identification stage finished
                  */
                 QHash<QUrl, QUrl> mainMappings() const;
+
+                /*! \brief This function return true if main resources was successfuly identified
+                 */
+                bool isMainIdentified() const;
 
                 /*! \brief Return the list of the url of the main Decision resources
                  * Only resources that are necessary for this request will be returned

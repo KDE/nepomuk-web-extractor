@@ -72,6 +72,12 @@ namespace Nepomuk
                 // it will be populated only after first access.
                 mutable QSet<QUrl> mainResources;
 
+                // This variable is used for staving state of the identification
+                // stage. If main resources was successfuly identified, then
+                // this variable is set to true.
+                //
+                bool mainIdentified;
+
                 // This variable is used for saving state of the identification
                 // stage. If identification was successfull then this member
                 // will be set to true.
