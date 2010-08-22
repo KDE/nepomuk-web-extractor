@@ -96,6 +96,9 @@ ConsoleMainWindow::ConsoleMainWindow(
     connect(this->resWidget, SIGNAL(selectionChanged()),
             this, SLOT(onCurrentResourceChanged()));
 
+    // Set buttons
+    setButtonApply();
+
     // Set table widget of examined DataPP
     this->examinedDataPPWidget->setVerticalHeaderItem(0, new QTableWidgetItem("Name"));
     this->examinedDataPPWidget->setVerticalHeaderItem(1, new QTableWidgetItem("Version"));
@@ -145,8 +148,16 @@ ConsoleMainWindow::ConsoleMainWindow(
 void ConsoleMainWindow::startExtracting()
 {
     if(workThread->isRunning()) {
-        kError() << "Application is currently analyzing another resource. You must abort previous analyzing first";
-        KMessageBox::sorry(this, "Application is currently analyzing another resource. You must abort previous analyzing first");
+        int answer = KMessageBox::questionYesNo(
+                         this,
+                         "Application is currently analyzing another resource. \
+		Do you want to abort?",
+                         "Abort?"
+                     );
+        if(answer == KMessageBox::Yes) {
+            QMetaObject::invokeMethod(this->m_currentAnalyzer, "abort", Qt::QueuedConnection);
+            extractingFinished();
+        }
         return;
     }
     // Fist check that we have necessary uri
@@ -264,7 +275,10 @@ void ConsoleMainWindow::startExtracting()
     connect(workThread, SIGNAL(started()), resanal, SLOT(analyze()));
     connect(resanal, SIGNAL(analyzingFinished()), this, SLOT(extractingFinished()), Qt::QueuedConnection);
     workThread->start();
-    //resanal->analyze();
+
+
+    // Change button icon
+    setButtonAbort();
 
 }
 
@@ -297,6 +311,7 @@ void ConsoleMainWindow::extractingFinished()
 {
     kDebug() << "Analyzing finished";
     workThread->quit();
+    setButtonApply();
     updateExaminedInfo();
     updateServiceInfo();
     updateDecisionsInfo();
@@ -816,105 +831,15 @@ void ConsoleMainWindow::onCurrentDecisionChanged(QListWidgetItem * current, QLis
     this->decisionWidget->setDecision(des);
 
     updateIdentificationInfo();
-#if 0
-    // Display decision
-    // Display description
-    this->descriptionTextBrowser->setPlainText(des.description());
-    // Display ChangeLog
-    Q_ASSERT(des.model());
-    QString logText;
-    QTextStream stream(&logText);
-    Nepomuk::Sync::ChangeLog log(des.groupsUrls(), des.model());
-    kDebug() << "Log created";
-    foreach(const Nepomuk::Sync::ChangeLogRecord & rc, log.toList()) {
-        //stream << rc.toString();
-        stream << rc;
-    }
+}
+void ConsoleMainWindow::setButtonApply()
+{
+    this->startButton->setGuiItem(KStandardGuiItem::Apply);
+    this->startButton->setToolTip("Start extracting");
+}
 
-    //stream << log;
-    this->changeLogBrowser->setPlainText(logText);
-    // Display changes
-    foreach(const NW::PropertiesGroup & grp, des.groups()) {
-        kDebug() << "PropertiesGroup: " << grp.uri();
-        // Add widget item that corresponds the group
-        QTreeWidgetItem * grpItem  = new QTreeWidgetItem();
-        grpItem->setData(Qt::DisplayRole, 0, grp.uri());
-        this->decisionInformationWidget->addTopLevelItem(grpItem);
-
-        // Unfortunately displaying Decision doesn't work now. It is a bug
-        // and I will fix it.
-        // As temporary solution, decisions will be displayed in less
-        // convinient form
-#endif
-#if 0
-
-        // For each target resource show it's changes ( if any )
-        for(
-            QMap<QUrl, QUrl>::const_iterator it = tmpMap.begin();
-            it != tmpMap.end();
-            it++
-        ) {
-            QUrl originalResource = it.key();
-            QUrl proxyResource = it.value();
-            // Check that there is any changes for the resource in this group
-
-            static QString query_template = "select distinct ?p ?o where { graph %1 {  %2 ?p ?o } }";
-            QString query = query_template.arg(
-                                Soprano::Node::resourceToN3(grp.uri()),
-                                Soprano::Node::resourceToN3(proxyResource)
-                            );
-
-            // execute query
-            Soprano::QueryResultIterator it = des.model()->executeQuery(
-                                                  query,
-                                                  Soprano::Query::QueryLanguageSparql
-                                              );
-            // Create item only if there is any result
-            QTreeWidgetItem * resItem;
-            if(it.next()) {
-                // Create item that represents the resource
-                resItem = new QTreeWidgetItem();
-                resItem->setData(0, Qt::DisplayRole, originalResource.toString());
-                // Add this item to widget
-                grpItem->addChild(resItem);
-
-
-                // Create item that represents the change
-                QTreeWidgetItem * item = new QTreeWidgetItem();
-                item->setData(0, Qt::DisplayRole, it.binding("p").uri());
-                item->setData(1, Qt::DisplayRole, it.binding("o").uri());
-                resItem->addChild(item);
-
-                while(it.next()) {
-                    // Create item that represents the change
-                    QTreeWidgetItem * item = new QTreeWidgetItem();
-                    item->setData(0, Qt::DisplayRole, it.binding("p").uri());
-                    item->setData(1, Qt::DisplayRole, it.binding("o").uri());
-                    resItem->addChild(item);
-                }
-            } else {
-                kDebug() << "PropertiesGroup doesn't contains any changes for resource: " <<
-                         originalResource;
-            }
-
-        }
-#endif
-        // Disable this when bug will be fixed
-#if 0
-        static QString queryTemplate = QString("select ?s ?p ?o where { graph %1 { ?s ?p ?o .} } ");
-        QString queryString = queryTemplate.arg(Soprano::Node::resourceToN3(grp.uri()));
-        Soprano::QueryResultIterator it = des.model()->executeQuery(
-                                              queryString,
-                                              Soprano::Query::QueryLanguageSparql
-                                          );
-        while(it.next()) {
-            QTreeWidgetItem * item = new QTreeWidgetItem();
-            item->setData(0, Qt::DisplayRole, it.binding("s").uri());
-            item->setData(1, Qt::DisplayRole, it.binding("p").uri());
-            item->setData(2, Qt::DisplayRole, it.binding("o").uri());
-            grpItem->addChild(item);
-            kDebug() << "Add statement to item";
-        }
-    }
-#endif
+void ConsoleMainWindow::setButtonAbort()
+{
+    this->startButton->setGuiItem(KStandardGuiItem::Discard);
+    this->startButton->setToolTip("Abort extracting");
 }

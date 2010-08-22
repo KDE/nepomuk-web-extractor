@@ -60,6 +60,16 @@ namespace Nepomuk
                          */
                 void analyze();
 
+                /*! \brief Abort analyzing. No signal will be send
+                 * The method will abort analyzing but will not clear already
+                 * collected data. Call clear() to do this.
+                         * No information about examined DataPP  will be written back
+                         * to storage.
+                         * The already generated Decisions still can be retrived
+                         * with decisions() method.
+                 */
+                void abort();
+
                 /*! \brief Mark all finished DataPP as examined for this resource
                  * After executing this function  will mark finished DataPP as
                  * examined for this resource
@@ -177,15 +187,6 @@ namespace Nepomuk
                  */
                 bool isRunning() const;
 
-                /*! \brief Abort analyzing. No signal will be send
-                 * The method will abort analyzing but will not clear already
-                 * collected data. Call clear() to do this.
-                         * No information about examined DataPP  will be written back
-                         * to storage.
-                         * The already generated Decisions still can be retrived
-                         * with decisions() method.
-                 */
-                void abort();
 
                 /*!  \brief Destructor
                  * TODO May be it is necessary to remember parent factory inside

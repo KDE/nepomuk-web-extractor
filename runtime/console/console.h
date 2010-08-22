@@ -63,6 +63,8 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
         void onIdentifyMain();
         void updateIdentificationInfo();
     private:
+        void setButtonApply();
+        void setButtonAbort();
         void updateExaminedInfo();
         void updateServiceInfo();
         void updateDecisionsInfo();
