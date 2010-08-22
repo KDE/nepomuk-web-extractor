@@ -158,7 +158,7 @@ QUrl NW::DecisionData::proxyUrl(const Nepomuk::Resource & res)
         // Create identification set
         NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
         // Add url to the ACL of the filter log model
-        filterModel->addTarget(newUrl);
+        updateModels(newUrl);
 
         resourceProxyISMap.insert(sourceUrl, set);
         // Add a hint
@@ -183,7 +183,7 @@ QUrl NW::DecisionData::proxyUrl(const Nepomuk::Resource & res)
             // Create identification set
             NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
             // Add to the ACL of fiter model
-            filterModel->addTarget(fit.value());
+            updateModels(fit.value());
             // Insert to the map of the identification sets
             resourceProxyISMap.insert(sourceUrl, set);
         }
@@ -196,6 +196,17 @@ QUrl NW::DecisionData::proxyUrl(const Nepomuk::Resource & res)
 
 }
 
+
+void NW::DecisionData::updateModels(const QUrl & target)
+{
+    filterModel->addTarget(target);
+    foreach(const PropertiesGroup & grp, data) {
+        Sync::ChangeLogFilterModel * model =
+            grp.filterModel();
+        if(model)
+            model->addTarget(target);
+    }
+}
 
 #if 0
 QUrl NW::DecisionData::createPropertiesGroupUrl()

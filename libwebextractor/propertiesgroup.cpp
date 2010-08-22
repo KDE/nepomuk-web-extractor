@@ -45,7 +45,7 @@ class NW::PropertiesGroup::Private : public QSharedData
         */
         // This is the model where PropertiesGroup store all data. It is the
         // decisions model, wrapped into logging filter model
-        Soprano::Model * filterModel;
+        Sync::ChangeLogFilterModel * filterModel;
         // Manager of the filter model
         ResourceManager * manager;
         // This is the url of the context where properties group store all statements
@@ -95,6 +95,7 @@ NW::PropertiesGroup::PropertiesGroup(/*QUrl mainResourceUrl, ResourceManager * m
     //d->filterModel = new ChangeLogFilterModel(parent->model);
     d->filterModel = 0;
     d->manager = 0;
+    d->parent->data.insert(*this);
 
 }
 
@@ -110,13 +111,21 @@ NW::PropertiesGroup::~PropertiesGroup()
 
 QUrl NW::PropertiesGroup::proxyUrl(const Nepomuk::Resource & res)
 {
+    if(!d->filterModel)
+        initFilterModel();
+
     return d->parent->proxyUrl(res);
 }
 
 Nepomuk::Resource NW::PropertiesGroup::proxyResource(const Nepomuk::Resource & res)
 {
-    // Call proxyUrl
+    // Call proxyUrl. This call is important, becaus
+    // in proxyUrl filterModel will be initialize if
+    // necessary
     QUrl answer = proxyUrl(res);
+
+    if(!d->manager)
+        initFilterManager();
     // Create resoruce and return it.
     return Nepomuk::Resource(answer, QUrl(), d->manager);
 }
@@ -214,9 +223,9 @@ Nepomuk::ResourceManager * NW::PropertiesGroup::manager()
         return 0;
     }
 
-    if(!d->filterModel) {
+    if(!d->manager) {
         // This is first call. Create  a manager and a filter model
-        initFilterModelManager();
+        initFilterManager();
     }
     return d->manager;
 }
@@ -233,7 +242,7 @@ Soprano::Model * NW::PropertiesGroup::model()
 
     if(!d->filterModel) {
         // This is first call. Create  a manager and a filter model
-        initFilterModelManager();
+        initFilterModel();
     }
     return d->filterModel;
 }
@@ -283,9 +292,26 @@ Nepomuk::Sync::ChangeLog * NW::PropertiesGroup::logPtr() const
     return &(d->log);
 }
 
-void NW::PropertiesGroup::initFilterModelManager()
+NS::ChangeLogFilterModel * NW::PropertiesGroup::filterModel() const
 {
-    d->filterModel = new NS::ChangeLogFilterModel(&d->log, d->parent->decisionsModel);
+    return d->filterModel;
+}
+
+void NW::PropertiesGroup::initFilterModel()
+{
+    d->filterModel = new NS::ChangeLogFilterModel(&d->log, d->parent->decisionsModel, QSet<QUrl>(), NS::ChangeLogFilterModel::Decline);
+    // Now take current proxy url and add them as targets
+    foreach(const QUrl & proxyUrl, d->parent->resourceProxyMap) {
+        d->filterModel->addTarget(proxyUrl);
+    }
+
+}
+
+void NW::PropertiesGroup::initFilterManager()
+{
+    if(!d->filterModel)
+        initFilterModel();
+
     d->manager = ResourceManager::createManagerForModel(d->filterModel);
 }
 /*

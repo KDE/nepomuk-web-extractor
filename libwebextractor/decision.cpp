@@ -177,7 +177,6 @@ NW::PropertiesGroup NW::Decision::newGroup()
     // First create new property group
     PropertiesGroup pg = PropertiesGroup(this->d.data());
 
-    d->data.insert(pg);
     return pg;
 
 }

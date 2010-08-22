@@ -41,6 +41,7 @@ namespace Nepomuk
     namespace Sync
     {
         class ChangeLog;
+        class ChangeLogFilterModel;
     }
 
     namespace WebExtractor
@@ -155,9 +156,14 @@ namespace Nepomuk
                 // This method should be called from any method that edits data.
                 // When it is called first time, it will create url of the PropertiesGroup
                 // and register it in the decision
-                void inline registerGroup();
+                //void inline registerGroup(const PropertiesGroup &);
 
-                void initFilterModelManager();
+                void initFilterModel();
+                void initFilterManager();
+
+                // This function is used for retrieving filter model
+                // It can return 0 if model is not initialized
+                Sync::ChangeLogFilterModel * filterModel() const;
 
                 // This is service method. It set url of the PropertiesGroup. It doesn't
                 // do any checks.

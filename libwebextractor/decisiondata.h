@@ -104,13 +104,22 @@ namespace Nepomuk
                 PropertiesGroup currentGroup() const;
                 // Create and register new properties group context
                 //QUrl createPropertiesGroupUrl();
-                //void registerGroup( PropertiesGroup * ptr);
+                void registerGroup(PropertiesGroup group);
                 // Freeze flag. After decision is freezed, it can not be modificated
                 // untill unfreezed.
                 bool m_freeze;
                 void setFreeze(bool val);
                 bool isValid() const;
+                /*! \brief Create new proxy url for the resource
+                 *  This call will create new proxy url for the given resource
+                 *  and update all log filter models
+                 */
                 QUrl proxyUrl(const Nepomuk::Resource &);
+
+                // This function will add given url as target to the
+                // decision main log model and to the log model of all
+                // currently registered groups
+                void updateModels(const QUrl & target);
         };
     }
 }
