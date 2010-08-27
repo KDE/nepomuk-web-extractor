@@ -96,6 +96,9 @@ ConsoleMainWindow::ConsoleMainWindow(
     connect(this->resWidget, SIGNAL(selectionChanged()),
             this, SLOT(onCurrentResourceChanged()));
 
+    // Set misc
+    this->examinedHelpLabel->hide();
+
     // Set buttons
     setButtonApply();
 

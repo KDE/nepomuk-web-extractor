@@ -13,6 +13,8 @@ include(KDE4Defaults)
 include(MacroLibrary)
 
 
+option( WEBEXTRACTOR_ENABLE_TESTS "Enable testing" OFF )
+
 set(WEBEXTRACTOR_VERSION_MAJOR 0 CACHE INT "Major WebExtractor version number" FORCE)
 set(WEBEXTRACTOR_VERSION_MINOR 0 CACHE INT "Minor WebExtractor version number" FORCE)
 set(WEBEXTRACTOR_VERSION_PATCH 1 CACHE INT "Release WebExtractor version number" FORCE)
@@ -24,6 +26,7 @@ set (LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
 set (LIB_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}" CACHE STRING "Library directory name" FORCE)
 
 configure_file(LibWebextractorConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/LibWebextractorConfig.cmake @ONLY )
+configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY )
 
 #build dependencies
 add_subdirectory(ontologyloader)
@@ -65,6 +68,7 @@ set( webextractor_SRCS
     resourceservicedatamanager.cpp
     resourceservicedata.cpp
     nepomukservicedatabackend.cpp
+    dummyservicedatabackend.cpp
     servicedatabackend.cpp
     identsetmanager.cpp
     # Graph  part
@@ -94,6 +98,7 @@ set ( webextractor_MOC
     simplenetworkreplyfactory.h
     simplenetworkrequest.h
     nepomukservicedatabackend.h
+    dummyservicedatabackend.h
     servicedatabackend.h
     # Graph part
     visitednodefilter.h
@@ -153,6 +158,7 @@ set (WEBEXTRACTOR_HEADERS
     datappreply_p.h
     datapprequest.h
     datappwrapper.h
+    datapptemplate.h
     debug_datapp.h
     decisionfactory.h
     decision.h
@@ -172,6 +178,7 @@ set (WEBEXTRACTOR_HEADERS
     resourceservicedatamanager.h
     resourceservicedata.h
     nepomukservicedatabackend.h
+    dummyservicedatabackend.h
     nepomukservicedatabackendfactory.h
     servicedatabackend.h
     servicedatabackendfactory.h
@@ -180,6 +187,7 @@ set (WEBEXTRACTOR_HEADERS
     algorithm.h
     modelgraphvisitor.h
     ${CMAKE_CURRENT_BINARY_DIR}/ndco.h
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
     # Graph  part
     algorithm.h
     graphalgorithm.h
@@ -215,3 +223,8 @@ macro(INSTALL_ONTOLOGY _name _group)
 endmacro(INSTALL_ONTOLOGY)
 
 install_ontology(decisions nepomuk)
+
+## TESTS
+if ( WEBEXTRACTOR_ENABLE_TESTS)
+    add_subdirectory(test)
+endif(WEBEXTRACTOR_ENABLE_TESTS )

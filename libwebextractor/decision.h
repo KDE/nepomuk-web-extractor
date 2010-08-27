@@ -134,7 +134,7 @@ namespace Nepomuk
                  * \return Name of the DataPP
                  * \sa pluginVersion
                  */
-                QString  pluginName() const;
+                QString  dataPPName() const;
                 /*! \brief Return version of the DataPP that creates this Decision
                  * If there is more, then one DataPP, then randomly selected one
                  * will be returned. It is guaranteed that this will be version
@@ -142,11 +142,11 @@ namespace Nepomuk
                  * \return Version of the DataPP
                  * \sa pluginName
                  */
-                float   pluginVersion() const;
+                float   dataPPVersion() const;
                 /*! \brief Return information about all DataPP that create this Decision
                  *\return Set of the DataPP
                  */
-                QSet<DataPP*>  pluginsInformation() const;
+                QSet<DataPP*>  dataPPInformation() const;
                 /*! \brief Return the uri of the Decision.
                  * Each Decision generated during by one ResourceAnalyzer has
                  * unique uri

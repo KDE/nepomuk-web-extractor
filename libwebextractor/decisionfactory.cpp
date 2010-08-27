@@ -139,6 +139,13 @@ void NW::DecisionFactory::setResourceManager( ResourceManager * m)
 };
 */
 
+double NW::DecisionFactory::approximateThreshold() const
+{
+    // TODO Add more comprehansive way of determining
+    // aproximate threshold
+    return d->threshold;
+}
+
 NW::DecisionFactory::~DecisionFactory()
 {
 

@@ -17,32 +17,38 @@
  */
 
 #include "global.h"
+#include "config.h"
 #include <KDebug>
 
-double Nepomuk::WebExtractor::minACrit()
+namespace NW = Nepomuk::WebExtractor;
+
+// Some static variables
+int m_defaultDataPPTimeout = DEFAULT_DATAPP_TIMEOUT;
+
+double NW::minACrit()
 {
     static double val = 0.0;
     return val;
 }
 
-double Nepomuk::WebExtractor::maxACrit()
+double NW::maxACrit()
 {
     static double val = 1.0;
     return val;
 }
 
-double Nepomuk::WebExtractor::minUCrit()
+double NW::minUCrit()
 {
     return minACrit();
 }
 
-double Nepomuk::WebExtractor::maxUCrit()
+double NW::maxUCrit()
 {
     static double val = 0.999;
     return val;
 }
 
-double Nepomuk::WebExtractor::boundACrit(double val)
+double NW::boundACrit(double val)
 {
     if(val < minACrit()) {
         kDebug() << "ACrit value is less than minimun. Fixing";
@@ -56,7 +62,7 @@ double Nepomuk::WebExtractor::boundACrit(double val)
 
 }
 
-double Nepomuk::WebExtractor::boundUCrit(double val)
+double NW::boundUCrit(double val)
 {
     if(val < minUCrit()) {
         kDebug() << "UCrit value is less than minimun. Fixing";
@@ -70,38 +76,47 @@ double Nepomuk::WebExtractor::boundUCrit(double val)
 
 }
 
-double Nepomuk::WebExtractor::minRank()
+double NW::minRank()
 {
     return 0.0;
 }
 
-double Nepomuk::WebExtractor::maxRank()
+double NW::maxRank()
 {
     return 0.9999;
 }
 
 
-double Nepomuk::WebExtractor::boundRank(double val)
+double NW::boundRank(double val)
 {
     return qBound(minRank(), maxRank(), val);
 }
 
-double Nepomuk::WebExtractor::minScaleCoff()
+double NW::noAutoRank()
+{
+    return NO_AUTO_RANK;
+}
+
+double NW::minScaleCoff()
 {
     return -0.9999;
 }
 
-double Nepomuk::WebExtractor::maxScaleCoff()
+double NW::maxScaleCoff()
 {
     return 0.9999;
 }
 
 
-double Nepomuk::WebExtractor::boundScaleCoff(double val)
+double NW::boundScaleCoff(double val)
 {
     return qBound(minScaleCoff(), maxScaleCoff(), val);
 }
 
+int NW::defaultDataPPTimeout()
+{
+    return m_defaultDataPPTimeout;
+}
 /*
 Soprano::Model * NW::decisionsModel()
 {

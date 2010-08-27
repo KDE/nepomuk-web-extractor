@@ -33,13 +33,14 @@ namespace Nepomuk
         class WEBEXTRACTOR_EXPORT DataPPReply : public QObject
         {
                 Q_OBJECT;
+                Q_ENUMS(Error);
             public:
                 DataPPReply(DataPP *);
                 virtual DecisionList decisions() const = 0;
                 virtual ~DataPPReply();
                 virtual QString pluginName() const;
                 DataPP * parentDataPP() const;
-                enum DataPPReplyError {
+                enum Error {
                     /*! Everything is ok
                      */
                     NoError,
@@ -55,16 +56,30 @@ namespace Nepomuk
                      * instead. Also this error shouldn't be used when resource doesn't contain enough information
                      * to extract anything - this is valid situation. Set error to NoError and exit silently.
                      */
-                    ResourceInternalConditionsFailed
+                    ResourceInternalConditionsFailed,
+
+                    /*! \brief This error is set if reply has exceeded it's time
+                     */
+                    TimeExceeded
 
                 };
+
+                /*! \brief Return the time interaval
+                 */
+                int timeout() const;
+                /*! \brief Icrease the time allowed for execution
+                 */
+                void setTimeout(int newValue);
             public Q_SLOTS:
                 /*! \brief Abort execution
                  * Calling abort <b>must</b> prevent finished() and error() signals from comming
                  */
                 virtual void abort() = 0;
+            public:
+                virtual void aboutToTimeOut();
                 virtual bool isValid() const = 0;
-                virtual DataPPReplyError error() const = 0;
+                DataPPReply::Error error() const;
+                void setError(DataPPReply::Error errorCode);
                 //const QString & pluginVersion() const;
             Q_SIGNALS:
                 /*! This signal is emited after reply is finished and if no error occured.
@@ -73,13 +88,21 @@ namespace Nepomuk
                 /*! This signal is emited if any error occured.
                  * The finished signal MUST NOT be called after it
                  */
-                void error(DataPPReply::DataPPReplyError errorCode);
+                void error(DataPPReply::Error errorCode);
             protected:
                 DataPPReply(DataPPReplyPrivate & p, DataPP*);
                 DataPPReplyPrivate * d_ptr;
             private:
                 //void setPluginName(const QString & pluginName);
                 Q_DECLARE_PRIVATE(DataPPReply)
+
+                // This method perform commont initialization for all constructors
+                void init(DataPP * parent);
+            private Q_SLOTS:
+                // This slot is called when time is out. In this slot
+                // the virtual function aboutToTimeOut is called. If in this
+                // function timer is not restarted, then abort() is called.
+                void finishByTimeout();
         };
     }
 }

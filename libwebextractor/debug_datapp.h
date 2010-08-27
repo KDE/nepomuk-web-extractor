@@ -52,7 +52,6 @@ namespace Nepomuk
                  */
                 virtual void abort() ;
                 virtual bool isValid() const ;
-                virtual DataPPReplyError error() const;
                 /*
                 Q_SIGNALS:
                 void finished();

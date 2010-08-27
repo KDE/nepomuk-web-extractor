@@ -19,53 +19,111 @@
 #include "datappreply.h"
 #include "datapp.h"
 #include "datappreply_p.h"
+#include "global.h"
 
+namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::WebExtractor::DataPPReply::DataPPReply(
+NW::DataPPReply::DataPPReply(
     DataPP * parent
 ):
     d_ptr(new DataPPReplyPrivate())
 {
-    Q_D(DataPPReply);
-    Q_CHECK_PTR(parent);
-    d->m_parent = parent;
+    init(parent);
 }
 
-Nepomuk::WebExtractor::DataPPReply::DataPPReply(DataPPReplyPrivate & p, DataPP* parent):
+NW::DataPPReply::DataPPReply(DataPPReplyPrivate & p, DataPP* parent):
     d_ptr(&p)
+{
+    init(parent);
+}
+
+void NW::DataPPReply::init(DataPP * parent)
 {
     Q_D(DataPPReply);
     Q_CHECK_PTR(parent);
     d->m_parent = parent;
+    d->m_error = NoError;
+    d->m_timer.setInterval(defaultDataPPTimeout());
+    d->m_timer.setSingleShot(true);
+    d->m_timer.start();
+    connect(&this->d_ptr->m_timer, SIGNAL(timeout()), this, SLOT(finishByTimeout()));
 }
 /*
-void Nepomuk::WebExtractor::DataPPReply::setPluginName(const QString & pluginName)
+void NW::DataPPReply::setPluginName(const QString & pluginName)
 {
     d->m_pluginName = pluginName;
 }
 */
 
-Nepomuk::WebExtractor::DataPPReply::~DataPPReply()
+NW::DataPPReply::~DataPPReply()
 {
     delete d_ptr;
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::WebExtractor::DataPPReply::parentDataPP() const
+void NW::DataPPReply::setError(DataPPReply::Error errorCode)
+{
+    Q_D(DataPPReply);
+    d->m_error = errorCode;
+}
+
+NW::DataPPReply::Error NW::DataPPReply::error() const
+{
+    Q_D(const DataPPReply);
+    return d->m_error;
+}
+
+NW::DataPP * NW::DataPPReply::parentDataPP() const
 {
     Q_D(const DataPPReply);
     return d->m_parent;
 }
 
 
-QString Nepomuk::WebExtractor::DataPPReply::pluginName() const
+QString NW::DataPPReply::pluginName() const
 {
     Q_D(const DataPPReply);
-    return d->m_parent->pluginName();
+    return d->m_parent->name();
 }
 
+int NW::DataPPReply::timeout() const
+{
+    Q_D(const DataPPReply);
+    // Call abort function
+    return d->m_timer.interval();
+}
 
+void NW::DataPPReply::setTimeout(int interval)
+{
+    Q_D(DataPPReply);
+    d->m_timer.stop();
+    d->m_timer.setInterval(interval);
+    d->m_timer.start();
+}
+
+void NW::DataPPReply::finishByTimeout()
+{
+    Q_D(DataPPReply);
+    //kDebug() << "Finish by timeout";
+    // Call user function.
+    this->aboutToTimeOut();
+
+    if(d->m_timer.isActive()) {
+        //kDebug()  << "Timer was reactivated";
+        return;
+    } else {
+        //kDebug() << "Aborting";
+        d->m_error = TimeExceeded;
+        this->abort();
+        emit error(d->m_error);
+    }
+}
+
+void NW::DataPPReply::aboutToTimeOut()
+{
+    ;
+}
 /*
-QString Nepomuk::WebExtractor::DataPPReply::pluginVersion() const
+QString NW::DataPPReply::pluginVersion() const
 { return d->m_pluginVersion; }
 
 */

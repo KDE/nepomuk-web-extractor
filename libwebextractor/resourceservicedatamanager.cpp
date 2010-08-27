@@ -22,6 +22,7 @@
 #include "nepomukservicedatabackend.h"
 #include "nepomukservicedatabackendfactory.h"
 #include <QSharedData>
+#include <Nepomuk/Resource>
 
 namespace NW = Nepomuk::WebExtractor;
 
@@ -63,12 +64,12 @@ void NW::ResourceServiceDataManager::setOverrideBackend(ServiceDataBackendFactor
     d->backendFactory = backendFactory;
 }
 
-NW::ServiceDataBackend * NW::ResourceServiceDataManager::resourceData(const QUrl & url)
+NW::ServiceDataBackend * NW::ResourceServiceDataManager::resourceData(const Nepomuk::Resource & res)
 {
-    return d->backendFactory->backend(url);
+    return d->backendFactory->backend(res);
 }
 
-Nepomuk::Query::Query NW::ResourceServiceDataManager::queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP)
+Nepomuk::Query::Query NW::ResourceServiceDataManager::queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model)
 {
-    return d->backendFactory->queryUnparsedResources(mainTerm, assignedDataPP);
+    return d->backendFactory->queryUnparsedResources(mainTerm, assignedDataPP, model);
 }

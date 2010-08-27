@@ -39,14 +39,13 @@ namespace Nepomuk
                 DecisionList newDecisionList();
                 void addDecision(const Decision &);
                 void addDecision(const Decision & , MergePolitics politics, double coff = 1, bool noAuto = false);
+                double approximateThreshold() const;
                 virtual DecisionList decisions() const;
                 const Nepomuk::Resource & resource();
                 //DecisionList & mainDecisionList();
                 virtual ~SimpleDataPPReply() {
                     ;
                 }
-                void setError(DataPPReplyError errorCode);
-                virtual DataPPReplyError error() const;
             public Q_SLOTS:
                 /*! \brief Will finish DataPP
                  * This function correctly handle situations when it is called from

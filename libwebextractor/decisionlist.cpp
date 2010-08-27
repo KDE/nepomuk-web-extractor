@@ -208,3 +208,8 @@ NW::DecisionList::const_iterator NW::DecisionList::end() const
 {
     return QSet<Decision>::end();
 }
+
+double NW::DecisionList::approximateThreshold() const
+{
+    return m_threshold;
+}

@@ -37,6 +37,10 @@ namespace Nepomuk
         {
                 Q_OBJECT;
             public:
+                /*! Constructor.
+                      * \param res Resource for the backend
+                      */
+                ServiceDataBackend(const Nepomuk::Resource & res);
                 /*! \brief Add/Update information about examined DataPP ( name, version)
                          * This function is used to mark that DataPP with given name (dataPPName) has finished extraction
                          * for the resource. Current time is used as time of extraction finishing. Version of the DataPP
@@ -51,6 +55,15 @@ namespace Nepomuk
                  * Default implementation will compare examinedDataPPInfo() with given map
                  */
                 virtual bool checkExaminedDataPPInfo(const QMap< QString, int> & dataPPInfo) ;
+
+                /*! \brief This function checks whether the DataPP with given name was examined
+                 * Version is unimportant
+                 */
+                virtual bool checkExaminedDataPPInfo(const QString & name);
+
+                /*! \brief This function checks whether the DataPP with given name and version was examined
+                 */
+                virtual bool checkExaminedDataPPInfo(const QString & name, int version);
                 /*! \brief Return map (name, version ) about all examined DataPP
                          * This function must return the set of non-obsolete ( this is important ) records about DataPP that
                          * has been examined. Usually this mean then implementations of this function should clear
@@ -105,10 +118,10 @@ namespace Nepomuk
                 /*! \brief Return resource of the ServiceDataBackend.
                  * Each ServiceDataBackend is bound to some resource ( look at the constructor ).
                  */
-                virtual Nepomuk::Resource  resource() const = 0;
+                virtual Nepomuk::Resource  resource() const ;
                 /*! \brief Return the url of the resources of the ServiceDataBackend.
                          */
-                virtual const QUrl & uri() const = 0 ;
+                virtual const QUrl & uri() const ;
 
                 /*! \brief return names of properties where some usefull debugging information is stored
                  * This function return names of Qt properties. This names are
@@ -120,6 +133,12 @@ namespace Nepomuk
                 virtual QStringList serviceInfoPropertiesNames() const;
 
                 virtual ~ServiceDataBackend();
+            private:
+                // Copying is forbidden
+                ServiceDataBackend(const ServiceDataBackend &);
+                ServiceDataBackend & operator=(const ServiceDataBackend &);
+                class Private;
+                Private * const d;
         };
 
     }

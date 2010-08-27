@@ -45,16 +45,16 @@ double NW::Decision::rank() const
     return d->rank;
 }
 
-float  NW::Decision::pluginVersion() const
+float  NW::Decision::dataPPVersion() const
 {
     Q_ASSERT(!d->authorsData.isEmpty());
-    return (*(d->authorsData.begin()))->pluginVersion();
+    return (*(d->authorsData.begin()))->version();
 }
 
-QString  NW::Decision::pluginName() const
+QString  NW::Decision::dataPPName() const
 {
     Q_ASSERT(!d->authorsData.isEmpty());
-    return (*(d->authorsData.begin()))->pluginName();
+    return (*(d->authorsData.begin()))->name();
 }
 
 NW::Decision::Decision(

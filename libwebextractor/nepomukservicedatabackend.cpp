@@ -46,13 +46,12 @@
 namespace NW = Nepomuk::WebExtractor;
 namespace NQ = Nepomuk::Query;
 
-NW::NepomukServiceDataBackend::NepomukServiceDataBackend(const QUrl & url)
+NW::NepomukServiceDataBackend::NepomukServiceDataBackend(const Nepomuk::Resource & res):
+    ServiceDataBackend(res)
 {
-    m_res = Nepomuk::Resource(url);
-    m_url = url;
     m_dataPPTerm = NQ::ComparisonTerm(
                        Nepomuk::WebExtractor::Vocabulary::NDCO::extractionFinished(),
-                       NQ::ResourceTerm(m_res),
+                       NQ::ResourceTerm(res),
                        NQ::ComparisonTerm::Equal
                    ).inverted();
 
@@ -79,9 +78,10 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
         return;
     }
 
+    Soprano::Model * model = resource().manager()->mainModel();
 
     // Get DataPP Resource uri
-    QUrl dataPPUrl = dataPPResourceUrl(dataPPName, dataPPVersion);
+    QUrl dataPPUrl = dataPPResourceUrl(dataPPName, dataPPVersion, resource().manager());
 
     if(!dataPPUrl.isValid()) {
         kError() << "Invalid DataPP: " << dataPPName << ',' << dataPPVersion;
@@ -92,8 +92,8 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
 
     // Add necessary properties
     //kDebug() << "Enter";
-    Soprano::Error::ErrorCode error = Nepomuk::ResourceManager::instance()->mainModel()->addStatement(
-                                          m_url,
+    Soprano::Error::ErrorCode error = model->addStatement(
+                                          uri(),
                                           NW::Vocabulary::NDCO::extractionFinished(),
                                           dataPPUrl,
                                           m_graphNode
@@ -111,7 +111,7 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
     else
         ned = ed;
 
-    error = Nepomuk::ResourceManager::instance()->mainModel()->addStatement(
+    error = model->addStatement(
                 dataPPUrl,
                 NW::Vocabulary::NDCO::extractionDate(),
                 Soprano::LiteralValue(ned),
@@ -120,8 +120,8 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
 
     if(error != Soprano::Error::ErrorNone) {
         // Clean: Remove the previous statement
-        Nepomuk::ResourceManager::instance()->mainModel()->removeStatement(
-            m_url,
+        model->removeStatement(
+            uri(),
             NW::Vocabulary::NDCO::extractionFinished(),
             dataPPUrl,
             m_graphNode
@@ -138,15 +138,13 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
 
 QMap< QString, int> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 {
-    //Nepomuk::Resource m_res(m_url);
     loadGraph();
-    // if(!m_res.isValid() or !m_res.exists())
     if(!m_graphNode.isValid()) {
-        kDebug() << "No graph  with examined info found";
+        //kDebug() << "No graph  with examined info found";
         return QMap<QString, int>();
     }
 
-    QDateTime lmd = m_res.property(Soprano::Vocabulary::NAO::lastModified()).toDateTime();
+    QDateTime lmd = resource().property(Soprano::Vocabulary::NAO::lastModified()).toDateTime();
 
     // If lastModification date is greater then last extraction date then
     // all examined resources must be discarded
@@ -157,10 +155,11 @@ QMap< QString, int> NW::NepomukServiceDataBackend::examinedDataPPInfo()
     }
     */
 
+    Soprano::Model * model = resource().manager()->mainModel();
 
 
     QMap< QString, int >  answer;
-    Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+    Soprano::QueryResultIterator it = model->executeQuery(
                                           m_dataPPQuery.toSparqlQuery(), Soprano::Query::QueryLanguageSparql
                                       );
     QSet<QString> toRemove;
@@ -197,7 +196,7 @@ QMap< QString, int> NW::NepomukServiceDataBackend::examinedDataPPInfo()
                                      Soprano::Node::resourceToN3(dataPPRes.uri()),
                                      Soprano::Node::resourceToN3(NW::Vocabulary::NDCO::extractionDate())
                                  );
-            Soprano::QueryResultIterator it2 = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+            Soprano::QueryResultIterator it2 = model->executeQuery(
                                                    date_query,
                                                    Soprano::Query::QueryLanguageSparql
                                                );
@@ -252,7 +251,7 @@ QMap< QString, int> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 void NW::NepomukServiceDataBackend::loadCreateGraph()
 {
     loadGraph();
-    Nepomuk::Resource m_res(m_url);
+    Nepomuk::Resource m_res(resource());
     if(!m_res.isValid() or !m_res.exists())  {
         kError() << "Resource is invalid";
         return;
@@ -263,7 +262,7 @@ void NW::NepomukServiceDataBackend::loadCreateGraph()
 
     if(!m_graphNode.isValid()) {
         // If there is no graph then create one
-        Nepomuk::ResourceManager * manager = Nepomuk::ResourceManager::instance();
+        Nepomuk::ResourceManager * manager = resource().manager();
         // Graph doesn't exist. Create it
         // FIXME Currently usage nrl model is impossible. When it's API
         // will become stable switch back to nrl model
@@ -279,7 +278,7 @@ void NW::NepomukServiceDataBackend::loadCreateGraph()
 
         /* FIXME Disable this when switching back to nrl model
          */
-        metaGraphUrl = Nepomuk::ResourceManager::instance()->generateUniqueUri(QLatin1String("ctx"));
+        metaGraphUrl = manager->generateUniqueUri(QLatin1String("ctx"));
         Soprano::Node metaGraphNode = Soprano::Node(metaGraphUrl);
 
         QList<Soprano::Statement> statements;
@@ -307,7 +306,7 @@ void NW::NepomukServiceDataBackend::loadCreateGraph()
                        m_res.resourceUri(),
                        metaGraphNode);
 
-        Soprano::Error::ErrorCode error = Nepomuk::ResourceManager::instance()->mainModel()->addStatements(statements);
+        Soprano::Error::ErrorCode error = manager->mainModel()->addStatements(statements);
         if(error != Soprano::Error::ErrorNone) {
             kError() << "Failed to create examined graph. Error: " << Soprano::Error::errorMessage(error);
         } else {
@@ -318,7 +317,7 @@ void NW::NepomukServiceDataBackend::loadCreateGraph()
 
 void NW::NepomukServiceDataBackend::loadGraph()
 {
-    Nepomuk::Resource m_res(m_url);
+    Nepomuk::Resource m_res(resource());
     if(!m_res.isValid() or !m_res.exists())  {
         kError() << "Resource is invalid";
         return;
@@ -347,7 +346,7 @@ void NW::NepomukServiceDataBackend::loadGraph()
 
 
     kDebug() << "Graph search query: " << queryString;
-    Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+    Soprano::QueryResultIterator it = resource().manager()->mainModel()->executeQuery(
                                           queryString, Soprano::Query::QueryLanguageSparql
                                       );
     QUrl graphUrl;
@@ -363,7 +362,7 @@ void NW::NepomukServiceDataBackend::loadGraph()
     return;
 }
 
-QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int version)
+QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int version, ResourceManager * manager)
 {
     if(name.isEmpty())
         return QUrl();
@@ -385,7 +384,7 @@ QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int 
     // TODO Comment the folowing kDebug() message
     kDebug() << "Query for searching DataPP Resource: " << query.toSparqlQuery();
 
-    Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+    Soprano::QueryResultIterator it = manager->mainModel()->executeQuery(
                                           query.toSparqlQuery(), Soprano::Query::QueryLanguageSparql
                                       );
 
@@ -397,7 +396,7 @@ QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int 
 
 
         // Create new resource
-        Nepomuk::Resource res(ResourceManager::instance()->generateUniqueUri(), NW::Vocabulary::NDCO::DataPP());
+        Nepomuk::Resource res(manager->generateUniqueUri(), NW::Vocabulary::NDCO::DataPP());
         // Set version and name
         //QStringList identifiers;
         //identifiers << name;
@@ -413,7 +412,7 @@ QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int 
 
 }
 
-void NW::NepomukServiceDataBackend::clearUnusedDataPP()
+void NW::NepomukServiceDataBackend::clearUnusedDataPP(ResourceManager * manager)
 {
     // Find all unreferenced DataPP
     NQ::Query query(NQ::NegationTerm::negateTerm(NQ::ComparisonTerm(
@@ -423,7 +422,7 @@ void NW::NepomukServiceDataBackend::clearUnusedDataPP()
 
     kDebug() << "clear unused query: " << query.toSparqlQuery();
 
-    Soprano::QueryResultIterator it = ResourceManager::instance()->mainModel()->executeQuery(
+    Soprano::QueryResultIterator it = manager->mainModel()->executeQuery(
                                           query.toSparqlQuery(), Soprano::Query::QueryLanguageSparql);
     // Store all bindings to prevent locking
     foreach(const Soprano::BindingSet & bs, it.allBindings()) {
@@ -443,7 +442,7 @@ void NW::NepomukServiceDataBackend::clearExaminedInfo()
     //Soprano::NRLModel  model(ResourceManager::instance()->mainModel());
     //model.removeGraph(m_graphNode.uri());
     //kError() << "IMPLEMENT THIS";
-    Soprano::Model  * model = ResourceManager::instance()->mainModel();
+    Soprano::Model  * model = resource().manager()->mainModel();
     // Find metagraph
     /* Uncomment and fix this when Nepomuk Query API become more stable */
     /*
@@ -484,7 +483,7 @@ void NW::NepomukServiceDataBackend::clearExaminedInfo(const QString & name)
     // Search for statement that link this datapp to the resource
     loadGraph();
     if(!m_graphNode.isValid()) {
-        kError() << "No graph detected";
+        //kDebug() << "No graph detected";
         return;
     }
     // select ?d { <resource> ndco:extractionFinished ?d. ?d nao:label <name> }
@@ -492,7 +491,7 @@ void NW::NepomukServiceDataBackend::clearExaminedInfo(const QString & name)
     NQ::Query query(NQ::AndTerm(
                         NQ::ComparisonTerm(
                             NW::Vocabulary::NDCO::extractionFinished(),
-                            NQ::ResourceTerm(m_res)
+                            NQ::ResourceTerm(resource())
                         ).inverted(),
                         NQ::ComparisonTerm(
                             Soprano::Vocabulary::RDFS::label(),
@@ -500,7 +499,7 @@ void NW::NepomukServiceDataBackend::clearExaminedInfo(const QString & name)
                         )
                     ));
 
-    Soprano::Model * model = ResourceManager::instance()->mainModel();
+    Soprano::Model * model = resource().manager()->mainModel();
     Soprano::QueryResultIterator it = model->executeQuery(
                                           query.toSparqlQuery(),
                                           Soprano::Query::QueryLanguageSparql
@@ -513,7 +512,7 @@ void NW::NepomukServiceDataBackend::clearExaminedInfo(const QString & name)
         QUrl dataPPUrl = set.value("r").uri();
 
         // Make a statement. All such bindings must be in
-        Soprano::Statement st(m_url, NW::Vocabulary::NDCO::extractionFinished(), dataPPUrl, m_graphNode);
+        Soprano::Statement st(uri(), NW::Vocabulary::NDCO::extractionFinished(), dataPPUrl, m_graphNode);
 
         kDebug() << "Statement to remove: " << st;
         Soprano::Error::ErrorCode  error = model->removeStatement(st);
@@ -537,10 +536,10 @@ void NW::NepomukServiceDataBackend::clearExaminedInfo(const QString & name)
 void NW::NepomukServiceDataBackend::clearServiceInfo()
 {
     QString query = QString("select ?d ?g where { graph ?g { %1 %2 ?d. } }").arg(
-                        Soprano::Node::resourceToN3(m_url),
+                        Soprano::Node::resourceToN3(uri()),
                         Soprano::Node::resourceToN3(NW::Vocabulary::NDCO::extractionFinished())
                     );
-    Soprano::Model * model = ResourceManager::instance()->mainModel();
+    Soprano::Model * model = resource().manager()->mainModel();
     Soprano::QueryResultIterator it = model->executeQuery(
                                           query,
                                           Soprano::Query::QueryLanguageSparql
@@ -552,7 +551,7 @@ void NW::NepomukServiceDataBackend::clearServiceInfo()
         // Make a statement
         Soprano::Node graphNode = set.value("g");
         Soprano::Node dataPPNode = set.value("d");
-        Soprano::Statement st(m_url, NW::Vocabulary::NDCO::extractionFinished(), dataPPNode, graphNode);
+        Soprano::Statement st(uri(), NW::Vocabulary::NDCO::extractionFinished(), dataPPNode, graphNode);
         kDebug() << "Statement to remove: " << st;
         Soprano::Error::ErrorCode error = model->removeStatement(st);
         if(error != Soprano::Error::ErrorNone) {
@@ -563,16 +562,6 @@ void NW::NepomukServiceDataBackend::clearServiceInfo()
 }
 
 
-Nepomuk::Resource NW::NepomukServiceDataBackend::resource() const
-{
-    return m_res;
-    //return Nepomuk::Resource(m_url);
-}
-
-const QUrl & NW::NepomukServiceDataBackend::uri() const
-{
-    return m_url;
-}
 
 QUrl NW::NepomukServiceDataBackend::readGraphName() const
 {
@@ -592,8 +581,10 @@ QMap< QString, QDateTime > NW::NepomukServiceDataBackend::examinedDataPPDates()
     if(!m_graphNode.isValid())
         return QMap< QString, QDateTime >();
 
+    Soprano::Model * model = resource().manager()->mainModel();
 
-    Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+
+    Soprano::QueryResultIterator it = model->executeQuery(
                                           m_dataPPQuery.toSparqlQuery(),
                                           Soprano::Query::QueryLanguageSparql
                                       );
@@ -609,7 +600,7 @@ QMap< QString, QDateTime > NW::NepomukServiceDataBackend::examinedDataPPDates()
                                  Soprano::Node::resourceToN3(dataPPRes.uri()),
                                  Soprano::Node::resourceToN3(NW::Vocabulary::NDCO::extractionDate())
                              );
-        Soprano::QueryResultIterator it2 = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+        Soprano::QueryResultIterator it2 = model->executeQuery(
                                                date_query,
                                                Soprano::Query::QueryLanguageSparql
                                            );
@@ -650,7 +641,8 @@ QDateTime NW::NepomukServiceDataBackend::examinedDate(const QString & name)
                                 )
                                );
 
-    Soprano::QueryResultIterator it = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+    Soprano::Model * model = resource().manager()->mainModel();
+    Soprano::QueryResultIterator it = model->executeQuery(
                                           query.toSparqlQuery(),
                                           Soprano::Query::QueryLanguageSparql
                                       );
@@ -661,7 +653,7 @@ QDateTime NW::NepomukServiceDataBackend::examinedDate(const QString & name)
                                  Soprano::Node::resourceToN3(it.binding("r").uri()),
                                  Soprano::Node::resourceToN3(NW::Vocabulary::NDCO::extractionDate())
                              );
-        Soprano::QueryResultIterator it2 = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+        Soprano::QueryResultIterator it2 = model->executeQuery(
                                                date_query,
                                                Soprano::Query::QueryLanguageSparql
                                            );
@@ -681,7 +673,10 @@ QDateTime NW::NepomukServiceDataBackend::examinedDate(const QString & name)
 
 }
 
-NQ::Query NW::NepomukServiceDataBackend::queryUnparsedResources(const NQ::Term mainTerm, const QMap<QString, int> & assignedDataPP)
+NQ::Query NW::NepomukServiceDataBackend::queryUnparsedResources(
+    const NQ::Term & mainTerm,
+    const QMap<QString, int> & assignedDataPP,
+    Soprano::Model * model)
 {
     // TODO Implement advanced quering for resource that has not been parsed ( of parsing
     // information is obsolete

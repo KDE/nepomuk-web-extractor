@@ -17,26 +17,79 @@
  */
 
 #include "datappwrapper.h"
+#include "datapp.h"
 
-namespace NW=Nepomuk::WebExtractor;
+#include <QtCore/QSharedData>
 
-NW::DataPPWrapper::DataPPWrapper(DataPP * dpp,const QString & name, double rank, double scaleCoff)
+
+namespace NW = Nepomuk::WebExtractor;
+
+class NW::DataPPWrapper::Private : public QSharedData
+{
+    public:
+        DataPP * data;
+        double rank;
+        double scaleCoff;
+};
+
+NW::DataPPWrapper::DataPPWrapper(DataPP * dpp, const QString & name, double rank, double scaleCoff):
+    d(new Private())
 {
     Q_CHECK_PTR(dpp);
-    m_data = dpp;
-    dpp->setPluginName(name);
-    m_rank = rank;
-    m_scaleCoff = scaleCoff;
+    d->data = dpp;
+    dpp->setName(name);
+    d->rank = rank;
+    d->scaleCoff = scaleCoff;
+}
+
+NW::DataPPWrapper::DataPPWrapper(const DataPPWrapper & rhs):
+    d(rhs.d)
+{
+    ;
+}
+
+NW::DataPPWrapper & NW::DataPPWrapper::operator=(const DataPPWrapper & rhs)
+{
+    this->d = rhs.d;
+}
+
+NW::DataPPWrapper::~DataPPWrapper()
+{
+    ;
 }
 
 NW::DataPPReply * NW::DataPPWrapper::DataPPWrapper::requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res) const
 {
-    DataPPReply * answer = m_data->requestDecisions(factory,res);
+    DataPPReply * answer = d->data->requestDecisions(factory, res);
     /*
     if (!answer)
-	return answer;
+    return answer;
 
     answer->setPluginName(d->pluginName());
     */
     return answer;
+}
+NW::DataPP * NW::DataPPWrapper::data() const
+{
+    return d->data;
+}
+double NW::DataPPWrapper::rank() const
+{
+    return d->rank;
+}
+double NW::DataPPWrapper::coff() const
+{
+    return d->scaleCoff;
+}
+void NW::DataPPWrapper::setRank(double val)
+{
+    d->rank = val;
+}
+QString  NW::DataPPWrapper::name() const
+{
+    return d->data->name();
+}
+int  NW::DataPPWrapper::version() const
+{
+    return d->data->version();
 }

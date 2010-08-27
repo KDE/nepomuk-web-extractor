@@ -16,28 +16,31 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __webextractor_simple_datapp_reply_private_h_
-#define __webextractor_simple_datapp_reply_private_h_
+#ifndef __NEPOMUK_WEBEXTRACTOR_DATAPP_TEMPLATE_H_
+#define __NEPOMUK_WEBEXTRACTOR_DATAPP_TEMPLATE_H_
 
-#include "datappreply_p.h"
+#include "datapp.h"
 
-namespace Nepomuk
-{
-    namespace WebExtractor
-    {
-        class SimpleDataPPReplyPrivate : public DataPPReplyPrivate
-        {
-            public:
-                SimpleDataPPReplyPrivate(DecisionList list):
-                    m_decisions(list) {
-                    ;
-                }
-                const DecisionFactory * m_factory;
-                Nepomuk::Resource m_res;
-                DecisionList m_decisions;
-        };
+namespace Nepomuk{
+    namespace WebExtractor {
+	template<typename T >
+	    class DataPPTempalate : public DataPP
+	    {
+		public:
+		    virtual DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res) 
+		    {
+			return new T(this, factory,res);
+		    }
+		    virtual ~DataPPTempalate() {;}
+
+		    DataPPTempalate(int version = 0):
+			DataPP(version)
+		    {;}
+
+	    };
     }
 }
+
 
 
 #endif

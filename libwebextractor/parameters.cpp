@@ -250,7 +250,7 @@ QMap<QString, int> NW::ExtractParameters::dataPPInfo() const
     QMap<QString, int> answer;
 
     foreach(const DataPPWrapper * wrp, d->dataPPlugins) {
-        answer.insert(wrp->pluginName(), wrp->pluginVersion());
+        answer.insert(wrp->name(), wrp->version());
     }
     return answer;
 }
@@ -289,7 +289,7 @@ QDebug Nepomuk::WebExtractor::operator<<(QDebug dbg,  const Nepomuk::WebExtracto
     }
     dbg << "DataPP:( " << p.d->dataPPlugins.size() << ')' << '\n';
     foreach(DataPPWrapper * w, p.d->dataPPlugins) {
-        dbg << w->pluginName() << w->pluginVersion() << '\n';
+        dbg << w->name() << w->version() << '\n';
     }
     return dbg;
 }

@@ -93,8 +93,8 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
     */
     QObject * parent
 ):
-    d(new Private()),
-    QObject(parent)
+    QObject(parent),
+    d(new Private())
 {
     if(extractParams.isNull()) {
         kDebug() << "Parameters are null. Reseting to defaults";

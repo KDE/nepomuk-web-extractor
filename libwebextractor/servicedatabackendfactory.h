@@ -23,6 +23,12 @@
 #include "webextractor_export.h"
 #include <Nepomuk/Query/Query>
 #include <Nepomuk/Query/Term>
+#include <Nepomuk/ResourceManager>
+
+namespace Soprano
+{
+    class Model;
+}
 
 namespace Nepomuk
 {
@@ -35,7 +41,7 @@ namespace Nepomuk
                 /*! \brief Return ServiceDataBackend for giver resource
                  * \param res Uri of the resource
                  */
-                virtual ServiceDataBackend * backend(const QUrl & res) = 0;
+                virtual ServiceDataBackend * backend(const Nepomuk::Resource & res) = 0;
                 /*! \brief Return Nepomuk::Query that will match all resources that should be examined with given DataPP
                  * This method must be eqivalent for quering all resources that matchs mainTerm and checking for every resource
                  * recived that any of the given DataPP has not be examined for the resources. If such query can not be created,
@@ -43,9 +49,10 @@ namespace Nepomuk
                  * \param assignedDataPP Map of DataPP name, DataPP version
                          * \return Query for selecting all unparsed resource or invalid query if this feature is not supported
                  */
-                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP) {
+                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model) {
                     Q_UNUSED(mainTerm);
                     Q_UNUSED(assignedDataPP);
+                    Q_UNUSED(model);
                     return Nepomuk::Query::Query();
                 }
 
@@ -57,7 +64,8 @@ namespace Nepomuk
         template < typename T >
         class ServiceDataBackendFactoryTemplate : public ServiceDataBackendFactory
         {
-                ServiceDataBackend * backend(const QUrl & res) {
+            public:
+                ServiceDataBackend * backend(const Nepomuk::Resource & res) {
                     return new T(res);
                 }
                 ~ServiceDataBackendFactoryTemplate() {

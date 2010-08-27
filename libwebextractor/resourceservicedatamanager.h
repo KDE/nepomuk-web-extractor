@@ -20,14 +20,19 @@
 #ifndef __webextractor_resourceservicedatamanager_h_
 #define __webextractor_resourceservicedatamanager_h_
 
-#include <Nepomuk/Resource>
 #include "servicedatabackendfactory.h"
 #include "webextractor_export.h"
 #include <QSharedDataPointer>
 #include <QUrl>
 
+namespace Soprano
+{
+    class Model;
+}
+
 namespace Nepomuk
 {
+    class Resource;
     namespace WebExtractor
     {
         class WEBEXTRACTOR_EXPORT ResourceServiceDataManager
@@ -39,8 +44,8 @@ namespace Nepomuk
                 const ResourceServiceDataManager & operator=(const ResourceServiceDataManager &);
                 static ResourceServiceDataManager * instance();
                 void setOverrideBackend(ServiceDataBackendFactory * backendFactory);
-                ServiceDataBackend * resourceData(const QUrl &);
-                Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP);
+                ServiceDataBackend * resourceData(const Nepomuk::Resource &);
+                Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model);
             private:
                 class Private;
                 QSharedDataPointer<Private> d;

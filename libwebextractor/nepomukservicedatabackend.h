@@ -26,6 +26,11 @@
 #include <Nepomuk/Query/ComparisonTerm>
 #include "webextractor_export.h"
 
+namespace Soprano
+{
+    class Model;
+}
+
 namespace Nepomuk
 {
     namespace WebExtractor
@@ -38,7 +43,7 @@ namespace Nepomuk
         {
                 Q_OBJECT;
             public:
-                NepomukServiceDataBackend(const QUrl &);
+                NepomukServiceDataBackend(const Nepomuk::Resource &);
                 /*! \brief Add/Update information about examined DataPP ( name, version)
                  */
                 virtual void setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & = QDateTime());
@@ -57,9 +62,6 @@ namespace Nepomuk
                 // that are outside appropriate graph ( clearExaminedInfo() doesn't do
                 // this). Such statements may appear because of some program errors.
                 virtual void clearServiceInfo();
-
-                virtual Nepomuk::Resource resource() const;
-                virtual const QUrl & uri() const;
 
                 QUrl readGraphName() const;
 
@@ -85,7 +87,7 @@ namespace Nepomuk
                  */
                 virtual QDateTime examinedDate(const QString & name);
 
-                static Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP);
+                static Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model);
 
             private:
                 /*! \brief This function tries to found graph where all information should be stored
@@ -100,11 +102,11 @@ namespace Nepomuk
                  * name is the name of the DataPP, version is its version.
                  * If name or version are invalid(empty) invalid url will be returned
                  */
-                static QUrl dataPPResourceUrl(const QString & name, int version);
+                static QUrl dataPPResourceUrl(const QString & name, int version, ResourceManager * manager);
                 /*! \brief This function remove unnecessary DataPP resources
                  * TODO Enable it usage
                  */
-                static void clearUnusedDataPP();
+                static void clearUnusedDataPP(ResourceManager * manager);
 
                 static QString date_query_templ() ;
 

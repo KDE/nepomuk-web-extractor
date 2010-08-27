@@ -16,28 +16,15 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __webextractor_simple_datapp_reply_private_h_
-#define __webextractor_simple_datapp_reply_private_h_
+#ifndef __NEPOMUK_WEBEXTRACTOR_CONFIG_H_
+#define __NEPOMUK_WEBEXTRACTOR_CONFIG_H_
 
-#include "datappreply_p.h"
+#define DEFAULT_DATAPP_TIMEOUT 5000
 
-namespace Nepomuk
-{
-    namespace WebExtractor
-    {
-        class SimpleDataPPReplyPrivate : public DataPPReplyPrivate
-        {
-            public:
-                SimpleDataPPReplyPrivate(DecisionList list):
-                    m_decisions(list) {
-                    ;
-                }
-                const DecisionFactory * m_factory;
-                Nepomuk::Resource m_res;
-                DecisionList m_decisions;
-        };
-    }
-}
+#define NO_AUTO_RANK -1;
 
+// This macro is used to determine average threshold
+// by exact one.
+#define AVERAGE_MERGES_COUNT  5
 
 #endif

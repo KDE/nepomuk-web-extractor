@@ -20,6 +20,7 @@
 #define __webextractor_datappreply_private_h_
 
 #include "datappreply.h"
+#include <QtCore/QTimer>
 
 namespace Nepomuk
 {
@@ -29,6 +30,10 @@ namespace Nepomuk
         {
             public:
                 DataPP * m_parent;
+                // This is timer that will abort DataPPReply
+                // execution when
+                QTimer m_timer;
+                DataPPReply::Error m_error;
                 virtual ~DataPPReplyPrivate() {
                     ;
                 }

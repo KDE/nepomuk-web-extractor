@@ -33,14 +33,14 @@ class NW::ResourceServiceData::Private : public QSharedData
 NW::ResourceServiceData::ResourceServiceData()
 {
     d = new Private();
-    d->backend = ResourceServiceDataManager::instance()->resourceData(QUrl());
+    d->backend = ResourceServiceDataManager::instance()->resourceData(Nepomuk::Resource());
 }
 
 
 NW::ResourceServiceData::ResourceServiceData(Nepomuk::Resource & res)
 {
     d = new Private();
-    d->backend = ResourceServiceDataManager::instance()->resourceData(res.resourceUri());
+    d->backend = ResourceServiceDataManager::instance()->resourceData(res);
     //d->targetRes = res;
 }
 
@@ -53,7 +53,7 @@ NW::ResourceServiceData::ResourceServiceData(ResourceServiceData & res):
 NW::ResourceServiceData::ResourceServiceData(Nepomuk::Resource & res, ResourceServiceDataManager * manager)
 {
     d = new Private();
-    d->backend = manager->resourceData(res.resourceUri());
+    d->backend = manager->resourceData(res);
 }
 
 const NW::ResourceServiceData & NW::ResourceServiceData::operator=(const ResourceServiceData & res)
@@ -95,7 +95,17 @@ void NW::ResourceServiceData::clearExaminedInfo(const QString & dataPPName)
 
 bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QMap< QString, int> & dataPP) const
 {
-    d->backend->checkExaminedDataPPInfo(dataPP);
+    return d->backend->checkExaminedDataPPInfo(dataPP);
+}
+
+bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QString  & name) const
+{
+    return d->backend->checkExaminedDataPPInfo(name);
+}
+
+bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QString  & name, int version) const
+{
+    return d->backend->checkExaminedDataPPInfo(name, version);
 }
 
 bool NW::ResourceServiceData::isValid() const

@@ -52,6 +52,8 @@ namespace Nepomuk
                 /*! \brief Return true if all given DataPP has been examined for the resource
                  */
                 bool checkExaminedDataPPInfo(const QMap< QString, int> & dataPP) const;
+                bool checkExaminedDataPPInfo(const QString  & name) const;
+                bool checkExaminedDataPPInfo(const QString  & name, int version) const;
 
                 /*! \brief Clear all information about examined DataPP
                  */

@@ -31,14 +31,14 @@ namespace Nepomuk
     {
         class WEBEXTRACTOR_EXPORT NepomukServiceDataBackendFactory : public ServiceDataBackendFactory
         {
-                ServiceDataBackend * backend(const QUrl & res) {
+                ServiceDataBackend * backend(const Nepomuk::Resource & res) {
                     return new NepomukServiceDataBackend(res);
                 }
                 ~NepomukServiceDataBackendFactory() {
                     ;
                 }
-                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term mainTerm, const QMap<QString, int> & assignedDataPP) {
-                    return NepomukServiceDataBackend::queryUnparsedResources(mainTerm, assignedDataPP);
+                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model) {
+                    return NepomukServiceDataBackend::queryUnparsedResources(mainTerm, assignedDataPP, model);
                 }
         };
     }

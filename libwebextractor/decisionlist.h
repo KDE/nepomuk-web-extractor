@@ -60,15 +60,7 @@ namespace Nepomuk
                 using QSet<Decision>::size;
                 const_iterator begin() const;
                 const_iterator end() const;
-                //void scale( double coff);
-                /*! \brief return names of plugins that produce obsolete decisions
-                 */
-                /*
-                using QList<Decision>::size;
-
-                using QList<Decision>::iterator;
-                using QList<Decision>::begin;
-                */
+                double approximateThreshold() const;
             private:
                 DecisionList(double threshold = 0);
                 // Leave only unique instances

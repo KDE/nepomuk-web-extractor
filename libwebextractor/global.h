@@ -48,6 +48,12 @@ namespace Nepomuk
 
         WEBEXTRACTOR_EXPORT double minRank();
         WEBEXTRACTOR_EXPORT double maxRank();
+
+        /*! \brief This function return the special value.
+         * Decisions with this rank can not be applied automatically
+         */
+        WEBEXTRACTOR_EXPORT double noAutoRank();
+
         WEBEXTRACTOR_EXPORT double boundRank(double);
 
         WEBEXTRACTOR_EXPORT double minScaleCoff();
@@ -56,6 +62,8 @@ namespace Nepomuk
 
         WEBEXTRACTOR_EXPORT double boundACrit(double val);
         WEBEXTRACTOR_EXPORT double boundUCrit(double val);
+
+        WEBEXTRACTOR_EXPORT int defaultDataPPTimeout();
 
     }
 }

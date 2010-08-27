@@ -21,6 +21,18 @@
 
 namespace NW = Nepomuk::WebExtractor;
 
+class NW::ServiceDataBackend::Private
+{
+    public:
+        Nepomuk::Resource  res;
+};
+
+NW::ServiceDataBackend::ServiceDataBackend(const Nepomuk::Resource & res):
+    d(new Private())
+{
+    d->res = res;
+}
+
 void NW::ServiceDataBackend::clearServiceInfo()
 {
     clearExaminedInfo();
@@ -28,7 +40,7 @@ void NW::ServiceDataBackend::clearServiceInfo()
 
 NW::ServiceDataBackend::~ServiceDataBackend()
 {
-    ;
+    delete d;
 }
 
 QStringList NW::ServiceDataBackend::serviceInfoPropertiesNames() const
@@ -46,8 +58,29 @@ bool NW::ServiceDataBackend::checkExaminedDataPPInfo(const QMap< QString, int> &
     return (examinedDataPPInfo() == dataPP);
 }
 
+bool NW::ServiceDataBackend::checkExaminedDataPPInfo(const QString & name)
+{
+    return (examinedDataPPInfo().contains(name));
+}
+
+bool NW::ServiceDataBackend::checkExaminedDataPPInfo(const QString & name, int version)
+{
+    QMap<QString, int> info = examinedDataPPInfo();
+    return (info.contains(name) and(info[name] == version));
+}
 
 QDateTime NW::ServiceDataBackend::examinedDate(const QString & name)
 {
     return QDateTime();
+}
+
+Nepomuk::Resource  NW::ServiceDataBackend::resource() const
+{
+    return d->res;
+}
+
+
+const QUrl & NW::ServiceDataBackend::uri() const
+{
+    return d->res.resourceUri();
 }

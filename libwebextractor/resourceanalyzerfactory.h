@@ -36,6 +36,8 @@ namespace Nepomuk
 
     namespace WebExtractor
     {
+        class ResourceAnalyzer;
+
         class WEBEXTRACTOR_EXPORT ResourceAnalyzerFactory: public QObject
         {
                 Q_OBJECT;

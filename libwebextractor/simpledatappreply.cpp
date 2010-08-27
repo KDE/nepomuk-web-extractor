@@ -28,7 +28,6 @@ NW::SimpleDataPPReply::SimpleDataPPReply(DataPP * parent, const DecisionFactory 
     Q_D(SimpleDataPPReply);
     d->m_factory = factory;
     d->m_res = res;
-    d->m_error = NoError;
 }
 
 NW::SimpleDataPPReply::SimpleDataPPReply(DataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource & res , SimpleDataPPReplyPrivate & p):
@@ -37,20 +36,8 @@ NW::SimpleDataPPReply::SimpleDataPPReply(DataPP * parent, const DecisionFactory 
     Q_D(SimpleDataPPReply);
     d->m_res = res;
     d->m_factory = factory;
-    d->m_error = NoError;
 }
 
-void NW::SimpleDataPPReply::setError(DataPPReplyError errorCode)
-{
-    Q_D(SimpleDataPPReply);
-    d->m_error = errorCode;
-}
-
-NW::DataPPReply::DataPPReplyError NW::SimpleDataPPReply::error() const
-{
-    Q_D(const SimpleDataPPReply);
-    return d->m_error;
-}
 
 void NW::SimpleDataPPReply::finish()
 {
@@ -117,4 +104,10 @@ void NW::SimpleDataPPReply::addDecision(const Decision & decision , MergePolitic
     Q_D(SimpleDataPPReply);
     d->m_decisions.addDecision(decision, politics, coff, noAuto);
     return;
+}
+
+double NW::SimpleDataPPReply::approximateThreshold() const
+{
+    Q_D(const SimpleDataPPReply);
+    return d->m_factory->approximateThreshold();
 }

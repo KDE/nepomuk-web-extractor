@@ -50,6 +50,11 @@ namespace Nepomuk
                  * ResourceAnalyzers/ResourceAnalyzerFactory instances
                  */
                 static DecisionFactory * debugFactory(double ucrit = 0, double acrit = 1);
+                /*! \brief This function will return the aproximate threshold value.
+                 * You can use this value to decide whether it make sense to generate more Decisions
+                 * or not
+                 */
+                double approximateThreshold() const;
             private:
                 /*! \brief Private constructor
                  * \param ucrit Value of the user threshold

@@ -18,6 +18,8 @@
 #include "resourceanalyzer.h"
 #include "resourceservicedata.h"
 #include "datappwrapper.h"
+#include "datappreply.h"
+#include "decisionfactory.h"
 #include <KDebug>
 #include <Soprano/Backend>
 #include <QDateTime>
@@ -287,12 +289,12 @@ void NW::ResourceAnalyzer::doAnalyze()
         // queue
         // See description of ResourceAnalyzer and ResourceAnalyzer::Iterative about
         // why do we need such behaviour
-        QString n = dppw->pluginName();
+        QString n = dppw->name();
         QMap< QString, int >::const_iterator it = examined.find(n);
         if(it != examined.end()) {
             // Check version
-            //kDebug() << "Check version: " << it.value() << " vs " << dppw->pluginVersion();
-            if(it.value() == dppw->pluginVersion())
+            //kDebug() << "Check version: " << it.value() << " vs " << dppw->version();
+            if(it.value() == dppw->version())
                 if(!d->examinedDates.contains(dppw))
                     continue;
         }
@@ -303,7 +305,7 @@ void NW::ResourceAnalyzer::doAnalyze()
     //kDebug() << "Extracting data from resource";
     kDebug() << "List of DataPP to use:";
     foreach(DataPPWrapper * dppw, d->m_queue) {
-        kDebug() << dppw->pluginName() << ":" << dppw->pluginVersion();
+        kDebug() << dppw->name() << ":" << dppw->version();
     }
 
     d->m_running = true;
@@ -331,8 +333,7 @@ void NW::ResourceAnalyzer::abort()
         // Abort each reply, delete it and clear m_replies
         foreach(DataPPReply * repl, d->m_replies) {
             disconnect(repl, SIGNAL(finished()), this, SLOT(pluginFinished()));
-            // FIXME Change error() signal to pluginError slot
-            disconnect(repl, SIGNAL(error(DataPPReply::DataPPReplyError)), this, SLOT(pluginFinished()));
+            disconnect(repl, SIGNAL(error(DataPPReply::Error)), this, SLOT(pluginError()));
             repl->abort();
             delete repl;
         }
@@ -381,7 +382,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
         // Connect signals of this reply
         // FIXME Change error() signal to pluginError slot
         connect(repl, SIGNAL(finished()), this, SLOT(pluginFinished()));
-        connect(repl, SIGNAL(error(DataPPReply::DataPPReplyError)), this, SLOT(pluginError()));
+        connect(repl, SIGNAL(error(DataPPReply::Error)), this, SLOT(pluginError()));
 
         Q_ASSERT(!d->m_replies.contains(repl));
         d->m_replies.insert(repl);
@@ -602,8 +603,8 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
             it != d->examinedDates.end();
             it++
        ) {
-        d->rsd.setExaminedDataPPInfo(it.key()->pluginName(), it.key()->pluginVersion());
-        kDebug() << "Mark as examined:" << it.key()->pluginName();
+        d->rsd.setExaminedDataPPInfo(it.key()->name(), it.key()->version());
+        kDebug() << "Mark as examined:" << it.key()->name();
     }
 
     d->m_applied = false;

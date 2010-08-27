@@ -80,10 +80,6 @@ bool NW::DebugDataPPReply::isValid() const
     return true;
 }
 
-NW::DataPPReply::DataPPReplyError NW::DebugDataPPReply::error() const
-{
-    return NoError;
-}
 
 
 NW::DebugDataPPReply::~DebugDataPPReply()

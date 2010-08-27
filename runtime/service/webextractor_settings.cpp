@@ -158,7 +158,7 @@ void Nepomuk::WebExtractorSettings::update()
                 // Create new DataPP
                 dpp = DataPPConfig::dataPP(dataPPName);
                 if(dpp) {
-                    kDebug() << "Loaded DataPP " << dataPPName << "version: " << dpp->pluginVersion();
+                    kDebug() << "Loaded DataPP " << dataPPName << "version: " << dpp->version();
                 } else {
                     kError() << "Error while generating DataPP " << dataPPName;
                 }

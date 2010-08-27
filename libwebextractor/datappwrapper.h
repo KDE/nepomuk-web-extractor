@@ -19,39 +19,38 @@
 #ifndef _NEPOMUK_WEBEXTRCT_DATA_PP_PROXY_H_
 #define _NEPOMUK_WEBEXTRCT_DATA_PP_PROXY_H_
 
-#include "datapp.h"
+#include <QtCore/QSharedDataPointer>
+#include <QtCore/QHash>
+
 #include "webextractor_export.h"
 namespace Nepomuk
 {
+    class Resource;
+
     namespace WebExtractor
     {
+        class DataPP;
+        class DataPPReply;
+        class DecisionFactory;
+        /*! \brief This class bounds settings ( rank, scale coff ) of the DataPP with DataPP
+         */
         class WEBEXTRACTOR_EXPORT DataPPWrapper
         {
             public:
                 DataPPWrapper(DataPP*, const QString & , double, double);
-                DataPP * data() const {
-                    return m_data;
-                }
-                double rank() const {
-                    return m_rank;
-                }
-                double coff() const {
-                    return m_scaleCoff;
-                }
-                void setRank(double val) {
-                    m_rank = val;
-                }
-                QString  pluginName() const {
-                    return m_data->pluginName();
-                }
-                int  pluginVersion() const {
-                    return m_data->pluginVersion();
-                }
+                DataPPWrapper(const DataPPWrapper &);
+                DataPPWrapper & operator=(const DataPPWrapper &);
+                ~DataPPWrapper();
                 DataPPReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res)const;
+                DataPP * data() const;
+                double rank() const;
+                double coff() const;
+                void setRank(double val);
+                QString  name() const;
+                int  version() const;
             private:
-                DataPP * m_data;
-                double m_rank;
-                double m_scaleCoff;
+                class Private;
+                QSharedDataPointer<Private> d;
         };
         typedef QHash< const DataPP*, DataPPWrapper* > DataPPKeeper;
     }

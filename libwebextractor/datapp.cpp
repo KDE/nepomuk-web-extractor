@@ -47,22 +47,22 @@ Nepomuk::WebExtractor::DataPP::~DataPP()
     ;
 }
 
-Nepomuk::WebExtractor::DataPP::DataPP(int  pluginVersion)
+Nepomuk::WebExtractor::DataPP::DataPP(int  dataPPVersion)
 {
     d = new Private();
-    d->m_version = pluginVersion;
+    d->m_version = dataPPVersion;
 }
 
-void Nepomuk::WebExtractor::DataPP::setPluginName(const QString & name)
+void Nepomuk::WebExtractor::DataPP::setName(const QString & name)
 {
     d->m_name = name;
 }
-QString Nepomuk::WebExtractor::DataPP::pluginName() const
+QString Nepomuk::WebExtractor::DataPP::name() const
 {
     return d->m_name;
 }
 
-int Nepomuk::WebExtractor::DataPP::pluginVersion() const
+int Nepomuk::WebExtractor::DataPP::version() const
 {
     return d->m_version;
 }

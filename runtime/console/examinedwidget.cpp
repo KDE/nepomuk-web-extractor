@@ -157,7 +157,7 @@ void ExaminedWidget::dropEvent(QDropEvent *event)
         return;
     }
 
-    int version = dppcfg->dataPP()->pluginVersion();
+    int version = dppcfg->dataPP()->version();
     delete dppcfg;
 
     kDebug() << "Name: " << name << " Version: " << version;
