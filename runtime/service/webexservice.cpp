@@ -28,9 +28,11 @@
 
 
 Nepomuk::WebExtractorService::WebExtractorService( QObject * parent, const QList<QVariant> & ):
-    Nepomuk::Service(parent,true)
+    Nepomuk::Service(parent,true),
+    m_extractScheduler( 0 ),
+    m_conf( 0 )
 {
-    (void)new  WebExtractorServiceAdaptor(this); 
+    (void)new  WebExtractorServiceAdaptor(this);
     //QTimer::singleShot( 2*60*1000, this, SLOT( finishInitialization() ) );
     // For debuging purpose use less timer interval
     QTimer::singleShot( 2, this, SLOT( finishInitialization() ) );
@@ -63,7 +65,7 @@ bool Nepomuk::WebExtractorService::isSuspended() const
     return ( m_extractScheduler->isSuspended() );
 }
 
-void Nepomuk::WebExtractorService::reconfigure() 
+void Nepomuk::WebExtractorService::reconfigure()
 {
     m_extractScheduler->reconfigure();
 }
@@ -83,7 +85,7 @@ void Nepomuk::WebExtractorService::finishInitialization()
 
     m_conf =  new Nepomuk::WebExtractorSettings();
     m_extractScheduler = new Nepomuk::WebExtractorScheduler(m_conf,this);
-    
+
     if ( !m_extractScheduler->isInitialized() ) {
 	// Initialization failed
 	setServiceInitialized(false);
