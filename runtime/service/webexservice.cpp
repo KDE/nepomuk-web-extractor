@@ -114,6 +114,7 @@ void Nepomuk::WebExtractorService::finishInitialization()
 void Nepomuk::WebExtractorService::__stop()
 {
     delete m_conf;
+    m_conf = 0;
     m_extractScheduler->stop();
     QCoreApplication::quit();
 }
