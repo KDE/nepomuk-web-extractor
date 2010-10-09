@@ -40,7 +40,8 @@ namespace NQ = Nepomuk::Query;
 
 Nepomuk::WebExtractorSettings::WebExtractorSettings():
     WebExtractorConfig(),
-    m_globalTempDir(0)
+    m_globalTempDir(0),
+    m_globalManager(0)
 {
     update();
 }

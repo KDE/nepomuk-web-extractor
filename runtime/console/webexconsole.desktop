@@ -4,6 +4,7 @@ Type=Application
 Categories=Qt;KDE;System;
 Name=WebExtractorConsole
 Name[es]=WebExtractorConsole
+Name[ja]=WebExtractorConsole
 Name[pt]=Consola de Extracção da Web
 Name[pt_BR]=Console de extração da Web
 Name[sv]=Konsol för webbextrahering
