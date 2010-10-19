@@ -41,14 +41,14 @@ int Nepomuk::AutotagPlugin::version()
     return (AUTOTAG_PLUGIN_INTERNAL_VERSION);
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::AutotagPlugin::getDataPP(KSharedConfigPtr configFile)
+Nepomuk::WebExtractor::DataPP * Nepomuk::AutotagPlugin::getDataPP(const QSharedPointer<KConfigBase> & configFile)
 {
     // Parse config
-    KConfigGroup grp = configFile->group("autotag");
+    KConfigGroup grp = configFile->group(AUTOTAG_CONFIG_GROUP);
 
-    QString regexpString = grp.readEntry("regexp", QString());
+    QString regexpString = grp.readEntry(AUTOTAG_CONFIG_REGEXP_KEY, QString());
 
-    QString tag = grp.readEntry("tag", QString());
+    QString tag = grp.readEntry(AUTOTAG_CONFIG_TAG_KEY, QString());
 
     kDebug() << "Read config file. Tag: " << tag << " Regexp: " << regexpString;
 

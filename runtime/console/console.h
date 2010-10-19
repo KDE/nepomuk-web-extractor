@@ -28,6 +28,10 @@
 #include "resourceanalyzer.h"
 #include "parameters.h"
 
+namespace Nepomuk {
+    class WebExtractorPluginKCM;
+}
+
 class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
 {
         Q_OBJECT;
@@ -43,6 +47,9 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
     private Q_SLOTS:
         void extractingFinished();
         void tabChanged(int currentIndex);
+	/*! \brief THis function handles DataPP when the setting tab is active
+	 * It will show a KCM for selected DataPP
+	 */
         void dataPPClicked(QModelIndex index);
         /*! \brief Handler for selecting resources in gui
          */
@@ -62,6 +69,12 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
         void onIdentifyDecision();
         void onIdentifyMain();
         void updateIdentificationInfo();
+
+	void dataPPSettingsChanged(bool state);
+	void applySettings();
+	void resetSettings();
+	void defaultSettings();
+	//void kcmButtonClicked();
     private:
         void setButtonApply();
         void setButtonAbort();
@@ -92,6 +105,12 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
         KTempDir * m_tmpDir;
         const Soprano::Backend * m_usedBackend;
 
+	/* KCM subsection */
+	Nepomuk::WebExtractorPluginKCM * m_currentKcm;
+	bool m_kcmChanged;
+	QAbstractButton * m_kcmApplyButton;
+	QAbstractButton * m_kcmResetButton;
+	QAbstractButton * m_kcmDefaultButton;
 
 
 

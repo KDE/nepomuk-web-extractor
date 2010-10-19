@@ -1,0 +1,10 @@
+#set lname = $name.lower()
+[Desktop Entry]
+ Type=Service
+ X-KDE-ServiceTypes=KCModule
+ X-KDE-Library=webexplugin_${lname}_kcm
+ X-WebExtractor-Name=${lname}
+ X-KDE-ParentApp=webextractorconfig
+ Name=Put name here
+ Comment=Put comment here
+

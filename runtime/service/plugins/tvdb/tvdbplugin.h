@@ -36,7 +36,7 @@ namespace Nepomuk
 
         public:
             TvdbPlugin(QObject*, const QList<QVariant>&);
-            Nepomuk::WebExtractor::DataPP* getDataPP(KSharedConfigPtr configFile);
+            Nepomuk::WebExtractor::DataPP* getDataPP(const QSharedPointer<KConfigBase> & configFile);
             static int version();
 
             static double calculateRankTheDumbWay(const QString& queryString, const QString& name);

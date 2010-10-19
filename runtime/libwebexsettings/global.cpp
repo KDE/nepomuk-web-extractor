@@ -34,6 +34,12 @@ QString Nepomuk::GlobalSettings::pluginQueryByName(const QString & name)
     return pluginQueryTemplate().arg(name);
 }
 
+QString Nepomuk::GlobalSettings::kcmQueryByName(const QString & name)
+{
+    static QString _t = QString("( ( [X-KDE-ParentApp] == 'webextractorconfig' ) and (["WE_PLUGIN_NAME_KEY"] == '%1') ) ");
+    return pluginQueryTemplate().arg(name);
+}
+
 QString Nepomuk::GlobalSettings::pluginQueryTemplate()
 {
     static QString _t = QString("(["WE_PLUGIN_NAME_KEY"] == '%1')");
@@ -85,6 +91,50 @@ Nepomuk::WebExtractorPlugin * Nepomuk::GlobalSettings::plugin( const QString & n
 	
 }
 
+Nepomuk::WebExtractorPluginKCM * Nepomuk::GlobalSettings::kcm( const QString & name)
+{
+    // FIXME Protect m_plugins() with lock
+    //FIXME Replace contains() with find()
+	// If plugin already loaded
+	if (!m_plugins().contains(name)) {
+	    // Load plugin
+
+	    KService::List offers = KServiceTypeTrader::self()->query("KCModule",kcmQueryByName(name));
+	    if (offers.begin() == offers.end() ) {
+		// This mean that this plugin doesn't provide KCM.
+		// Write NULL to avoid further attempts
+		m_kcms().insert(name,0);
+		return 0;
+	    }
+
+
+	    QString error;
+	    KService::Ptr service = *(offers.begin());
+	    KPluginFactory *factory = KPluginLoader(service->library()).factory();
+	    if (!factory) {
+		//KMessageBox::error(0, i18n("<html><p>KPluginFactory could not load the plugin:<br/><i>%1</i></p></html>",
+		  //                         service->library()));
+		kError(5001) << "KPluginFactory could not load the plugin:" << service->library();
+		return 0;
+	    }
+
+	    WebExtractorPluginKCM *kcm = factory->create<WebExtractorPluginKCM>();
+
+	    if (kcm) {
+	       kDebug() << "Load kcm:" << service->name();
+	       m_kcms().insert(name,kcm);
+	    } else {
+	       kDebug() << "Some error when loading kcm";
+	       return 0;
+	    }
+
+	    // clear
+	    delete factory;
+	}
+
+	return m_kcms()[name];
+	
+}
 
 QHash< QString, Nepomuk::WebExtractorPlugin*> & Nepomuk::GlobalSettings::m_plugins()
 {
@@ -92,6 +142,12 @@ QHash< QString, Nepomuk::WebExtractorPlugin*> & Nepomuk::GlobalSettings::m_plugi
     return m_p; 
 }
 
+
+QHash< QString, Nepomuk::WebExtractorPluginKCM*> & Nepomuk::GlobalSettings::m_kcms()
+{
+    static QHash< QString, WebExtractorPluginKCM*> m_k;
+    return m_k; 
+}
 
 int Nepomuk::GlobalSettings::pluginCount()
 {

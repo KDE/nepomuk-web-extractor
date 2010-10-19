@@ -3,7 +3,10 @@
 #set tname = 'webexplugin_' + $lname
 #set binp = "${CMAKE_CURRENT_BINARY_DIR}/"
 #set src = $lname + '_plugin_SRCS'
-#set evalsrc = "${"+$src+"}"
+#set evalsrc = "${"+ $src + "}"
+#set kcmname = 'webexplugin_' + $lname + '_kcm'
+#set kcmsrc = $lname + '_kcm_SRCS'
+#set kcmevalsrc = "${" + $kcmsrc + "}"
 
 project($tname)
 cmake_minimum_required(VERSION 2.6)
@@ -48,6 +51,15 @@ set (${src}
     ${lname}datapp.cpp
     )
 
+#if $kcm
+set ( ${lname}_kcm_SRCS
+      ${lname}kcm.cpp
+    )
+#if $kcm_ui
+kde4_add_ui_files( ${lname}_kcm_SRCS kcm.ui)
+#end if
+#end if
+#
 set (${uname}_PLUGIN_VERSION $version)
 set (${uname}_PLUGIN_INTERNAL_VERSION $internal_version)
 
@@ -71,6 +83,7 @@ target_link_libraries( ${tname}
     )
 #end raw
 
+
 install(
   TARGETS ${tname}
 #raw
@@ -85,4 +98,29 @@ install(
   )
 #end raw
 
+#if $kcm
 
+kde4_add_plugin(${kcmname} ${kcmevalsrc})
+
+target_link_libraries( webexplugin_${lname}_kcm
+#raw
+    ${KDE4_KDECORE_LIBS}
+    ${KDE4_KDEUI_LIBRARY}
+    webexsettings
+    )
+#end raw
+
+install(
+  TARGETS webexplugin_${lname}_kcm
+#raw
+  DESTINATION ${PLUGIN_INSTALL_DIR}
+  )
+#end raw
+
+install(
+  FILES webexplugin_${lname}_kcm.desktop
+#raw
+  DESTINATION ${SERVICES_INSTALL_DIR}/webextractor
+  )
+#end raw
+#end if

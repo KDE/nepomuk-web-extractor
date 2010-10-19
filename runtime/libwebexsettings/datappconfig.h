@@ -21,8 +21,10 @@
 
 
 #include "datappconfigbase.h"
-#include "webextractor_plugin.h"
 #include <QReadWriteLock>
+#include <QSharedPointer>
+
+class KConfigBase;
 
 namespace Nepomuk
 {
@@ -32,6 +34,12 @@ namespace Nepomuk
         class DataPP;
     }
 
+    class WebExtractorPlugin;
+    class WebExtractorPluginKCM;
+
+    /*!\brief  This class represent the config object for DataPP
+     * It inherits from KConfigBase
+     */
     class DataPPConfig : public DataPPConfigBase
     {
         public:
@@ -40,6 +48,15 @@ namespace Nepomuk
             /*! \brief Return config file for this DataPP
             */
             KSharedConfigPtr config();
+
+	    /*! \brief Returns the config object with use settings
+	     * All settings of the DataPP can be devided into 2 groups - the system DataPP
+	     * settings ( source, and some other ) and user settings - aka source plugin dependent
+	     * settings. The config() returns whole config object  and userConfig() - only
+	     * part with user settings. You should prefer using userConfig() as this helps to
+	     * avoid hard-to-detect erros connected to accidentally overwriting system settings
+	     */
+	    QSharedPointer<KConfigBase> userConfig();
 
             virtual ~DataPPConfig();
             /*! \brief Return true if there is a datapp with given name and config is valid
@@ -54,10 +71,20 @@ namespace Nepomuk
             WebExtractorPlugin * plugin();
 
             /*! \brief Return DataPP
-             * Generate and return DataPP  using config file returned by config() as parameter
+             * Generate and return DataPP  using config object returned by userConfig() 
              * Return 0 if DataPPConfig is invalid or some other error occur
              */
             WebExtractor::DataPP * dataPP();
+
+	    /*! \brief Return KCM for the DataPP
+	     * Return 0 if there is no KCM of DataPPConfig is invalid. 
+	     * The KCM is unique for plugin and thus shared across several DataPP.
+	     * The returned KCM will be automatically switched to the DataPPConfig.
+	     * If it was used somewhere else you are responsible for applying/discarding
+	     * changes of the previous DataPP before calling this function. If you don't 
+	     * save changes, you loose them.
+	     */
+	    WebExtractorPluginKCM * kcm();
 
             /*! \brief Return source plugin name
              */

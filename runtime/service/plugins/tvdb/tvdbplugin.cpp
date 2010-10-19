@@ -41,7 +41,7 @@ int Nepomuk::TvdbPlugin::version()
 }
 
 
-Nepomuk::WebExtractor::DataPP* Nepomuk::TvdbPlugin::getDataPP(KSharedConfigPtr configFile)
+Nepomuk::WebExtractor::DataPP* Nepomuk::TvdbPlugin::getDataPP(const QSharedPointer<KConfigBase> & configFile)
 {
     return new TvdbDataPP(version());
 }

@@ -1,0 +1,118 @@
+/*
+   Copyright (C) 2010 by Artem Serebriyskiy <v.for.vandal@gmail.com>
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+#set lname = $name.lower()
+
+#raw
+#include #end raw "${lname}kcm.h"
+#raw
+#include #end raw "${lname}plugin_config.h"
+
+#if $kcm_ui
+#raw
+#include #end raw "ui_kcm.h"
+#end if
+
+#raw
+#include <KConfigGroup>
+#include <KPluginFactory>
+#end raw
+
+K_PLUGIN_FACTORY(${name}KCMFactory,
+                 registerPlugin<Nepomuk::${name}KCM>();
+                )
+K_EXPORT_PLUGIN(${name}KCMFactory("autotag_kcm"))
+
+class Nepomuk::${name}KCM::Private 
+{
+    public:
+	Private();
+#if $kcm_ui
+	Ui_Form * ui;
+#end if
+};
+
+#if $kcm_ui
+Nepomuk::${name}KCM::Private::Private():
+    ui(0)
+{;}
+#else 
+Nepomuk::${name}KCM::Private::Private()
+{;}
+#end if
+
+
+Nepomuk::${name}KCM::${name}KCM( QWidget * parent, const QVariantList & args ):
+    WebExtractorPluginKCM(${name}KCMFactory::componentData(), parent, args ),
+    d(new Private())
+{
+#if $kcm_ui
+    d->ui = new Ui_Form();
+    d->ui->setupUi(this);
+#end if
+}
+
+void Nepomuk::${name}KCM::load()
+{
+    QSharedPointer<KConfigBase> cfg = currentConfig();
+    if (!cfg)
+	return;
+
+    // Get group
+    KConfigGroup grp = cfg->group(${name.upper()}_CONFIG_GROUP);
+    // Read params
+
+     
+}
+
+void Nepomuk::${name}KCM::save()
+{
+    QSharedPointer<KConfigBase> cfg = currentConfig();
+    if (!cfg)
+	return;
+
+    // Get group
+    KConfigGroup grp = cfg->group(${name.upper()}_CONFIG_GROUP);
+    // write params
+    // ...
+    // sync file
+    cfg->sync();
+}
+
+void Nepomuk::${name}KCM::defaults()
+{
+    QSharedPointer<KConfigBase> cfg = currentConfig();
+    if (!cfg)
+	return;
+
+    // Get group
+    KConfigGroup grp = cfg->group(${name.upper()}_CONFIG_GROUP);
+    // Read params
+    // Write to file and to KCM
+
+    cfg->sync();
+}
+
+Nepomuk::${name}KCM::~${name}KCM()
+{
+#if $kcm_ui
+    delete d->ui;
+#end if
+    delete d;
+}
+

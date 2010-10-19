@@ -1,0 +1,11 @@
+[Desktop Entry]
+ Type=Service
+ X-KDE-ServiceTypes=KCModule
+ X-KDE-Library=webexplugin_autotag_kcm
+ X-WebExtractor-Name=autotag
+ X-KDE-ParentApp=webextractorconfig
+ Name=Put name here
+ Comment=Put comment here
+
+
+

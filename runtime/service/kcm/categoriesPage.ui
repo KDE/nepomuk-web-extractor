@@ -82,8 +82,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>294</width>
-                <height>406</height>
+                <width>402</width>
+                <height>383</height>
                </rect>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -149,7 +149,7 @@
                       <widget class="QWidget" name="page">
                        <layout class="QVBoxLayout" name="verticalLayout_4">
                         <item>
-                         <widget class="Nepomuk::QueryBuilderWidget" name="queryBuilder" native="true"/>
+                         <widget class="Nepomuk::Query::QueryBuilderWidget" name="queryBuilder"/>
                         </item>
                        </layout>
                       </widget>
@@ -407,10 +407,14 @@
    <header>ktextedit.h</header>
   </customwidget>
   <customwidget>
-   <class>Nepomuk::QueryBuilderWidget</class>
+   <class>Nepomuk::Query::QueryBuilderWidget</class>
+   <extends>Nepomuk::Query::SearchWidget</extends>
+   <header>nepomuk/querybuilderwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>Nepomuk::Query::SearchWidget</class>
    <extends>QWidget</extends>
-   <header location="global">nepomuk/querybuilderwidget.h</header>
-   <container>1</container>
+   <header>nepomuk/searchwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

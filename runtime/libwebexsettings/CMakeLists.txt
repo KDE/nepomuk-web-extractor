@@ -48,6 +48,7 @@ set( webexsettings_SRCS
     datappconfig.cpp
     categoriespool.cpp
     global.cpp
+    webextractor_kcm.cpp
     )
 
 set( webexplugin_SRCS
@@ -98,5 +99,8 @@ install(
   )
 install (
     FILES webextractor_plugin.h DESTINATION include/webextractor
+    )
+install (
+    FILES webextractor_kcm.h DESTINATION include/webextractor
     )
 remove_definitions(-DMAKE_WEBEXSETTINGS_LIB)
