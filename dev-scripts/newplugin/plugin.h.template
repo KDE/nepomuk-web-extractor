@@ -24,7 +24,6 @@
 
 #raw
 #include "webextractor_plugin.h"
-#include <KSharedConfig>
 #include <QString>
 #end raw
 
@@ -35,7 +34,7 @@ namespace Nepomuk
 	Q_OBJECT
         public:
             ${name}Plugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
+            virtual Nepomuk::WebExtractor::DataPP * getDataPP(const QSharedPointer<KConfigBase> &  configFile);
             static int  version();
     };
 }

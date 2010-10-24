@@ -29,6 +29,8 @@
 #raw 
 #define #end raw ${name.upper()}_PLUGIN_INTERNAL_VERSION @${name.upper()}_PLUGIN_INTERNAL_VERSION@
 
+#raw 
+#define #end raw ${name.upper()}_CONFIG_GROUP "${lname}"
 
 #raw 
 #endif #end raw

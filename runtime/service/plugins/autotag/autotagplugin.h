@@ -31,7 +31,7 @@ namespace Nepomuk
             Q_OBJECT;
         public:
             AutotagPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
+            virtual Nepomuk::WebExtractor::DataPP * getDataPP(const QSharedPointer<KConfigBase> & configFile);
             static int  version();
     };
 }

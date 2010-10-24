@@ -16,32 +16,34 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "testplugin.h"
+#raw 
+#ifndef #end raw __webextractor_plugin_${name.lower()}_kcm_h_
+#raw 
+#define #end raw __webextractor_plugin_${name.lower()}_kcm_h_
 
-#include "testplugin_config.h"
-#include "testdatapp.h"
+#raw
+#include <webextractor/webextractor_kcm.h>
+#end raw
 
-#include <KPluginFactory>
-#include <KDebug>
+namespace Nepomuk {
+    class ${name}KCM : public WebExtractorPluginKCM
+    {
+	Q_OBJECT;
 
+	public:
+            ${name}KCM(QWidget *, const QVariantList &args);
+	    virtual ~${name}KCM();
+	    virtual void load();
+	    virtual void save();
+	    virtual void defaults();
 
-K_PLUGIN_FACTORY(TestPluginFactory, registerPlugin< Nepomuk::TestPlugin >();)
-K_EXPORT_PLUGIN(TestPluginFactory("webextestplugin"))
-
-Nepomuk::TestPlugin::TestPlugin(QObject* parent, const QList<QVariant>&):
-    WebExtractorPlugin(parent)
-{
-    ;
+	private:
+	    ${name}KCM( const ${name}KCM & ); // No realization
+	    void operator=( const ${name}KCM &); // No realization;
+	    class Private;
+	    Private * d;
+    };
 }
-
-int Nepomuk::TestPlugin::version()
-{
-    return (TEST_PLUGIN_INTERNAL_VERSION);
-}
-
-Nepomuk::WebExtractor::DataPP * Nepomuk::TestPlugin::getDataPP(const QSharedPointer<KConfigBase> & configFile)
-{
-    return new TestDataPP(version());
-}
-
-
+#raw
+#endif
+#end raw

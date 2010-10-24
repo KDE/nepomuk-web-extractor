@@ -17,11 +17,14 @@
  */
 
 
+#include "webextractor_plugin.h"
+#include "webextractor_kcm.h"
 #include "datappconfig.h"
 #include "settings_config.h"
 #include "global.h"
 #include <QReadLocker>
 #include <QWriteLocker>
+#include <KConfigBase>
 
 using namespace Nepomuk;
 
@@ -41,7 +44,21 @@ DataPPConfig::DataPPConfig(const QString & name)
 
 KSharedConfigPtr DataPPConfig::config()
 {
+    // TODO what about storing a weak pointer to avoid
+    // reopenning of config on each call ?
     return KSharedConfig::openConfig(path.arg(m_name));
+}
+
+QSharedPointer<KConfigBase> DataPPConfig::userConfig()
+{
+    KConfigGroup * answer = new KConfigGroup();
+    *answer = DataPPConfigBase::config()->group(WE_USER_CONFIG_GROUP);
+    QSharedPointer<KConfigBase> a(answer);
+    Q_ASSERT(a);
+    if (!a) {
+	kError() << "Config is empty!";
+    }
+    return a;
 }
 
 DataPPConfig::~DataPPConfig()
@@ -56,6 +73,14 @@ bool DataPPConfig::isValid() const
 WebExtractorPlugin * DataPPConfig::plugin()
 {
     return GlobalSettings::plugin(DataPPConfigBase::source());
+}
+
+WebExtractorPluginKCM * DataPPConfig::kcm()
+{
+    WebExtractorPluginKCM * answer = GlobalSettings::kcm(DataPPConfigBase::source());
+    if ( answer )
+	answer->setCurrentDataPP(this->userConfig());
+    return answer;
 }
 
 WebExtractor::DataPP * DataPPConfig::dataPP()
@@ -90,7 +115,7 @@ WebExtractor::DataPP * DataPPConfig::dataPP(const QString & name)
 
         WebExtractorPlugin * plg = dppcfg->plugin();
         if(plg) {
-            WebExtractor::DataPP * dpp = plg->getDataPP(dppcfg->config());
+            WebExtractor::DataPP * dpp = plg->getDataPP(dppcfg->userConfig());
             // Insert even if dpp == 0.
             QWriteLocker wl(&m_lock());
             m_datapp().insert(name, dpp);

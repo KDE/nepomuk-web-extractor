@@ -16,12 +16,12 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _WEBEXTRCT_PLUGIN
-#define _WEBEXTRCT_PLUGIN
+#ifndef _WEBEXTRCT_PLUGIN_KCM
+#define _WEBEXTRCT_PLUGIN_KCM
 #include <kdemacros.h>
 //#include "datapp.h"
-#include <KConfigBase>
-#include <QSharedPointer>
+#include <KSharedConfig>
+#include <KCModule>
 #include <QtCore/QObject>
 
 namespace Nepomuk
@@ -29,16 +29,24 @@ namespace Nepomuk
     namespace WebExtractor {
 	class DataPP;
     }
+    class DataPPConfig;
 
-    class KDE_EXPORT WebExtractorPlugin : public QObject
+    /*! \brief This class is an interface for KCM for any webextractor plugin
+     * Because each plugin can has more than one instance, the very important 
+     * method is setCurrentDataPP()
+     */
+    class KDE_EXPORT WebExtractorPluginKCM : public KCModule
     {
             Q_OBJECT;
         public:
-            WebExtractorPlugin(QObject *);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(const QSharedPointer<KConfigBase> & configFile) = 0;
-            virtual ~WebExtractorPlugin() = 0;
-            // QWidget *
-            //
+            WebExtractorPluginKCM(const KComponentData & data, QWidget *, const QVariantList &args);
+	    void setCurrentDataPP( const QSharedPointer<KConfigBase>  & config );
+	    QSharedPointer<KConfigBase> currentConfig() const;
+            virtual ~WebExtractorPluginKCM() ;
+	private:
+	    class Private;
+	    Private * d;
     };
 }
 #endif
+

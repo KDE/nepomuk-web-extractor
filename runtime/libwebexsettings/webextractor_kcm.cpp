@@ -16,29 +16,38 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _WEBEXTRCT_PLUGIN
-#define _WEBEXTRCT_PLUGIN
-#include <kdemacros.h>
-//#include "datapp.h"
-#include <KConfigBase>
-#include <QSharedPointer>
-#include <QtCore/QObject>
+#include "webextractor_kcm.h"
+#include "datappconfig.h"
 
-namespace Nepomuk
+class Nepomuk::WebExtractorPluginKCM::Private 
 {
-    namespace WebExtractor {
-	class DataPP;
-    }
+    public:
+	Private();
+	QSharedPointer<KConfigBase> m_config;
+};
 
-    class KDE_EXPORT WebExtractorPlugin : public QObject
-    {
-            Q_OBJECT;
-        public:
-            WebExtractorPlugin(QObject *);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(const QSharedPointer<KConfigBase> & configFile) = 0;
-            virtual ~WebExtractorPlugin() = 0;
-            // QWidget *
-            //
-    };
+Nepomuk::WebExtractorPluginKCM::Private::Private():
+    m_config(0)
+{;}
+
+Nepomuk::WebExtractorPluginKCM::WebExtractorPluginKCM(const KComponentData & data, QWidget * parent, const QVariantList &args):
+    KCModule(data, parent,args),
+    d(new Private())
+{
 }
-#endif
+
+void Nepomuk::WebExtractorPluginKCM::setCurrentDataPP( const QSharedPointer<KConfigBase> & dataPPConfig )
+{
+    d->m_config = dataPPConfig;
+    this->load();
+}
+
+QSharedPointer<KConfigBase> Nepomuk::WebExtractorPluginKCM::currentConfig() const
+{
+    return d->m_config;
+}
+
+Nepomuk::WebExtractorPluginKCM::~WebExtractorPluginKCM()
+{
+    delete d;
+}

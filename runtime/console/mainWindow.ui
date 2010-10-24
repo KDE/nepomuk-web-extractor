@@ -46,7 +46,7 @@
     <item>
      <widget class="KTabWidget" name="ktabwidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="selectTab">
        <attribute name="title">
@@ -87,8 +87,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>610</width>
-                <height>132</height>
+                <width>597</width>
+                <height>141</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_3">
@@ -251,14 +251,7 @@ every iteration</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
-               <widget class="Nepomuk::ResourceSearchWidget" name="resWidget">
-                <property name="minimumSize">
-                 <size>
-                  <width>50</width>
-                  <height>0</height>
-                 </size>
-                </property>
-               </widget>
+               <widget class="Nepomuk::Query::SearchWidget" name="resWidget"/>
               </item>
              </layout>
             </widget>
@@ -437,19 +430,54 @@ p, li { white-space: pre-wrap; }
        <attribute name="title">
         <string>DataPP Settings</string>
        </attribute>
-       <widget class="QLabel" name="sourceNameLabel">
-        <property name="geometry">
-         <rect>
-          <x>20</x>
-          <y>20</y>
-          <width>401</width>
-          <height>31</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>No source</string>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_10">
+        <item>
+         <widget class="QLabel" name="sourceNameLabel">
+          <property name="text">
+           <string>No source</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QScrollArea" name="kcmScrollArea">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="kcmScrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>676</width>
+             <height>448</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QLabel" name="noKcmLabel">
+              <property name="text">
+               <string>There is no KCM available for this DataPP</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="KDialogButtonBox" name="kcmDialogButtonBox">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="standardButtons">
+           <set>QDialogButtonBox::NoButton</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="decisionsTab">
        <attribute name="title">
@@ -525,7 +553,7 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <widget class="DecisionWidget" name="decisionWidget"/>
+             <widget class="DecisionWidget" name="decisionWidget" native="true"/>
             </item>
            </layout>
           </widget>
@@ -596,7 +624,7 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>822</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
@@ -604,14 +632,14 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DecisionWidget</class>
-   <extends>QWidget</extends>
-   <header>webextractor/decisionwidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>KDoubleNumInput</class>
    <extends>QWidget</extends>
    <header>knuminput.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KDialogButtonBox</class>
+   <extends>QDialogButtonBox</extends>
+   <header>kdialogbuttonbox.h</header>
   </customwidget>
   <customwidget>
    <class>KPushButton</class>
@@ -630,10 +658,14 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Nepomuk::ResourceSearchWidget</class>
+   <class>Nepomuk::Query::SearchWidget</class>
    <extends>QWidget</extends>
-   <header>nepomuk/resourcesearchwidget.h</header>
-   <container>1</container>
+   <header>nepomuk/searchwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DecisionWidget</class>
+   <extends>QWidget</extends>
+   <header>webextractor/decisionwidget.h</header>
   </customwidget>
   <customwidget>
    <class>ExaminedWidget</class>

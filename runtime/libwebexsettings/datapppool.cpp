@@ -18,6 +18,7 @@
 
 #include "datapppool.h"
 #include "datappconfig.h"
+#include "webextractor_kcm.h"
 #include "settings_config.h"
 #include <QDir>
 #include <QFileInfo>
@@ -29,7 +30,58 @@
 #include <QQueue>
 #include <kstandarddirs.h>
 
+class TreeItem
+{
+    public:
+	TreeItem(const QString & name);
+	~TreeItem();
+	// Add datapp only if this datpp doesn't exist
+	TreeItem *  addDataPP(const QString & name);
+	// Add category only if this category doesn't exist
+	// Return pointer to category
+	TreeItem * addCategory(const QString & name);
+	TreeItem * child(int row);
+	TreeItem * category(const QString & name);
+	TreeItem * datapp(const QString & name);
+	QList< TreeItem* > allDataPP() const;
+	QSet< QString > allDataPPNames() const;
+	TreeItem * parent();
+	int childsCount();
+	int row() const;
+	bool isCategory() const;
+	QString displayName() const;
+	QString sysName() const;
+	void print(int displacments, QDebug & stream);
+
+    private:
+	// This is the system name. It can be used
+	// for DataPPConfig and so on
+	QString m_sysname;
+	// Name of datapp or name of category.
+	// This is human readable name and it may be used
+	// for displaying
+	QString  m_name;
+	QString source;
+	// This is the pointer to KCM. It is not unique -
+	// another DataPP can have the same pointer
+	// This pointer is load on-demand.
+	// If there is no KCM for plugin, then pointer
+	// is equal to NULL.
+	QSharedPointer<Nepomuk::WebExtractorPluginKCM>  kcm;
+	// If KCM was loaded to the kcm member, then loaded
+	// is equal to true. It is necessary to distinguish between
+	// cases when KCM was not loaded and there is no KCM.
+	bool loaded;
+	QList< TreeItem*> childs;
+	QHash< QString, TreeItem *> m_datapps;
+	QHash< QString, TreeItem *> categories;
+
+	bool m_category;
+	TreeItem * parentItem;
+
+};
 TreeItem::TreeItem(const QString & name):
+    m_sysname(name),
     m_name(name),
     m_category(true),
     parentItem(0)
@@ -53,6 +105,7 @@ TreeItem *  TreeItem::addDataPP(const QString & name)
     item->m_category = false;
     this->childs << item;
     item->parentItem = this;
+    item->m_sysname = name;
     m_datapps[name] = item;
     return item;
 }
@@ -66,6 +119,7 @@ TreeItem *  TreeItem::addCategory(const QString & name)
     item->m_category = true;
     this->childs << item;
     item->parentItem = this;
+    item->m_sysname = QString();
     categories[name] = item;
     return item;
 }
@@ -130,9 +184,14 @@ bool TreeItem::isCategory() const
     return childs.size();
 }
 
-QString TreeItem::name() const
+QString TreeItem::displayName() const
 {
     return m_name;
+}
+
+QString TreeItem::sysName() const
+{
+    return m_sysname;
 }
 
 void TreeItem::print(int displacments, QDebug & stream)
@@ -380,13 +439,16 @@ QVariant Nepomuk::DataPPPool::data(const QModelIndex & index, int role) const
     switch(role) {
     case Qt::DisplayRole : {
         //kDebug() << item->name();
-        return item->name();
+        return item->displayName();
     }
     case DataPPPool::DataPPRole : {
         return !item->isCategory() ;
     }
     case DataPPPool::SourceRole : {
-        return DataPPPool::dataPPSource(item->name());
+        return DataPPPool::dataPPSource(item->sysName());
+    }
+    case DataPPPool::SystemNameRole : {
+	  return item->sysName();
     }
     }
     return QVariant();
@@ -401,7 +463,7 @@ QVariant Nepomuk::DataPPPool::headerData(int section, Qt::Orientation orientatio
         int role) const
 {
     if(orientation == Qt::Horizontal)
-        return m_categoryPlugins->name();
+        return m_categoryPlugins->sysName();
 
     return QVariant();
 

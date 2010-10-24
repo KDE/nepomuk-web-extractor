@@ -29,4 +29,5 @@
 #define WE_PLUGIN_NAME_KEY "X-WebExtractor-Name"
 #define WE_PLUGIN_SERVICE_TYPE "Nepomuk/WebExtractorPlugin"
 
+#define WE_USER_CONFIG_GROUP "user_settings"
 #endif

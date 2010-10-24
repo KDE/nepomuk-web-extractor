@@ -39,6 +39,11 @@ set (autotag_plugin_SRCS
     autotagdatappreply.cpp
     autotagdatapp.cpp
     )
+set ( autotag_kcm_SRCS
+    autotagkcm.cpp
+    )
+kde4_add_ui_files(autotag_kcm_SRCS kcm.ui)
+
 soprano_add_ontology(autotag_plugin_SRCS "${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nie/nfo.trig" "NFO" "Nepomuk::Vocabulary" "trig")
 
 set (AUTOTAG_PLUGIN_VERSION 0.1)
@@ -48,6 +53,7 @@ configure_file(autotagplugin_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/autotagplug
 
 
 kde4_add_plugin(webexplugin_autotag ${autotag_plugin_SRCS})
+kde4_add_plugin(webexplugin_autotag_kcm ${autotag_kcm_SRCS})
 
 target_link_libraries( webexplugin_autotag
     ${LIBWEBEXTRACTOR_LIBRARIES}
@@ -57,6 +63,12 @@ target_link_libraries( webexplugin_autotag
     ${QT_LIBRARIES}
     )
 
+target_link_libraries( webexplugin_autotag_kcm
+    ${KDE4_KDECORE_LIBS}
+    ${KDE4_KDEUI_LIBRARY}
+    webexsettings
+    )
+
 install(
   TARGETS webexplugin_autotag
   DESTINATION ${PLUGIN_INSTALL_DIR}
@@ -64,7 +76,16 @@ install(
 
 install(
   FILES webexplugin_autotag.desktop
-  DESTINATION ${SERVICES_INSTALL_DIR}
+  DESTINATION ${SERVICES_INSTALL_DIR}/webextractor
   )
 
+install(
+  TARGETS webexplugin_autotag_kcm
+  DESTINATION ${PLUGIN_INSTALL_DIR}
+  )
+
+install(
+  FILES webexplugin_autotag_kcm.desktop
+  DESTINATION ${SERVICES_INSTALL_DIR}/webextractor
+  )
 

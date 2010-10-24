@@ -42,6 +42,7 @@
 #include <nepomuk/querybuilderwidget.h>
 #include <stdint.h>
 #include <nepomuk/changelog.h>
+#include "webextractor_kcm.h"
 //#include "modeltest.h"
 
 using namespace Nepomuk;
@@ -53,7 +54,9 @@ ConsoleMainWindow::ConsoleMainWindow(
     QWidget * parent):
     KXmlGuiWindow(parent),
     workThread(0),
-    m_tmpDir(0)
+    m_tmpDir(0),
+    m_currentKcm(0),
+    m_kcmChanged(false)
 {
     this->setupUi(this);
 
@@ -144,6 +147,17 @@ ConsoleMainWindow::ConsoleMainWindow(
     if(autostart) {
         QTimer::singleShot(0, this, SLOT(startExtracting()));
     }
+
+    /* === Set properties of the DataPP Settings tab === */
+    this->kcmDialogButtonBox->addButton(KStandardGuiItem::help(),QDialogButtonBox::HelpRole);
+    this->kcmDialogButtonBox->addButton(KStandardGuiItem::defaults(),QDialogButtonBox::ResetRole, this, SLOT(defaultSettings()));
+    this->kcmDialogButtonBox->addButton(KStandardGuiItem::reset(),QDialogButtonBox::ResetRole, this, SLOT(resetSettings()));
+    this->kcmDialogButtonBox->addButton(KStandardGuiItem::apply(),QDialogButtonBox::ApplyRole, this, SLOT(applySettings()));
+
+    // Initialization of tabs
+    this->m_previousIndex = -1;
+    tabChanged(this->ktabwidget->currentIndex());
+
 
 }
 
@@ -333,6 +347,8 @@ void ConsoleMainWindow::tabChanged(int currentIndex)
                    this, SLOT(dataPPClicked(QModelIndex)));
         break;
     }
+    default: { // There was no previous tab
+	     }
     }
     switch(currentIndex) {
     case SelectLaunchPage: {
@@ -351,25 +367,99 @@ void ConsoleMainWindow::tabChanged(int currentIndex)
 
 }
 
+void ConsoleMainWindow::applySettings()
+{
+    if ( m_currentKcm )
+    m_currentKcm->save();
+}
+
+void ConsoleMainWindow::resetSettings()
+{
+    if ( m_currentKcm )
+    m_currentKcm->load();
+}
+
+void ConsoleMainWindow::defaultSettings()
+{
+    if ( m_currentKcm )
+    m_currentKcm->defaults();
+}
+
 void ConsoleMainWindow::dataPPClicked(QModelIndex index)
 {
+    kDebug() << "Enter";
+
     if(!index.data(DataPPPool::DataPPRole).toBool()) {
-        this->sourceNameLabel->setText("This is a category");
+	// Do nothing and do not switch
+	kDebug() << "Do nothing";
         return;
     }
 
+    /* Get previous KCM. Ask for saving if necessary */
+    if (m_currentKcm) { // If there is previous kcm
+       if ( m_kcmChanged ) { // If there were changes
+	   // Show save/discard changes
+	    int result = KMessageBox::warningYesNoCancel(this, i18n("The current DataPP has not been saved.\n"
+			 "Do you want to save it?"), i18n("Save Profile"));
+
+	    if (result == KMessageBox::Yes) {
+		applySettings();
+	    } else if (result == KMessageBox::No) {
+		// Do nothing
+	    } else if (result == KMessageBox::Cancel) {
+		// Do nothing and simply return
+		return;
+	    }
+
+       }
+       // Disconnect signals
+       disconnect(m_currentKcm,SIGNAL(changed(bool)),this,SLOT(dataPPSettingsChanged(bool))); 
+       // Delete widget from the model
+	Q_ASSERT(this->kcmScrollAreaWidgetContents->layout());
+	this->kcmScrollAreaWidgetContents->layout()->removeWidget(m_currentKcm);
+
+       m_currentKcm = 0;
+       
+    }
 
     QString dataPPSource = index.data(DataPPPool::SourceRole).toString();
     if(dataPPSource.isEmpty()) {
         this->sourceNameLabel->setText("Invalid DataPP: Source not set");
+	this->noKcmLabel->setHidden(true);
         return;
     } else {
+	/* Get source and display it */
         this->sourceNameLabel->setText("Source: " + dataPPSource);
+
+	/* Get KCM and display it */
+	DataPPConfig * dppcfg = new DataPPConfig( index.data(DataPPPool::SystemNameRole).toString() );
+	//m_currentDataPPConfig = dppcfg;
+	WebExtractorPluginKCM * kcm = dppcfg->kcm();
+	this->m_currentKcm = kcm;
+	if ( kcm ) {
+	    this->noKcmLabel->setHidden(true);
+	    Q_ASSERT(this->kcmScrollAreaWidgetContents->layout());
+	    this->kcmScrollAreaWidgetContents->layout()->addWidget(kcm);
+	    connect(kcm, SIGNAL(changed(bool)), this, SLOT(dataPPSettingsChanged(bool)));
+	}
+	else {
+	    this->noKcmLabel->setHidden(false);
+	}
+
         return;
     }
 
+}
+
+void ConsoleMainWindow::dataPPSettingsChanged(bool state)
+{
+    this->m_kcmChanged = state;
+
+    // Enable buttons:
 
 }
+
+
 void ConsoleMainWindow::onCurrentResourceChanged()
 {
     Nepomuk::Resource current = resWidget->currentResource();

@@ -45,7 +45,7 @@ int Nepomuk::${classname}::version()
     return (${name.upper()}_PLUGIN_INTERNAL_VERSION);
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::${classname}::getDataPP(KSharedConfigPtr configFile)
+Nepomuk::WebExtractor::DataPP * Nepomuk::${classname}::getDataPP(const QSharedPointer<KConfigBase> &  configFile)
 {
     kError() << "ATTENTION! Reimplement this! ";
     return new ${name}DataPP(version()/* add your parameters here */);

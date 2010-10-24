@@ -21,6 +21,7 @@
 #define __webexsettings_global_h_
 
 #include "webextractor_plugin.h"
+#include "webextractor_kcm.h"
 #include <QHash>
 
 namespace Nepomuk {
@@ -31,14 +32,22 @@ namespace Nepomuk {
 	// FIXME Make all members private and open them to some config classes:
 	// DataPPConfig , may be category config
 	public:
+	    /*! \brief Return plugin for given DataPP
+	     */
 	    static WebExtractorPlugin * plugin(const QString & name );
+	    /*! \brief Return KCM for given plugin
+	     * \param pluginName It is name of the plugin. <b>Not name of the DataPP </b>
+	     */
+	    static WebExtractorPluginKCM * kcm( const QString & pluginName );
 	    // Temporaly desabled as unused
 	    //static KServicePtr pluginService( const QString & name );
 	    static QString pluginServiceType();
 	    static QString pluginQueryByName(const QString & name);
+	    static QString kcmQueryByName(const QString & name);
 	private:
 	    static QString pluginQueryTemplate();
 	    static QHash< QString, WebExtractorPlugin*> & m_plugins();
+	    static QHash< QString, WebExtractorPluginKCM *>& m_kcms();
 		
 
     };

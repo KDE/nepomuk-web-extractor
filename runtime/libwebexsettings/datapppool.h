@@ -30,43 +30,7 @@
 #include <QMimeData>
 
 // FIXME Mode defenition of treeitem to the source file instead of header
-namespace
-{
-    class TreeItem
-    {
-        public:
-            TreeItem(const QString & name);
-            ~TreeItem();
-            // Add datapp only if this datpp doesn't exist
-            TreeItem *  addDataPP(const QString & name);
-            // Add category only if this category doesn't exist
-            // Return pointer to category
-            TreeItem * addCategory(const QString & name);
-            TreeItem * child(int row);
-            TreeItem * category(const QString & name);
-            TreeItem * datapp(const QString & name);
-            QList< TreeItem* > allDataPP() const;
-            QSet< QString > allDataPPNames() const;
-            TreeItem * parent();
-            int childsCount();
-            int row() const;
-            bool isCategory() const;
-            QString name() const;
-            void print(int displacments, QDebug & stream);
-
-        private:
-            // Name of datapp or name of category
-            QString  m_name;
-            QString source;
-            QList< TreeItem*> childs;
-            QHash< QString, TreeItem *> m_datapps;
-            QHash< QString, TreeItem *> categories;
-
-            bool m_category;
-            TreeItem * parentItem;
-
-    };
-}
+class TreeItem;
 
 namespace Nepomuk
 {
@@ -94,11 +58,18 @@ namespace Nepomuk
                 DataPPRole = Qt::UserRole + 1,
                 /*! \brief Store source plugin for DataPP or NULL string for category
                  */
-                SourceRole,
+                SourceRole = Qt::UserRole + 2,
+
+		/*! \brief Store the system name of the DataPP
+		 * This is the name that can be used in DataPPConfig and
+		 * other system functions
+		 */
+		SystemNameRole,
 
                 /*! \brief Store name of datapp/category
                  */
-                NameRole = Qt::DisplayRole
+                NameRole = Qt::DisplayRole,
+
 
             };
             static QString  dataPPSource(const QString &);

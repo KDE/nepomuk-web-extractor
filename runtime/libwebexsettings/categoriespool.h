@@ -16,14 +16,25 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _kcm_categories_h_
-#define _kcm_categories_h_
+#ifndef _webexsettings_categories_h_
+#define _webexsettings_categories_h_
 
 #include "datappconfig.h"
 #include <QStringList> 
 #include <KDirWatch> 
 
 namespace Nepomuk {
+    /*! \brief This class is used for storing information about webextractor service categories
+     * Category  means some set of configurations here. It is a config object 
+     * that contains information about what Nepomuk resources belong to
+     * this category and what DataPP should process this resources.
+     * \note <b> Do not mix the webextractor service category and category of the DataPP! </b>
+     * The category of the DataPP is just a tags that can be used for more convinient 
+     * representation.
+     *
+     * CategoriesPool contains all information about all existing categories, both 
+     * system wide and user installed.
+     */
     class CategoriesPool: public QObject
     {
 	Q_OBJECT;

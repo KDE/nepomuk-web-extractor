@@ -19,12 +19,19 @@ required_files = [
 'datappreply.cpp.template',
 'desktop.template',
 'CMakeLists.txt.template',
+'kcm.h.template',
+'kcm.cpp.template',
+'kcm.desktop.template',
+'kcm.ui'
 ]
+
+
 
 def prepare():
 	for rf in required_files:
 		if not osp.lexists(rf):
 			print " Couldn't found required template: %s " % (rf, )
+			print " Probably you launch script from incorrect directory"
 			exit()
 
 	if osp.lexists(output_dir):
@@ -62,10 +69,16 @@ def check_generate(namespace,git_enabled):
 	if version is None:
 		namespace['version'] = 0.1
 
+	if namespace['kcm'] is None:
+		namespace['kcm'] = False
+
+	if namespace['kcm_ui'] is None:
+		namespace['kcm_ui'] = False
+
 	if internal_version is None:
 		namespace['internal_version'] = 0;	
 	else:
-		# Check that version is float
+		# Check that version is int
 		try :
 			namespace['internal_version'] = int(internal_version)
 		except ValueError:
@@ -106,6 +119,11 @@ def generate(namespace):
 			"webexplugin_%s.desktop" % (lname,) : 'desktop.template',
 			}
 
+	if namespace['kcm'] :
+		output_files["%skcm.h" % (lname,)] =  'kcm.h.template'
+		output_files["%skcm.cpp" % (lname,)] =  'kcm.cpp.template'
+		output_files["webexplugin_%s_kcm.desktop" % (lname,)] = 'kcm.desktop.template'
+
 
 	for (of,of_template) in output_files.iteritems():
 		tclass =  Template.compile(file=of_template)
@@ -113,6 +131,14 @@ def generate(namespace):
 		fo = open("".join([output_dir,'/',of]),"w")
 		fo.write(str(res))
 		#print res
+		# .ui file should not be parsed with cheetah
+		# Instead we simply copy it
+	if namespace['kcm'] :
+		if namespace['kcm_ui']:
+			output_ui_file_name = "".join([output_dir,'/',"kcm.ui"])
+			subprocess.call(['cp', 'kcm.ui' , output_ui_file_name])
+
+
 
 def guiFinished():
 	namespace = {}
@@ -155,6 +181,12 @@ parser.add_option("-i", "--internal-version", dest="internal_version", help="Thi
 		improvments in quality of the generated the Decisions. \
 		"
 		)
+parser.add_option("-k", "--kcm", dest="generate_kcm", action='store_true', help="Use this selector if you want to generate KCModule for you plugin")
+parser.add_option("-u", "--kcm-ui", dest="generate_kcm_ui", action='store_true', 
+help="Use this selector if you want that generated KCModule include Ui template.\
+		The generated .ui file can be opened in designer and edited.\
+		This option is taken into account only\
+		if KCModule generation is enabled ( --kcm switch )")
 
 (options, args) = parser.parse_args()
 
@@ -178,6 +210,8 @@ else:
 	namespace['use_simple'] = options.use_simple
 	namespace['version'] = options.version
 	namespace['internal_version'] = options.internal_version;
+	namespace['kcm_ui'] = options.generate_kcm_ui
+	namespace['kcm'] = options.generate_kcm
 	prepare()
 	check_generate(namespace,options.git_enabled)
 

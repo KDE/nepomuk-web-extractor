@@ -16,32 +16,36 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "testplugin.h"
 
-#include "testplugin_config.h"
-#include "testdatapp.h"
+#ifndef __webextractor_plugin_autotag_kcm_h_
+#define __webextractor_plugin_autotag_kcm_h_
 
-#include <KPluginFactory>
-#include <KDebug>
+#include "webextractor_kcm.h"
+
+namespace Nepomuk {
+    class AutotagKCM : public WebExtractorPluginKCM
+    {
+	Q_OBJECT;
+
+	private:
+	    void connectAll();
+	    void disconnectAll();
 
 
-K_PLUGIN_FACTORY(TestPluginFactory, registerPlugin< Nepomuk::TestPlugin >();)
-K_EXPORT_PLUGIN(TestPluginFactory("webextestplugin"))
 
-Nepomuk::TestPlugin::TestPlugin(QObject* parent, const QList<QVariant>&):
-    WebExtractorPlugin(parent)
-{
-    ;
+	public:
+            AutotagKCM(QWidget *, const QVariantList &args);
+	    virtual ~AutotagKCM();
+	    virtual void load();
+	    virtual void save();
+	    virtual void defaults();
+
+	private:
+	    AutotagKCM( const AutotagKCM & ); // No realization
+	    void operator=( const AutotagKCM &); // No realization;
+	    class Private;
+	    Private * d;
+    };
 }
-
-int Nepomuk::TestPlugin::version()
-{
-    return (TEST_PLUGIN_INTERNAL_VERSION);
-}
-
-Nepomuk::WebExtractor::DataPP * Nepomuk::TestPlugin::getDataPP(const QSharedPointer<KConfigBase> & configFile)
-{
-    return new TestDataPP(version());
-}
-
+#endif
 
