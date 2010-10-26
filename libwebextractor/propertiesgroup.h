@@ -76,7 +76,7 @@ namespace Nepomuk
                 /*! \brief This function set the rank of this PropertiesGroup
                  * The rank of the group is taken into account when automatically applying Decision.
                  * Greater rank will increase the chance that this PropertiesGroup will be applied.
-                 * Rank must meet common requirements to rank. Incorrect rank will be automaticaly
+                 * Rank must meet common requirements to rank. Incorrect rank will be automatically
                  * trucated
                  */
                 void setRank(double newRank);

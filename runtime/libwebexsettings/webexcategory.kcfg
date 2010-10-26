@@ -11,7 +11,7 @@
     <entry key="query" name="queryText" type="String">
 	<label> queury corresgonding to this category </label>
 	<whatsthis> This is part of the query that will be used for selecting resource 
-	    to process. Two queries will be automaticaly generated from this value:
+	    to process. Two queries will be automatically generated from this value:
 	    ASK value and SELECT ?r WHERE value. So this query should not contain any
 	    operator, only conditions.
 	</whatsthis>
@@ -20,7 +20,7 @@
     </entry>
 
     <entry name="queryPrefix" type="String">
-	<label> Additional queury prefix </label>
+	<label> Additional query prefix </label>
 	<whatsthis> This is additional prefix part of the query. Put things like "PREFIX foo: ... there. All standard prefixes( nao, nrl, nie etc) are defined"
 	   here.</whatsthis>
     </entry>

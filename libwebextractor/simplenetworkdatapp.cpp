@@ -131,7 +131,7 @@ void NW::SimpleNetworkDataPP::get(SimpleNetworkDataPPRequest * request)
         kDebug() << "Native thread";
         QMutexLocker locker_time(&m_timeoutMutex);
         if(m_last_request_time.msecsTo(QTime::currentTime()) > m_interval) {
-            // Make request immidiately
+            // Make request immediately
             // getRequest only run actual request. It MUST never pass control to
             // event loop!
             getRequest(request);

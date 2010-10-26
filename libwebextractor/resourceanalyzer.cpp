@@ -243,7 +243,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
 
     // Check that resource is valid
     if(!res.isValid()) {
-        // Set error now to provide caller ability to check for errors immidiately
+        // Set error now to provide caller ability to check for errors immediately
         // and delete ResourceAnalyzer, thus avoiding error signal(I hope Qt
         // doesn't pass signals from destroyed objects.)
         d->m_error = InvalidResource;
@@ -579,7 +579,7 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
 {
     if(d->m_apolitics == Iterative) {
         // Relaunch algorithm
-        // If there is no decison or no automaticaly applicable decision
+        // If there is no decison or no automatically applicable decision
         if(d->m_decisions.best().isValid()) {
             // Emit signal
             emit nextIteration();

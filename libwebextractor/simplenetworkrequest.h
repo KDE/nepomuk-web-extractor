@@ -41,7 +41,7 @@ namespace Nepomuk {
 		QNetworkReply * reply() const;
 		QString requestUrlPart() const;
 		/*! \brief This function delete accosiated QNetworkReply( if any )
-		 * This function will be called automaticaly when request is sent to
+		 * This function will be called automatically when request is sent to
 		 * SimpleNetworkDataPP. But you can call it yourself.
 		 */
 		void clear();

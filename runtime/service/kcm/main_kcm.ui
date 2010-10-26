@@ -355,7 +355,7 @@
                   <item>
                    <widget class="QLabel" name="label_14">
                     <property name="text">
-                     <string>Plugin scale cofficient</string>
+                     <string>Plugin scale coefficient</string>
                     </property>
                    </widget>
                   </item>

@@ -35,7 +35,7 @@
       </sizepolicy>
      </property>
      <property name="label">
-      <string>Scale cofficient</string>
+      <string>Scale coefficient</string>
      </property>
      <property name="sliderEnabled">
       <bool>true</bool>

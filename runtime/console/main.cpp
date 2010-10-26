@@ -39,7 +39,7 @@ int main(int argc, char ** argv)
 
     KCmdLineOptions options;
     options.add(QByteArray("uri < nepomuk uri >"), ki18n("Nepomuk uri for extracting"));
-    options.add("start", ki18n("Start extracting immidiately"));
+    options.add("start", ki18n("Start extracting immediately"));
     options.add("!+datapp", ki18n("Desired set of datapps. Unexisting and invalid will be silently ignored"));
 
     KCmdLineArgs::addCmdLineOptions(options);

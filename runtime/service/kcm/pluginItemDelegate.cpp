@@ -92,7 +92,7 @@ void CategoryPluginItemDelegate::updateItemWidgets(
     coff->setMinimum(0.0001);
     coff->setMaximum(10.0);
     coff->setSingleStep(0.0001);
-    //coff->setLabel("Scale cofficient");
+    //coff->setLabel("Scale coefficient");
     //coff->setSliderEnabled(false);
     //coff->setValue( index.data(Qt::UserRole).toDouble() );
     //coff->setVisible(true);

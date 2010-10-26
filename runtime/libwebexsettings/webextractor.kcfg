@@ -59,7 +59,7 @@
     </entry>
     
     <entry name="removeDecisionsModelData" key="remove_decisions_model_data" type="Bool" >
-	<label> Flag. If set to true, then files generated for decisions model will be removed after they will becomu unnecessary. Set this flag to false only for debugging purposes </label>
+	<label> Flag. If set to true, then files generated for decisions model will be removed after they will become unnecessary. Set this flag to false only for debugging purposes </label>
 	<default>true</default>
     </entry>
 
