@@ -11,5 +11,6 @@ X-KDE-ParentApp=kcontrol
 
 X-KDE-System-Settings-Parent-Category=hardware
 Name=Web Extractor Settings
-Name[uk]=Параметри видобування даних з мережі
+Name[pt]=Configuração da Extracção da Web
+Name[uk]=Параметри видобування інтернет-даних
 Name[x-test]=xxWeb Extractor Settingsxx
