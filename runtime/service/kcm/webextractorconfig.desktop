@@ -11,6 +11,8 @@ X-KDE-ParentApp=kcontrol
 
 X-KDE-System-Settings-Parent-Category=hardware
 Name=Web Extractor Settings
+Name[nds]=Nett-Ruttrecker instellen
 Name[pt]=Configuração da Extracção da Web
+Name[sv]=Inställningar av webbextrahering
 Name[uk]=Параметри видобування інтернет-даних
 Name[x-test]=xxWeb Extractor Settingsxx
