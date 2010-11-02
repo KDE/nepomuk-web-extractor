@@ -289,16 +289,15 @@ void CategoriesPage::reloadEnabledCategoriesList()
     this->enabled_categories_listwidget->clear();
 
     // Delete categories config for categories that is no longer enabled
-    for(
-        QHash< QString, Nepomuk::WebExCategoryConfig*>::iterator it = m_categories.begin();
-        it != m_categories.end();
-        it++
-    ) {
+    QHash< QString, Nepomuk::WebExCategoryConfig*>::iterator it = m_categories.begin();
+    while(it != m_categories.end()) {
         if(!m_enabledCategories.contains(it.key())) {
             delete it.value();
             it = m_categories.erase(it);
         }
-
+        else {
+            ++it;
+        }
     }
 
     //const QStringList & categories = Categories::categories();
