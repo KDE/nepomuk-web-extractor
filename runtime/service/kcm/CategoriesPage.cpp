@@ -180,7 +180,7 @@ void CategoriesPage::saveCategory(QString  p)
     cat->setInterval(interval_spinbox->value());
     // TODO There we must select should we take query from queryBuilder or from raw editor
     if(this->rawQueryEditCheckBox->checkState() == Qt::Unchecked)   {
-        cat->setQueryText(this->queryBuilder->currentQuery().term().toString());
+        cat->setQueryText(this->queryBuilder->query().term().toString());
     } else {
         cat->setQueryText(query_edit->toPlainText());
     }

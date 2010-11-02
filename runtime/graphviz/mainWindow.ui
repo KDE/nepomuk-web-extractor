@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>798</width>
+    <height>598</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -29,7 +29,7 @@
         </widget>
        </item>
        <item>
-        <widget class="Nepomuk::Query::SearchWidget" name="resourcesSelectWidget"/>
+        <widget class="Nepomuk::Utils::SearchWidget" name="resourcesSelectWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -49,7 +49,7 @@ Or deselect all to use all properties</string>
         </widget>
        </item>
        <item>
-        <widget class="Nepomuk::Query::SearchWidget" name="propertiesSelectWidget"/>
+        <widget class="Nepomuk::Utils::SearchWidget" name="propertiesSelectWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -125,8 +125,8 @@ Or deselect all to use all properties</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>20</height>
+     <width>798</width>
+     <height>23</height>
     </rect>
    </property>
   </widget>
@@ -144,9 +144,9 @@ Or deselect all to use all properties</string>
    <header>kpushbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>Nepomuk::Query::SearchWidget</class>
+   <class>Nepomuk::Utils::SearchWidget</class>
    <extends>QWidget</extends>
-   <header>nepomuk/searchwidget.h</header>
+   <header location="global">nepomuk/searchwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -60,6 +60,6 @@ target_link_libraries( nepomuk_graphviz
     ${KDE4_NEPOMUK_LIBS}
     ${KDE4_KDECORE_LIBS}
     ${KDE4_KDEUI_LIBRARY}
-    nepomuksearchgui
+    nepomukutils
     )
 install( TARGETS nepomuk_graphviz ${INSTALL_TARGETS_DEFAULT_ARGS} )

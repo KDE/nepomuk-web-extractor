@@ -143,6 +143,8 @@ QList< TreeItem* > TreeItem::allDataPP() const
 {
     if(isCategory())
         return m_datapps.values();
+    else
+        return QList<TreeItem*>();
 }
 
 
@@ -150,6 +152,8 @@ QSet< QString > TreeItem::allDataPPNames() const
 {
     if(isCategory())
         return m_datapps.keys().toSet();
+    else
+        return QSet<QString>();
 }
 
 
@@ -297,6 +301,8 @@ QSet< QString >  Nepomuk::DataPPPool::categoryDataPPs(const QString & categoryNa
 {
     //return self()->m_categoryPlugins[categoryName];
     if(categoryName.isEmpty()) {
+#warning IMPLEMENTME
+        return QSet<QString>();
     } else {
         // Parse category
         QStringList catpath = categoryName.split('/');

@@ -39,7 +39,6 @@
 #include "resourceanalyzerfactory.h"
 #include "resourceservicedata.h"
 #include "decisionapplicationrequest.h"
-#include <nepomuk/querybuilderwidget.h>
 #include <stdint.h>
 #include <nepomuk/changelog.h>
 #include "webextractor_kcm.h"

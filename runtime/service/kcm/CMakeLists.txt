@@ -39,7 +39,7 @@ target_link_libraries(kcm_webexconfig
      ${NEPOMUK_QUERY_LIBRARIES}
      webexsettings
      webexsettingsui
-     nepomuksearchgui
+     nepomukutils
      )
 
 install(
