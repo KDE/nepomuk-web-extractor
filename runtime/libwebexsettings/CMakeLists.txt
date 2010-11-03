@@ -49,6 +49,7 @@ set( webexsettings_SRCS
     categoriespool.cpp
     global.cpp
     webextractor_kcm.cpp
+    category.cpp
     )
 
 set( webexplugin_SRCS

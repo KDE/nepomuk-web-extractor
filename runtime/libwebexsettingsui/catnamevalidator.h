@@ -26,9 +26,5 @@ class CategoryNameValidator : public QValidator
     public:
        	CategoryNameValidator(QObject * parent);
 	virtual State validate( QString &, int & pos) const;
-    public Q_SLOTS:
-	void update();
-    private:
-	QSet<QString> m_categories;
 };
 #endif

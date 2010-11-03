@@ -11,15 +11,21 @@ set( webexkcm_SRCS
     main.cpp
     ConfigWidget.cpp
     GeneralPage.cpp
-    CategoriesPage.cpp
+    #CategoriesPage.cpp
     #catnamevalidator.cpp
-    pluginItemDelegate.cpp
-    pluginItemWidget.cpp
-    pluginselector.cpp
-    
+    #pluginItemDelegate.cpp
+    #pluginItemWidget.cpp
+    #pluginselector.cpp
+    categorieswidget.cpp
+    categoriesmodel.cpp
+    categoryeditor.cpp
+    queryeditor.cpp
+    pluginmodel.cpp
     )
 
 kde4_add_ui_files(webexkcm_SRCS 
+    categorieswidget.ui
+    categoryeditor.ui
     generalPage.ui
     categoriesPage.ui
     pluginSelector.ui
@@ -36,6 +42,7 @@ target_link_libraries(kcm_webexconfig
      ${KDE4_KDEUI_LIBRARY}
      ${KDE4_KNOTIFYCONFIG_LIBRARY}
      ${KDE4_KIO_LIBS}
+     ${NEPOMUK_LIBRARIES}
      ${NEPOMUK_QUERY_LIBRARIES}
      webexsettings
      webexsettingsui

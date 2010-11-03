@@ -17,12 +17,13 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 #include "ConfigWidget.h"
+#include "categorieswidget.h"
 
 ConfigWidget::ConfigWidget(Nepomuk::WebExtractorConfig* cfg,QWidget *parent)
         : KPageWidget(parent),
-        m_generalPage(new GeneralPage(cfg,this)),
-        m_categoriesPage(new CategoriesPage(cfg,this))
-{;
+          m_generalPage(new GeneralPage(cfg,this)),
+          m_categoriesPage(new CategoriesWidget(this))
+{
     //layout()->setMargin(0);
 
     //m_generalPage->layout()->setMargin(0);
@@ -44,15 +45,15 @@ ConfigWidget::~ConfigWidget()
 void ConfigWidget::load()
 {
     m_generalPage->load();
-    m_categoriesPage->load();
+    //m_categoriesPage->load();
 }
 void ConfigWidget::save()
 {
     m_generalPage->save();
-    m_categoriesPage->save();
+    //m_categoriesPage->save();
 }
 void ConfigWidget::defaults()
 {
     m_generalPage->defaults();
-    m_categoriesPage->defaults();
+    //m_categoriesPage->defaults();
 }

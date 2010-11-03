@@ -19,6 +19,8 @@
 #ifndef __datappdescr_h_
 #define __datappdescr_h_
 
+#include <QtCore/QString>
+
 class DataPPDescr
 {
     public:

@@ -39,7 +39,6 @@ CategoriesPage::CategoriesPage(Nepomuk::WebExtractorConfig* cfg, QWidget * paren
     this->setupUi(this);
     this->query_edit_widget->hide();
     this->query_prefix_edit->hide();
-    this->queryBuilder->setQuery(NQ::Query());
     this->plugins_selector = new PluginSelector(this);
     this->verticalLayout->insertWidget(0, this->plugins_selector);
     m_oldDelegate = this->plugins_selector->selectedView()->itemDelegate();
@@ -87,6 +86,10 @@ CategoriesPage::CategoriesPage(Nepomuk::WebExtractorConfig* cfg, QWidget * paren
     this->remove_button->setText(QString());
     connect(this->add_button, SIGNAL(clicked()), this, SLOT(addButton()));
 
+    // no need to query endless numbers of results when we only want to create a query
+    Nepomuk::Query::Query baseQuery;
+    baseQuery.setLimit(10);
+    queryBuilder->setBaseQuery(baseQuery);
 }
 
 CategoriesPage::~CategoriesPage()
@@ -136,9 +139,7 @@ void CategoriesPage::loadCategory()
     plugins_selector->clear();
     query_edit->setPlainText(cat->queryText());
     this->queryBuilder->setQuery(
-        NQ::Query(
-            NQ::Term::fromString(cat->queryText())
-        )
+                NQ::Query::fromString(cat->queryText())
     );
 
     query_prefix_edit->setPlainText(cat->queryPrefix());
@@ -353,14 +354,14 @@ void CategoriesPage::reloadAvailableCategoriesList()
     this->category_selector->availableListWidget()->clear();
 
     // Fill lists
-    foreach(const QString & cat, Nepomuk::CategoriesPool::categories()) {
-        // If enabled add to selected
-        if(m_enabledCategories.contains(cat)) {
-            category_selector->selectedListWidget()->addItem(cat);
-        } else {
-            category_selector->availableListWidget()->addItem(cat);
-        }
-    }
+//    foreach(const QString & cat, Nepomuk::CategoriesPool::categories()) {
+//        // If enabled add to selected
+//        if(m_enabledCategories.contains(cat)) {
+//            category_selector->selectedListWidget()->addItem(cat);
+//        } else {
+//            category_selector->availableListWidget()->addItem(cat);
+//        }
+//    }
 }
 
 void CategoriesPage::removeButton()

@@ -23,10 +23,12 @@
 #include <kpagewidget.h>
 
 #include "GeneralPage.h"
-#include "CategoriesPage.h"
+
 #include "webextractor_config.h"
 //#include "EditPage.h"
 //#include "CapabilitiesPage.h"
+
+class CategoriesWidget;
 
 class ConfigWidget : public KPageWidget
 {
@@ -43,7 +45,7 @@ public:
 	void changed(bool ch);
     private:
 	GeneralPage * m_generalPage;
-	CategoriesPage * m_categoriesPage;
+	CategoriesWidget * m_categoriesPage;
 };
 
 #endif

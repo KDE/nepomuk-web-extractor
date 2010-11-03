@@ -17,7 +17,9 @@
  */
 
 #include "categoriespool.h"
+#include "category.h"
 #include "settings_config.h"
+#include "webexcatconfig.h"
 #include <QDir> 
 #include <QFileInfo> 
 #include <KDebug> 
@@ -25,84 +27,116 @@
 #include <KServiceTypeTrader> 
 #include <KGlobal> 
 #include <kstandarddirs.h>
+#include <KDirWatch>
+#include <QHash>
 
-Nepomuk::CategoriesPool::CategoriesPool()
-{
-    update();
-    foreach(const QString & dirName, KGlobal::dirs()->findDirs("config",CATEGORY_CONFIG_DIR))
-    {
-	kDebug() << "Watching dir "<< dirName;
-	wc.addDir(dirName);
-    }
-    connect(&wc,SIGNAL(dirty(const QString &)),this,SLOT(update()));
-}
+#include <Nepomuk/Query/Query>
 
-void Nepomuk::CategoriesPool::update()
+class Nepomuk::CategoriesPool::Private
 {
-    /*
-    KService::List services;
-    KServiceTypeTrader* trader = KServiceTypeTrader::self();
-     
-    services = trader->query("WebExtractor/DataPP");
-    foreach (KService::Ptr service, services) {
-	    kDebug() << "read datapp" << service->name();
-    }
-    */
-    /*
-    QDir myDir(CONFIG_DIR);
-    kDebug() << "Open config dir: "<<CONFIG_DIR;
-    QStringList filters;
-    filters.push_back(QString("*rc"));
-    QStringList list = myDir.entryList(filters, QDir::Files);
-    */
+public:
+    void reloadCategories();
+    Category loadCategory( const QString& name, WebExCategoryConfig* config ) const;
+
+    QHash<QString, Category> m_categories;
+
+    CategoriesPool* q;
+};
+
+
+void Nepomuk::CategoriesPool::Private::reloadCategories()
+{
+    m_categories.clear();
+
     kDebug() << "Looking at: " << CATEGORY_CONFIG_DIR;
-    QStringList list = KGlobal::dirs()->findAllResources("config",CATEGORY_CONFIG_DIR"/*rc");
-    if ( list.isEmpty() ) {
+    const QStringList categoryFiles = KGlobal::dirs()->findAllResources("config",CATEGORY_CONFIG_DIR"/*rc");
+    if ( categoryFiles.isEmpty() ) {
 	kDebug() << "No category detected";
-	return;
     }
-    QSet < QString > cats;
-    foreach( const QString & cat, list)
-    {
+
+    foreach( const QString & cat, categoryFiles) {
 	QFileInfo info(cat);
 	QString name = info.fileName();
-	
+
+        // FIXME: use the rc file path instead of the weirdly constructed name
 	name.remove(name.size() - 2,2);
 	if (!name.isEmpty()) {
-	    cats.insert(name);
 	    kDebug() << "Load category " << name;
+            WebExCategoryConfig cfg(name);
+	    m_categories.insert( name, loadCategory(name, &cfg) );
 	}
     }
 
-    m_categories = cats;
-
-    emit categoriesChanged();
-
-    //m_init = true;
+    emit q->categoriesChanged();
 }
 
-QSet<QString> Nepomuk::CategoriesPool::categories()
+Category Nepomuk::CategoriesPool::Private::loadCategory( const QString& name, Nepomuk::WebExCategoryConfig* config ) const
 {
-    return self()->m_categories;
+    Category cat;
+
+    // get the basic category settings
+    cat.setName(name);
+    cat.setQuery( Nepomuk::Query::Query::fromString(config->queryText()));
+    cat.setQueryDescription(config->description());
+    cat.setInterval(config->interval());
+    cat.setMaxResSimult(config->maxResSimult());
+    cat.setPluginSelectionType(config->pluginSelectType() == 0 ? Category::Stepwise : Category::All);
+    cat.setPluginSelectionStep(config->pluginSelectStep());
+    cat.setUCrit(config->uCrit());
+
+    // get the plugin configurations
+    cat.setPlugins(config->plugins().values());
+
+    return cat;
 }
 
-void Nepomuk::CategoriesPool::EmitCatChanged()
+
+Nepomuk::CategoriesPool::CategoriesPool()
+    : QObject(),
+      d(new Private)
 {
-    emit categoriesChanged();
+    d->q = this;
+
+    d->reloadCategories();
+    foreach(const QString & dirName, KGlobal::dirs()->findDirs("config",CATEGORY_CONFIG_DIR))
+    {
+	kDebug() << "Watching dir "<< dirName;
+	KDirWatch::self()->addDir(dirName);
+    }
+    connect(KDirWatch::self(),SIGNAL(dirty(const QString &)),this,SLOT(reloadCategories()));
+}
+
+Nepomuk::CategoriesPool::~CategoriesPool()
+{
+    delete d;
+}
+
+QList<Category> Nepomuk::CategoriesPool::categories() const
+{
+    return d->m_categories.values();
 }
 
 void Nepomuk::CategoriesPool::addCategory(const QString & name)
 {
-    if ( self()->m_categories.contains(name))
-	return;
+//    if ( self()->m_categories.contains(name))
+//	return;
 
-    self()->m_categories << name;
-    self()->EmitCatChanged();
+//    self()->m_categories << name;
+//    self()->EmitCatChanged();
 }
 
 Nepomuk::CategoriesPool* Nepomuk::CategoriesPool::self()
 {
    static Nepomuk::CategoriesPool * m_self = new Nepomuk::CategoriesPool(); 
-    return m_self; 
+   return m_self;
 }
 
+Category Nepomuk::CategoriesPool::category(const QString &name)
+{
+    if(d->m_categories.contains(name))
+        return d->m_categories[name];
+    else
+        return Category();
+}
+
+#include "categoriespool.moc"

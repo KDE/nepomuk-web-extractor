@@ -20,13 +20,14 @@
 #define _webexsettings_categories_h_
 
 #include "datappconfig.h"
-#include <QStringList> 
-#include <KDirWatch> 
+#include "category.h"
+#include <QtCore/QStringList>
+
 
 namespace Nepomuk {
     /*! \brief This class is used for storing information about webextractor service categories
      * Category  means some set of configurations here. It is a config object 
-     * that contains information about what Nepomuk resources belong to
+     * that contains information about wha^t Nepomuk resources belong to
      * this category and what DataPP should process this resources.
      * \note <b> Do not mix the webextractor service category and category of the DataPP! </b>
      * The category of the DataPP is just a tags that can be used for more convinient 
@@ -37,21 +38,27 @@ namespace Nepomuk {
      */
     class CategoriesPool: public QObject
     {
-	Q_OBJECT;
-	public:
-	    static QSet< QString> categories();
-	    static CategoriesPool * self(); 
-	    static void addCategory(const QString & name);
-	Q_SIGNALS:
-	    void categoriesChanged();
-	private Q_SLOTS:
-	    void update();
-	private:
-	    CategoriesPool();
-	    void init();
-	    void EmitCatChanged();
-	    QSet< QString > m_categories;
-	    KDirWatch wc;
+	Q_OBJECT
+
+    public:
+        ~CategoriesPool();
+
+        QList<Category> categories() const;
+        Category category(const QString& name);
+
+        static CategoriesPool * self();
+        static void addCategory(const QString & name);
+
+    Q_SIGNALS:
+        void categoriesChanged();
+
+    private:
+        CategoriesPool();
+
+        class Private;
+        Private* const d;
+
+        Q_PRIVATE_SLOT( d, void reloadCategories() )
     };
 }
 
