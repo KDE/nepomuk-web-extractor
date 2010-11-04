@@ -38,8 +38,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     int rowCount(const QModelIndex &parent) const;
 
-private:
-
+private Q_SLOTS:
+    void slotCategoriesChanged();
 };
 
 #endif // CATEGORIESMODEL_H

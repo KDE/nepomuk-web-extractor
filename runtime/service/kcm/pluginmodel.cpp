@@ -59,3 +59,8 @@ void PluginModel::addPlugin(const DataPPDescr &plugin)
     m_plugins << plugin;
     endInsertRows();
 }
+
+QList<DataPPDescr> PluginModel::plugins() const
+{
+    return m_plugins;
+}

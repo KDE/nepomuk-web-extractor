@@ -41,20 +41,52 @@ namespace Nepomuk {
 	Q_OBJECT
 
     public:
+        /**
+         * Create a new CategoriesPool. Typically one would use
+         * self() instead.
+         */
+        CategoriesPool();
         ~CategoriesPool();
 
         QList<Category> categories() const;
-        Category category(const QString& name);
+        Category category(const QString& name) const;
 
+        /**
+         * Stores a category into the pool, replacing
+         * an already existing category with the same name.
+         * \return \p true if \p cat was valid.
+         */
+        bool addCategory(const Category& cat);
+
+        /**
+         * Remove the Category with the title \p name.
+         * \return \p true if found, \p false otherwise.
+         */
+        bool removeCategory(const QString& name);
+
+        /**
+         * Access the global CategoriesPool. Categories are
+         * loaded from disk on creation.
+         */
         static CategoriesPool * self();
-        static void addCategory(const QString & name);
+
+        KDE_DEPRECATED static void addCategory(const QString & name);
+
+    public Q_SLOTS:
+        /**
+         * Reload the categories form configuration on disk.
+         */
+        void reloadCategories();
+
+        /**
+         * Save all categories to disk.
+         */
+        void saveCategories();
 
     Q_SIGNALS:
         void categoriesChanged();
 
     private:
-        CategoriesPool();
-
         class Private;
         Private* const d;
 

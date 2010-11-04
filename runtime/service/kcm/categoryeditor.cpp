@@ -26,17 +26,24 @@
 #include <KComboBox>
 #include <KPushButton>
 #include <KDialog>
+#include <KService>
+#include <KServiceTypeTrader>
+#include <KDebug>
+
+#include <QtGui/QMenu>
 
 #include <Nepomuk/Query/FileQuery>
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Vocabulary/NFO>
 
 Q_DECLARE_METATYPE(Nepomuk::Query::Query)
+Q_DECLARE_METATYPE(KService::Ptr)
 
 using namespace Nepomuk::Query;
 
 CategoryEditor::CategoryEditor(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+      m_addPluginMenu(0)
 {
     setupUi(this);
 
@@ -49,6 +56,11 @@ CategoryEditor::CategoryEditor(QWidget *parent)
 
     m_pluginModel = new PluginModel(this);
     m_viewPlugins->setModel(m_pluginModel);
+    connect(m_viewPlugins->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(slotPluginSelectionChanged(QItemSelection,QItemSelection)));
+
+    // add the available plugins as menu entries
+    buildAddPluginMenu();
 
     // add the default queries
     selectQuery(i18nc("@item:inlistbox Description of a desktop query", "All Images"),
@@ -57,6 +69,8 @@ CategoryEditor::CategoryEditor(QWidget *parent)
              FileQuery(ResourceTypeTerm(Nepomuk::Vocabulary::NFO::Video())));
     selectQuery(i18nc("@item:inlistbox Description of a desktop query", "All Audio Files"),
              FileQuery(ResourceTypeTerm(Nepomuk::Vocabulary::NFO::Audio())));
+
+    slotPluginSelectionChanged(QItemSelection(), QItemSelection());
 }
 
 void CategoryEditor::loadCategory(const Category &cat)
@@ -76,9 +90,7 @@ Category CategoryEditor::category() const
     cat.setName(m_editName->text());
     cat.setQuery(m_comboQuery->itemData(m_comboQuery->currentIndex()).value<Query>());
     cat.setQueryDescription(m_comboQuery->itemText(m_comboQuery->currentIndex()));
-
-    // FIXME: save plugins
-
+    cat.setPlugins(m_pluginModel->plugins());
     return cat;
 }
 
@@ -132,4 +144,38 @@ int CategoryEditor::findQueryIndex(const Nepomuk::Query::Query &query)
         }
     }
     return -1;
+}
+
+void CategoryEditor::slotPluginSelectionChanged(const QItemSelection& selected, const QItemSelection&)
+{
+    m_buttonRemovePlugin->setEnabled(!selected.isEmpty());
+}
+
+void CategoryEditor::buildAddPluginMenu()
+{
+    if(!m_addPluginMenu) {
+        m_addPluginMenu = new QMenu(m_buttonAddPlugin);
+        m_buttonAddPlugin->setMenu(m_addPluginMenu);
+    }
+
+    m_addPluginMenu->clear();
+
+    // TODO: use a central mangement class to get all available plugins
+    KService::List services = KServiceTypeTrader::self()->query(QLatin1String("Nepomuk/WebExtractorPlugin"));
+    foreach (const KService::Ptr& service, services) {
+        kDebug() << "read datapp" << service->name();
+        QAction* a = m_addPluginMenu->addAction(service->name());
+        a->setData(QVariant::fromValue(service));
+        connect(a, SIGNAL(triggered()),
+                this, SLOT(slotAddPluginActionTriggered()));
+    }
+}
+
+void CategoryEditor::slotAddPluginActionTriggered()
+{
+    QAction* a = qobject_cast<QAction*>(sender());
+    KService::Ptr service = a->data().value<KService::Ptr>();
+    DataPPDescr datapp;
+    datapp.name = service->name();
+    m_pluginModel->addPlugin(datapp);
 }

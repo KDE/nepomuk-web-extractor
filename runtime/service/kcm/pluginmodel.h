@@ -40,6 +40,8 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     int rowCount(const QModelIndex &parent) const;
 
+    QList<DataPPDescr> plugins() const;
+
 private:
     QList<DataPPDescr> m_plugins;
 };

@@ -26,6 +26,8 @@
 CategoriesModel::CategoriesModel(QObject *parent) :
     QAbstractListModel(parent)
 {
+    connect(Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()),
+            this, SLOT(slotCategoriesChanged()));
 }
 
 QVariant CategoriesModel::data(const QModelIndex &index, int role) const
@@ -47,4 +49,9 @@ QVariant CategoriesModel::data(const QModelIndex &index, int role) const
 int CategoriesModel::rowCount(const QModelIndex &parent) const
 {
     return Nepomuk::CategoriesPool::self()->categories().count();
+}
+
+void CategoriesModel::slotCategoriesChanged()
+{
+    reset();
 }

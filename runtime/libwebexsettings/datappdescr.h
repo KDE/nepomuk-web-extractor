@@ -31,5 +31,12 @@ class DataPPDescr
 	double coff;
 	bool trusted;
 	bool isValid() const { return !name.isEmpty(); }
+
+        bool operator==(const DataPPDescr& other) const {
+            return (name == other.name &&
+                    rank == other.rank &&
+                    coff == other.coff &&
+                    trusted == other.trusted);
+        }
 };
 #endif

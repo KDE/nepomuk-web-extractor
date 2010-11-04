@@ -125,18 +125,54 @@ void Nepomuk::CategoriesPool::addCategory(const QString & name)
 //    self()->EmitCatChanged();
 }
 
+K_GLOBAL_STATIC( Nepomuk::CategoriesPool, s_pool )
+
 Nepomuk::CategoriesPool* Nepomuk::CategoriesPool::self()
 {
-   static Nepomuk::CategoriesPool * m_self = new Nepomuk::CategoriesPool(); 
-   return m_self;
+   return s_pool;
 }
 
-Category Nepomuk::CategoriesPool::category(const QString &name)
+Category Nepomuk::CategoriesPool::category(const QString &name) const
 {
     if(d->m_categories.contains(name))
         return d->m_categories[name];
     else
         return Category();
+}
+
+bool Nepomuk::CategoriesPool::addCategory(const Category &cat)
+{
+    if(cat.isValid()) {
+        d->m_categories[cat.name()] = cat;
+        emit categoriesChanged();
+        return true;
+    }
+    else {
+        kDebug() << "Cannot save invalid Category";
+        return false;
+    }
+}
+
+void Nepomuk::CategoriesPool::reloadCategories()
+{
+    d->reloadCategories();
+}
+
+void Nepomuk::CategoriesPool::saveCategories()
+{
+#warning IMPLEMENTME: saveCategories()
+}
+
+bool Nepomuk::CategoriesPool::removeCategory(const QString &name)
+{
+    if(d->m_categories.contains(name)) {
+        d->m_categories.remove(name);
+        return true;
+    }
+    else {
+        kDebug() << "Could not find category with name" << name;
+        return false;
+    }
 }
 
 #include "categoriespool.moc"

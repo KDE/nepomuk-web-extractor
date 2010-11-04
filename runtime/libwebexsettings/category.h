@@ -71,6 +71,9 @@ public:
     void setPlugins(const QList<DataPPDescr>& plugins);
     void addPlugin(const DataPPDescr& plugin);
 
+    bool operator==(const Category& other) const;
+    bool operator!=(const Category& other) const;
+
 private:
     class Private;
     QSharedDataPointer<Private> d;

@@ -34,6 +34,7 @@ namespace Nepomuk {
 }
 
 class PluginModel;
+class QMenu;
 
 class CategoryEditor : public QWidget, public Ui::CategoryEditor
 {
@@ -51,6 +52,9 @@ public:
 private Q_SLOTS:
     void slotCustomQuery();
     void selectQuery(const QString& title, const Nepomuk::Query::Query& query);
+    void slotPluginSelectionChanged(const QItemSelection&, const QItemSelection&);
+    void buildAddPluginMenu();
+    void slotAddPluginActionTriggered();
 
 private:
     int findQueryIndex(const Nepomuk::Query::Query& query);
@@ -60,6 +64,8 @@ private:
     Category m_loadedCategory;
 
     PluginModel* m_pluginModel;
+
+    QMenu* m_addPluginMenu;
 };
 
 #endif // CATEGORYEDITOR_H

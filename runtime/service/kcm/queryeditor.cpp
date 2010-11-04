@@ -60,7 +60,7 @@ void QueryEditor::slotDescChanged(const QString& s)
 
 void QueryEditor::setQuery(const Nepomuk::Query::Query &query)
 {
-    m_searchWidget->setQuery(query);
+    m_searchWidget->setQuery(query, Nepomuk::Utils::SearchWidget::SetBaseQuery);
 }
 
 Nepomuk::Query::Query QueryEditor::query() const

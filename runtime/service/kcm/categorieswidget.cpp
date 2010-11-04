@@ -22,6 +22,7 @@
 #include "categorieswidget.h"
 #include "categoriesmodel.h"
 #include "categoryeditor.h"
+#include "categoriespool.h"
 
 #include <KPushButton>
 #include <KIcon>
@@ -58,7 +59,7 @@ void CategoriesWidget::slotAddCategory()
 {
     Category cat = CategoryEditor::createCaterory(this);
     if(cat.isValid()) {
-        // FIXME: add the cat to the pool
+        Nepomuk::CategoriesPool::self()->addCategory(cat);
     }
 }
 
@@ -69,9 +70,11 @@ void CategoriesWidget::slotRemoveCategory()
 void CategoriesWidget::slotEditCategory()
 {
     Category cat = m_viewCategories->currentIndex().data(CategoriesModel::CategoryRole).value<Category>();
-    cat = CategoryEditor::editCategory(this, cat);
-    // FIXME: update the new cat in the pool
-    // FIXME: make sure that the category is valid!
+    Category newCat = CategoryEditor::editCategory(this, cat);
+    if(cat != newCat) {
+        Nepomuk::CategoriesPool::self()->removeCategory(cat.name());
+        Nepomuk::CategoriesPool::self()->addCategory(newCat);
+    }
 }
 
 void CategoriesWidget::slotSelectionChanged(const QItemSelection& selected, const QItemSelection&)

@@ -171,3 +171,21 @@ void Category::addPlugin(const DataPPDescr &plugin)
 {
     d->m_plugins << plugin;
 }
+
+bool Category::operator==(const Category &other) const
+{
+    return (d->m_name == other.d->m_name &&
+            d->m_query == other.d->m_query &&
+            d->m_queryDescription == other.d->m_queryDescription &&
+            d->m_interval == other.d->m_interval &&
+            d->m_maxResStep == other.d->m_maxResStep &&
+            d->m_uCrit == other.d->m_uCrit &&
+            d->m_pluginSelectionType == other.d->m_pluginSelectionType &&
+            d->m_pluginSelectionStep == other.d->m_pluginSelectionStep &&
+            d->m_plugins == other.d->m_plugins);
+}
+
+bool Category::operator!=(const Category &other) const
+{
+    return !operator==(other);
+}
