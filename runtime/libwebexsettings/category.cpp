@@ -52,8 +52,9 @@ public:
     Private()
         : m_global(false),
           m_interval(1),
-          m_maxResStep(3),
+          m_maxResSimult(3),
           m_uCrit(0.5),
+          m_aCrit(0.9),
           m_pluginSelectionType(All),
           m_pluginSelectionStep(5) {
     }
@@ -64,8 +65,9 @@ public:
     Nepomuk::Query::Query m_query;
     QString m_queryDescription;
     int m_interval;
-    int m_maxResStep;
+    uint m_maxResSimult;
     double m_uCrit;
+    double m_aCrit;
     PluginSelectionType m_pluginSelectionType;
     int m_pluginSelectionStep;
 
@@ -143,14 +145,14 @@ void Category::setInterval(int i)
     d->m_interval = i;
 }
 
-int Category::maxResStep() const
+uint Category::maxResSimult() const
 {
-    return d->m_maxResStep;
+    return d->m_maxResSimult;
 }
 
-void Category::setMaxResSimult(int step)
+void Category::setMaxResSimult(uint step)
 {
-    d->m_maxResStep = step;
+    d->m_maxResSimult = step;
 }
 
 double Category::uCrit() const
@@ -161,6 +163,16 @@ double Category::uCrit() const
 void Category::setUCrit(double uCrit)
 {
     d->m_uCrit = uCrit;
+}
+
+double Category::aCrit() const
+{
+    return d->m_aCrit;
+}
+
+void Category::setACrit(double aCrit)
+{
+    d->m_aCrit = aCrit;
 }
 
 Category::PluginSelectionType Category::pluginSelectionType() const
@@ -205,8 +217,9 @@ bool Category::operator==(const Category &other) const
             d->m_query == other.d->m_query &&
             d->m_queryDescription == other.d->m_queryDescription &&
             d->m_interval == other.d->m_interval &&
-            d->m_maxResStep == other.d->m_maxResStep &&
+            d->m_maxResSimult == other.d->m_maxResSimult &&
             d->m_uCrit == other.d->m_uCrit &&
+            d->m_aCrit == other.d->m_aCrit &&
             d->m_pluginSelectionType == other.d->m_pluginSelectionType &&
             d->m_pluginSelectionStep == other.d->m_pluginSelectionStep &&
             d->m_plugins == other.d->m_plugins);
@@ -226,8 +239,9 @@ void Category::save(KSharedConfig::Ptr config) const
     catGroup.writeEntry("query", d->m_query.toString());
     catGroup.writeEntry("query_desc", d->m_queryDescription);
     catGroup.writeEntry("interval", d->m_interval);
-    catGroup.writeEntry("max_res_step", d->m_maxResStep);
+    catGroup.writeEntry("max_res_step", d->m_maxResSimult);
     catGroup.writeEntry("u_crit", d->m_uCrit);
+    catGroup.writeEntry("a_crit", d->m_aCrit);
     catGroup.writeEntry("plugin_selection_type", pluginSelectionTypeToString(d->m_pluginSelectionType));
     catGroup.writeEntry("plugin_selection_step", d->m_pluginSelectionStep);
 
@@ -256,8 +270,9 @@ Category Category::load(const KSharedConfig::Ptr config)
     cat.setQuery(Nepomuk::Query::Query::fromString(catGroup.readEntry("query", cat.query().toString())));
     cat.setQueryDescription(catGroup.readEntry("query_desc", cat.queryDescription()));
     cat.setInterval(catGroup.readEntry("interval", cat.interval()));
-    cat.setMaxResSimult(catGroup.readEntry("max_res_step", cat.maxResStep()));
+    cat.setMaxResSimult(catGroup.readEntry("max_res_step", cat.maxResSimult()));
     cat.setUCrit(catGroup.readEntry("u_crit", cat.uCrit()));
+    cat.setACrit(catGroup.readEntry("a_crit", cat.aCrit()));
     cat.setPluginSelectionType(pluginSelectionTypeFromString(catGroup.readEntry("plugin_selection_type", pluginSelectionTypeToString(cat.pluginSelectionType()))));
     cat.setPluginSelectionStep(catGroup.readEntry("plugin_selection_step", cat.pluginSelectionStep()));
 
@@ -268,4 +283,11 @@ Category Category::load(const KSharedConfig::Ptr config)
     }
 
     return cat;
+}
+
+
+QDebug operator<<(QDebug& dbg, const Category& cat)
+{
+#warning IMPLEMENTME
+    return dbg;
 }

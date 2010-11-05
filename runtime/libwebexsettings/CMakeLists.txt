@@ -43,7 +43,7 @@ add_definitions(-DMAKE_WEBEXSETTINGS_LIB)
 
 set( webexsettings_SRCS
     webextractor_config.cpp
-    webexcatconfig.cpp
+    #webexcatconfig.cpp
     datapppool.cpp
     datappconfig.cpp
     categoriespool.cpp
@@ -58,7 +58,7 @@ set( webexplugin_SRCS
     )
 
 kde4_add_kcfg_files(webexsettings_SRCS webexconfigbase.kcfgc)
-kde4_add_kcfg_files(webexsettings_SRCS webexcategory.kcfgc)
+#kde4_add_kcfg_files(webexsettings_SRCS webexcategory.kcfgc)
 kde4_add_kcfg_files(webexsettings_SRCS datappconfigbase.kcfgc)
 
 kde4_add_library( webexsettings STATIC 
@@ -83,6 +83,7 @@ target_link_libraries( webexplugin
 target_link_libraries( webexsettings 
     webexplugin 
     ${QT_LIBRARIES}
+    ${NEPOMUK_QUERY_LIBRARIES}
     )
 
 install(

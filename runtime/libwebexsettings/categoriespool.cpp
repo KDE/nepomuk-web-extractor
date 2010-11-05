@@ -19,7 +19,6 @@
 #include "categoriespool.h"
 #include "category.h"
 #include "settings_config.h"
-#include "webexcatconfig.h"
 #include <QDir> 
 #include <QFileInfo> 
 #include <KDebug> 

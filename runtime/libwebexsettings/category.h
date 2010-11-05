@@ -60,10 +60,12 @@ public:
     void setQueryDescription(const QString& desc);
     int interval() const;
     void setInterval(int i);
-    int maxResStep() const;
-    void setMaxResSimult(int step);
+    uint maxResSimult() const;
+    void setMaxResSimult(uint step);
     double uCrit() const;
     void setUCrit(double uCrit);
+    double aCrit() const;
+    void setACrit(double aCrit);
 
     enum PluginSelectionType {
         Stepwise,
@@ -91,5 +93,7 @@ private:
 };
 
 Q_DECLARE_METATYPE(Category)
+
+QDebug operator<<(QDebug& dbg, const Category& cat);
 
 #endif // CATEGORY_H

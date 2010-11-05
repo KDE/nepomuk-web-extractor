@@ -42,7 +42,6 @@ namespace Nepomuk
 
             int interval(const QString & categoryName);
             NQ::Term query(const QString categoryName);
-            QString queryPrefix(const QString categoryName);
             bool isOptimizedForNepomuk(const QString & categoryName);
             void update();
             void clear();

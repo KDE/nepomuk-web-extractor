@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <QtGlobal>
 #include "webexqueries.h"
-
+#include "categoriespool.h"
 
 namespace NQ = Nepomuk::Query;
 

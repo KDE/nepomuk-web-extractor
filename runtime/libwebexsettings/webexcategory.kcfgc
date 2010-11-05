@@ -1,7 +1,0 @@
-File=webexcategory.kcfg
-ClassName=WebExCategory
-NameSpace=Nepomuk
-ItemAccessors=true
-SetUserText=true
-Mutators=true
-

@@ -30,6 +30,8 @@
 #include "global.h"
 #include "parameters.h"
 #include "datapppool.h"
+#include "categoriespool.h"
+#include "category.h"
 #include <Soprano/StorageModel>
 // use absolute path to prevent linking with libwebextractor/global.h
 #include "libwebexsettings/global.h"
@@ -99,8 +101,6 @@ void Nepomuk::WebExtractorSettings::update()
 
     clear();
 
-    WebExtractorConfig::update();
-
     // Some preparation
     int scheme = decisionsModelScheme();
     bool forceDefault = false;
@@ -136,14 +136,11 @@ void Nepomuk::WebExtractorSettings::update()
 
     if(forceDefault) {
     }
-    QStringList cats = WebExConfigBase::categories();
-    foreach(const QString &  cat, cats) {
-        WebExCategoryConfig * cfg = m_categories[cat];
 
+    foreach(const Category&  cat, Nepomuk::CategoriesPool::self()->categories()) {
         NW::ExtractParameters * p  = new NW::ExtractParameters;
 
-
-        foreach(const DataPPDescr & dppdescr, cfg->plugins()) {
+        foreach(const DataPPDescr & dppdescr, cat.plugins()) {
             /*Load plugin with this name and parse it config*/
             NW::DataPP * dpp = 0 ;
             NW::DataPPWrapper * dppw = 0 ;
@@ -174,10 +171,10 @@ void Nepomuk::WebExtractorSettings::update()
 
         }
 
-        Q_CHECK_PTR(cfg);
-        p->setUCrit(cfg->uCrit());
-        p->setACrit(cfg->aCrit());
-        p->setPluginSelectStep(cfg->pluginSelectStep());
+        // TODO: use one setCategory method or put the Category in the ExtractParameters constructor
+        p->setUCrit(cat.uCrit());
+        p->setACrit(cat.aCrit());
+        p->setPluginSelectStep(cat.pluginSelectionStep());
         int scheme = decisionsModelScheme();
         switch(scheme) {
         case EnumDecisionsModelScheme::Auto : /* User */
@@ -197,19 +194,19 @@ void Nepomuk::WebExtractorSettings::update()
 
 
         NW::LaunchPolitics pol;
-        switch(cfg->pluginSelectType()) {
-        case(WebExCategory::EnumPluginSelectType::stepwise) : {
+        switch(cat.pluginSelectionType()) {
+        case(Category::Stepwise) : {
             pol = NW::StepWise;
             break;
         }
-        case(WebExCategory::EnumPluginSelectType::all) : {
+        case(Category::All) : {
             pol = NW::All;
             break;
         }
         }
         p->setLaunchPolitics(pol);
         p->setMergePolitics(NW::Highest);
-        this->m_parameters.insert(cat, NW::ExtractParametersPtr(p));
+        this->m_parameters.insert(cat.name(), NW::ExtractParametersPtr(p));
     }
 }
 
@@ -217,15 +214,14 @@ int Nepomuk::WebExtractorSettings::maxPluginsLaunched(const QString & categoryNa
 {
 
     int s =  max_plugins_launched_per_category();
-    WebExCategoryConfig * c = m_categories[categoryName];
-    Q_CHECK_PTR(c);
-    if(c->pluginSelectType() == WebExCategoryConfig::EnumPluginSelectType::all)
+    const Category cat = Nepomuk::CategoriesPool::self()->category(categoryName);
+    if(cat.pluginSelectionType() == Category::All)
         if(s)
             return s;
         else
             return 0;
     else {
-        int s2 = c->pluginSelectStep();
+        int s2 = cat.pluginSelectionStep();
         return qMin(s, s2);
     }
 
@@ -233,31 +229,12 @@ int Nepomuk::WebExtractorSettings::maxPluginsLaunched(const QString & categoryNa
 
 int Nepomuk::WebExtractorSettings::maxResSimult(const QString & categoryName)
 {
-
-    int s =  maxResSimultPerCategory();
-    WebExCategoryConfig * c = m_categories[categoryName];
-    Q_CHECK_PTR(c);
-    int s2 = c->maxResSimult();
-    return qMin(s, s2);
-
+    return qMin(maxResSimultPerCategory(), Nepomuk::CategoriesPool::self()->category(categoryName).maxResSimult());
 }
 
 int Nepomuk::WebExtractorSettings::interval(const QString & categoryName)
 {
-
-    /*
-    int s =  maxResSimultPerCategory();
-    if ( s)
-    return s;
-    else {
-    WebExCategory * c = m_categories[categoryName];
-    Q_CHECK_PTR(c);
-    return c->maxResSimult();
-    }*/
-    WebExCategoryConfig * c = m_categories[categoryName];
-    Q_CHECK_PTR(c);
-    return c->interval();
-
+    return Nepomuk::CategoriesPool::self()->category(categoryName).interval();
 }
 
 NW::ExtractParametersPtr  Nepomuk::WebExtractorSettings::extractParameters(const QString categoryName) const
@@ -288,18 +265,9 @@ bool Nepomuk::WebExtractorSettings::isOptimizedForNepomuk(const QString & catego
 
 NQ::Term Nepomuk::WebExtractorSettings::query(const QString categoryName)
 {
-    WebExCategoryConfig * c = m_categories[categoryName];
-    Q_CHECK_PTR(c);
-    return NQ::Term::fromString(c->queryText());
+#warning Why not return the full query instead of just the term?
+    return Nepomuk::CategoriesPool::self()->category(categoryName).query().term();
 }
-
-QString Nepomuk::WebExtractorSettings::queryPrefix(const QString categoryName)
-{
-    WebExCategoryConfig * c = m_categories[categoryName];
-    Q_CHECK_PTR(c);
-    return c->queryPrefix();
-}
-
 
 QDebug Nepomuk::operator<<(QDebug dbg,  const WebExtractorSettings & conf)
 {
