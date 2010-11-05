@@ -22,7 +22,7 @@
 #ifndef CATEGORYEDITOR_H
 #define CATEGORYEDITOR_H
 
-#include <QWidget>
+#include <KDialog>
 #include "ui_categoryeditor.h"
 
 #include "category.h"
@@ -36,7 +36,7 @@ namespace Nepomuk {
 class PluginModel;
 class QMenu;
 
-class CategoryEditor : public QWidget, public Ui::CategoryEditor
+class CategoryEditor : public KDialog, public Ui::CategoryEditor
 {
     Q_OBJECT
 
@@ -46,8 +46,8 @@ public:
     void loadCategory(const Category& cat);
     Category category() const;
 
-    static Category editCategory(QWidget* parent, const Category& cat);
-    static Category createCaterory(QWidget* parent);
+    static void editCategory(QWidget* parent, const Category& cat);
+    static void createCaterory(QWidget* parent);
 
 private Q_SLOTS:
     void slotCustomQuery();
@@ -55,6 +55,7 @@ private Q_SLOTS:
     void slotPluginSelectionChanged(const QItemSelection&, const QItemSelection&);
     void buildAddPluginMenu();
     void slotAddPluginActionTriggered();
+    void slotChanged();
 
 private:
     int findQueryIndex(const Nepomuk::Query::Query& query);

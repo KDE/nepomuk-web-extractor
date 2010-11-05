@@ -57,10 +57,7 @@ CategoriesWidget::~CategoriesWidget()
 
 void CategoriesWidget::slotAddCategory()
 {
-    Category cat = CategoryEditor::createCaterory(this);
-    if(cat.isValid()) {
-        Nepomuk::CategoriesPool::self()->addCategory(cat);
-    }
+    CategoryEditor::createCaterory(this);
 }
 
 void CategoriesWidget::slotRemoveCategory()
@@ -70,11 +67,7 @@ void CategoriesWidget::slotRemoveCategory()
 void CategoriesWidget::slotEditCategory()
 {
     Category cat = m_viewCategories->currentIndex().data(CategoriesModel::CategoryRole).value<Category>();
-    Category newCat = CategoryEditor::editCategory(this, cat);
-    if(cat != newCat) {
-        Nepomuk::CategoriesPool::self()->removeCategory(cat.name());
-        Nepomuk::CategoriesPool::self()->addCategory(newCat);
-    }
+    CategoryEditor::editCategory(this, cat);
 }
 
 void CategoriesWidget::slotSelectionChanged(const QItemSelection& selected, const QItemSelection&)

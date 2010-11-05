@@ -1,5 +1,6 @@
 /*
    Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+   Copyright (C) 2010 Sebastian Trueg <trueg@kde.org>
 
    This library is free software; you can redistribute it and/or modify
    it under the terms of the GNU Library General Public License as published by
@@ -21,11 +22,14 @@
 
 #include <QtCore/QString>
 
+class KConfigGroup;
+
 class DataPPDescr
 {
     public:
 	DataPPDescr(const QString & name = QString()):name(name),rank(1.0), coff(1.0),trusted(true) 
-	{;}
+	{}
+
 	QString name;
 	double rank;
 	double coff;
@@ -38,5 +42,9 @@ class DataPPDescr
                     coff == other.coff &&
                     trusted == other.trusted);
         }
+
+        void save(KConfigGroup& config) const;
+        static DataPPDescr load(const KConfigGroup& config);
 };
+
 #endif

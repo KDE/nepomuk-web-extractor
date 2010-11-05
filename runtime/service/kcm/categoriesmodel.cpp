@@ -22,6 +22,7 @@
 #include "categoriesmodel.h"
 #include "categoriespool.h"
 
+#include <KGlobalSettings>
 
 CategoriesModel::CategoriesModel(QObject *parent) :
     QAbstractListModel(parent)
@@ -39,6 +40,15 @@ QVariant CategoriesModel::data(const QModelIndex &index, int role) const
         switch(role) {
         case Qt::DisplayRole:
             return cat.name();
+
+        case Qt::FontRole:
+            if( cat.isGlobal()) {
+                QFont font = KGlobalSettings::generalFont();
+                font.setItalic(true);
+                return font;
+            }
+            break;
+
         case CategoryRole:
             return QVariant::fromValue(cat);
         }

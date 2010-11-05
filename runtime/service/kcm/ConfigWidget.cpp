@@ -1,6 +1,7 @@
 /*
    Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
    Copyright (C) 2008 by Dario Freddi <drf@kde.org>                      
+   Copyright (C) 2010 Sebastian Trueg <trueg@kde.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,8 +17,10 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 #include "ConfigWidget.h"
 #include "categorieswidget.h"
+#include "categoriespool.h"
 
 ConfigWidget::ConfigWidget(Nepomuk::WebExtractorConfig* cfg,QWidget *parent)
         : KPageWidget(parent),
@@ -36,24 +39,31 @@ ConfigWidget::ConfigWidget(Nepomuk::WebExtractorConfig* cfg,QWidget *parent)
     categories->setIcon(KIcon("configure"));
 
     connect(m_generalPage, SIGNAL(changed(bool)), this, SIGNAL(changed(bool)));
-    connect(m_categoriesPage, SIGNAL(changed(bool)), this, SIGNAL(changed(bool)));
+    connect(Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()), this, SLOT(setChanged()));
 }
 
 ConfigWidget::~ConfigWidget()
-{;}
+{
+}
 
 void ConfigWidget::load()
 {
     m_generalPage->load();
-    //m_categoriesPage->load();
 }
+
 void ConfigWidget::save()
 {
     m_generalPage->save();
-    //m_categoriesPage->save();
+    Nepomuk::CategoriesPool::self()->saveCategories();
 }
+
 void ConfigWidget::defaults()
 {
     m_generalPage->defaults();
-    //m_categoriesPage->defaults();
+    Nepomuk::CategoriesPool::self()->reloadCategories();
+}
+
+void ConfigWidget::setChanged()
+{
+    emit changed(true);
 }

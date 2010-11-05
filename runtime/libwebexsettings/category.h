@@ -26,6 +26,8 @@
 #include <QtCore/QList>
 #include <QtCore/QVariant>
 
+#include <KSharedConfig>
+
 #include "datappdescr.h"
 
 namespace Nepomuk {
@@ -45,6 +47,11 @@ public:
 
     bool isValid() const;
 
+    /**
+     * Global categories cannot be changed or removed.
+     */
+    bool isGlobal() const;
+
     QString name() const;
     void setName(const QString& name);
     Nepomuk::Query::Query query() const;
@@ -62,6 +69,7 @@ public:
         Stepwise,
         All
     };
+
     PluginSelectionType pluginSelectionType() const;
     void setPluginSelectionType(PluginSelectionType type);
     int pluginSelectionStep() const;
@@ -70,6 +78,9 @@ public:
     QList<DataPPDescr> plugins() const;
     void setPlugins(const QList<DataPPDescr>& plugins);
     void addPlugin(const DataPPDescr& plugin);
+
+    void save(KSharedConfig::Ptr config) const;
+    static Category load(const KSharedConfig::Ptr config);
 
     bool operator==(const Category& other) const;
     bool operator!=(const Category& other) const;

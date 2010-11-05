@@ -68,9 +68,7 @@ namespace Nepomuk {
          * Access the global CategoriesPool. Categories are
          * loaded from disk on creation.
          */
-        static CategoriesPool * self();
-
-        KDE_DEPRECATED static void addCategory(const QString & name);
+        static CategoriesPool* self();
 
     public Q_SLOTS:
         /**
@@ -83,14 +81,21 @@ namespace Nepomuk {
          */
         void saveCategories();
 
+        /**
+         * Set the auto update feature. If enabled CategoriesPool
+         * will automatically reload changed on disk. This should
+         * never be enabled for a configuration dialog.
+         *
+         * By default this is disabled.
+         */
+        void setAutoUpdate(bool autoUpdate);
+
     Q_SIGNALS:
         void categoriesChanged();
 
     private:
         class Private;
         Private* const d;
-
-        Q_PRIVATE_SLOT( d, void reloadCategories() )
     };
 }
 

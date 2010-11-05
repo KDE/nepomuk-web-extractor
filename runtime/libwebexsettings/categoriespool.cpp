@@ -29,66 +29,18 @@
 #include <kstandarddirs.h>
 #include <KDirWatch>
 #include <QHash>
+#include <KSharedConfig>
 
 #include <Nepomuk/Query/Query>
 
 class Nepomuk::CategoriesPool::Private
 {
 public:
-    void reloadCategories();
-    Category loadCategory( const QString& name, WebExCategoryConfig* config ) const;
-
     QHash<QString, Category> m_categories;
+    bool m_autoUpdate;
 
     CategoriesPool* q;
 };
-
-
-void Nepomuk::CategoriesPool::Private::reloadCategories()
-{
-    m_categories.clear();
-
-    kDebug() << "Looking at: " << CATEGORY_CONFIG_DIR;
-    const QStringList categoryFiles = KGlobal::dirs()->findAllResources("config",CATEGORY_CONFIG_DIR"/*rc");
-    if ( categoryFiles.isEmpty() ) {
-	kDebug() << "No category detected";
-    }
-
-    foreach( const QString & cat, categoryFiles) {
-	QFileInfo info(cat);
-	QString name = info.fileName();
-
-        // FIXME: use the rc file path instead of the weirdly constructed name
-	name.remove(name.size() - 2,2);
-	if (!name.isEmpty()) {
-	    kDebug() << "Load category " << name;
-            WebExCategoryConfig cfg(name);
-	    m_categories.insert( name, loadCategory(name, &cfg) );
-	}
-    }
-
-    emit q->categoriesChanged();
-}
-
-Category Nepomuk::CategoriesPool::Private::loadCategory( const QString& name, Nepomuk::WebExCategoryConfig* config ) const
-{
-    Category cat;
-
-    // get the basic category settings
-    cat.setName(name);
-    cat.setQuery( Nepomuk::Query::Query::fromString(config->queryText()));
-    cat.setQueryDescription(config->description());
-    cat.setInterval(config->interval());
-    cat.setMaxResSimult(config->maxResSimult());
-    cat.setPluginSelectionType(config->pluginSelectType() == 0 ? Category::Stepwise : Category::All);
-    cat.setPluginSelectionStep(config->pluginSelectStep());
-    cat.setUCrit(config->uCrit());
-
-    // get the plugin configurations
-    cat.setPlugins(config->plugins().values());
-
-    return cat;
-}
 
 
 Nepomuk::CategoriesPool::CategoriesPool()
@@ -96,14 +48,8 @@ Nepomuk::CategoriesPool::CategoriesPool()
       d(new Private)
 {
     d->q = this;
-
-    d->reloadCategories();
-    foreach(const QString & dirName, KGlobal::dirs()->findDirs("config",CATEGORY_CONFIG_DIR))
-    {
-	kDebug() << "Watching dir "<< dirName;
-	KDirWatch::self()->addDir(dirName);
-    }
-    connect(KDirWatch::self(),SIGNAL(dirty(const QString &)),this,SLOT(reloadCategories()));
+    d->m_autoUpdate = false;
+    reloadCategories();
 }
 
 Nepomuk::CategoriesPool::~CategoriesPool()
@@ -116,14 +62,6 @@ QList<Category> Nepomuk::CategoriesPool::categories() const
     return d->m_categories.values();
 }
 
-void Nepomuk::CategoriesPool::addCategory(const QString & name)
-{
-//    if ( self()->m_categories.contains(name))
-//	return;
-
-//    self()->m_categories << name;
-//    self()->EmitCatChanged();
-}
 
 K_GLOBAL_STATIC( Nepomuk::CategoriesPool, s_pool )
 
@@ -143,9 +81,15 @@ Category Nepomuk::CategoriesPool::category(const QString &name) const
 bool Nepomuk::CategoriesPool::addCategory(const Category &cat)
 {
     if(cat.isValid()) {
-        d->m_categories[cat.name()] = cat;
-        emit categoriesChanged();
-        return true;
+        if(d->m_categories[cat.name()].isGlobal()) {
+            kDebug() << "Cannot overwrite global categories.";
+            return false;
+        }
+        else {
+            d->m_categories[cat.name()] = cat;
+            emit categoriesChanged();
+            return true;
+        }
     }
     else {
         kDebug() << "Cannot save invalid Category";
@@ -155,23 +99,74 @@ bool Nepomuk::CategoriesPool::addCategory(const Category &cat)
 
 void Nepomuk::CategoriesPool::reloadCategories()
 {
-    d->reloadCategories();
+    d->m_categories.clear();
+
+    kDebug() << "Looking at: " << CATEGORY_CONFIG_DIR;
+    const QStringList categoryFiles = KGlobal::dirs()->findAllResources("config", CATEGORY_CONFIG_DIR"/*rc");
+    if ( categoryFiles.isEmpty() ) {
+	kDebug() << "No category detected";
+    }
+    Q_FOREACH(const QString& catFile, categoryFiles) {
+        Category cat = Category::load(KSharedConfig::openConfig(catFile));
+        if(cat.isValid()) {
+            kDebug() << cat.name() << "read only?" << cat.isGlobal();
+            d->m_categories.insert(cat.name(), cat);
+        }
+        else {
+            kDebug() << "Invalid category at" << catFile;
+        }
+    }
 }
 
 void Nepomuk::CategoriesPool::saveCategories()
 {
-#warning IMPLEMENTME: saveCategories()
+    // 1. delete all locally existing categories
+    QDir localCatDir = KStandardDirs::locateLocal("config", QLatin1String(CATEGORY_CONFIG_DIR));
+    Q_FOREACH(const QString& oldCatFile, localCatDir.entryList(QStringList(QLatin1String("*rc")), QDir::Files)) {
+        localCatDir.remove(oldCatFile);
+    }
+
+    // 2. save all categories in the pool
+    Q_FOREACH(const Category& cat, d->m_categories) {
+        if(!cat.isGlobal()) {
+            KSharedConfig::Ptr config = KSharedConfig::openConfig(QString::fromLatin1(CATEGORY_CONFIG_DIR"%1rc").arg(cat.name().toLower().replace(QChar(' '), QChar('_'))));
+            cat.save(config);
+        }
+    }
 }
 
 bool Nepomuk::CategoriesPool::removeCategory(const QString &name)
 {
-    if(d->m_categories.contains(name)) {
-        d->m_categories.remove(name);
-        return true;
+    QHash<QString, Category>::iterator it = d->m_categories.find(name);
+    if(it != d->m_categories.end()) {
+        if(it.value().isGlobal()) {
+            kdDebug() << "Cannot remove global categories";
+            return false;
+        }
+        else {
+            d->m_categories.erase(it);
+            return true;
+        }
     }
     else {
         kDebug() << "Could not find category with name" << name;
         return false;
+    }
+}
+
+void Nepomuk::CategoriesPool::setAutoUpdate(bool autoUpdate)
+{
+    if(autoUpdate != d->m_autoUpdate) {
+        if(autoUpdate) {
+            foreach(const QString & dirName, KGlobal::dirs()->findDirs("config", CATEGORY_CONFIG_DIR)) {
+                kDebug() << "Watching dir "<< dirName;
+                KDirWatch::self()->addDir(dirName);
+            }
+            connect(KDirWatch::self(), SIGNAL(dirty(const QString &)), this, SLOT(reloadCategories()));
+        }
+        else {
+            KDirWatch::self()->disconnect(this);
+        }
     }
 }
 

@@ -50,6 +50,7 @@ set( webexsettings_SRCS
     global.cpp
     webextractor_kcm.cpp
     category.cpp
+    datappdescr.cpp
     )
 
 set( webexplugin_SRCS

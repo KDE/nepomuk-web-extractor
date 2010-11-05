@@ -22,7 +22,7 @@
 #include "categoryeditor.h"
 #include "queryeditor.h"
 #include "pluginmodel.h"
-
+#include "categoriespool.h"
 #include <KComboBox>
 #include <KPushButton>
 #include <KDialog>
@@ -36,16 +36,20 @@
 #include <Nepomuk/Query/ResourceTypeTerm>
 #include <Nepomuk/Vocabulary/NFO>
 
+#include <KColorScheme>
+
 Q_DECLARE_METATYPE(Nepomuk::Query::Query)
 Q_DECLARE_METATYPE(KService::Ptr)
 
 using namespace Nepomuk::Query;
 
 CategoryEditor::CategoryEditor(QWidget *parent)
-    : QWidget(parent),
+    : KDialog(parent),
       m_addPluginMenu(0)
 {
-    setupUi(this);
+    setupUi(mainWidget());
+
+    setButtons(KDialog::Ok|KDialog::Cancel);
 
     m_buttonCustomQuery->setIcon(KIcon(QLatin1String("configure")));
     connect(m_buttonCustomQuery, SIGNAL(clicked()),
@@ -69,6 +73,9 @@ CategoryEditor::CategoryEditor(QWidget *parent)
              FileQuery(ResourceTypeTerm(Nepomuk::Vocabulary::NFO::Video())));
     selectQuery(i18nc("@item:inlistbox Description of a desktop query", "All Audio Files"),
              FileQuery(ResourceTypeTerm(Nepomuk::Vocabulary::NFO::Audio())));
+
+    connect(m_editName, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
+    connect(m_pluginModel, SIGNAL(layoutChanged()), this, SLOT(slotChanged()));
 
     slotPluginSelectionChanged(QItemSelection(), QItemSelection());
 }
@@ -113,27 +120,27 @@ void CategoryEditor::selectQuery(const QString &title, const Nepomuk::Query::Que
     if( i < 0 )
         i = 0; // default query: something
     m_comboQuery->setCurrentIndex(i);
+    slotChanged();
 }
 
-Category CategoryEditor::editCategory(QWidget *parent, const Category &cat)
+void CategoryEditor::editCategory(QWidget *parent, const Category &cat)
 {
-    KDialog dlg;
-    dlg.setButtons(KDialog::Ok|KDialog::Cancel);
+    CategoryEditor dlg;
     dlg.setCaption(i18n("Edit Category"));
-    CategoryEditor* ce = new CategoryEditor(&dlg);
-    dlg.setMainWidget(ce);
-    ce->loadCategory(cat);
+    dlg.loadCategory(cat);
     if( dlg.exec() ) {
-        return ce->category();
-    }
-    else {
-        return cat;
+        Nepomuk::CategoriesPool::self()->removeCategory(cat.name());
+        Nepomuk::CategoriesPool::self()->addCategory(dlg.category());
     }
 }
 
-Category CategoryEditor::createCaterory(QWidget *parent)
+void CategoryEditor::createCaterory(QWidget *parent)
 {
-    return editCategory(parent, Category());
+    CategoryEditor dlg;
+    dlg.setCaption(i18n("Create new Category"));
+    if( dlg.exec() ) {
+        Nepomuk::CategoriesPool::self()->addCategory(dlg.category());
+    }
 }
 
 int CategoryEditor::findQueryIndex(const Nepomuk::Query::Query &query)
@@ -178,4 +185,24 @@ void CategoryEditor::slotAddPluginActionTriggered()
     DataPPDescr datapp;
     datapp.name = service->name();
     m_pluginModel->addPlugin(datapp);
+}
+
+void CategoryEditor::slotChanged()
+{
+    const Category currentCat = category();
+
+    // we have a valid name if either the name is the same as the loaded one (editing) or the name does not exist yet
+    const bool haveValidName( currentCat.name() == m_loadedCategory.name() || !Nepomuk::CategoriesPool::self()->category(currentCat.name()).isValid());
+
+    enableButton(Ok, currentCat.isValid() && haveValidName && m_pluginModel->rowCount(QModelIndex()) > 0);
+
+    if(haveValidName) {
+        m_editName->setPalette(palette());
+    }
+    else {
+        QPalette p(palette());
+        KColorScheme::adjustBackground(p, KColorScheme::NegativeBackground);
+        KColorScheme::adjustForeground(p, KColorScheme::NegativeText);
+        m_editName->setPalette(p);
+    }
 }
