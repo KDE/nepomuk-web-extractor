@@ -10,9 +10,6 @@
     <height>466</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string comment="KDE::DoNotExtract">Form</string>
-  </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
