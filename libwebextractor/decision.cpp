@@ -15,274 +15,228 @@
    along with this program; if not, write to the Free Software
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-#include "propertiesgroup.h"
-#include "decisionapplicationrequest.h"
-#include "decision.h"
-#include "datapp.h"
-#include <QtCore/QSharedData>
-#include <QtCore/QTime>
-#include <QtCore/QList>
-#include <QtCore/QMultiMap>
+
+
 #include <KDebug>
-#include "ndco.h"
-#include "decisiondata.h"
-#include "identsetmanager.h"
-#include <nepomuk/mergerequest.h>
+#include <QList>
+#include <QString>
+#include <QHash>
+#include <QUrl>
+#include <QTime>
+
 #include <nepomuk/changelog.h>
+
+#include "decision.h"
+#include "decisionapplicationrequest.h"
+#include "global.h"
 
 namespace NW = Nepomuk::WebExtractor;
 namespace NS = Nepomuk::Sync;
 
-
-
-double NW::Decision::truncateRank(double rank)
+class NW::Decision::Private : public QSharedData
 {
-    return boundRank(rank);
-}
+    public:
+	Private();
+	// Rank of the Decision. Must be approximately 0 <= rank < 1.
+	// The exact boundaries are storeg in globals
+	double rank;
+	// Every meaningfull Decision consist of one or more 
+	// PropertiesGroup. The actuall changes are stored inside
+	// PropertiesGroup as NS::ChangeLog object 
+	QList< PropertiesGroup > groups;
+	// The human-readable description of the Decision
+	QString description;
 
-double NW::Decision::rank() const
-{
-    return d->rank;
-}
+	// This is our storage for all IdentificationSets for all our
+	// proxied resources. The key is the PROXY url, not the source one 
+	QHash< QUrl, NS::IdentificationSet > resourceProxyISMap;
 
-float  NW::Decision::dataPPVersion() const
-{
-    Q_ASSERT(!d->authorsData.isEmpty());
-    return (*(d->authorsData.begin()))->version();
-}
+	// This is set for all other resources involved 
+	// into changes.
+	// othersIdentificationSet + all sets from resourceProxyISMap
+	// well result in identificationSet of whole Decision change log
+	NS::IdentificationSet auxiliaryIdentificationSet;
 
-QString  NW::Decision::dataPPName() const
-{
-    Q_ASSERT(!d->authorsData.isEmpty());
-    return (*(d->authorsData.begin()))->name();
-}
+	// time stamp. The time when the creation of this decision started
+	QTime timeStamp;
 
-NW::Decision::Decision(
-    const DataPP * parent,
-    Soprano::Model * decisionsModel,
-    IdentificationSetManager * identsetManager
-):
-    d(new NW::DecisionData(parent, decisionsModel, identsetManager))
-{
-}
+	// hash name:version of authors datapp
+	QHash<QString, int>  authorsData;
 
-NW::Decision::Decision(
-):
-    d(new NW::DecisionData())
-{
+	mutable NS::ChangeLog cachedLog;
+
+	mutable bool cachedValidness;
+	mutable bool cachedEmptyness;
+
+	mutable QSet<QUrl> cachedTargetResources;
+
+	// dirty bits
+	enum { DIRTY_LOG = 1, DIRTY_SETS = 2, DIRTY_VALIDNESS = 4, DIRTY_TARGETRESOURCES = 8 , DIRTY_EMPTYNESS = 16};
+	// It is mutable because we need to reset
+	// flags in const function
+	mutable unsigned char dirty;
+
 };
 
+NW::Decision::Private::Private():
+    rank(-1),
+    cachedValidness(false),
+    cachedEmptyness(false),
+    dirty(0xFF)
+{;}
 
-NW::Decision::~Decision()
-{
-}
+NW::Decision::Decision():
+    d(new Private())
+{;}
 
-NW::Decision::Decision(const Decision & rhs)
+NW::Decision::Decision(const Decision & rhs):
+    d(rhs.d)
+{;}
+
+const NW::Decision & NW::Decision::operator=( const Decision & rhs)
 {
     d = rhs.d;
-}
-
-const NW::Decision & Nepomuk::WebExtractor::Decision::operator=(const Decision & rhs)
-{
-    this->d = rhs.d;
     return *this;
 }
 
-bool NW::Decision::operator==(const Decision & rhs) const
+NW::Decision::~Decision()
+{;}
+
+/*! \brief Return all groups of the Decision
+	 */
+QList< NW::PropertiesGroup > NW::Decision::groups() const
 {
-    if(this == &rhs)
-        return true;
-    if(this->d == rhs.d)
-        return true;
-
-#warning Implement this!
-
-    return false;
-    //return (d->data == rhs.d->data);
+    return d->groups;
 }
 
-bool NW::Decision::operator!=(const Decision & rhs)const
+int NW::Decision::size() const
 {
-    return !(*this == rhs);
+    return d->groups.size();
+}
+
+const NW::PropertiesGroup & NW::Decision::group(int index) const
+{
+    return d->groups[index];
 }
 
 bool NW::Decision::isEmpty() const
 {
-    return d->data.isEmpty();
+    if ( isDirtyEmptyness() ) {
+	// Check that there is at least any group that is
+	// non-empty 
+	bool hasNonempty = false;
+	foreach( const PropertiesGroup & grp, d->groups )
+	{
+	    if (!grp.isEmpty()) {
+		hasNonempty = true;
+		break;
+	    }
+	}
+
+	d->cachedEmptyness = hasNonempty;
+	
+	markCleanEmptyness();
+    }
+    return d->cachedEmptyness;
 }
 
 bool NW::Decision::isValid() const
 {
-    return d->isValid();
+    if (isDirty()) {
+	kDebug() << "State is dirty. Rechecking";
+
+	const_cast<NW::Decision*>(this)->d.detach();
+	if ( !d->groups.size() ) {
+	    kDebug() << "Decision doesn't hold any part";
+	    d->cachedValidness = false;
+	}
+	else {
+	    // This variable hold true if in all groups all resources has 
+	    // any record in idetification set
+	    bool allGroupsAreGood = true;
+	    if (!isEmpty() ) {
+		// Check that every non-target resources has an record in
+		// identification set
+		foreach( const PropertiesGroup & grp, d->groups )
+		{
+		    // check resources of every group
+		    foreach( const QUrl & url, grp.log().resources() )
+		    {
+			// If any resource doesn't have an identification set,
+			// then we have a big big problem
+			if ( !d->resourceProxyISMap.contains(url) ) { 
+			    // It is not a target resource.
+			    // May be it is a auxiliary resources ?
+			    if ( !d->auxiliaryIdentificationSet.contains(url) )   {
+				allGroupsAreGood = false;
+				break;
+			    }
+			}
+
+		    }
+		    if (!allGroupsAreGood)
+			break;
+		}
+	    }
+
+	    if ( allGroupsAreGood) {
+		d->cachedValidness = true;
+	    }
+	    else {
+		kDebug() << "Decision hold some invalid part. Identification set is uncomplete";
+		d->cachedValidness = false;
+	    }
+
+	    // TODO Add check that all non-main resources 
+	    // contains records in the auxilaryIdentificationSet
+	    // They should conatin at least record with rdf::type
+	}
+
+	markCleanValidness();
+    }
+
+    return d->cachedValidness;
 }
 
-void NW::Decision::setRank(double rank)
+
+const QHash< QUrl, NS::IdentificationSet> & NW::Decision::identificationSets() const
 {
-    // If freezed
-    if(d->isFreezed())
-        return ;
-
-    rank = truncateRank(rank);
-
-    d->rank = rank;
-}
-
-QUrl NW::Decision::uri() const
-{
-    return d->contextUrl;
-}
-
-Nepomuk::ResourceManager * NW::Decision::manager() const
-{
-    return d->manager;
-}
-
-
-Soprano::Model * NW::Decision::model() const
-{
-    return d->filterModel;
-}
-
-QString NW::Decision::description() const
-{
-    return d->description;
-}
-
-
-void NW::Decision::setDescription(const QString & description)
-{
-    d->description = description;
+    return d->resourceProxyISMap; 
 }
 
 NS::ChangeLog NW::Decision::log() const
 {
-    NS::ChangeLog answer;
-    foreach(const PropertiesGroup & grp, d->data) {
-        answer << grp.log();
+    if ( isDirtyLog() ) {
+	const_cast<NW::Decision*>(this)->d.detach();
+	NS::ChangeLog answer;
+	// update log
+	foreach( const PropertiesGroup & grp, d->groups )
+	{
+	    answer << grp.log();
+	}
+	d->cachedLog = answer;
+	markCleanLog();
     }
-
-    return answer;
-}
-
-NW::PropertiesGroup NW::Decision::newGroup()
-{
-    // Check that decision is valid
-    if(!isValid())
-        return PropertiesGroup(0);
-
-    // If freezed
-    if(d->isFreezed())
-        return PropertiesGroup(0);
-
-    // First create new property group
-    PropertiesGroup pg = PropertiesGroup(this->d.data());
-
-    return pg;
-
-}
-
-QSet< NW::PropertiesGroup > NW::Decision::groups() const
-{
-    return d->data;
-}
-
-/*
-QList<QUrl> NW::Decision::groupsUrls() const
-{
-    QList<QUrl> answer;
-    foreach( const PropertiesGroup & grp, d->data)
-    {
-    answer << grp.uri();
-    }
-    return answer;
-}
-*/
-
-/*
-void NW::Decision::setCurrentGroup( const PropertiesGroup & group)
-{
-    d->setCurrentGroup(group);
-}
-*/
-
-void NW::Decision::resetCurrentGroup()
-{
-    d->resetCurrentGroup();
-}
-
-
-QUrl NW::Decision::proxyUrl(const Nepomuk::Resource & res)
-{
-    return d->proxyUrl(res);
-}
-
-Nepomuk::Resource NW::Decision::proxyResource(const Nepomuk::Resource & res)
-{
-    // Call proxyUrl
-    QUrl answer = proxyUrl(res);
-    // Create resoruce and return it.
-    return Nepomuk::Resource(answer, QUrl(), d->manager);
-}
-
-QHash<QUrl, QUrl> NW::Decision::proxies() const
-{
-    return d->resourceProxyMap;
-
-}
-
-/*
-void NW::Decision::addStatement(const Soprano::Statement & statement, double rank)
-{
-    PropertiesGroup grp;
-    grp << statement;
-    grp.setRank(rank);
-    addGroup(grp);
-}
-*/
-/*
-void NW::Decision::addGroup( const PropertiesGroup & grp)
-{
-    //rank = Private::truncateRank(rank);
-
-    // Check that none of this statemnt's exist in model.
-    // Those that's exist - ignore
-
-    // Add statements
-    //d->data.insert(rank,statements);
-    d->data << grp;
-
-    // Increase hash
-    d->hash ^= qHash(grp);
-}
-*/
-
-void NW::Decision::freeze()
-{
-    this->d->setFreeze(true);
-}
-
-bool NW::Decision::isFreezed() const
-{
-    return this->d->isFreezed();
+    return d->cachedLog;
 }
 
 NW::DecisionApplicationRequest * NW::Decision::applicationRequest(Soprano::Model * targetModel) const
 {
-    Q_ASSERT(targetModel);
+    if( !targetModel)
+	targetModel = ResourceManager::instance()->mainModel();
     if(!isValid())
         return 0;
 
-    // Get changelog
-    NS::ChangeLog log = this->log();
 
-    return new DecisionApplicationRequest(d, log, targetModel);
+    return new DecisionApplicationRequest(*this, targetModel);
 }
 
 
 bool NW::Decision::apply(Soprano::Model * targetModel) const
 {
 
-    Q_ASSERT(targetModel);
+    if( !targetModel)
+	targetModel = ResourceManager::instance()->mainModel();
 
     if(!isValid())
         return false;
@@ -295,31 +249,260 @@ bool NW::Decision::apply(Soprano::Model * targetModel) const
 
 }
 
-void NW::Decision::addToUserDiscretion()
+
+double NW::Decision::rank() const
 {
-    /*
-    kDebug() << "Write Decision to user discretion list";
-    foreach ( const PropertiesGroup  &  lst, d->data )
-    {
-    foreach( const Soprano::Statement  & st, lst.data() )
-    {
-        kDebug() << st;
+    return d->rank;
+}
+
+int  NW::Decision::dataPPVersion() const
+{
+    if (d->authorsData.isEmpty())
+	return -1;
+
+    return d->authorsData.begin().value();
+}
+
+
+QString  NW::Decision::dataPPName() const
+{
+    if (d->authorsData.isEmpty())
+	return QString();
+
+    return d->authorsData.begin().key();
+}
+
+
+QString NW::Decision::description() const
+{
+    return d->description;
+}
+
+
+/* ==== Editing section ==== */
+int NW::Decision::addGroup()
+{
+    // Create group
+    d->groups.append(  PropertiesGroup() );
+
+    // Mark as dirty
+    markDirtyLog();
+
+    return d->groups.size() - 1;
+
+}
+
+int  NW::Decision::addGroup(const Nepomuk::Sync::ChangeLog & log, const QString & description, double rank )
+{
+    // Create group
+    d->groups.append(  PropertiesGroup(log,description,rank) );
+
+    // Mark as dirty
+    markDirtyLog();
+
+    return d->groups.size() - 1;
+
+}
+
+int  NW::Decision::addGroup(const PropertiesGroup & group)
+{
+    // Create group
+    d->groups.append(  group );
+
+    // Mark as dirty
+    markDirtyLog();
+
+    return d->groups.size() - 1;
+
+}
+void NW::Decision::setDescription( const QString & description)
+{
+    d->description = description;
+}
+
+void NW::Decision::setIdentificationSets( const QHash<QUrl,Nepomuk::Sync::IdentificationSet> isets )
+{
+    d->resourceProxyISMap = isets;
+    markDirtySets();
+}
+
+
+/*
+QHash< QUrl, NS::IdentificationSet> & NW::Decision::resourceProxyISMap() 
+{
+    return d->resourceProxyISMap;
+}
+
+QHash< QUrl, NS::IdentificationSet> & NW::Decision::identificationSets()
+{
+    markDirtySets();
+    return d->resourceProxyISMap;
+}
+*/
+
+void NW::Decision::addIdentificationSet(const QUrl & url, const Nepomuk::Sync::IdentificationSet & iset)
+{
+    d->resourceProxyISMap[url] = iset;
+    markDirtySets();
+    return;
+}
+
+void NW::Decision::setAuxiliaryIdentificationSet( const Nepomuk::Sync::IdentificationSet & oset)
+{
+    d->auxiliaryIdentificationSet = oset;
+}
+
+NS::IdentificationSet NW::Decision::auxiliaryIdentificationSet() const
+{
+    return d->auxiliaryIdentificationSet;
+}
+
+QSet<QUrl> NW::Decision::targetResources() const
+{
+    if ( isDirtyTargetResources() ) {
+	// Because we edit mutable member
+	const_cast<NW::Decision*>(this)->d.detach();
+	// Update target resources cache
+	// Target resources are all resocures that contains in
+	// 1) resourceProxyISMap
+	// 2) somewhere in the summary changelog as subjects or objects
+	d->cachedTargetResources.clear();
+	NS::ChangeLog log = this->log();
+	QSet<QUrl> resources = log.resources();
+	for( 
+		QHash<QUrl,NS::IdentificationSet>::const_iterator it = d->resourceProxyISMap.begin();
+		it != d->resourceProxyISMap.end();
+		it++
+	   )
+	{
+	    // Resource is it.key()
+	    // check that it contains somewhere in log
+	    if (resources.contains(it.key()) ) {
+		d->cachedTargetResources << it.key();
+	    }
+	}
+	markCleanTargetResources();
     }
+
+    return d->cachedTargetResources;
+}
+
+void NW::Decision::cleanUnused()
+{
+    // Remove empty PropertiesGroup
+    QList<PropertiesGroup>::iterator it = d->groups.begin();
+    QList<PropertiesGroup>::iterator it_end = d->groups.end();
+    for(; it != it_end; it++ )
+    {
+	if (it->isEmpty()) { // Remove it
+	    it = d->groups.erase(it);
+	}
     }
-    */
+
+    // Remove unnecessary records from identification hash
+    QHash<QUrl,NS::IdentificationSet>::iterator hit = d->resourceProxyISMap.begin();
+    QHash<QUrl,NS::IdentificationSet>::iterator hit_end = d->resourceProxyISMap.end();
+    QSet<QUrl> tr = targetResources();
+
+    for( ; hit != hit_end; hit++ )
+    {
+	if ( !tr.contains(hit.key()) ) {
+	    // Remove from hash
+	    hit = d->resourceProxyISMap.erase(hit);
+	}
+    }
+    Q_ASSERT(tr.size() == d->resourceProxyISMap.size());
+
+}
+/*
+void NW::Decision::setMainResources(const QSet<QUrl> & resources )
+{
+    d->mainResources = resources;
 }
 
-QList<QUrl> NW::Decision::mainResources() const
+void NW::Decision::addMainResources( const QUrl & resource)
 {
-    return d->resourceProxyMap.values();
+    d->mainResources.insert(resource);
+}
+*/
+
+void NW::Decision::setTimeStamp( const QTime & time )
+{
+    d->timeStamp = time;
 }
 
-void NW::Decision::addAuthor(const DataPP * author)
+void NW::Decision::setRank( double rank )
 {
-    d->authorsData.insert(author);
+    d->rank = boundRank(rank);
 }
 
-unsigned int NW::qHash(const Nepomuk::WebExtractor::Decision & des)
+void NW::Decision::markDirtyLog()
 {
-    return des.d->hash;
+    d->dirty |= Private::DIRTY_LOG;
+    d->dirty |= Private::DIRTY_VALIDNESS;
+    d->dirty |= Private::DIRTY_TARGETRESOURCES;
+    d->dirty |= Private::DIRTY_EMPTYNESS;
+}
+
+void NW::Decision::markCleanLog() const
+{
+    const_cast<NW::Decision*>(this)->d.detach();
+    d->dirty = (d->dirty |  Private::DIRTY_LOG ) ^ Private::DIRTY_LOG;
+}
+
+void NW::Decision::markDirtySets()
+{
+    d->dirty |= Private::DIRTY_SETS;
+    d->dirty |= Private::DIRTY_VALIDNESS;
+    d->dirty |= Private::DIRTY_EMPTYNESS;
+    d->dirty |= Private::DIRTY_TARGETRESOURCES;
+}
+
+void NW::Decision::markCleanSets() const
+{
+    const_cast<NW::Decision*>(this)->d.detach();
+    d->dirty = (d->dirty |  Private::DIRTY_SETS ) ^ Private::DIRTY_SETS;
+}
+
+void NW::Decision::markCleanValidness() const
+{
+    const_cast<NW::Decision*>(this)->d.detach();
+    d->dirty = (d->dirty |  Private::DIRTY_VALIDNESS ) ^ Private::DIRTY_VALIDNESS;
+}
+
+void NW::Decision::markCleanEmptyness() const
+{
+    const_cast<NW::Decision*>(this)->d.detach();
+    d->dirty = (d->dirty |  Private::DIRTY_EMPTYNESS ) ^ Private::DIRTY_EMPTYNESS;
+}
+
+void NW::Decision::markCleanTargetResources() const
+{
+    const_cast<NW::Decision*>(this)->d.detach();
+    d->dirty = (d->dirty |  Private::DIRTY_TARGETRESOURCES ) ^ Private::DIRTY_TARGETRESOURCES;
+}
+
+bool NW::Decision::isDirtyLog() const
+{
+    return d->dirty & Private::DIRTY_LOG;
+}
+
+bool NW::Decision::isDirtySets() const
+{
+    return d->dirty & Private::DIRTY_SETS;
+}
+
+bool NW::Decision::isDirtyTargetResources() const
+{
+    return d->dirty & Private::DIRTY_TARGETRESOURCES;
+}
+
+bool NW::Decision::isDirtyEmptyness() const
+{
+    return d->dirty & Private::DIRTY_EMPTYNESS;
+}
+
+bool NW::Decision::isDirty() const
+{
+    return d > 0;
 }

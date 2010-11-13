@@ -24,6 +24,7 @@
 #include <QByteArray>
 #include <KAboutData>
 #include <KCmdLineOptions>
+#include <kdebug.h>
 
 int main(int argc, char ** argv)
 {
@@ -57,7 +58,7 @@ int main(int argc, char ** argv)
     for(int i = 0; i < args->count(); i++)
         datapps << args->arg(i);
 
-    kDebug() << "Selected DataPP: " << datapps;
+    qDebug() << "Selected DataPP: " << datapps;
 
 
     ConsoleMainWindow * w = new ConsoleMainWindow(uri, datapps, autostart);

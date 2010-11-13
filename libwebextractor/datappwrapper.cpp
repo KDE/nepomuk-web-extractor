@@ -51,6 +51,7 @@ NW::DataPPWrapper::DataPPWrapper(const DataPPWrapper & rhs):
 NW::DataPPWrapper & NW::DataPPWrapper::operator=(const DataPPWrapper & rhs)
 {
     this->d = rhs.d;
+    return *this;
 }
 
 NW::DataPPWrapper::~DataPPWrapper()

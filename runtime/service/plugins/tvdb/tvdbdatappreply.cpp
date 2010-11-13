@@ -71,16 +71,15 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
             kDebug() << "Creating decision for" << series.name();
 
             // 2. create the new decision
-            WebExtractor::Decision d = newDecision();
-            WebExtractor::PropertiesGroup g = d.newGroup();
+            WebExtractor::DecisionCreator d = newDecision();
 
             // 3. create the series resource
-            TVSeries tvSeries( QUrl(), g.manager() );
+            TVSeries tvSeries( QUrl(), d.manager() );
             tvSeries.setLabel( series.name() );
             tvSeries.setDescription( series.overview() );
 
             // 4. add the data to the file resource: the TVShow type and the rest
-            TVShow proxyRes( d.proxyUrl(resource()), g.manager() );
+            TVShow proxyRes( d.proxyUrl(resource()), d.manager() );
             proxyRes.addType( QUrl( TVShow::resourceTypeUri() ) );
             proxyRes.setSeries( tvSeries );
             tvSeries.addEpisode( proxyRes );

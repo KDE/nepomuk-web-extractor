@@ -29,16 +29,20 @@ namespace Nepomuk
 {
     namespace WebExtractor
     {
+	class DecisionFactory;
+	class DecisionCreator;
         class SimpleDataPPReplyPrivate;
         class WEBEXTRACTOR_EXPORT SimpleDataPPReply  : public DataPPReply
         {
                 Q_OBJECT;
             public:
                 SimpleDataPPReply(DataPP * parent, const  DecisionFactory * factory, const Nepomuk::Resource & res);
-                Decision newDecision();
+                DecisionCreator newDecision();
                 DecisionList newDecisionList();
                 void addDecision(const Decision &);
                 void addDecision(const Decision & , MergePolitics politics, double coff = 1, bool noAuto = false);
+                void addDecision(const DecisionCreator &);
+                void addDecision(const DecisionCreator & , MergePolitics politics, double coff = 1, bool noAuto = false);
                 double approximateThreshold() const;
                 virtual DecisionList decisions() const;
                 const Nepomuk::Resource & resource();

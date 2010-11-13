@@ -16,39 +16,41 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <nepomuk/mergerequest.h>
+#include <KDebug>
+#include <Soprano/Statement>
 
 #include "decisionapplicationrequest.h"
 #include "decisionapplicationrequest_p.h"
-#include <nepomuk/mergerequest.h>
 #include "algorithm.h"
 
 namespace NW = Nepomuk::WebExtractor;
 namespace NS = Nepomuk::Sync;
 
-NW::DecisionApplicationRequest::DecisionApplicationRequest(QSharedPointer<DecisionData> target, Nepomuk::Sync::ChangeLog log, Soprano::Model * targetModel, QObject * parent):
+NW::DecisionApplicationRequest::DecisionApplicationRequest(const Decision & target, Soprano::Model * targetModel, QObject * parent):
     QObject(parent),
     d_ptr(new DecisionApplicationRequestPrivate())
 {
     Q_D(DecisionApplicationRequest);
-    d->decisionData = target;
+    d->decision = target;
     d->applied = false;
     d->identified = false;
-    d->mainIdentified = false;
+    d->targetsIdentified = false;
     d->targetModel = targetModel;
-    d->log = log;
+    d->log = target.log();
 }
 
-NW::DecisionApplicationRequest::DecisionApplicationRequest(QSharedPointer<DecisionData>  target, Nepomuk::Sync::ChangeLog log, Soprano::Model * targetModel, DecisionApplicationRequestPrivate & p, QObject * parent):
+NW::DecisionApplicationRequest::DecisionApplicationRequest(const Decision & target, Soprano::Model * targetModel, DecisionApplicationRequestPrivate & p, QObject * parent):
     QObject(parent),
     d_ptr(&p)
 {
     Q_D(DecisionApplicationRequest);
-    d->decisionData = target;
+    d->decision = target;
     d->applied = false;
     d->identified = false;
-    d->mainIdentified = false;
+    d->targetsIdentified = false;
     d->targetModel = targetModel;
-    d->log = log;
+    d->log = target.log();
 }
 
 void NW::DecisionApplicationRequest::reset()
@@ -59,30 +61,34 @@ void NW::DecisionApplicationRequest::reset()
     d->mainRequest = 0;
     d->identified = false;
     d->applied = false;
-    d->mainIdentified  = false;
-    d->mainResourceIdentificationHash.clear();
+    d->targetsIdentified  = false;
+    d->targetResourceIdentificationHash.clear();
 }
 
 
-void NW::DecisionApplicationRequest::identifyMain(bool reset)
+void NW::DecisionApplicationRequest::identifyTargets(bool reset)
 {
     Q_D(DecisionApplicationRequest);
-    if(d->mainIdentified and !reset)
+    if(d->targetsIdentified and !reset)
         return;
 
     if(reset) {
         DecisionApplicationRequest::reset();
     }
 
-    // Now it is necessary to identify the Decision main resources.
+    // Now it is necessary to identify the Decision target resources.
 
     bool success = true;
-    QHash<QUrl, NS::IdentificationSet>::const_iterator it = d->decisionData->resourceProxyISMap.begin();
-    QHash<QUrl, NS::IdentificationSet>::const_iterator it_end = d->decisionData->resourceProxyISMap.end();
+    d->decision.cleanUnused();
+    QSet<QUrl> targetResources = d->decision.targetResources();
+    // Now, because we have cleaned unused identifications sets,
+    // we can iterate over sets hash as if we would iterate over target resources set
+    QHash<QUrl, NS::IdentificationSet>::const_iterator it = d->decision.identificationSets().begin();
+    QHash<QUrl, NS::IdentificationSet>::const_iterator it_end = d->decision.identificationSets().end();
     for(; it != it_end; it++) {
-        // proxyUrl is like url of the main resource in the Decision storage model
+        // proxyUrl is(was)  url of the target resource in the Decision storage model
         // Thats why it is called 'proxy'
-        QUrl proxyUrl = d->decisionData->resourceProxyMap[it.key()];
+        QUrl proxyUrl = it.key();
         Q_ASSERT(!proxyUrl.isEmpty());
 
         kDebug() << "Identification set for the resource " << it.key() << "is:";
@@ -113,13 +119,13 @@ void NW::DecisionApplicationRequest::identifyMain(bool reset)
 
 
         // Add to our own database
-        d->mainResourceIdentificationHash.insert(proxyUrl, mpUri);
+        d->targetResourceIdentificationHash.insert(proxyUrl, mpUri);
 
         delete req;
     }
 
-    // Set mainIdentified
-    d->mainIdentified = success;
+    // Set targetsIdentified
+    d->targetsIdentified = success;
 }
 
 void NW::DecisionApplicationRequest::identify(bool reset)
@@ -137,11 +143,11 @@ void NW::DecisionApplicationRequest::identify(bool reset)
     d->identified = false;
 
     // Identify main resources
-    if(!d->mainIdentified) {
-        identifyMain();
+    if(!d->targetsIdentified) {
+        identifyTargets();
         // If identification was unsuccessfull,
         // then return
-        if(!d->mainIdentified) {
+        if(!d->targetsIdentified) {
             return;
         }
     }
@@ -151,15 +157,13 @@ void NW::DecisionApplicationRequest::identify(bool reset)
     // of resources that are Decision target resources should be excluded.
     QSet<QUrl> ignoreset;
     QHash<QUrl, NS::IdentificationSet>::const_iterator isit =
-        d->decisionData->resourceProxyISMap.begin();
+        d->decision.identificationSets().begin();
     QHash<QUrl, NS::IdentificationSet>::const_iterator isit_end =
-        d->decisionData->resourceProxyISMap.end();
-    // Iteration is done over resourceProxyISMap
-    // ( the hash main resource -> identification set ),
-    // but values are taken from resourceProxyMap
-    // ( the hash original resource -> copy resource )
+        d->decision.identificationSets().end();
+    // Iteration is done over identificationSets()
+    // ( the hash proxy resource -> identification set ),
     for(; isit != isit_end; isit++) {
-        ignoreset << d->decisionData->resourceProxyMap[isit.key()];
+        ignoreset << isit.key();
     }
     /* Debugging section */
 #if 0
@@ -167,20 +171,20 @@ void NW::DecisionApplicationRequest::identify(bool reset)
     if(chlUri.size() > 0) {
         kDebug() << "Dump resources in changelog";
         QTextStream ostr(stdout);
-        dump_resources_as_text(chlUri, d->decisionData->decisionsModel, ostr, -1);
+        dump_resources_as_text(chlUri, d->decision.decisionsModel, ostr, -1);
     } else {
         kDebug() << "No resource in changelog";
     }
 #endif
     /* End of debugging section */
 
-    NS::IdentificationSet iset = NS::IdentificationSet::fromChangeLog(d->log, d->decisionData->decisionsModel, ignoreset);
+    NS::IdentificationSet iset = d->decision.auxiliaryIdentificationSet();
     kDebug() << "Decision identification set" << iset.toList();
     d->mainRequest = new NS::IdentificationRequest(d->log, iset, d->targetModel);
     d->mainRequest->load();
 
-    QHash<QUrl, QUrl>::const_iterator mit = d->mainResourceIdentificationHash.begin();
-    QHash<QUrl, QUrl>::const_iterator mit_end = d->mainResourceIdentificationHash.end();
+    QHash<QUrl, QUrl>::const_iterator mit = d->targetResourceIdentificationHash.begin();
+    QHash<QUrl, QUrl>::const_iterator mit_end = d->targetResourceIdentificationHash.end();
 
     // Add main resources to the main request database
     for(; mit != mit_end; mit++) {
@@ -198,10 +202,8 @@ void NW::DecisionApplicationRequest::identify(bool reset)
 
     d->identified = d->mainRequest->done();
 
-
-
-
 }
+
 
 bool NW::DecisionApplicationRequest::apply()
 {
@@ -254,16 +256,16 @@ QSet<QUrl> NW::DecisionApplicationRequest::unidentified() const
     return  d->mainRequest->unidentified();
 }
 
-QHash<QUrl, QUrl> NW::DecisionApplicationRequest::mainMappings() const
+QHash<QUrl, QUrl> NW::DecisionApplicationRequest::targetsMappings() const
 {
     Q_D(const DecisionApplicationRequest);
-    return d->mainResourceIdentificationHash;
+    return d->targetResourceIdentificationHash;
 }
 
-bool NW::DecisionApplicationRequest::isMainIdentified() const
+bool NW::DecisionApplicationRequest::isTargetsIdentified() const
 {
     Q_D(const DecisionApplicationRequest);
-    return d->mainIdentified;
+    return d->targetsIdentified;
 }
 
 NW::DecisionApplicationRequest::~DecisionApplicationRequest()
@@ -271,22 +273,8 @@ NW::DecisionApplicationRequest::~DecisionApplicationRequest()
     reset();
 }
 
-QSet<QUrl> NW::DecisionApplicationRequest::mainResources() const
+QSet<QUrl> NW::DecisionApplicationRequest::targetResources() const
 {
     Q_D(const DecisionApplicationRequest);
-    // If mainResources is already cached, then return them
-    if(d->mainResources.isEmpty()) {
-
-        QSet<QUrl> changeLogResources = d->log.resources();
-        // Iterate over all main resources of the Decision.
-        foreach(const QUrl & proxyUrl, d->decisionData->resourceProxyMap.values()) {
-            // If proxyUrl( aka main Decision resource) is contained in changelog,
-            // then it is main resource for this application request.
-            // If not - then it is not.
-            if(changeLogResources.contains(proxyUrl))
-                d->mainResources.insert(proxyUrl);
-        }
-    }
-
-    return d->mainResources;
+    return d->decision.targetResources();
 }

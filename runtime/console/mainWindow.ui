@@ -46,11 +46,11 @@
     <item>
      <widget class="KTabWidget" name="ktabwidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="selectTab">
        <attribute name="title">
-        <string>Select Resources</string>
+        <string>Launch</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -251,7 +251,7 @@ every iteration</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
-               <widget class="Nepomuk::Query::SearchWidget" name="resWidget"/>
+               <widget class="Nepomuk::Utils::SearchWidget" name="resWidget"/>
               </item>
              </layout>
             </widget>
@@ -494,7 +494,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QListWidget" name="decisionListWidget">
+           <widget class="DecisionCollectionWidget" name="decisionListWidget">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -545,7 +545,7 @@ p, li { white-space: pre-wrap; }
         <item row="0" column="1">
          <widget class="KTabWidget" name="ktabwidget_3">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="decisionViewTab">
            <attribute name="title">
@@ -553,7 +553,7 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <widget class="DecisionWidget" name="decisionWidget" native="true"/>
+             <widget class="DecisionWidget" name="decisionWidget"/>
             </item>
            </layout>
           </widget>
@@ -632,6 +632,11 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
+   <class>DecisionWidget</class>
+   <extends>QWidget</extends>
+   <header>webextractor/decisionwidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>KDoubleNumInput</class>
    <extends>QWidget</extends>
    <header>knuminput.h</header>
@@ -658,19 +663,19 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>Nepomuk::Query::SearchWidget</class>
+   <class>Nepomuk::Utils::SearchWidget</class>
    <extends>QWidget</extends>
    <header>nepomuk/searchwidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>DecisionWidget</class>
-   <extends>QWidget</extends>
-   <header>webextractor/decisionwidget.h</header>
   </customwidget>
   <customwidget>
    <class>ExaminedWidget</class>
    <extends>QTableWidget</extends>
    <header>examinedwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DecisionCollectionWidget</class>
+   <extends>QListWidget</extends>
+   <header location="global">webextractor/decisioncollectionwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

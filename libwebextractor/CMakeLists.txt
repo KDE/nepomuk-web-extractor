@@ -49,7 +49,8 @@ set( webextractor_SRCS
     resourceanalyzerfactory.cpp
     resourceanalyzer.cpp
     decision.cpp
-    decisiondata.cpp
+    decisioncreator.cpp
+    decisioncreator_p.cpp
     decisionfactory.cpp
     decisionlist.cpp
     decisionapplicationrequest.cpp
@@ -60,6 +61,8 @@ set( webextractor_SRCS
     global.cpp
     datappwrapper.cpp
     propertiesgroup.cpp
+    propertiesgroupcreator.cpp
+    propertiesgroupcreator_p.cpp
     simplenetworkdatapp.cpp
     simplenetworkreplyfactory.cpp
     simplenetworkreply.cpp
@@ -109,6 +112,58 @@ set ( webextractor_MOC
     nodefilterinterface.h
     )
 
+set (WEBEXTRACTOR_HEADERS 
+    datapp.h
+    datappkeeper.h
+    datappreply.h
+    datappreply_p.h
+    datapprequest.h
+    datappwrapper.h
+    datapptemplate.h
+    debug_datapp.h
+    decisionfactory.h
+    decision.h
+    decisionapplicationrequest.h
+    decisionlist.h
+    decisioncreator.h
+    global.h
+    parameters.h
+    propertiesgroup.h
+    propertiesgroupcreator.h
+    resourceanalyzerfactory.h
+    resourceanalyzer.h
+    simpledatappreply.h
+    simplenetworkdatapp.h
+    simplenetworkreplyfactory.h
+    simplenetworkreply.h
+    simplenetworkrequest.h
+    resourceservicedatamanager.h
+    resourceservicedata.h
+    nepomukservicedatabackend.h
+    dummyservicedatabackend.h
+    nepomukservicedatabackendfactory.h
+    servicedatabackend.h
+    servicedatabackendfactory.h
+    webextractor_export.h
+    identsetmanager.h
+    algorithm.h
+    modelgraphvisitor.h
+    ${CMAKE_CURRENT_BINARY_DIR}/ndco.h
+    ${CMAKE_CURRENT_BINARY_DIR}/config.h
+    # Graph  part
+    algorithm.h
+    graphalgorithm.h
+    copyvisitor.h
+    childqueryinterface.h
+    visitednodefilter.h
+    nodefilterinterface.h
+    resourcenodefilter.h
+    dotvisitor.h
+    modelgraphvisitor.h
+    modelgraph.h
+    selectedpropertiesfunc.h
+    plaintextvisitor.h
+    ) 
 QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )
 set ( webextractor_SRCS
     ${webextractor_SRCS}
@@ -151,57 +206,6 @@ remove_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 
 #installing
 
-set (WEBEXTRACTOR_HEADERS 
-    datapp.h
-    datappkeeper.h
-    datappreply.h
-    datappreply_p.h
-    datapprequest.h
-    datappwrapper.h
-    datapptemplate.h
-    debug_datapp.h
-    decisionfactory.h
-    decision.h
-    decisionapplicationrequest.h
-    decisionlist.h
-    decisiondata.h
-    global.h
-    parameters.h
-    propertiesgroup.h
-    resourceanalyzerfactory.h
-    resourceanalyzer.h
-    simpledatappreply.h
-    simplenetworkdatapp.h
-    simplenetworkreplyfactory.h
-    simplenetworkreply.h
-    simplenetworkrequest.h
-    resourceservicedatamanager.h
-    resourceservicedata.h
-    nepomukservicedatabackend.h
-    dummyservicedatabackend.h
-    nepomukservicedatabackendfactory.h
-    servicedatabackend.h
-    servicedatabackendfactory.h
-    webextractor_export.h
-    identsetmanager.h
-    algorithm.h
-    modelgraphvisitor.h
-    ${CMAKE_CURRENT_BINARY_DIR}/ndco.h
-    ${CMAKE_CURRENT_BINARY_DIR}/config.h
-    # Graph  part
-    algorithm.h
-    graphalgorithm.h
-    copyvisitor.h
-    childqueryinterface.h
-    visitednodefilter.h
-    nodefilterinterface.h
-    resourcenodefilter.h
-    dotvisitor.h
-    modelgraphvisitor.h
-    modelgraph.h
-    selectedpropertiesfunc.h
-    plaintextvisitor.h
-    ) 
 #set ( WEBEXTRACTOR_HEADERS 
 #    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 
 #    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzer.h

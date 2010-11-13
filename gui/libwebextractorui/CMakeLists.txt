@@ -53,7 +53,15 @@ add_definitions(-DMAKE_WEBEXTRACTORUI_LIB)
 set( webextractorui_SRCS 
     changelogwidget.cpp
     decisionwidget.cpp
+    decisioncollectionwidget.cpp
     )
+
+set (webextractorui_HEADERS 
+    webextractorui_export.h
+    changelogwidget.h
+    decisionwidget.h
+    decisioncollectionwidget.h
+    ) 
 
 set( webextractorui_UI
     changeLogForm.ui
@@ -110,18 +118,13 @@ target_link_libraries( decisionwidgetdesignerplugin
 
 #installing
 
-set (WEBEXTRACTORUI_HEADERS 
-    webextractorui_export.h
-    changelogwidget.h
-    decisionwidget.h
-    ) 
 #set ( WEBEXTRACTOR_HEADERS 
 #    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 
 #    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzer.h
 #    )
 
 install(FILES
-	${WEBEXTRACTORUI_HEADERS}
+	${webextractorui_HEADERS}
 	DESTINATION include/webextractor
 	)
 

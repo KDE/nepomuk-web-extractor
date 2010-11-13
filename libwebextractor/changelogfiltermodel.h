@@ -16,15 +16,19 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "webextractor_export.h"
 
 #ifndef __nepomuk_chaneglogfiltermodel_h_
 #define __nepomuk_chaneglogfiltermodel_h_
 
+
 #include <Soprano/FilterModel>
 #include <Soprano/Statement>
+#include <QUrl>
+#include <QSet>
 #include "nepomuk/changelogrecord.h"
 #include "nepomuk/changelog.h"
+
+#include "webextractor_export.h"
 
 namespace Nepomuk
 {

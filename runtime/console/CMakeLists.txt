@@ -65,7 +65,7 @@ target_link_libraries( webexconsole
     ${KDE4_NEPOMUK_LIBS}
     ${KDE4_KDECORE_LIBS}
     ${KDE4_KDEUI_LIBRARY}
-    nepomuksearchgui
+    nepomukutils
     nepomuksync
     )
 

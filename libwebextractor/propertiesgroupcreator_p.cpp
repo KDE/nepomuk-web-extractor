@@ -16,17 +16,23 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include <Nepomuk/ResourceManager>
 
-#include <KDebug>
-#include <QList>
-#include <QString>
-#include <QHash>
-#include <QUrl>
-#include <QTime>
-#include "decisiondata.h"
-#include "identificationset.h"
+#include "propertiesgroupcreator_p.h"
+#include "changelogfiltermodel.h"
 
 namespace NW = Nepomuk::WebExtractor;
 namespace NS = Nepomuk::Sync;
 
+NW::PropertiesGroupCreatorPrivate::PropertiesGroupCreatorPrivate():
+    filterModel(0),
+    manager(0)
+{
+}
 
+NW::PropertiesGroupCreatorPrivate::~PropertiesGroupCreatorPrivate()
+{
+    delete filterModel;
+    if(manager)
+        manager->deleteInstance();
+}
