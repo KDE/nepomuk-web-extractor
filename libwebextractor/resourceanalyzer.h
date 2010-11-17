@@ -32,6 +32,7 @@ namespace Nepomuk
     namespace WebExtractor
     {
         class ResourceAnalyzerFactory;
+	class ResourceServiceDataManager;
         /*! \brief This is the main class for analyzing resources.
          *
          * Analyzing is started with analyze() method.
@@ -110,18 +111,18 @@ namespace Nepomuk
                      * start new session. The process will stop if no more decisions
                      * can be generated or when none of decisions generated can not be
                      * applied automatically.
-                                 * There is one more benefit  in this mode - if in previous iteration
-                                 * some DataPP was examined, then in this iteration it will be exmained
-                                 * too. The problem that it solves is: what if changes, introduced
-                                 * with applied (at the end of the iteration) Decision has not changed
-                                 * nao:lastModified date of the resource. For example Decision change
-                                 * the information about author of the song. Then we have a situation
-                                 * where information is actually changed, but there is no records
-                                 * about it. In SingleStep politics all DataPP will be marked as
-                                 * examined - because to detect non-examined DataPP system compares
-                                 * 2 dates - last modification date of the resource and extraction
-                                 * date of the DataPP. In Iterative politics all DataPP from previous
-                                 * iteration  will be executed in current iteration.
+		     * There is one more benefit  in this mode - if in previous iteration
+		     * some DataPP was examined, then in this iteration it will be exmained
+		     * too. The problem that it solves is: what if changes, introduced
+		     * with applied (at the end of the iteration) Decision has not changed
+		     * nao:lastModified date of the resource. For example Decision change
+		     * the information about author of the song. Then we have a situation
+		     * where information is actually changed, but there is no records
+		     * about it. In SingleStep politics all DataPP will be marked as
+		     * examined - because to detect non-examined DataPP system compares
+		     * 2 dates - last modification date of the resource and extraction
+		     * date of the DataPP. In Iterative politics all DataPP from previous
+		     * iteration  will be executed in current iteration.
                      * Choosing this politics help decrease request to Nepomuk because
                      * auxilary data(DataPP name, version, time of extracting) will
                      * be written only once - at the end.
@@ -150,20 +151,20 @@ namespace Nepomuk
                 /*! \brief Apply any Decision with rank > a_crit or store Decision for the user discrition
                  *
                  * This function can be called only once. Next calls of this method
-                         * will do nothing. It is not very usefull method. In all cases, except
-                         * the simplest one you should take DecisionList ( via decisions() )
-                         * and work with it.
-                         * \return True if applying the best decision was successfull
+		 * will do nothing. It is not very usefull method. In all cases, except
+		 * the simplest one you should take DecisionList ( via decisions() )
+		 * and work with it.
+		 * \return True if applying the best decision was successfull
                  */
                 bool apply();
 
                 /*! Remove list of decisions.
                  *
                  * Call this method if you want to delete collected information.
-                         * Calling this method when analyzing process is running will result
-                         * in ignoring this function. Call abort() first, then clear()
-                         * \return True if clearing was succesfull, false otherwise. False
-                         * means that analyzer was running
+		 * Calling this method when analyzing process is running will result
+		 * in ignoring this function. Call abort() first, then clear()
+		 * \return True if clearing was succesfull, false otherwise. False
+		 * means that analyzer was running
                  */
                 bool clear();
 
@@ -201,9 +202,9 @@ namespace Nepomuk
                 AnalyzingPolitics analyzingPolitics() const;
 
                 /*! \brief Set new analyzing politics
-                         * Changing politics while analyzer is running cause ignoring
-                         * this function. Call abort() first.
-                         * \sa analyzingPolitics
+		 * Changing politics while analyzer is running cause ignoring
+		 * this function. Call abort() first.
+		 * \sa analyzingPolitics
                  */
                 void setAnalyzingPolitics(AnalyzingPolitics politics);
 
@@ -254,9 +255,9 @@ namespace Nepomuk
                 void nextIteration();
 
                 /*! \brief indicates an error during analyzer
-                         * This signal will be emited when any fatal error occure.
-                         * Fatal errors are errors that make impossible further analyzing
-                         * process. For example resource doesn't exist.
+		 * This signal will be emited when any fatal error occure.
+		 * Fatal errors are errors that make impossible further analyzing
+		 * process. For example resource doesn't exist.
                  * The analyzingFinished signal will folow this one
                  */
                 void error(AnalyzingError error);
@@ -266,6 +267,7 @@ namespace Nepomuk
                 ResourceAnalyzer(
                     const DataPPKeeper & ,
                     DecisionFactory * fact, // Take ownership
+		    ResourceServiceDataManager * rsdManager,
                     MergePolitics mergePolitics,
                     LaunchPolitics launchPolitics,
                     double acrit,

@@ -66,6 +66,7 @@ class NW::ResourceAnalyzerFactory::Private
         OntologyLoader * decisionsMainModelOntologyLoader;
         const Soprano::Backend * backend;
         Soprano::BackendSettings backendSettings;
+	ResourceServiceDataManager * rsdManager;
 };
 
 
@@ -76,7 +77,8 @@ NW::ResourceAnalyzerFactory::Private::Private():
     //decisionsResourceManager(0),
     decisionsMainModel(0),
     decisionsMainModelOntologyLoader(0),
-    backend(0)
+    backend(0),
+    rsdManager(0)
 {
     ;
 }
@@ -142,6 +144,7 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
     //decisionsStorageModel = 0;
     //decisionsResourceManager = 0;
     this->d->autoDeleteModelData = extractParams->autoDeleteModelData();
+    this->d->rsdManager = extractParams->resourceServiceDataManager();
 }
 
 NW::ResourceAnalyzerFactory::~ResourceAnalyzerFactory()
@@ -201,6 +204,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyze
     return new Nepomuk::WebExtractor::ResourceAnalyzer(
                d->dataPPKeeper,
                fct,
+	       this->d->rsdManager,
                this->d->mergePolitics,
                this->d->launchPolitics,
                d->acrit,

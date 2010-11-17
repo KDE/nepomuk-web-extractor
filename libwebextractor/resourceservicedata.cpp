@@ -16,10 +16,12 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "resourceservicedata.h"
 #include <QSharedData>
 #include <Nepomuk/Resource>
 #include <Soprano/Node>
+#include <KDebug>
+
+#include "resourceservicedata.h"
 #include "ndco.h"
 
 namespace NW = Nepomuk::WebExtractor;
@@ -53,6 +55,9 @@ NW::ResourceServiceData::ResourceServiceData(ResourceServiceData & res):
 NW::ResourceServiceData::ResourceServiceData(Nepomuk::Resource & res, ResourceServiceDataManager * manager)
 {
     d = new Private();
+    if ( !manager )
+	manager = ResourceServiceDataManager::instance();
+
     d->backend = manager->resourceData(res);
 }
 
@@ -110,7 +115,11 @@ bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QString  & name, int
 
 bool NW::ResourceServiceData::isValid() const
 {
-    return d->backend->resource().exists();
+    bool answer = d->backend->resource().exists();
+    if (!answer) {
+	kDebug() << "Resource " << d->backend->resource().resourceUri() << " doesn't exist";
+    }
+    return answer;
 }
 
 QStringList NW::ResourceServiceData::serviceInfoPropertiesNames() const
