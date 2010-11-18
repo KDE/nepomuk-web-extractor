@@ -40,6 +40,8 @@ include_directories(
   #${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor
   ${CMAKE_CURRENT_BINARY_DIR}
   ${NEPOMUK_INCLUDE_DIR}
+  # trueg: this is only for the vocabulary includes which have not been ported to the global ones yet
+  ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${KDE4_INCLUDES}
   )
 
@@ -82,45 +84,30 @@ set( webextractor_SRCS
     selectedpropertiesfunc.cpp
     visitednodefilter.cpp
     resourcenodefilter.cpp
+    childqueryinterface.cpp
     plaintextvisitor.cpp
-    )
 
-set ( webextractor_MOC    
-    resourceanalyzerfactory.h 
-    resourceanalyzer.h
-    datappreply.h
-    decisionapplicationrequest.h
-    datapp.h
-    debug_datapp.h
-    simplenetworkdatapp.h
-    simplenetworkreply.h
-    simpledatappreply.h
-    simplenetworkreplyfactory.h
-    simplenetworkrequest.h
-    nepomukservicedatabackend.h
-    dummyservicedatabackend.h
-    servicedatabackend.h
-    # Graph part
-    visitednodefilter.h
-    resourcenodefilter.h
-    selectedpropertiesfunc.h
-    childqueryinterface.h
-    resourcenodefilter.h
-    nodefilterinterface.h
-    )
-
-QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )
-set ( webextractor_SRCS
-    ${webextractor_SRCS}
-    ${webextractor_RES}
+    # backupsync 1 - TODO: port to backupsync 3
+    changelog.cpp
+    changelogrecord.cpp
+    identificationrequest.cpp
+    identificationrequest_p.cpp
+    identificationset.cpp
+    mergerequest.cpp
+    syncfile.cpp
+    simpleresource.cpp
+    graphwrapper.cpp
     )
 
 soprano_add_ontology( webextractor_SRCS ${libwebextractor_SOURCE_DIR}/decisions.trig "NDCO" "Nepomuk::WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
 #nepomuk_add_ontology_classes( webextractor_SRCS, ONTOLOGIES ${libwebextractor_SOURCE_DIR}/decisions.trig CLASSES DataPP VISIBILITY webextractor)
+soprano_add_ontology(webextractor_SRCS
+   ${CMAKE_CURRENT_SOURCE_DIR}/identification.trig
+  "backupsync"
+  "Nepomuk::Vocabulary"
+  "trig")
 
-add_library( webextractor SHARED ${webextractor_SRCS})
-
-#kde4_add_library( webextractor SHARED ${webextractor_SRCS} )
+kde4_add_library( webextractor SHARED ${webextractor_SRCS})
 
 set_target_properties(webextractor PROPERTIES
 	VERSION ${WEBEXTRACTOR_VERSION_STRING}
@@ -136,7 +123,6 @@ target_link_libraries( webextractor
   ${QT_LIBRARIES}
   ${QT_QTNETWORK_LIBRARY}
   ${QT_QTCORE_LIBRARY}
-  nepomuksync
   ontologyloader
   )
 

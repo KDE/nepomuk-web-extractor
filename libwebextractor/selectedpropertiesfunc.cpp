@@ -36,7 +36,7 @@ class NG::SelectedPropertiesFunc::Private
 
 NG::SelectedPropertiesFunc::SelectedPropertiesFunc(const QSet<QUrl> & properties, QObject * parent):
    ChildQueryInterface(parent),
-   d( new Private() ) 
+   d( new Private() )
 {
 
     QStringList urlList;
@@ -55,7 +55,7 @@ NG::SelectedPropertiesFunc::SelectedPropertiesFunc(const QSet<QUrl> & properties
 
 }
 Soprano::QueryResultIterator NG::SelectedPropertiesFunc::children(Soprano::Model * model,const Soprano::Node & targetNode)
-{ 
+{
     if ( targetNode.isResource() ) {
 	QString query = d->queryString.arg(
 	     Soprano::Node::resourceToN3(targetNode.uri())
@@ -69,3 +69,5 @@ Soprano::QueryResultIterator NG::SelectedPropertiesFunc::children(Soprano::Model
 	return Soprano::QueryResultIterator();
     }
 }
+
+#include "selectedpropertiesfunc.moc"
