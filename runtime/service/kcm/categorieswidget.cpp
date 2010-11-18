@@ -66,7 +66,7 @@ void CategoriesWidget::slotRemoveCategory()
 
 void CategoriesWidget::slotEditCategory()
 {
-    Category cat = m_viewCategories->currentIndex().data(CategoriesModel::CategoryRole).value<Category>();
+    Category* cat = m_viewCategories->currentIndex().data(CategoriesModel::CategoryRole).value<Category*>();
     CategoryEditor::editCategory(this, cat);
 }
 

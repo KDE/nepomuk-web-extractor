@@ -26,7 +26,7 @@ CategoryNameValidator::CategoryNameValidator(QObject * parent):
 
 QValidator::State CategoryNameValidator::validate(QString & str, int & pos) const
 {
-    if(Nepomuk::CategoriesPool::self()->category(str).isValid())
+    if(Nepomuk::CategoriesPool::self()->category(str))
         return Intermediate;
     else
         return Acceptable;

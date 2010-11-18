@@ -22,11 +22,11 @@
 #ifndef CATEGORY_H
 #define CATEGORY_H
 
-#include <QtCore/QSharedDataPointer>
+#include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QVariant>
 
-#include <KSharedConfig>
+#include <KConfigGroup>
 
 #include "datappdescr.h"
 
@@ -35,22 +35,33 @@ namespace Nepomuk {
         class Query;
     }
 }
+class KConfigGroup;
 
-class Category
+class Category : public QObject
 {
-public:
-    Category();
-    Category(const Category& other);
-    ~Category();
+    Q_OBJECT
 
-    Category& operator=(const Category& other);
+public:
+    Category(bool global = false, QObject* parent = 0);
+    ~Category();
 
     bool isValid() const;
 
     /**
-     * Global categories cannot be changed or removed.
+     * Global categories cannot be renamed.
      */
     bool isGlobal() const;
+
+    /**
+     * A unique ID for the category. For global categories this is a readable
+     * ID like "images" or "music" which can easily be used by plugin developers
+     * to add their plugins to a category.
+     * Local categories have random ids.
+     */
+    QString identifer() const;
+
+    bool enabled() const;
+    void setEnabled(bool enabled);
 
     QString name() const;
     void setName(const QString& name);
@@ -79,20 +90,25 @@ public:
 
     QList<DataPPDescr> plugins() const;
     void setPlugins(const QList<DataPPDescr>& plugins);
-    void addPlugin(const DataPPDescr& plugin);
 
-    void save(KSharedConfig::Ptr config) const;
-    static Category load(const KSharedConfig::Ptr config);
+    /**
+     * Saves the category settings without any DataPP details.
+     */
+    void save(KConfigGroup& config) const;
+    void load(const KConfigGroup& config);
 
     bool operator==(const Category& other) const;
     bool operator!=(const Category& other) const;
 
+Q_SIGNALS:
+    void changed(Category* cat);
+
 private:
     class Private;
-    QSharedDataPointer<Private> d;
+    Private* const d;
 };
 
-Q_DECLARE_METATYPE(Category)
+Q_DECLARE_METATYPE(Category*)
 
 QDebug operator<<(QDebug& dbg, const Category& cat);
 

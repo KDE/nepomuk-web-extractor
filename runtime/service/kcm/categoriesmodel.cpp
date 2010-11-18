@@ -33,21 +33,24 @@ CategoriesModel::CategoriesModel(QObject *parent) :
 
 QVariant CategoriesModel::data(const QModelIndex &index, int role) const
 {
-    QList<Category> cats = Nepomuk::CategoriesPool::self()->categories();
+    QList<Category*> cats = Nepomuk::CategoriesPool::self()->categories();
     if( index.row() < cats.count() ) {
-        const Category& cat = cats[index.row()];
+        Category* cat = cats[index.row()];
 
         switch(role) {
         case Qt::DisplayRole:
-            return cat.name();
+            return cat->name();
 
         case Qt::FontRole:
-            if( cat.isGlobal()) {
+            if( cat->isGlobal()) {
                 QFont font = KGlobalSettings::generalFont();
                 font.setItalic(true);
                 return font;
             }
             break;
+
+        case Qt::CheckStateRole:
+            return cat->enabled() ? Qt::Checked : Qt::Unchecked;
 
         case CategoryRole:
             return QVariant::fromValue(cat);
@@ -64,4 +67,26 @@ int CategoriesModel::rowCount(const QModelIndex &parent) const
 void CategoriesModel::slotCategoriesChanged()
 {
     reset();
+}
+
+Qt::ItemFlags CategoriesModel::flags(const QModelIndex &index) const
+{
+    return QAbstractListModel::flags(index)|Qt::ItemIsUserCheckable;
+}
+
+bool CategoriesModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    QList<Category*> cats = Nepomuk::CategoriesPool::self()->categories();
+    if( index.row() < cats.count() ) {
+        Category* cat = cats[index.row()];
+        if(role == Qt::CheckStateRole) {
+            bool checked = value.toBool();
+            kDebug() << checked;
+            cat->setEnabled(checked);
+            emit dataChanged(index, index);
+            return true;
+        }
+    }
+
+    return QAbstractListModel::setData(index, value, role);
 }

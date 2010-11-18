@@ -80,25 +80,26 @@ CategoryEditor::CategoryEditor(QWidget *parent)
     slotPluginSelectionChanged(QItemSelection(), QItemSelection());
 }
 
-void CategoryEditor::loadCategory(const Category &cat)
+void CategoryEditor::loadCategory(Category *cat)
 {
-    m_loadedCategory = cat;
+    m_category = cat;
 
-    m_editName->setText(cat.name());
-    selectQuery(cat.queryDescription(), cat.query());
-
-    const QList<DataPPDescr> plugins = cat.plugins();
-    m_pluginModel->setPlugins(plugins);
+    m_editName->setText(cat->name());
+    selectQuery(cat->queryDescription(), cat->query());
+    m_pluginModel->setPlugins(cat->plugins());
 }
 
-Category CategoryEditor::category() const
+void CategoryEditor::saveCategory(Category* cat)
 {
-    Category cat = m_loadedCategory;
-    cat.setName(m_editName->text());
-    cat.setQuery(m_comboQuery->itemData(m_comboQuery->currentIndex()).value<Query>());
-    cat.setQueryDescription(m_comboQuery->itemText(m_comboQuery->currentIndex()));
-    cat.setPlugins(m_pluginModel->plugins());
-    return cat;
+    cat->setName(m_editName->text());
+    cat->setQuery(m_comboQuery->itemData(m_comboQuery->currentIndex()).value<Query>());
+    cat->setQueryDescription(m_comboQuery->itemText(m_comboQuery->currentIndex()));
+    cat->setPlugins(m_pluginModel->plugins());
+}
+
+Category* CategoryEditor::category() const
+{
+    return m_category;
 }
 
 void CategoryEditor::slotCustomQuery()
@@ -123,14 +124,15 @@ void CategoryEditor::selectQuery(const QString &title, const Nepomuk::Query::Que
     slotChanged();
 }
 
-void CategoryEditor::editCategory(QWidget *parent, const Category &cat)
+void CategoryEditor::editCategory(QWidget *parent, Category *cat)
 {
     CategoryEditor dlg;
     dlg.setCaption(i18n("Edit Category"));
     dlg.loadCategory(cat);
+    // cannot rename global categories
+    dlg.m_editName->setReadOnly(cat->isGlobal());
     if( dlg.exec() ) {
-        Nepomuk::CategoriesPool::self()->removeCategory(cat.name());
-        Nepomuk::CategoriesPool::self()->addCategory(dlg.category());
+        dlg.saveCategory(cat);
     }
 }
 
@@ -139,7 +141,9 @@ void CategoryEditor::createCaterory(QWidget *parent)
     CategoryEditor dlg;
     dlg.setCaption(i18n("Create new Category"));
     if( dlg.exec() ) {
-        Nepomuk::CategoriesPool::self()->addCategory(dlg.category());
+        Category* cat = new Category();
+        dlg.saveCategory(cat);
+        Nepomuk::CategoriesPool::self()->addCategory(cat);
     }
 }
 
@@ -182,19 +186,16 @@ void CategoryEditor::slotAddPluginActionTriggered()
 {
     QAction* a = qobject_cast<QAction*>(sender());
     KService::Ptr service = a->data().value<KService::Ptr>();
-    DataPPDescr datapp;
-    datapp.name = service->name();
+    DataPPDescr datapp(service);
     m_pluginModel->addPlugin(datapp);
 }
 
 void CategoryEditor::slotChanged()
 {
-    const Category currentCat = category();
-
     // we have a valid name if either the name is the same as the loaded one (editing) or the name does not exist yet
-    const bool haveValidName( currentCat.name() == m_loadedCategory.name() || !Nepomuk::CategoriesPool::self()->category(currentCat.name()).isValid());
+    const bool haveValidName( (m_category && m_category->name() == m_editName->text()) || !Nepomuk::CategoriesPool::self()->category(m_editName->text()));
 
-    enableButton(Ok, currentCat.isValid() && haveValidName && m_pluginModel->rowCount(QModelIndex()) > 0);
+    enableButton(Ok, haveValidName && m_pluginModel->rowCount(QModelIndex()) > 0);
 
     if(haveValidName) {
         m_editName->setPalette(palette());

@@ -21,6 +21,8 @@
 
 #include "pluginmodel.h"
 
+#include <KService>
+
 PluginModel::PluginModel(QObject *parent)
     : QAbstractListModel(parent)
 {
@@ -32,7 +34,7 @@ QVariant PluginModel::data(const QModelIndex &index, int role) const
         const DataPPDescr& plugin = m_plugins[index.row()];
         switch(role) {
         case Qt::DisplayRole:
-            return plugin.name;
+            return plugin.service()->name();
         }
     }
 

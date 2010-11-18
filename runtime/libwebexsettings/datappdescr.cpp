@@ -20,22 +20,144 @@
 */
 
 #include "datappdescr.h"
+#include "category.h"
 
 #include <KConfigGroup>
+#include <KRandom>
+
+class DataPPDescr::Private : public QSharedData
+{
+public:
+    Private()
+        : m_rank(1.0),
+          m_coff(1.0),
+          m_trusted(true),
+          m_enabled(true),
+          m_category(0) {
+    }
+
+    QString m_id;
+
+    double m_rank;
+    double m_coff;
+    bool m_trusted;
+    bool m_enabled;
+
+    Category* m_category;
+    KService::Ptr m_service;
+};
+
+DataPPDescr::DataPPDescr(KService::Ptr service)
+    : d(new Private())
+{
+    d->m_service = service;
+    d->m_id = KRandom::randomString(10);
+}
+
+DataPPDescr::DataPPDescr(const DataPPDescr& other)
+    : d(other.d)
+{
+}
+
+DataPPDescr::~DataPPDescr()
+{
+}
+
+
+DataPPDescr & DataPPDescr::operator =(const DataPPDescr &other)
+{
+    d = other.d;
+    return *this;
+}
 
 void DataPPDescr::save(KConfigGroup& config) const
 {
-    config.writeEntry("name", name);
-    config.writeEntry("rank", rank);
-    config.writeEntry("coff", coff);
-    config.writeEntry("trusted", trusted);
+    config.writeEntry("id", identifier());
+    config.writeEntry("rank", rank());
+    config.writeEntry("coff", coff());
+    config.writeEntry("trusted", trusted());
+    config.writeEntry("enabled", enabled());
 }
 
-DataPPDescr DataPPDescr::load(const KConfigGroup &config)
+void DataPPDescr::load(const KConfigGroup &config)
 {
-    DataPPDescr desc(config.readEntry("name", QString()));
-    desc.rank = config.readEntry("rank", desc.rank);
-    desc.coff = config.readEntry("coff", desc.coff);
-    desc.trusted= config.readEntry("trusted", desc.trusted);
-    return desc;
+    d->m_id = config.readEntry("id", KRandom::randomString(10));
+    d->m_rank = config.readEntry("rank", rank());
+    d->m_coff = config.readEntry("coff", coff());
+    d->m_trusted = config.readEntry("trusted", trusted());
+    d->m_enabled = config.readEntry("enabled", enabled());
+}
+
+double DataPPDescr::rank() const
+{
+    return d->m_rank;
+}
+
+double DataPPDescr::coff() const
+{
+    return d->m_coff;
+}
+
+bool DataPPDescr::trusted() const
+{
+    return d->m_trusted;
+}
+
+bool DataPPDescr::enabled() const
+{
+    return d->m_enabled;
+}
+
+void DataPPDescr::setRank(double rank)
+{
+    d->m_rank = rank;
+}
+
+void DataPPDescr::setCoff(double coff)
+{
+    d->m_coff = coff;
+}
+
+void DataPPDescr::setTrusted(bool trusted)
+{
+    d->m_trusted = trusted;
+}
+
+void DataPPDescr::setEnabled(bool enabled)
+{
+    d->m_enabled = enabled;
+}
+
+bool DataPPDescr::operator==(const DataPPDescr& other) const
+{
+    return (service() == other.service() &&
+            rank() == other.rank() &&
+            coff() == other.coff() &&
+            trusted() == other.trusted() &&
+            enabled() == other.enabled());
+}
+
+Category * DataPPDescr::category() const
+{
+    return d->m_category;
+}
+
+KService::Ptr DataPPDescr::service() const
+{
+    return d->m_service;
+}
+
+void DataPPDescr::setCategory(Category *cat)
+{
+    d->m_category = cat;
+}
+
+bool DataPPDescr::isValid() const
+{
+    return d->m_category != 0 && !d->m_service.isNull();
+}
+
+QString DataPPDescr::identifier() const
+{
+    return d->m_id;
 }

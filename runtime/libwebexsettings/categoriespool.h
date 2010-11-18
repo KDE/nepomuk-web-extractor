@@ -48,15 +48,15 @@ namespace Nepomuk {
         CategoriesPool();
         ~CategoriesPool();
 
-        QList<Category> categories() const;
-        Category category(const QString& name) const;
+        QList<Category*> categories() const;
+        Category* category(const QString& name) const;
 
         /**
          * Stores a category into the pool, replacing
          * an already existing category with the same name.
          * \return \p true if \p cat was valid.
          */
-        bool addCategory(const Category& cat);
+        bool addCategory(Category* cat);
 
         /**
          * Remove the Category with the title \p name.
@@ -96,6 +96,8 @@ namespace Nepomuk {
     private:
         class Private;
         Private* const d;
+
+        Q_PRIVATE_SLOT(d, void _k_categoryChanged(Category*))
     };
 }
 

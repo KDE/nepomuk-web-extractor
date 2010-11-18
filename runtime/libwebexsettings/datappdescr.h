@@ -21,30 +21,59 @@
 #define __datappdescr_h_
 
 #include <QtCore/QString>
+#include <QtCore/QSharedDataPointer>
+
+#include <KService>
 
 class KConfigGroup;
+class Category;
 
 class DataPPDescr
 {
-    public:
-	DataPPDescr(const QString & name = QString()):name(name),rank(1.0), coff(1.0),trusted(true) 
-	{}
+public:
+    DataPPDescr(KService::Ptr service);
+    DataPPDescr(const DataPPDescr&);
+    ~DataPPDescr();
 
-	QString name;
-	double rank;
-	double coff;
-	bool trusted;
-	bool isValid() const { return !name.isEmpty(); }
+    DataPPDescr& operator=(const DataPPDescr&);
 
-        bool operator==(const DataPPDescr& other) const {
-            return (name == other.name &&
-                    rank == other.rank &&
-                    coff == other.coff &&
-                    trusted == other.trusted);
-        }
+    Category* category() const;
+    KService::Ptr service() const;
 
-        void save(KConfigGroup& config) const;
-        static DataPPDescr load(const KConfigGroup& config);
+    /**
+     * A unique ID for the datapp. This is a random string which is
+     * automatically generated for local datapps.
+     * Plugin developers would come up with their own ids.
+     */
+    QString identifier() const;
+
+    double rank() const;
+    double coff() const;
+    bool trusted() const;
+    bool enabled() const;
+
+    void setRank(double rank);
+    void setCoff(double coff);
+    void setTrusted(bool trusted);
+    void setEnabled(bool enabled);
+
+    bool isValid() const;
+
+    bool operator==(const DataPPDescr& other) const;
+
+    void save(KConfigGroup& config) const;
+    void load(const KConfigGroup& config);
+
+Q_SIGNALS:
+    void changed(DataPPDescr*);
+
+private:
+    class Private;
+    QSharedDataPointer<Private> d;
+
+    void setCategory(Category*);
+
+    friend class Category;
 };
 
 #endif

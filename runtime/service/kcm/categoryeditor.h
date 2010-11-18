@@ -43,10 +43,10 @@ class CategoryEditor : public KDialog, public Ui::CategoryEditor
 public:
     CategoryEditor(QWidget *parent = 0);
 
-    void loadCategory(const Category& cat);
-    Category category() const;
+    void loadCategory(Category* cat);
+    Category* category() const;
 
-    static void editCategory(QWidget* parent, const Category& cat);
+    static void editCategory(QWidget* parent, Category* cat);
     static void createCaterory(QWidget* parent);
 
 private Q_SLOTS:
@@ -59,10 +59,9 @@ private Q_SLOTS:
 
 private:
     int findQueryIndex(const Nepomuk::Query::Query& query);
+    void saveCategory(Category *cat);
 
-    /// we only keep this around since we do not handle all Category settings yet and do
-    /// not want to drop any of them.
-    Category m_loadedCategory;
+    Category* m_category;
 
     PluginModel* m_pluginModel;
 
