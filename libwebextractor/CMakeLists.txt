@@ -1,18 +1,5 @@
 project(libwebextractor)
 
-cmake_minimum_required(VERSION 2.6)
-
-set (QT_MIN_VERSION "4.6.0")
-set (QT_USE_QTNETWORK true)
-
-
-find_package(Qt4  REQUIRED)
-find_package(KDE4  REQUIRED)
-find_package(Nepomuk REQUIRED)
-include(KDE4Defaults)
-include(MacroLibrary)
-
-
 option( WEBEXTRACTOR_ENABLE_TESTS "Enable testing" OFF )
 
 set(WEBEXTRACTOR_VERSION_MAJOR 0 CACHE INT "Major WebExtractor version number" FORCE)
@@ -40,11 +27,26 @@ include_directories(
   #${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor
   ${CMAKE_CURRENT_BINARY_DIR}
   ${NEPOMUK_INCLUDE_DIR}
-  # trueg: this is only for the vocabulary includes which have not been ported to the global ones yet
   ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${KDE4_INCLUDES}
   )
 
+set(backupsynclegacy_SRC
+    ${backupsynclegacy_SOURCE_DIR}/changelog.cpp
+    ${backupsynclegacy_SOURCE_DIR}/changelogrecord.cpp
+    ${backupsynclegacy_SOURCE_DIR}/identificationrequest.cpp
+    ${backupsynclegacy_SOURCE_DIR}/identificationrequest_p.cpp
+    ${backupsynclegacy_SOURCE_DIR}/identificationset.cpp
+    ${backupsynclegacy_SOURCE_DIR}/mergerequest.cpp
+    ${backupsynclegacy_SOURCE_DIR}/syncfile.cpp
+    ${backupsynclegacy_SOURCE_DIR}/simpleresource.cpp
+    ${backupsynclegacy_SOURCE_DIR}/graphwrapper.cpp
+)
+soprano_add_ontology(backupsynclegacy_SRC
+  ${backupsynclegacy_SOURCE_DIR}/identification.trig
+  "backupsync"
+  "Nepomuk::Vocabulary"
+  "trig")
 
 add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 set( webextractor_SRCS 
@@ -87,25 +89,12 @@ set( webextractor_SRCS
     childqueryinterface.cpp
     plaintextvisitor.cpp
 
-    # backupsync 1 - TODO: port to backupsync 3
-    changelog.cpp
-    changelogrecord.cpp
-    identificationrequest.cpp
-    identificationrequest_p.cpp
-    identificationset.cpp
-    mergerequest.cpp
-    syncfile.cpp
-    simpleresource.cpp
-    graphwrapper.cpp
+    ${backupsynclegacy_SRC}
     )
 
 soprano_add_ontology( webextractor_SRCS ${libwebextractor_SOURCE_DIR}/decisions.trig "NDCO" "Nepomuk::WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
 #nepomuk_add_ontology_classes( webextractor_SRCS, ONTOLOGIES ${libwebextractor_SOURCE_DIR}/decisions.trig CLASSES DataPP VISIBILITY webextractor)
-soprano_add_ontology(webextractor_SRCS
-   ${CMAKE_CURRENT_SOURCE_DIR}/identification.trig
-  "backupsync"
-  "Nepomuk::Vocabulary"
-  "trig")
+
 
 kde4_add_library( webextractor SHARED ${webextractor_SRCS})
 

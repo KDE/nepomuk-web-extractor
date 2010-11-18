@@ -137,16 +137,16 @@ void Nepomuk::WebExtractorSettings::update()
     if(forceDefault) {
     }
 
-    foreach(const Category&  cat, Nepomuk::CategoriesPool::self()->categories()) {
+    foreach(Category*  cat, Nepomuk::CategoriesPool::self()->categories()) {
         NW::ExtractParameters * p  = new NW::ExtractParameters;
 
-        foreach(const DataPPDescr & dppdescr, cat.plugins()) {
+        foreach(const DataPPDescr & dppdescr, cat->plugins()) {
             /*Load plugin with this name and parse it config*/
             NW::DataPP * dpp = 0 ;
             NW::DataPPWrapper * dppw = 0 ;
-            double rank = dppdescr.rank;
-            double coff = dppdescr.coff;
-            const QString & dataPPName = dppdescr.name;
+            double rank = dppdescr.rank();
+            double coff = dppdescr.coff();
+            const QString & dataPPName = dppdescr.identifier();
 
             if(dataPPName == "debug") {
                 //This is predefined plugin
@@ -172,9 +172,9 @@ void Nepomuk::WebExtractorSettings::update()
         }
 
         // TODO: use one setCategory method or put the Category in the ExtractParameters constructor
-        p->setUCrit(cat.uCrit());
-        p->setACrit(cat.aCrit());
-        p->setPluginSelectStep(cat.pluginSelectionStep());
+        p->setUCrit(cat->uCrit());
+        p->setACrit(cat->aCrit());
+        p->setPluginSelectStep(cat->pluginSelectionStep());
         int scheme = decisionsModelScheme();
         switch(scheme) {
         case EnumDecisionsModelScheme::Auto : /* User */
@@ -194,7 +194,7 @@ void Nepomuk::WebExtractorSettings::update()
 
 
         NW::LaunchPolitics pol;
-        switch(cat.pluginSelectionType()) {
+        switch(cat->pluginSelectionType()) {
         case(Category::Stepwise) : {
             pol = NW::StepWise;
             break;
@@ -206,7 +206,7 @@ void Nepomuk::WebExtractorSettings::update()
         }
         p->setLaunchPolitics(pol);
         p->setMergePolitics(NW::Highest);
-        this->m_parameters.insert(cat.name(), NW::ExtractParametersPtr(p));
+        this->m_parameters.insert(cat->name(), NW::ExtractParametersPtr(p));
     }
 }
 
@@ -214,14 +214,14 @@ int Nepomuk::WebExtractorSettings::maxPluginsLaunched(const QString & categoryNa
 {
 
     int s =  max_plugins_launched_per_category();
-    const Category cat = Nepomuk::CategoriesPool::self()->categoryById(categoryName);
-    if(cat.pluginSelectionType() == Category::All)
+    const Category* cat = Nepomuk::CategoriesPool::self()->categoryById(categoryName);
+    if(cat->pluginSelectionType() == Category::All)
         if(s)
             return s;
         else
             return 0;
     else {
-        int s2 = cat.pluginSelectionStep();
+        int s2 = cat->pluginSelectionStep();
         return qMin(s, s2);
     }
 
@@ -229,12 +229,12 @@ int Nepomuk::WebExtractorSettings::maxPluginsLaunched(const QString & categoryNa
 
 int Nepomuk::WebExtractorSettings::maxResSimult(const QString & categoryName)
 {
-    return qMin(maxResSimultPerCategory(), Nepomuk::CategoriesPool::self()->categoryById(categoryName).maxResSimult());
+    return qMin(maxResSimultPerCategory(), Nepomuk::CategoriesPool::self()->categoryById(categoryName)->maxResSimult());
 }
 
 int Nepomuk::WebExtractorSettings::interval(const QString & categoryName)
 {
-    return Nepomuk::CategoriesPool::self()->categoryById(categoryName).interval();
+    return Nepomuk::CategoriesPool::self()->categoryById(categoryName)->interval();
 }
 
 NW::ExtractParametersPtr  Nepomuk::WebExtractorSettings::extractParameters(const QString categoryName) const
@@ -266,7 +266,7 @@ bool Nepomuk::WebExtractorSettings::isOptimizedForNepomuk(const QString & catego
 NQ::Term Nepomuk::WebExtractorSettings::query(const QString categoryName)
 {
 #warning Why not return the full query instead of just the term?
-    return Nepomuk::CategoriesPool::self()->categoryById(categoryName).query().term();
+    return Nepomuk::CategoriesPool::self()->categoryById(categoryName)->query().term();
 }
 
 QDebug Nepomuk::operator<<(QDebug dbg,  const WebExtractorSettings & conf)
