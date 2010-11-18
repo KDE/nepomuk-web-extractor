@@ -22,7 +22,7 @@
 #include "datappconfig.h"
 #include "category.h"
 #include <QtCore/QStringList>
-
+#include <KService>
 
 namespace Nepomuk {
     /*! \brief This class is used for storing information about webextractor service categories
@@ -49,7 +49,7 @@ namespace Nepomuk {
         ~CategoriesPool();
 
         QList<Category*> categories() const;
-        Category* category(const QString& name) const;
+        Category* categoryById(const QString& id) const;
 
         /**
          * Stores a category into the pool, replacing
@@ -62,7 +62,10 @@ namespace Nepomuk {
          * Remove the Category with the title \p name.
          * \return \p true if found, \p false otherwise.
          */
-        bool removeCategory(const QString& name);
+        //bool removeCategory(const QString& name);
+
+        KService::List availablePlugins() const;
+        KService::Ptr pluginByName(const QString& name) const;
 
         /**
          * Access the global CategoriesPool. Categories are

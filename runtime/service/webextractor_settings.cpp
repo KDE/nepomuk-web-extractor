@@ -214,7 +214,7 @@ int Nepomuk::WebExtractorSettings::maxPluginsLaunched(const QString & categoryNa
 {
 
     int s =  max_plugins_launched_per_category();
-    const Category cat = Nepomuk::CategoriesPool::self()->category(categoryName);
+    const Category cat = Nepomuk::CategoriesPool::self()->categoryById(categoryName);
     if(cat.pluginSelectionType() == Category::All)
         if(s)
             return s;
@@ -229,12 +229,12 @@ int Nepomuk::WebExtractorSettings::maxPluginsLaunched(const QString & categoryNa
 
 int Nepomuk::WebExtractorSettings::maxResSimult(const QString & categoryName)
 {
-    return qMin(maxResSimultPerCategory(), Nepomuk::CategoriesPool::self()->category(categoryName).maxResSimult());
+    return qMin(maxResSimultPerCategory(), Nepomuk::CategoriesPool::self()->categoryById(categoryName).maxResSimult());
 }
 
 int Nepomuk::WebExtractorSettings::interval(const QString & categoryName)
 {
-    return Nepomuk::CategoriesPool::self()->category(categoryName).interval();
+    return Nepomuk::CategoriesPool::self()->categoryById(categoryName).interval();
 }
 
 NW::ExtractParametersPtr  Nepomuk::WebExtractorSettings::extractParameters(const QString categoryName) const
@@ -266,7 +266,7 @@ bool Nepomuk::WebExtractorSettings::isOptimizedForNepomuk(const QString & catego
 NQ::Term Nepomuk::WebExtractorSettings::query(const QString categoryName)
 {
 #warning Why not return the full query instead of just the term?
-    return Nepomuk::CategoriesPool::self()->category(categoryName).query().term();
+    return Nepomuk::CategoriesPool::self()->categoryById(categoryName).query().term();
 }
 
 QDebug Nepomuk::operator<<(QDebug dbg,  const WebExtractorSettings & conf)

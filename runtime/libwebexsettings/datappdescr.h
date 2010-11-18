@@ -25,6 +25,10 @@
 
 #include <KService>
 
+namespace Nepomuk {
+class CategoriesPool;
+}
+
 class KConfigGroup;
 class Category;
 
@@ -62,7 +66,7 @@ public:
     bool operator==(const DataPPDescr& other) const;
 
     void save(KConfigGroup& config) const;
-    void load(const KConfigGroup& config);
+    static DataPPDescr load(const KConfigGroup& config, Nepomuk::CategoriesPool* pool);
 
 Q_SIGNALS:
     void changed(DataPPDescr*);

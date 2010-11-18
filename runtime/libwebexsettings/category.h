@@ -90,6 +90,7 @@ public:
 
     QList<DataPPDescr> plugins() const;
     void setPlugins(const QList<DataPPDescr>& plugins);
+    void addPlugin(const DataPPDescr& plugin);
 
     /**
      * Saves the category settings without any DataPP details.

@@ -21,6 +21,7 @@
 
 #include "datappdescr.h"
 #include "category.h"
+#include "categoriespool.h"
 
 #include <KConfigGroup>
 #include <KRandom>
@@ -77,15 +78,22 @@ void DataPPDescr::save(KConfigGroup& config) const
     config.writeEntry("coff", coff());
     config.writeEntry("trusted", trusted());
     config.writeEntry("enabled", enabled());
+    config.writeEntry("plugin", service()->name());
+    if(category())
+        config.writeEntry("category", category()->identifer());
 }
 
-void DataPPDescr::load(const KConfigGroup &config)
+// static
+DataPPDescr DataPPDescr::load(const KConfigGroup &config, Nepomuk::CategoriesPool* pool)
 {
-    d->m_id = config.readEntry("id", KRandom::randomString(10));
-    d->m_rank = config.readEntry("rank", rank());
-    d->m_coff = config.readEntry("coff", coff());
-    d->m_trusted = config.readEntry("trusted", trusted());
-    d->m_enabled = config.readEntry("enabled", enabled());
+    DataPPDescr datapp(pool->pluginByName(config.readEntry("plugin", QString())));
+    datapp.d->m_id = config.readEntry("id", KRandom::randomString(10));
+    datapp.d->m_rank = config.readEntry("rank", datapp.rank());
+    datapp.d->m_coff = config.readEntry("coff", datapp.coff());
+    datapp.d->m_trusted = config.readEntry("trusted", datapp.trusted());
+    datapp.d->m_enabled = config.readEntry("enabled", datapp.enabled());
+    datapp.d->m_category = pool->categoryById(config.readEntry("category", QString()));
+    return datapp;
 }
 
 double DataPPDescr::rank() const
