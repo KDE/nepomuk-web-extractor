@@ -89,7 +89,22 @@ NW::Decision NW::DecisionCreatorInternals::data()
 	commonLog << grp.log();
     }
     // Add auxiliaryIdentificationSet
-    d.setAuxiliaryIdentificationSet(NS::IdentificationSet::fromChangeLog(commonLog, decisionsModel));
+    QSet<QUrl> ignoreset;
+    QHash<QUrl, NS::IdentificationSet>::const_iterator isit =
+        d.identificationSets().begin();
+    QHash<QUrl, NS::IdentificationSet>::const_iterator isit_end =
+        d.identificationSets().end();
+    // Iteration is done over identificationSets()
+    // ( the hash proxy resource -> identification set ),
+    for(; isit != isit_end; isit++) {
+        ignoreset << resourceProxyMap[isit.key()];
+    }
+
+    d.setAuxiliaryIdentificationSet(NS::IdentificationSet::fromChangeLog(commonLog, decisionsModel, ignoreset));
+
+    // Set proxy map
+    d.setResourceProxyMap( this->resourceProxyMap );
+
     Q_ASSERT(d.isValid());
     return d;
 }
@@ -210,7 +225,7 @@ QUrl NW::DecisionCreatorInternals::proxyUrl(const Nepomuk::Resource & res)
         // Add url to the ACL of the filter log model
         updateModels(newUrl);
 
-        m_data.addIdentificationSet(newUrl, set);
+        m_data.addIdentificationSet(sourceUrl, set);
 
         Q_ASSERT(decisionsModel);
         proxyUrl = newUrl;
@@ -227,7 +242,7 @@ QUrl NW::DecisionCreatorInternals::proxyUrl(const Nepomuk::Resource & res)
             // Add to the ACL of fiter model
             updateModels(proxyUrl);
             // Insert to the map of the identification sets
-            m_data.addIdentificationSet(proxyUrl, set);
+            m_data.addIdentificationSet(sourceUrl, set);
         }
         //kDebug() << "Resource " << sourceUrl << " has already been copied";
 	Q_ASSERT(!proxyUrl.isEmpty());

@@ -86,12 +86,12 @@ void NW::DecisionApplicationRequest::identifyTargets(bool reset)
     QHash<QUrl, NS::IdentificationSet>::const_iterator it = d->decision.identificationSets().begin();
     QHash<QUrl, NS::IdentificationSet>::const_iterator it_end = d->decision.identificationSets().end();
     for(; it != it_end; it++) {
-        // proxyUrl is(was)  url of the target resource in the Decision storage model
-        // Thats why it is called 'proxy'
-        QUrl proxyUrl = it.key();
-        Q_ASSERT(!proxyUrl.isEmpty());
+        // sourceUrl is(was)  url of the target resource in it's identification set
+        // Thats why it is called 'source'
+        QUrl sourceUrl = it.key();
+        Q_ASSERT(!sourceUrl.isEmpty());
 
-        kDebug() << "Identification set for the resource " << it.key() << "is:";
+        kDebug() << "Identification set for the resource " << sourceUrl << "is:";
         kDebug() << it.value().toList();
 
         NS::IdentificationRequest * req = new NS::IdentificationRequest(NS::ChangeLog(), it.value(), d->targetModel);
@@ -110,11 +110,31 @@ void NW::DecisionApplicationRequest::identifyTargets(bool reset)
 
         // The identified uri in the target model
         // mpUri == (m)a(p)ped (Uri)
-        QUrl mpUri = req->mappedUri(it.key());
-        kDebug() << "Target resource " << it.key() << " was identified as :" <<
-                 mpUri << '\n' <<
+        QUrl mpUri = req->mappedUri(sourceUrl);
+	kDebug() << "Source url " << sourceUrl << "was identified as : " << mpUri ; 
+        Q_ASSERT(!mpUri.isEmpty());
+
+	// Now we have identified so-called SOURCE url.
+	// But in identification hash we will add mapping for
+	// PROXY url, because proxy url is used in changelog
+	QUrl proxyUrl;
+	QHash<QUrl,QUrl>::const_iterator fit = 
+	    d->decision.resourceProxyMap().find(sourceUrl);
+
+	if ( fit == d->decision.resourceProxyMap().end() ) { 
+	    // Resource is not in resourceProxyMap. This mean that proxy is the same as
+	    // source
+	    proxyUrl = it.key();
+	}
+	else {
+	    proxyUrl = fit.value();
+	}
+
+        kDebug() << "Target resource " << proxyUrl << " was identified as :" <<
+                 mpUri ;
+		 /* <<  '\n' <<
                  "It's proxy (" << proxyUrl << ")" <<
-                 "will be forced to match this resource";
+                 "will be forced to match this resource";*/
 
 
 
@@ -155,16 +175,18 @@ void NW::DecisionApplicationRequest::identify(bool reset)
     // Create main identification request.
     // But do not launch it. In this iset the identification statements
     // of resources that are Decision target resources should be excluded.
+    /*
     QSet<QUrl> ignoreset;
-    QHash<QUrl, NS::IdentificationSet>::const_iterator isit =
-        d->decision.identificationSets().begin();
-    QHash<QUrl, NS::IdentificationSet>::const_iterator isit_end =
-        d->decision.identificationSets().end();
+    QHash<QUrl, QUrl>::const_iterator prit =
+        d->targetResourceIdentificationHash.begin();
+    QHash<QUrl, NS::IdentificationSet>::const_iterator prit_end =
+        d->targetResourceIdentificationHash.end();
     // Iteration is done over identificationSets()
     // ( the hash proxy resource -> identification set ),
-    for(; isit != isit_end; isit++) {
-        ignoreset << isit.key();
+    for(; prit != prit_end; prit++) {
+        ignoreset << prit.key();
     }
+    */
     /* Debugging section */
 #if 0
     QSet<QUrl> chlUri = d->log.resources();
@@ -275,6 +297,7 @@ NW::DecisionApplicationRequest::~DecisionApplicationRequest()
 
 QSet<QUrl> NW::DecisionApplicationRequest::targetResources() const
 {
+#warning BEHAVE INCORRECTLY! DO NOT USE
     Q_D(const DecisionApplicationRequest);
     return d->decision.targetResources();
 }

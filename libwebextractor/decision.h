@@ -39,6 +39,9 @@ namespace Soprano {
 namespace Nepomuk {
     namespace WebExtractor {
 	class DecisionApplicationRequest;
+	class DecisionCreator;
+	class DecisionCreatorInternals;
+	class DecisionApplicationRequest;
 	/*! \brief This class store the persistent information of Decision
 	 * 
 	 */
@@ -131,7 +134,10 @@ namespace Nepomuk {
                 bool apply(Soprano::Model * targetModel = 0) const;
 
 		/* ==== Editing section ==== */
+	    public:
 		void setDescription( const QString & );
+		void setRank( double rank );
+	    private:
 		/*! \brief This function create and register new PropertiesGroup
 		 * \return index of the newly created group
 		 */
@@ -146,7 +152,6 @@ namespace Nepomuk {
 
 		void setTimeStamp( const QTime & time );
 
-		void setRank( double rank );
 
 		/*
 		void setMainResources(const QSet<QUrl> & resources );
@@ -157,6 +162,9 @@ namespace Nepomuk {
 		 */
 		void setAuxiliaryIdentificationSet( const Nepomuk::Sync::IdentificationSet & oset);
 		Nepomuk::Sync::IdentificationSet auxiliaryIdentificationSet() const;
+
+		void setResourceProxyMap( const QHash<QUrl,QUrl> & map );
+		QHash<QUrl,QUrl> resourceProxyMap() const;
 
 		/*! \brief Remove unnecessary elements
 		 * This function will remove:
@@ -174,6 +182,8 @@ namespace Nepomuk {
 		 * are private and are accessible only by several selected classes
 		 */
 		friend class DecisionCreatorInternals;
+		friend class DecisionCreator;
+		friend class DecisionApplicationRequest;
 
 		void markDirtyLog();
 		void markCleanLog() const;

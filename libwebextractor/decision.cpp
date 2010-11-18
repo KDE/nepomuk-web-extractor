@@ -47,6 +47,23 @@ class NW::Decision::Private : public QSharedData
 	// The human-readable description of the Decision
 	QString description;
 
+	// There are 2 parts that are necessary for identification.
+	// 1) The identification sets for all target resources
+	// 2) The identification sets for all resources that are involved
+	// into changelog except target ones
+	// The first identification sets of the  are taken from the
+	// original model. Because of this  the key in the resourceProxyISMap
+	// is the url of the resource in the original model
+	// The second identification sets are taken from the decisions model.
+	// Because of this statements in auxiliaryIdentificationSet use
+	// the uri from the decisions model.
+	// We need to store the decisions model uri <-> original model uri
+	// to correctly identify both target resources and changelog resources
+	
+	// key is SOURCE url ( as in resourceProxyISMap ), value is 
+	// PROXY url ( as in auxiliaryIdentificationSet )
+	QHash< QUrl, QUrl > resourceProxyMap;
+
 	// This is our storage for all IdentificationSets for all our
 	// proxied resources. The key is the PROXY url, not the source one 
 	QHash< QUrl, NS::IdentificationSet > resourceProxyISMap;
@@ -122,6 +139,7 @@ const NW::PropertiesGroup & NW::Decision::group(int index) const
 bool NW::Decision::isEmpty() const
 {
     if ( isDirtyEmptyness() ) {
+	const_cast<NW::Decision*>(this)->d.detach();
 	// Check that there is at least any group that is
 	// non-empty 
 	bool hasNonempty = false;
@@ -375,10 +393,22 @@ QSet<QUrl> NW::Decision::targetResources() const
 		it++
 	   )
 	{
+	    // Check if there is a proxyResource
+	    QUrl proxyUrl;
+
+	    QHash<QUrl,QUrl>::const_iterator  fit = d->resourceProxyMap.find(it.key());
+	    if ( fit == d->resourceProxyMap.end() ) { 
+		// Then proxyUrl is the same as sourceUrl
+		proxyUrl = it.key();
+	    }
+	    else {
+		proxyUrl = fit.value();
+	    }
+
 	    // Resource is it.key()
 	    // check that it contains somewhere in log
-	    if (resources.contains(it.key()) ) {
-		d->cachedTargetResources << it.key();
+	    if (resources.contains(proxyUrl) ) {
+		d->cachedTargetResources << proxyUrl;
 	    }
 	}
 	markCleanTargetResources();
@@ -399,19 +429,24 @@ void NW::Decision::cleanUnused()
 	}
     }
 
+    /*
     // Remove unnecessary records from identification hash
     QHash<QUrl,NS::IdentificationSet>::iterator hit = d->resourceProxyISMap.begin();
     QHash<QUrl,NS::IdentificationSet>::iterator hit_end = d->resourceProxyISMap.end();
     QSet<QUrl> tr = targetResources();
 
-    for( ; hit != hit_end; hit++ )
+    for( ; hit != hit_end; )
     {
 	if ( !tr.contains(hit.key()) ) {
 	    // Remove from hash
 	    hit = d->resourceProxyISMap.erase(hit);
 	}
+	else {
+	    hit++;
+	}
     }
     Q_ASSERT(tr.size() == d->resourceProxyISMap.size());
+    */
 
 }
 /*
@@ -434,6 +469,16 @@ void NW::Decision::setTimeStamp( const QTime & time )
 void NW::Decision::setRank( double rank )
 {
     d->rank = boundRank(rank);
+}
+
+void NW::Decision::setResourceProxyMap( const QHash<QUrl,QUrl> & map )
+{
+    d->resourceProxyMap = map;
+}
+
+QHash<QUrl,QUrl> NW::Decision::resourceProxyMap() const
+{
+    return d->resourceProxyMap;
 }
 
 void NW::Decision::markDirtyLog()
