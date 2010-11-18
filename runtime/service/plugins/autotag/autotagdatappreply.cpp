@@ -70,6 +70,7 @@ Nepomuk::AutotagReply::AutotagReply(AutotagDataPP * parent, const WebExtractor::
         // After this call Resource with uri proxyResUrl will exist.
         Nepomuk::Resource proxyRes = d.proxyResource(res);
         QUrl proxyResUrl = proxyRes.resourceUri();
+	Q_ASSERT(proxyRes.manager() == d.manager());
 
         // Create tag in this model
         Nepomuk::Tag t(tagName, d.manager());
