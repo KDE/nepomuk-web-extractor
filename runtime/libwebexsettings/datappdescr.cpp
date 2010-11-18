@@ -22,6 +22,7 @@
 #include "datappdescr.h"
 #include "category.h"
 #include "categoriespool.h"
+#include "webextractor_plugin.h"
 
 #include <KConfigGroup>
 #include <KRandom>
@@ -168,4 +169,16 @@ bool DataPPDescr::isValid() const
 QString DataPPDescr::identifier() const
 {
     return d->m_id;
+}
+
+Nepomuk::WebExtractorPlugin * DataPPDescr::createPlugin() const
+{
+    KPluginFactory *factory = KPluginLoader(service()->library()).factory();
+    if (factory) {
+        return factory->create<Nepomuk::WebExtractorPlugin>();
+    }
+    else {
+        kError() << "KPluginFactory could not load the plugin:" << service()->library();
+        return 0;
+    }
 }

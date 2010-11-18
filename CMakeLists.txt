@@ -19,5 +19,4 @@ add_subdirectory( libwebextractor )
 add_subdirectory( gui )
 add_subdirectory( runtime )
 add_subdirectory( test )
-
-
+add_subdirectory( webexshell )

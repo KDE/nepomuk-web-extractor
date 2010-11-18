@@ -27,6 +27,7 @@
 
 namespace Nepomuk {
 class CategoriesPool;
+class WebExtractorPlugin;
 }
 
 class KConfigGroup;
@@ -43,6 +44,13 @@ public:
 
     Category* category() const;
     KService::Ptr service() const;
+
+    /**
+     * Create an instance of the corresponding plugin.
+     * \return The new plugin instance or 0 on failure.
+     * The caller takes ownership.
+     */
+    Nepomuk::WebExtractorPlugin* createPlugin() const;
 
     /**
      * A unique ID for the datapp. This is a random string which is

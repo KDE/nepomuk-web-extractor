@@ -33,6 +33,8 @@ class NW::ResourceAnalyzerFactory::Private
     public:
         Private();
         DataPPKeeper  dataPPKeeper;
+
+#warning trueg: Instead of copying every valus why not simply store an ExtractParameters instance?
         LaunchPolitics launchPolitics;
         MergePolitics mergePolitics;
         unsigned int step;

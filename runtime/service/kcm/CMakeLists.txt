@@ -17,7 +17,6 @@ set( webexkcm_SRCS
     #pluginItemWidget.cpp
     #pluginselector.cpp
     categorieswidget.cpp
-    categoriesmodel.cpp
     categoryeditor.cpp
     queryeditor.cpp
     pluginmodel.cpp

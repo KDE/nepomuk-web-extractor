@@ -20,6 +20,7 @@ set( webexsettingsui_SRCS
     #pluginselector.cpp
     catnamevalidator.cpp
     decisionsmodelselector.cpp
+    categoriesmodel.cpp
     )
 
 kde4_add_ui_files(webexsettingsui_SRCS

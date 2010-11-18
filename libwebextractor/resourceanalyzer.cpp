@@ -229,7 +229,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze()
     analyze(d->m_res);
 }
 
-void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepomuk::Resource & res)
+void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(const Nepomuk::Resource & res)
 {
     //kDebug() << "This: " << uintptr_t(this) << "D-pointer: " << uintptr_t(this->d);
     if(isRunning()) {
