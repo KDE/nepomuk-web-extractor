@@ -95,9 +95,6 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
             SettingsPage
         };
 
-        // Store extract paramters ptr for debugging proposes
-        Nepomuk::WebExtractor::ExtractParametersPtr m_parptr;
-
         // Map that store current list of the Decisions. Key is the url.
         QMap< QUrl, Nepomuk::WebExtractor::Decision > m_decisionMap;
         QHash< QUrl, Nepomuk::WebExtractor::DecisionApplicationRequest* > m_requestsHash;

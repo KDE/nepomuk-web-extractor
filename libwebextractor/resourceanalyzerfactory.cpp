@@ -60,7 +60,7 @@ class NW::ResourceAnalyzerFactory::Private
         // Model for storing Decisions in memory
         //Soprano::StorageModel * decisionsStorageModel;
         // ResourceManager that manages this model. This pointer is non-null
-        // only if extractParams->manager() was non-null.
+        // only if extractParams.manager() was non-null.
         // ResourceManager * decisionsResourceManager;
         Soprano::Model * decisionsMainModel;
         OntologyLoader * decisionsMainModelOntologyLoader;
@@ -83,7 +83,7 @@ NW::ResourceAnalyzerFactory::Private::Private():
 
 
 Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
-    ExtractParametersPtr extractParams,
+    const ExtractParameters& extractParams,
     /*
     ResourceAnalyzer::LaunchPolitics launchPolitics,
     DecisionList::MergePolitics mergePolitics,
@@ -96,52 +96,44 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
     QObject(parent),
     d(new Private())
 {
-    if(extractParams.isNull()) {
-        kDebug() << "Parameters are null. Reseting to defaults";
-        d->backend = Soprano::discoverBackendByFeatures(Soprano::BackendFeatureStorageMemory);
-    } else {
-        d->dataPPKeeper = extractParams->plugins();
-        d->step = extractParams->pluginSelectStep();
-        d->launchPolitics = extractParams->launchPolitics();
-        d->mergePolitics = extractParams->mergePolitics() ;
-        d->ucrit = extractParams->uCrit() ;
-        d->acrit = extractParams->aCrit() ;
-        d->autoManageOntologies = extractParams->autoManageOntologies();
-        // We need backend only if model for Decisions is not provided.
-        this->d->decisionsMainModel = extractParams->decisionsModel();
-        if(!this->d->decisionsMainModel) {
-            QString backendName = extractParams->backendName();
-            if(backendName.isEmpty()) {
+    d->dataPPKeeper = extractParams.plugins();
+    d->step = extractParams.pluginSelectStep();
+    d->launchPolitics = extractParams.launchPolitics();
+    d->mergePolitics = extractParams.mergePolitics() ;
+    d->ucrit = extractParams.uCrit() ;
+    d->acrit = extractParams.aCrit() ;
+    d->autoManageOntologies = extractParams.autoManageOntologies();
+    // We need backend only if model for Decisions is not provided.
+    this->d->decisionsMainModel = extractParams.decisionsModel();
+    if(!this->d->decisionsMainModel) {
+        QString backendName = extractParams.backendName();
+        if(backendName.isEmpty()) {
+            d->backend = Soprano::discoverBackendByFeatures(Soprano::BackendFeatureStorageMemory);
+        } else { // Trying to found specified backend
+            d->backend = Soprano::discoverBackendByName(backendName);
+            // If not found, then trying to found default backend
+            if(!d->backend)
                 d->backend = Soprano::discoverBackendByFeatures(Soprano::BackendFeatureStorageMemory);
-            } else { // Trying to found specified backend
-                d->backend = Soprano::discoverBackendByName(backendName);
-                // If not found, then trying to found default backend
-                if(!d->backend)
-                    d->backend = Soprano::discoverBackendByFeatures(Soprano::BackendFeatureStorageMemory);
-            }
-
-            //kDebug() << "ACrit: " << d->acrit;
-            //kDebug() << "UCrit: " << d->ucrit;
-            d->backendSettings = extractParams->backendSettings();
-        } else {
-            // Model is provided. Check for ontologies.
-            // If autoManageOntologies is set, then we should
-            // load ontologies to the model
-            if(d->autoManageOntologies) {
-                // Init main ontology loader
-                this->d->decisionsMainModelOntologyLoader =
-                    new OntologyLoader(this->d->decisionsMainModel, this);
-                this->d->decisionsMainModelOntologyLoader->updateLocalOntologies(true);
-            }
         }
 
-
-
+        //kDebug() << "ACrit: " << d->acrit;
+        //kDebug() << "UCrit: " << d->ucrit;
+        d->backendSettings = extractParams.backendSettings();
+    } else {
+        // Model is provided. Check for ontologies.
+        // If autoManageOntologies is set, then we should
+        // load ontologies to the model
+        if(d->autoManageOntologies) {
+            // Init main ontology loader
+            this->d->decisionsMainModelOntologyLoader =
+                    new OntologyLoader(this->d->decisionsMainModel, this);
+            this->d->decisionsMainModelOntologyLoader->updateLocalOntologies(true);
+        }
     }
 
     //decisionsStorageModel = 0;
     //decisionsResourceManager = 0;
-    this->d->autoDeleteModelData = extractParams->autoDeleteModelData();
+    this->d->autoDeleteModelData = extractParams.autoDeleteModelData();
 }
 
 NW::ResourceAnalyzerFactory::~ResourceAnalyzerFactory()

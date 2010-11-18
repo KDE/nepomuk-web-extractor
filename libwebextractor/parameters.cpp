@@ -55,10 +55,8 @@ class Nepomuk::WebExtractor::ExtractParameters::Private : public QSharedData
 
 
 Nepomuk::WebExtractor::ExtractParameters::ExtractParameters()
+    : d(new Private())
 {
-    this->d = QSharedDataPointer<Private>(
-                  new Nepomuk::WebExtractor::ExtractParameters::Private()
-              );
     // Set defaults
     d->m_mergePolitics = NW::Highest;
     d->m_launchPolitics = NW::StepWise;
@@ -292,4 +290,10 @@ QDebug Nepomuk::WebExtractor::operator<<(QDebug dbg,  const Nepomuk::WebExtracto
         dbg << w->name() << w->version() << '\n';
     }
     return dbg;
+}
+
+bool Nepomuk::WebExtractor::ExtractParameters::isValid() const
+{
+#warning TODO: implement me
+    return true;
 }
