@@ -16,227 +16,195 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _NEPOMUK_WEBEXTRCT_DESICION_H_
-#define _NEPOMUK_WEBEXTRCT_DESICION_H_
+#ifndef __webextractor_decision_data_h_
+#define __webextractor_decision_data_h_
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-#include <QtCore/QSharedDataPointer>
-#include <Nepomuk/Resource>
+#include <QSet>
+#include <QList>
+#include <QString>
+#include <QMetaType>
+#include <QTime>
+#include <QHash>
 #include <QUrl>
-#include <QSharedPointer>
-#include "webextractor_export.h"
-#include "propertiesgroup.h"
-#include <nepomuk/changelog.h>
-#include <nepomuk/identificationrequest.h>
-//#include "soprano_statement_qhash.h"
+#include <QSharedDataPointer>
 
-namespace Soprano
-{
+#include <nepomuk/identificationset.h>
+
+#include "propertiesgroup.h"
+
+namespace Soprano {
     class Model;
 }
 
-namespace Nepomuk
-{
-    namespace WebExtractor
-    {
-        class ResourceAnalyzer;
-        class DecisionFactory;
-        class DecisionList;
-        class DataPP;
-        class PropertiesGroup;
-        class IdentificationSetManager;
-        class DecisionApplicationRequest;
+namespace Nepomuk {
+    namespace WebExtractor {
+	class DecisionApplicationRequest;
+	class DecisionCreator;
+	class DecisionCreatorInternals;
+	class DecisionApplicationRequest;
+	/*! \brief This class store the persistent information of Decision
+	 * 
+	 */
+	class WEBEXTRACTOR_EXPORT Decision
+	{
+	    public:
+		//typedef QSharedPointer<Decision> Ptr;
+		Decision();
+		~Decision();
+		Decision(const Decision &);
+		const Decision & operator=( const Decision &);
 
-        class DecisionData;
+		/* ==== Introspection section ==== */
 
-        /*! \brief This class represent one Decision - set of statements that can be applied to resource
-         * Decision consist of PropertiesGroup. PropertiesGroup is a set of statements
-         * that can be applied only together. Decisions are implicitly shared objects
-             * and changing copy of the Decision will change original too. Because of this,
-             * this class is not thread-safe.
-         */
-        class WEBEXTRACTOR_EXPORT Decision /*: public QOb*/
-        {
-            public:
-                /*! \brief Public constructor
-                 * This constructor will create invalid Decision
-                 */
-                Decision();
-                double rank() const;
-                void setRank(double rank);
-                //void addGroup(const PropertiesGroup &);
-                /*! \brief Create new group bounded to the Decision
-                 * Return pointer to the new PropertiesGroup or 0 if any error has
-                 * occured
-                 */
-                PropertiesGroup newGroup();
+		double rank() const;
 
-                /*! \brief Return all groups of the Decision
-                         */
-                QSet< PropertiesGroup > groups() const;
+		QString description() const;
 
-                /*! \brief Return urls of all PropertiesGroup
-                 */
-                //QList<QUrl> groupsUrls() const;
+		const QTime & timeStamp() const;
 
-                /*! \brief Set current group to \p group
-                 */
-                //void setCurrentGroup( const PropertiesGroup & group);
+		/*! \brief Return all groups of the Decision
+		 */
+		QList< PropertiesGroup > groups() const;
 
-                /*! \brief This method will reset current group( if any)
-                 */
-                void resetCurrentGroup();
+		/*! \brief Return the number of groups in Decision
+		 */
+		int size() const;
 
-
-                /*! \brief Return proxy resource for given one
-                         * TODO Add checks that given resource is from target model.
-                         * This is necessary to prevent situations when target resource
-                         * will be from decisions model
-                 */
-                Nepomuk::Resource proxyResource(const Nepomuk::Resource &);
-
-                /*! \brief Return url of the proxy resource for given one
-                                 * TODO Add checks that given resource is from target model.
-                                 * This is necessary to prevent situations when target resource
-                                 * will be from decisions model
-                         */
-                QUrl proxyUrl(const Nepomuk::Resource &);
-
-                /*! \brief Return all proxy resources of the Decision
-                 * The other names for the proxy resource are 'main Decision resources'
-                 * or 'target Decision resources'
-                 * \return Hash of all proxy resources of the Decision. Key is url of
-                 * the resource in the target ( real-world ) model, value is the url
-                 * in the Decision storage model
-                 */
-                QHash<QUrl, QUrl> proxies() const;
-
-                /*! \brief Return the list of the url of the main Decision resources
-                 * The result is the same as proxies().values() call. This function
-                 * is provided only for convinience
-                 * \return List of the url of the main Decision resources in the Decision
-                 * storage model.
-                 */
-                QList<QUrl> mainResources() const;
-
-                bool isEmpty() const;
-
-                /*! \brief Check the validness of the Decision.
-                 * It is easier to detirmine invalid Decision. Decision created with
-                 * Decision() constructor is invalid. Most others will be valid.
-                 */
-                bool isValid() const;
-
-                /*! \brief Return name of the DataPP that creates this Decision
+		/*! \brief Return const reference to the group
+		 * \param index index must be valid, 0 <= index < size()
+		 * \return const reference to the PropertiesGroup
+		 */
+		const PropertiesGroup & group(int index) const;
+		
+                /*! \brief Return name of the DataPP that creates this DecisionCreator
                  * If there is more, then one DataPP, then randomly selected one
                  * will be returned
                  * \return Name of the DataPP
                  * \sa pluginVersion
                  */
                 QString  dataPPName() const;
-                /*! \brief Return version of the DataPP that creates this Decision
+                /*! \brief Return version of the DataPP that creates this DecisionCreator
                  * If there is more, then one DataPP, then randomly selected one
                  * will be returned. It is guaranteed that this will be version
                  * of the DataPP, whose name was returned with pluginName()
                  * \return Version of the DataPP
                  * \sa pluginName
                  */
-                float   dataPPVersion() const;
-                /*! \brief Return information about all DataPP that create this Decision
-                 *\return Set of the DataPP
-                 */
-                QSet<DataPP*>  dataPPInformation() const;
-                /*! \brief Return the uri of the Decision.
-                 * Each Decision generated during by one ResourceAnalyzer has
-                 * unique uri
-                 * \return Url of the Decision
-                 */
-                QUrl uri() const;
-                /*! \brief Return the model of the Decision
-                 * This is the model that DataPP should use to create Decision.
-                 * \note It is not Decision storage model. Do not try to reach and
-                 * edit Decision storage model directly.
-                 */
-                Soprano::Model * model() const;
-                /*! \brief Return the manager of the Decision
-                 * This is the ResourceManager that manages the Decision model.
-                 * The manager()->mainModel() will return exactly the same model,
-                 * as model() call.
-                 * \sa model
-                 * \return ResourceManager of the Decision model
-                 */
-                Nepomuk::ResourceManager * manager() const;
-                /*! \brief Return description of the Decision.
-                 * It is rich text. The description is for displaying to user.
-                 * \return Description of the Decision.
-                 */
-                QString description() const;
-                void setDescription(const QString &);
+		int dataPPVersion() const;
 
+		/*! \brief Return true if decision is valid
+		 * Valid decisions are:
+		 * there is a identification set for each resource in changelog
+		 */
+		bool isValid() const;
 
-                /*! \brief This function will return the log of all chanegs
-                 */
-                Sync::ChangeLog log() const;
+		/*! \brief Return true if decision contains any record
+		 * Non-empty decision is decision that conatins at least one
+		 * non-empty PropertiesGroup
+		 * <b>Be aware: empty decisions are valid! </b>
+		 */
+		bool isEmpty() const;
 
-                ~Decision();
-                const Decision & operator=(const Decision & rhs);
-                bool operator==(const Decision & rhs)const;
-                bool operator!=(const Decision & rhs)const;
-                Decision(const Decision &);
-                static double truncateRank(double);
-                /*! \brief This function load decision from model
-                 * Load decision from given model by given url. It will return invalid
-                 * decision if resource with given url is not a Decision or if url is
-                 * invalid
-                 */
-                //Decision loadDecision(Soprano::Model * model,QUrl url);
-                //
-                /*! \brief This method will freeze Decision
-                 * Freezed Decision can not be changed
-                 */
-                void freeze();
-                bool isFreezed() const;
+		/*! \brief Return set of the target resources
+		 */
+                QSet<QUrl> targetResources() const;
+
+		const QHash< QUrl, Nepomuk::Sync::IdentificationSet> & identificationSets() const;
+
+		/*! \brief This function will return the global log of the Decision
+		 * It will join all logs of all PropertiesGroup in the Decision
+		 * and return it
+		 */
+		Nepomuk::Sync::ChangeLog log() const;
+
+		/* ==== Application section ==== */
 
                 /*! \brief Return application request, that will perform identification for Decision
-                 * \param targetModel you cah specify the model for applying changes
+                 * \param targetModel you cah specify the model for applying changes. If 
+		 * set to NULL then ResourceManager::instance()->mainModel() will be used.
                  * \return New IdentificationRequest. The user is responsible for deleting
                  * this object. If Decision is invalid, then 0 will be returned
                  */
-                DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = ResourceManager::instance()->mainModel()) const;
+                DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = 0) const;
                 /*! \brief Apply Decision
                  * Write all statements back to model
-                         * \param targetModel you cah specify the model for applying changes
+		 * \param targetModel you cah specify the model for applying changes. If
+		 * set to NULL then ResourceManager::instance()->mainModel() will be used
                  */
-                bool apply(Soprano::Model * targetModel = ResourceManager::instance()->mainModel()) const;
-                /*! \brief Add statements to the discretion of the user
-                 */
-                void addToUserDiscretion();
-                friend class ResourceAnalyzer;
-                friend class DecisionFactory;
-                friend class DecisionList;
-                friend class PropertiesGroup;
-                friend unsigned int qHash(const Decision &);
-            protected:
-                /*! \brief Constructor
-                 * \param parent The parent of the Decision - DataPP that has created it
-                 * \param manager The manager of the model where all information should
-                 * be stored
-                 */
-                Decision(
-                    const DataPP * parent,
-                    Soprano::Model * decisionsModel,
-                    IdentificationSetManager * identsetManager
-                );
-                void addAuthor(const DataPP * author);
-                unsigned int timeStamp() const;
-                //QSharedDataPointer<Private> d;
-                // ATTENTION The d-pointer must ALWAYS be non-null.
-                QSharedPointer<DecisionData> d;
+                bool apply(Soprano::Model * targetModel = 0) const;
 
-        };
-        unsigned int qHash(const Nepomuk::WebExtractor::Decision &);
+		/* ==== Editing section ==== */
+	    public:
+		void setDescription( const QString & );
+		void setRank( double rank );
+	    private:
+		/*! \brief This function create and register new PropertiesGroup
+		 * \return index of the newly created group
+		 */
+		int  addGroup();
+		int  addGroup(const PropertiesGroup &);
+		int  addGroup(const Nepomuk::Sync::ChangeLog & log, const QString & description, double rank = 0.5 );
+		/*! \brief Set identificationSet for target resources in ChangeLog
+		 */
+		void setIdentificationSets( const QHash<QUrl,Nepomuk::Sync::IdentificationSet> isets );
+		//QHash< QUrl, Nepomuk::Sync::IdentificationSet> & identificationSets();
+		void addIdentificationSet(const QUrl &, const Nepomuk::Sync::IdentificationSet & iset);
+
+		void setTimeStamp( const QTime & time );
+
+
+		/*
+		void setMainResources(const QSet<QUrl> & resources );
+		void addMainResources( const QUrl & resource);
+		*/
+
+		/*! \brief Set identificationSet for auxilary resources in ChangeLog
+		 */
+		void setAuxiliaryIdentificationSet( const Nepomuk::Sync::IdentificationSet & oset);
+		Nepomuk::Sync::IdentificationSet auxiliaryIdentificationSet() const;
+
+		void setResourceProxyMap( const QHash<QUrl,QUrl> & map );
+		QHash<QUrl,QUrl> resourceProxyMap() const;
+
+		/*! \brief Remove unnecessary elements
+		 * This function will remove:
+		 * Empty PropertiesGroup
+		 * non-main resources identification sets from identification sets hash
+		 * <b>Be carefull with this function. Do not call it during Decision
+		 * editing </b>
+		 */
+		void cleanUnused();
+
+
+	    private:
+		/* There are some functions that allow editing of the Decision.
+		 * Because this class should not be editable by user, this functions
+		 * are private and are accessible only by several selected classes
+		 */
+		friend class DecisionCreatorInternals;
+		friend class DecisionCreator;
+		friend class DecisionApplicationRequest;
+
+		void markDirtyLog();
+		void markCleanLog() const;
+		void markDirtySets();
+		void markCleanSets() const;
+		void markCleanValidness() const;
+		void markCleanTargetResources() const;
+		void markCleanEmptyness() const;
+		bool isDirtyLog() const;
+		bool isDirtySets() const;
+		bool isDirtyEmptyness() const;
+		bool isDirty() const;
+		bool isDirtyTargetResources() const;
+
+
+
+		class Private;
+		QSharedDataPointer<Private> d;
+	};
     }
 }
+Q_DECLARE_METATYPE(Nepomuk::WebExtractor::Decision);
 
 #endif

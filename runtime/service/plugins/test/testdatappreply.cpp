@@ -43,17 +43,15 @@ Nepomuk::TestReply::TestReply(TestDataPP * parent, const WebExtractor::DecisionF
     result = result && testProxy();
 
     // Create final decision
-    NW::Decision d = newDecision();
+    NW::DecisionCreator d = newDecision();
     Nepomuk::Resource r =  d.proxyResource(resource());
 
-    NW::PropertiesGroup grp = d.newGroup();
 
     QString tagName = (result) ? QString("TestSuccess") : QString("TestFailure");
     Nepomuk::Tag t(tagName, d.manager());
     t.setLabel("Tag indicating result of the tests");
     t.setProperty(Soprano::Vocabulary::NAO::prefLabel(), Nepomuk::Variant(tagName));
 
-    grp.makeCurrent();
     r.addTag(t);
 
     d.setDescription(m_testsResults.join("\n"));
@@ -61,7 +59,7 @@ Nepomuk::TestReply::TestReply(TestDataPP * parent, const WebExtractor::DecisionF
     addDecision(d);
 
     // Finish
-    QTimer::singleShot(0, this, SLOT(finish()));
+    finish();
 
 }
 
@@ -79,7 +77,7 @@ void Nepomuk::TestReply::abort()
  */
 bool Nepomuk::TestReply::testProxy()
 {
-    NW::Decision d = newDecision();
+    NW::DecisionCreator d = newDecision();
     QUrl first = d.proxyUrl(resource());
     if(first.isEmpty()) {
         m_testsResults << "Proxy Test: Failed to create proxy for resource";

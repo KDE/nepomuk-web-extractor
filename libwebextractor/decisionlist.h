@@ -23,14 +23,14 @@
 #include <KDebug>
 #include "webextractor_export.h"
 #include "global.h"
-#include <QtCore/QSet>
+#include <QList>
 
 namespace Nepomuk
 {
     namespace WebExtractor
     {
         class DataPP;
-        class WEBEXTRACTOR_EXPORT DecisionList : private QSet<Decision>
+        class WEBEXTRACTOR_EXPORT DecisionList : private QList<Decision>
         {
             public:
                 friend class ResourceAnalyzer;
@@ -54,10 +54,10 @@ namespace Nepomuk
                  * The same as add all Decisions from one list to another using given settings
                  */
                 void mergeWith(const DecisionList & rhs, MergePolitics policis = Highest, double coff = 1);
-                using QSet<Decision>::constBegin ;
-                using QSet<Decision>::constEnd ;
-                using QSet<Decision>::const_iterator;
-                using QSet<Decision>::size;
+                using QList<Decision>::constBegin ;
+                using QList<Decision>::constEnd ;
+                using QList<Decision>::const_iterator;
+                using QList<Decision>::size;
                 const_iterator begin() const;
                 const_iterator end() const;
                 double approximateThreshold() const;

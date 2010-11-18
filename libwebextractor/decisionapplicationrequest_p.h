@@ -39,7 +39,7 @@ namespace Nepomuk
                 // Because class Decision is just a wrapper, storing
                 // pointer to Decision is useless comparing to storing
                 // pointer to DecisionData
-                QSharedPointer<DecisionData> decisionData;
+                Decision decision;
 
                 // This is the log that contains all changes
                 // that we are trying to apply to the target model
@@ -58,7 +58,7 @@ namespace Nepomuk
 
                 // In this variable identification information about
                 // decision main resources is stored
-                QHash<QUrl, QUrl> mainResourceIdentificationHash;
+                QHash<QUrl, QUrl> targetResourceIdentificationHash;
 
                 // In this variable information about these main resources
                 // of Decision, that are required for application request
@@ -70,13 +70,13 @@ namespace Nepomuk
                 // This variable is not necessary for algorithm work,
                 // but only for users of this class. Because of this
                 // it will be populated only after first access.
-                mutable QSet<QUrl> mainResources;
+                //mutable QSet<QUrl> targetResources;
 
                 // This variable is used for staving state of the identification
                 // stage. If main resources was successfuly identified, then
                 // this variable is set to true.
                 //
-                bool mainIdentified;
+                bool targetsIdentified;
 
                 // This variable is used for saving state of the identification
                 // stage. If identification was successfull then this member

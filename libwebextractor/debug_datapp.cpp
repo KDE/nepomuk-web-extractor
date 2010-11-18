@@ -57,9 +57,9 @@ NW::DebugDataPPReply::DebugDataPPReply(DebugDataPP* parent, const DecisionFactor
     m_timer->setSingleShot(true);
     connect(m_timer, SIGNAL(timeout()), this, SLOT(ready()));
     for(double r = 0; r < 0.8; r += 0.1) {
-        Decision d = factory->newDecision(parent);
+        DecisionCreator d = factory->newDecision(parent);
         d.setRank(r);
-        m_decisions.addDecision(d);
+        m_decisions.addDecision(d.data());
     }
     m_timer->start(2 * 1000);
 }

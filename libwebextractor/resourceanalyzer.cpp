@@ -79,6 +79,8 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private /*: public QSharedData*/
         // where all metadata for resource are stored
         QUrl resourceContext;
 
+	ResourceServiceDataManager * rsdManager;
+
         // The data about examined DataPP are managed with this variable
         ResourceServiceData rsd;
 
@@ -118,6 +120,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer::Private::Private(
     m_running(false),
     m_error(ResourceAnalyzer::NoError),
     m_apolitics(ResourceAnalyzer::SingleStep),
+    rsdManager(0),
     obsoleteDecisionIterationCounter(0),
     maxObsoleteDecisionIterationCounter(10)
 {
@@ -195,6 +198,7 @@ void NW::ResourceAnalyzer::Private::filterExaminedDataPP()
 Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
     const DataPPKeeper & dataPPKeeper,
     DecisionFactory * fac,
+    ResourceServiceDataManager * rsdManager,
     MergePolitics mergePolitics,
     LaunchPolitics launchPolitics,
     double acrit,
@@ -205,6 +209,7 @@ Nepomuk::WebExtractor::ResourceAnalyzer::ResourceAnalyzer(
     QObject(parent)
 {
     d = new Nepomuk::WebExtractor::ResourceAnalyzer::Private(dataPPKeeper, fac);
+    d->rsdManager = rsdManager;
     d->m_mergePolitics = mergePolitics;
     d->m_launchPolitics = launchPolitics;
     d->m_step = step;
@@ -258,7 +263,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(Nepo
     // Clear all previous data
     clear();
     // Set object for managing examined datapp info
-    d->rsd = ResourceServiceData(d->m_res);
+    d->rsd = ResourceServiceData(d->m_res, d->rsdManager);
 
     // We check for resource existing AFTER switching from previously analyzed resource.
     // This is done for consistency with setResource() method that allow setting as

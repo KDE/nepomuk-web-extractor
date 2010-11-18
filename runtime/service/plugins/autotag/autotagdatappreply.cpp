@@ -46,7 +46,7 @@ Nepomuk::AutotagReply::AutotagReply(AutotagDataPP * parent, const WebExtractor::
         // Set error
         setError(ResourceTypeIncorrect);
         // Finish
-        QTimer::singleShot(0, this, SLOT(finish()));
+	finish();
         return;
     }
 
@@ -63,30 +63,26 @@ Nepomuk::AutotagReply::AutotagReply(AutotagDataPP * parent, const WebExtractor::
     QString filename = res.property(Nepomuk::Vocabulary::NFO::fileName()).toString();
     if(regexp.exactMatch(filename)) {
         // Generate Decision and assign tag
-        NW::Decision d = newDecision();
+        NW::DecisionCreator d = newDecision();
         Q_ASSERT(d.isValid());
         Q_ASSERT(d.manager());
         // Generate proxy resource for main resource
         // After this call Resource with uri proxyResUrl will exist.
         Nepomuk::Resource proxyRes = d.proxyResource(res);
         QUrl proxyResUrl = proxyRes.resourceUri();
-#if 0
-#endif
-        // Create PropertyGroup
-        NW::PropertiesGroup grp = d.newGroup();
-        //Q_ASSERT(grp);
+
         // Create tag in this model
         Nepomuk::Tag t(tagName, d.manager());
         // The code above is not enough to actually create resource.
         // We will set the description of the tag and this will do the work
         t.setDescription("What on the hell this tag for ?");
-        // Bound tag to the resource
-        grp.makeCurrent();
-        proxyRes.addTag(t);
 
+	//kDebug() << "Proxy res uri: " << proxyRes.resourceUri();
+        
+	// Doesn't work
+	//proxyRes.addTag(t);
+	d.model()->addStatement(proxyResUrl,Soprano::Vocabulary::NAO::hasTag(),t.resourceUri());
 
-        // Set group rank
-        grp.setRank(0.99);
 
         // Set rank of the Decision
         d.setRank(0.99);

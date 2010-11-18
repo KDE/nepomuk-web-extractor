@@ -101,9 +101,11 @@ void Nepomuk::WebExtractor::DecisionFactory::setThreshold(double threshold)
     d->threshold = threshold;
 }
 
-Nepomuk::WebExtractor::Decision Nepomuk::WebExtractor::DecisionFactory::newDecision(const DataPP * parent) const
+Nepomuk::WebExtractor::DecisionCreator Nepomuk::WebExtractor::DecisionFactory::newDecision(const DataPP * parent) const
 {
-    return Decision(parent, d->decisionsModel, d->identsetManager);
+    DecisionCreator dc(parent, d->decisionsModel, d->identsetManager);
+    Q_ASSERT(dc.isValid());
+    return dc;
 }
 
 Nepomuk::WebExtractor::DecisionList  Nepomuk::WebExtractor::DecisionFactory::newDecisionList(const DataPP*) const

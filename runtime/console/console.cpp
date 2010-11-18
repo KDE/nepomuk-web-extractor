@@ -18,7 +18,7 @@
 
 #include "console.h"
 #include "datapppool.h"
-#include <KDebug>
+#include <kdebug.h>
 #include <QUrl>
 #include <QBrush>
 #include <QColor>
@@ -119,7 +119,11 @@ ConsoleMainWindow::ConsoleMainWindow(
     //connect(this->clearServiceButton, SIGNAL(clicked()), this, SLOT(onClearAllExamined()));
 
     // Set Decisions widget
-    connect(this->decisionListWidget, SIGNAL(currentItemChanged(QListWidgetItem*, QListWidgetItem*)), this, SLOT(onCurrentDecisionChanged(QListWidgetItem*, QListWidgetItem*)));
+    connect(
+	    this->decisionListWidget,
+	    SIGNAL(currentItemChanged(const QListWidgetItem*,const QListWidgetItem*)), 
+	    this,
+	    SLOT(onCurrentDecisionChanged(const QListWidgetItem*,const QListWidgetItem*)));
     connect(this->applyDecisionButton, SIGNAL(clicked()), this, SLOT(onApplyDecision()));
     connect(this->identifyDecisionButton, SIGNAL(clicked()), this, SLOT(onIdentifyDecision()));
     connect(this->identifyMainButton, SIGNAL(clicked()), this, SLOT(onIdentifyMain()));
@@ -237,7 +241,8 @@ void ConsoleMainWindow::startExtracting()
 
     // Set backend
     Soprano::BackendSettings settings;
-    KTempDir * td = 0;    if(this->backendComboBox->currentText() == QString("Redland")) {
+    KTempDir * td = 0;
+    if(this->backendComboBox->currentText() == QString("Redland")) {
         settings << Soprano::BackendOptionStorageMemory;
         p->setBackendName("redland");
     } else if(this->backendComboBox->currentText() == QString("Virtuoso")) {
@@ -301,11 +306,7 @@ void ConsoleMainWindow::startExtracting()
 void ConsoleMainWindow::cleanAfterAnalyzing()
 {
 
-    // Remove all requests
-    foreach(NW::DecisionApplicationRequest * req, this->m_requestsHash) {
-        delete req;
-    }
-    this->m_requestsHash.clear();
+    this->decisionListWidget->clear();
 
     // First remove model data
     delete m_currentAnalyzer;
@@ -570,12 +571,7 @@ void ConsoleMainWindow::updateDecisionsInfo()
     this->decisionWidget->clear();
     //this->decisionInformationWidget->setRowCount(0);
     this->decisionListWidget->clear();
-    this->m_decisionMap.clear();
 
-    foreach(NW::DecisionApplicationRequest * req, this->m_requestsHash) {
-        delete req;
-    }
-    this->m_requestsHash.clear();
 
     // If there is no analyzer, then return
     if(!m_currentAnalyzer) {
@@ -586,37 +582,24 @@ void ConsoleMainWindow::updateDecisionsInfo()
 
     NW::DecisionList lst(m_currentAnalyzer->decisions());
     kDebug() << "Number of the decisions: " << lst.size();
-    foreach(const NW::Decision & d, lst) {
-        // Add record to list widget
-        QListWidgetItem * item = new QListWidgetItem();
-        item->setData(Qt::DisplayRole, d.uri());
-        this->decisionListWidget->addItem(item);
-
-        // Add record to the map
-        m_decisionMap.insert(d.uri(), d);
-    }
+    decisionListWidget->addDecisionList(lst);
 }
 
 void ConsoleMainWindow::updateIdentificationInfo()
 {
-    NW::Decision dec = this->decisionWidget->decision();
+    NW::Decision dec = this->decisionListWidget->currentDecision();
     this->identificationTableWidget->clear();
 
     if(!dec.isValid())
         return;
 
-    // Search for request
-    QHash<QUrl, NW::DecisionApplicationRequest*>::const_iterator fit =
-        this->m_requestsHash.find(dec.uri());
-
-    NW::DecisionApplicationRequest * req = 0;
-    if(fit != this->m_requestsHash.end()) {
-        req = fit.value();
+    QSharedPointer<NW::DecisionApplicationRequest> req = this->decisionListWidget->currentDecisionApplicationRequest();
+    if(req) {
         QHash<QUrl, QUrl> mcp; // mcp = Mappincg CoPy
 
         QSet<QUrl> uncp = req->unidentified(); // uncp = UNidentified CoPy
         kDebug() << "Unidentified: " << uncp;
-        QSet<QUrl> mainResources = req->mainResources();
+        QSet<QUrl> targetResources = req->targetResources();
 
 
         Q_ASSERT(req);
@@ -629,11 +612,11 @@ void ConsoleMainWindow::updateIdentificationInfo()
              */
             (uncp.isEmpty() and req->mappings().isEmpty())
         ) {
-            mcp = req->mainMappings();
+            mcp = req->targetsMappings();
             kDebug() << "Mappings: " << mcp;
-            identificationTableWidget->setRowCount(mainResources.size());
-            QSet<QUrl>::const_iterator mrit = mainResources.begin();
-            QSet<QUrl>::const_iterator mrit_end = mainResources.end();
+            identificationTableWidget->setRowCount(targetResources.size());
+            QSet<QUrl>::const_iterator mrit = targetResources.begin();
+            QSet<QUrl>::const_iterator mrit_end = targetResources.end();
             for(; mrit != mrit_end; mrit++) {
                 QTableWidgetItem * item = new QTableWidgetItem(mrit->toString());
                 item->setFlags(Qt::ItemIsEnabled);
@@ -669,7 +652,7 @@ void ConsoleMainWindow::updateIdentificationInfo()
                 QTableWidgetItem * item = new QTableWidgetItem(uit->toString());
                 item->setFlags(Qt::ItemIsEnabled);
                 QColor color = QColor(255, 0, 0);
-                if(!mainResources.contains(*uit)) {
+                if(!targetResources.contains(*uit)) {
                     // Addjust color to make it more lighter
                     color = color.lighter();
                 }
@@ -811,21 +794,10 @@ void ConsoleMainWindow::onClearAllExamined()
 
 void ConsoleMainWindow::onIdentifyDecision()
 {
-    NW::Decision des = this->decisionWidget->decision();
-
-    // check that there is no application request  already
-    QHash<QUrl, NW::DecisionApplicationRequest*>::const_iterator fit =
-        this->m_requestsHash.find(des.uri());
-
-    NW::DecisionApplicationRequest * req = 0;
-    if(fit != this->m_requestsHash.end()) {
-        req = fit.value();
-    } else {
-        req = des.applicationRequest(Nepomuk::ResourceManager::instance()->mainModel());
-        if(req)  // In case decision was invalid
-
-            this->m_requestsHash.insert(des.uri(), req);
-        else
+    QSharedPointer<NW::DecisionApplicationRequest> req = this->decisionListWidget->currentDecisionApplicationRequest();
+    if(!req) {
+        req = decisionListWidget->decisionApplicationRequest(decisionListWidget->currentRow(), Nepomuk::ResourceManager::instance()->mainModel());
+        if(!req)  // In case decision was invalid
             return;
     }
 
@@ -837,51 +809,30 @@ void ConsoleMainWindow::onIdentifyDecision()
 
 void ConsoleMainWindow::onIdentifyMain()
 {
-    NW::Decision des = this->decisionWidget->decision();
-
-    // check that there is no application request  already
-    QHash<QUrl, NW::DecisionApplicationRequest*>::const_iterator fit =
-        this->m_requestsHash.find(des.uri());
-
-    NW::DecisionApplicationRequest * req = 0;
-    if(fit != this->m_requestsHash.end()) {
-        req = fit.value();
-    } else {
-        req = des.applicationRequest(Nepomuk::ResourceManager::instance()->mainModel());
-        if(req)  // In case decision was invalid
-
-            this->m_requestsHash.insert(des.uri(), req);
-        else
+    QSharedPointer<NW::DecisionApplicationRequest> req = this->decisionListWidget->currentDecisionApplicationRequest();
+    if(!req) {
+        req = decisionListWidget->decisionApplicationRequest(decisionListWidget->currentRow(), Nepomuk::ResourceManager::instance()->mainModel());
+        if(!req)  // In case decision was invalid
             return;
     }
 
     Q_ASSERT(req);
 
-    req->identifyMain();
-    if(!req->isMainIdentified())
+    req->identifyTargets();
+    if(!req->isTargetsIdentified())
         KMessageBox::sorry(this, "Identification of main Decision's resources failed");
     updateIdentificationInfo();
 }
 
 void ConsoleMainWindow::onApplyDecision()
 {
-    NW::Decision des = this->decisionWidget->decision();
-
-    // check that there is no application request  already
-    QHash<QUrl, NW::DecisionApplicationRequest*>::const_iterator fit =
-        this->m_requestsHash.find(des.uri());
-
-    NW::DecisionApplicationRequest * req = 0;
-    if(fit != this->m_requestsHash.end()) {
-        req = fit.value();
-    } else {
-        req = des.applicationRequest();
-        if(req)  // In case decision was invalid
-
-            this->m_requestsHash.insert(des.uri(), req);
-        else
+    QSharedPointer<NW::DecisionApplicationRequest> req = this->decisionListWidget->currentDecisionApplicationRequest();
+    if(!req) {
+        req = decisionListWidget->decisionApplicationRequest(decisionListWidget->currentRow(), Nepomuk::ResourceManager::instance()->mainModel());
+        if(!req)  // In case decision was invalid
             return;
     }
+
 
     Q_ASSERT(req);
 
@@ -901,23 +852,20 @@ void ConsoleMainWindow::onApplyDecision()
     updateIdentificationInfo();
 }
 
-void ConsoleMainWindow::onCurrentDecisionChanged(QListWidgetItem * current, QListWidgetItem * previous)
+void ConsoleMainWindow::onCurrentDecisionChanged(const QListWidgetItem * current,const QListWidgetItem * previous)
 {
+    kDebug() << "current decision changed";
     if(!current)
         return;
 
-    // Get current decision uri
-    QUrl url = current->text();
 
     // Get decision by url
-    NW::Decision des = m_decisionMap[url];
+    NW::Decision des = decisionListWidget->currentDecision();
     if(!des.isValid()) {
         kDebug() << "Decision is invalid";
         return;
     }
 
-    QHash<QUrl, QUrl> tmpMap = des.proxies();
-    kDebug() << "Number of proxy resources in Decision: " << tmpMap.size();
     //kDebug() << "Decision description: " << des.description();
 
     this->decisionWidget->setDecision(des);

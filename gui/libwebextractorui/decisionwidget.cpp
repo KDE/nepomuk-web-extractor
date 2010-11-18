@@ -20,6 +20,8 @@
 #include "changelogwidget.h"
 #include "ui_decisionForm.h"
 
+#include <kdebug.h>
+
 namespace NS = Nepomuk::Sync;
 namespace NW = Nepomuk::WebExtractor;
 
@@ -64,6 +66,10 @@ DecisionWidget::~DecisionWidget()
 void DecisionWidget::setDecision(const NW::Decision & decision)
 {
     d->decision = decision;
+    kDebug() << "Log size:" << decision.log().size();
+    kDebug() << "Empty:" << decision.isEmpty();
+    kDebug() << "Number of goups:" << decision.groups().size();
+
     d->logWidget->setLog(decision.log());
     d->ui->descriptionBrowser->setPlainText(decision.description());
 }

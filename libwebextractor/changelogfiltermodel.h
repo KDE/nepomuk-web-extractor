@@ -16,15 +16,20 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "webextractor_export.h"
 
 #ifndef __nepomuk_chaneglogfiltermodel_h_
 #define __nepomuk_chaneglogfiltermodel_h_
 
+
 #include <Soprano/FilterModel>
 #include <Soprano/Statement>
+#include <QUrl>
+#include <QSet>
+#include <kdebug.h>
 #include "nepomuk/changelogrecord.h"
 #include "nepomuk/changelog.h"
+
+#include "webextractor_export.h"
 
 namespace Nepomuk
 {
@@ -50,6 +55,7 @@ namespace Nepomuk
 
                 void addTarget(const QUrl & target) {
                     m_targets.insert(target);
+		    kDebug() << "Targets are: " << m_targets;
                 }
 
                 ChangeLog * log() const {
@@ -63,9 +69,14 @@ namespace Nepomuk
                 virtual Soprano::Error::ErrorCode addStatement(const Soprano::Statement &statement) {
                     Soprano::Error::ErrorCode c = Soprano::FilterModel::addStatement(statement);
 
+		    //kDebug() << "Add statement: " << statement;
+
+
                     // If log not set
-                    if(!m_log)
+                    if(!m_log) {
+			//kDebug() << "Log not set";
                         return c;
+		    }
 
                     if(c != Soprano::Error::ErrorNone)
                         return c;
@@ -77,6 +88,7 @@ namespace Nepomuk
                         (m_targets.contains(statement.subject().uri())) or
                         (m_targets.contains(statement.object().uri()))
                     ) {
+			//kDebug() << "Log statement: " << statement;
                         *m_log << ChangeLogRecord(statement);
                     }
                     return c;

@@ -61,7 +61,7 @@ void  NW::SimpleDataPPReply::realFinish()
 }
 
 
-NW::Decision NW::SimpleDataPPReply::newDecision()
+NW::DecisionCreator NW::SimpleDataPPReply::newDecision()
 {
     Q_D(SimpleDataPPReply);
     return d->m_factory->newDecision(parentDataPP());
@@ -99,11 +99,20 @@ void NW::SimpleDataPPReply::addDecision(const Decision & decision)
     d->m_decisions.addDecision(decision);
     return;
 }
+void NW::SimpleDataPPReply::addDecision(const DecisionCreator & decisionCreator)
+{
+    addDecision(decisionCreator.data());
+}
 void NW::SimpleDataPPReply::addDecision(const Decision & decision , MergePolitics politics, double coff , bool noAuto)
 {
     Q_D(SimpleDataPPReply);
     d->m_decisions.addDecision(decision, politics, coff, noAuto);
     return;
+}
+
+void NW::SimpleDataPPReply::addDecision(const DecisionCreator & decisionCreator , MergePolitics politics, double coff , bool noAuto)
+{
+    addDecision(decisionCreator.data(),politics,coff,noAuto);
 }
 
 double NW::SimpleDataPPReply::approximateThreshold() const

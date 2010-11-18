@@ -88,6 +88,16 @@ void Nepomuk::WebExtractor::DecisionList::addDecision(const Decision &  dec, boo
 
 void Nepomuk::WebExtractor::DecisionList::addDecision(const Decision &  dec, MergePolitics politics, double coff, bool noAuto)
 {
+    if (!dec.isValid()) {
+	kDebug() << "Decision is invalid";
+	return;
+    }
+    
+    if (dec.isEmpty()) {
+	kDebug() << "Decision is empty";
+	return;
+    }
+
     Decision d(dec);
     double newRank = scaledRank(dec.rank(), m_scaleCoff);
     // Correct rank if necessary
@@ -101,12 +111,14 @@ void Nepomuk::WebExtractor::DecisionList::addDecision(const Decision &  dec, Mer
 
 void Nepomuk::WebExtractor::DecisionList::addDecisionUnscaled(Decision &  d, MergePolitics politics, double coff)
 {
-    // TODO We should freeze decisions after they are added to the list
+    // TODO Disable checkings and rank updating of the Decisions
+    // entirely. It should be completely rewritten
+#if 0
     double newRank = d.rank();
     // Ignore decision with low rank and empty decisions
     if((newRank > m_threshold) and(!d.isEmpty())) {
         // If such decision already exists
-        QSet<Decision>::iterator dit = this->find(d);
+        QList<Decision>::iterator dit = this->find(d);
         if(dit != this->end()) {
             kDebug() << "Decision already exist. Update rank";
             // Adjust it rank acording to politics
@@ -161,12 +173,20 @@ void Nepomuk::WebExtractor::DecisionList::addDecisionUnscaled(Decision &  d, Mer
                 m_best = d;
         }
     }
-    //kDebug() << "Not realized yet";
+#endif
+	// Update hasAutoApplicable flag
+	if(d.rank() > m_acrit)
+	    m_hasAutoApplicable = true;
+
+	// Update best decision
+	if(d.rank() > m_best.rank())
+	    m_best = d;
+
+	this->append(d);
 }
 
 bool Nepomuk::WebExtractor::DecisionList::hasAutoApplicable() const
 {
-    //kDebug() << "Not realized yet";
     return m_hasAutoApplicable;
 }
 
@@ -202,11 +222,11 @@ double Nepomuk::WebExtractor::DecisionList::scaledRank(double rank, double coff)
 }
 NW::DecisionList::const_iterator NW::DecisionList::begin() const
 {
-    return QSet<Decision>::begin();
+    return QList<Decision>::begin();
 }
 NW::DecisionList::const_iterator NW::DecisionList::end() const
 {
-    return QSet<Decision>::end();
+    return QList<Decision>::end();
 }
 
 double NW::DecisionList::approximateThreshold() const

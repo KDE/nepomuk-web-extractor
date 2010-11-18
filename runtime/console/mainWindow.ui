@@ -50,7 +50,7 @@
       </property>
       <widget class="QWidget" name="selectTab">
        <attribute name="title">
-        <string>Select Resources</string>
+        <string>Launch</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -87,8 +87,8 @@
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>462</width>
-                <height>153</height>
+                <width>595</width>
+                <height>141</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="gridLayout_3">
@@ -251,7 +251,7 @@ every iteration</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_9">
               <item>
-               <widget class="Nepomuk::Utils::SearchWidget" name="resWidget" native="true"/>
+               <widget class="Nepomuk::Utils::SearchWidget" name="resWidget"/>
               </item>
              </layout>
             </widget>
@@ -448,8 +448,8 @@ p, li { white-space: pre-wrap; }
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>551</width>
-             <height>451</height>
+             <width>273</width>
+             <height>33</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -494,7 +494,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QListWidget" name="decisionListWidget">
+           <widget class="DecisionCollectionWidget" name="decisionListWidget">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -545,7 +545,7 @@ p, li { white-space: pre-wrap; }
         <item row="0" column="1">
          <widget class="KTabWidget" name="ktabwidget_3">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="decisionViewTab">
            <attribute name="title">
@@ -553,7 +553,7 @@ p, li { white-space: pre-wrap; }
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <widget class="DecisionWidget" name="decisionWidget" native="true"/>
+             <widget class="DecisionWidget" name="decisionWidget"/>
             </item>
            </layout>
           </widget>
@@ -604,11 +604,11 @@ p, li { white-space: pre-wrap; }
            <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;Main algorithm&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;1) Select resource&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;2) Select one or more DataPP&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Sans Serif'; font-size:9pt;&quot;&gt;3) Press launch button&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Main algorithm&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1) Select resource&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2) Select one or more DataPP&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3) Press launch button&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
          </widget>
         </item>
@@ -624,13 +624,18 @@ p, li { white-space: pre-wrap; }
      <x>0</x>
      <y>0</y>
      <width>820</width>
-     <height>23</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>DecisionWidget</class>
+   <extends>QWidget</extends>
+   <header>webextractor/decisionwidget.h</header>
+  </customwidget>
   <customwidget>
    <class>KDoubleNumInput</class>
    <extends>QWidget</extends>
@@ -660,17 +665,17 @@ p, li { white-space: pre-wrap; }
   <customwidget>
    <class>Nepomuk::Utils::SearchWidget</class>
    <extends>QWidget</extends>
-   <header location="global">nepomuk/searchwidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>DecisionWidget</class>
-   <extends>QWidget</extends>
-   <header>decisionwidget.h</header>
+   <header>nepomuk/searchwidget.h</header>
   </customwidget>
   <customwidget>
    <class>ExaminedWidget</class>
    <extends>QTableWidget</extends>
    <header>examinedwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DecisionCollectionWidget</class>
+   <extends>QListWidget</extends>
+   <header location="global">webextractor/decisioncollectionwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

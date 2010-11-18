@@ -19,11 +19,12 @@
 #ifndef _NEPOMUK_WEBEXTRCT_DESICION_FACTORY_H_
 #define _NEPOMUK_WEBEXTRCT_DESICION_FACTORY_H_
 
-#include "webextractor_export.h"
-#include "decision.h"
-#include "decisionlist.h"
 #include <Soprano/BackendSettings>
 
+#include "decisionlist.h"
+#include "decisioncreator.h"
+
+#include "webextractor_export.h"
 namespace Soprano
 {
     class StorageModel;
@@ -42,7 +43,7 @@ namespace Nepomuk
                 friend class ResourceAnalyzerFactory;
                 friend class ResourceAnalyzer;
                 friend class DataPPReply;
-                Decision newDecision(const DataPP * author) const;
+                DecisionCreator newDecision(const DataPP * author) const;
                 DecisionList  newDecisionList(const DataPP *) const;
                 /*! \brief Debugging function
                  * Return DecisionFactory that can be used for debugging propose
