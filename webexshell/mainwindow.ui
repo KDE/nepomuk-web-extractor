@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>398</width>
-    <height>298</height>
+    <width>396</width>
+    <height>296</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,8 +53,8 @@
      <property name="title">
       <string>Decisions</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0" colspan="2">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QLabel" name="m_statusLabel">
@@ -68,8 +68,32 @@
         </item>
        </layout>
       </item>
-      <item>
+      <item row="1" column="0">
        <widget class="QListWidget" name="m_decisionWidget"/>
+      </item>
+      <item row="1" column="1">
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="KPushButton" name="m_buttonApplyDecision">
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
