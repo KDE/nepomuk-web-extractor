@@ -25,9 +25,11 @@
 #include "categoriesmodel.h"
 #include "decision.h"
 #include "decisionlist.h"
+#include "decisionapplicationrequest.h"
 
 #include <KDebug>
 #include <KLocale>
+#include <KMessageBox>
 
 
 Q_DECLARE_METATYPE(Category*)
@@ -50,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_buttonStart, SIGNAL(clicked()), this, SLOT(slotStart()));
     connect(m_buttonCancel, SIGNAL(clicked()), this, SLOT(slotCancel()));
+    connect(m_buttonApplyDecision, SIGNAL(clicked()), this, SLOT(slotApplyDecision()));
 
     updateButtonStatus();
 }
@@ -65,6 +68,7 @@ void MainWindow::updateButtonStatus()
     m_buttonStart->setEnabled(!m_analyzerThread->isRunning() && m_comboCategory->itemData(m_comboCategory->currentIndex(), CategoriesModel::CategoryRole).value<Category*>() != 0);
     m_buttonCancel->setEnabled(m_analyzerThread->isRunning());
     m_busyLabel->setVisible(m_analyzerThread->isRunning());
+    m_buttonApplyDecision->setEnabled(m_decisionWidget->currentItem() != 0);
     if(!m_analyzerThread->isRunning()) {
         m_statusLabel->setText(i18n("Idle"));
         m_statusLabel->setToolTip(QString());
@@ -77,7 +81,7 @@ void MainWindow::slotNewDecisions(const Nepomuk::WebExtractor::DecisionList &dec
     foreach(const Nepomuk::WebExtractor::Decision & d, decisions) {
         // Add record to list widget
         QListWidgetItem * item = new QListWidgetItem();
-        item->setData(Qt::DisplayRole, "There is no Decision::uri memeber any more");
+        item->setData(Qt::DisplayRole, d.description());
         item->setData(DecisionRole, QVariant::fromValue(d));
         m_decisionWidget->addItem(item);
     }
@@ -110,4 +114,18 @@ void MainWindow::slotFinished()
 {
     kDebug();
     updateButtonStatus();
+}
+
+void MainWindow::slotApplyDecision()
+{
+    if(QListWidgetItem* item = m_decisionWidget->currentItem()) {
+        Nepomuk::WebExtractor::Decision decision = item->data(DecisionRole).value<Nepomuk::WebExtractor::Decision>();
+        Nepomuk::WebExtractor::DecisionApplicationRequest* req = decision.applicationRequest();
+        if(req->apply()) {
+            delete item;
+        }
+        else {
+            KMessageBox::error(this,i18n("Failed to apply decision. Due to missing error handling the reason is unknown."));
+        }
+    }
 }

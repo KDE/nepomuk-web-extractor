@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Service
+X-KDE-ServiceTypes=Nepomuk/WebExtractorPlugin
+X-KDE-Library=webexplugin_olena
+X-WebExtractor-Name=olena
+Name=Olena plugin
+Comment=Extracts text from images and stores it as nie:plainTextContent

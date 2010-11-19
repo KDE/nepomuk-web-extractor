@@ -43,6 +43,7 @@ public:
 private Q_SLOTS:
     void slotStart();
     void slotCancel();
+    void slotApplyDecision();
     void slotAnalyzingResource(const Nepomuk::Resource&);
     void slotNewDecisions(const Nepomuk::WebExtractor::DecisionList&);
     void slotFinished();
