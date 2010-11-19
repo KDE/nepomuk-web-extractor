@@ -24,7 +24,7 @@
 #include <QUrl>
 #include <QTime>
 
-#include <nepomuk/changelog.h>
+#include "changelog.h"
 
 #include "decision.h"
 #include "decisionapplicationrequest.h"

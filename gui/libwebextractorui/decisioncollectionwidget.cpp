@@ -16,8 +16,8 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <webextractor/decisionlist.h>
-#include <webextractor/decisionapplicationrequest.h>
+#include "decisionlist.h"
+#include "decisionapplicationrequest.h"
 
 #include <QtGlobal>
 

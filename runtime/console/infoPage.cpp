@@ -24,7 +24,7 @@
 #include <QUrl>
 #include <Nepomuk/Resource>
 #include <KMessageBox>
-#include <webextractor/resourceservicedata.h>
+#include "resourceservicedata.h"
 
 namespace NW = Nepomuk::WebExtractor;
 

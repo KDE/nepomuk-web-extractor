@@ -23,8 +23,8 @@
 #include "changelogrecord.h"
 #include "syncfile.h"
 #include "identificationset.h"
-#include "nie.h"
-#include "nfo.h"
+#include <nepomuk/nie.h>
+#include <nepomuk/nfo.h>
 #include "backupsync.h"
 
 #include <QtCore/QDir>
