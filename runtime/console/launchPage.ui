@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>512</width>
-    <height>542</height>
+    <width>514</width>
+    <height>544</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <item>
     <widget class="KTabWidget" name="ktabwidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -86,8 +86,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>383</width>
-               <height>149</height>
+               <width>357</width>
+               <height>138</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_3">
@@ -242,7 +242,7 @@ every iteration</string>
           <item>
            <widget class="KTabWidget" name="selectTargets">
             <property name="currentIndex">
-             <number>2</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="tab_5">
              <attribute name="title">
@@ -254,7 +254,7 @@ every iteration</string>
                 <x>10</x>
                 <y>30</y>
                 <width>333</width>
-                <height>24</height>
+                <height>23</height>
                </rect>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -277,7 +277,7 @@ every iteration</string>
              </attribute>
              <layout class="QHBoxLayout" name="horizontalLayout_4">
               <item>
-               <widget class="Nepomuk::Utils::SearchWidget" name="resWidget" native="true"/>
+               <widget class="Nepomuk::Utils::SearchWidget" name="resWidget"/>
               </item>
              </layout>
             </widget>
@@ -312,6 +312,16 @@ every iteration</string>
                 </property>
                 <property name="value">
                  <number>5</number>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="checkBox_2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="text">
+                 <string>Use category's DataPP</string>
                 </property>
                </widget>
               </item>
@@ -374,7 +384,7 @@ every iteration</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="DecisionWidget" name="decisionWidget" native="true"/>
+            <widget class="DecisionWidget" name="decisionWidget"/>
            </item>
           </layout>
          </widget>
@@ -457,6 +467,11 @@ every iteration</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>DecisionWidget</class>
+   <extends>QWidget</extends>
+   <header>webextractor/decisionwidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>KDoubleNumInput</class>
    <extends>QWidget</extends>
    <header>knuminput.h</header>
@@ -478,19 +493,14 @@ every iteration</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>DecisionWidget</class>
-   <extends>QWidget</extends>
-   <header>decisionwidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>Nepomuk::Utils::SearchWidget</class>
    <extends>QWidget</extends>
-   <header location="global">nepomuk/searchwidget.h</header>
+   <header>nepomuk/searchwidget.h</header>
   </customwidget>
   <customwidget>
    <class>DecisionCollectionWidget</class>
    <extends>QListWidget</extends>
-   <header>decisioncollectionwidget.h</header>
+   <header location="global">webextractor/decisioncollectionwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
