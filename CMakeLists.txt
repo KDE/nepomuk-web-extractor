@@ -10,6 +10,8 @@ find_package(Nepomuk REQUIRED)
 include(KDE4Defaults)
 include(MacroLibrary)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+
 include_directories(
   gui/libwebextractorui
   libwebextractor
