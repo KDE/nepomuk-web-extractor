@@ -1,18 +1,5 @@
 project(libwebextractor)
 
-cmake_minimum_required(VERSION 2.6)
-
-set (QT_MIN_VERSION "4.6.0")
-set (QT_USE_QTNETWORK true)
-
-
-find_package(Qt4  REQUIRED)
-find_package(KDE4  REQUIRED)
-find_package(Nepomuk REQUIRED)
-include(KDE4Defaults)
-include(MacroLibrary)
-
-
 option( WEBEXTRACTOR_ENABLE_TESTS "Enable testing" OFF )
 
 set(WEBEXTRACTOR_VERSION_MAJOR 0 CACHE INT "Major WebExtractor version number" FORCE)
@@ -40,9 +27,26 @@ include_directories(
   #${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor
   ${CMAKE_CURRENT_BINARY_DIR}
   ${NEPOMUK_INCLUDE_DIR}
+  ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${KDE4_INCLUDES}
   )
 
+set(backupsynclegacy_SRC
+    ${backupsynclegacy_SOURCE_DIR}/changelog.cpp
+    ${backupsynclegacy_SOURCE_DIR}/changelogrecord.cpp
+    ${backupsynclegacy_SOURCE_DIR}/identificationrequest.cpp
+    ${backupsynclegacy_SOURCE_DIR}/identificationrequest_p.cpp
+    ${backupsynclegacy_SOURCE_DIR}/identificationset.cpp
+    ${backupsynclegacy_SOURCE_DIR}/mergerequest.cpp
+    ${backupsynclegacy_SOURCE_DIR}/syncfile.cpp
+    ${backupsynclegacy_SOURCE_DIR}/simpleresource.cpp
+    ${backupsynclegacy_SOURCE_DIR}/graphwrapper.cpp
+)
+soprano_add_ontology(backupsynclegacy_SRC
+  ${backupsynclegacy_SOURCE_DIR}/identification.trig
+  "backupsync"
+  "Nepomuk::Vocabulary"
+  "trig")
 
 add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 set( webextractor_SRCS 
@@ -85,31 +89,10 @@ set( webextractor_SRCS
     selectedpropertiesfunc.cpp
     visitednodefilter.cpp
     resourcenodefilter.cpp
+    childqueryinterface.cpp
     plaintextvisitor.cpp
-    )
 
-set ( webextractor_MOC    
-    resourceanalyzerfactory.h 
-    resourceanalyzer.h
-    datappreply.h
-    decisionapplicationrequest.h
-    datapp.h
-    debug_datapp.h
-    simplenetworkdatapp.h
-    simplenetworkreply.h
-    simpledatappreply.h
-    simplenetworkreplyfactory.h
-    simplenetworkrequest.h
-    nepomukservicedatabackend.h
-    dummyservicedatabackend.h
-    servicedatabackend.h
-    # Graph part
-    visitednodefilter.h
-    resourcenodefilter.h
-    selectedpropertiesfunc.h
-    childqueryinterface.h
-    resourcenodefilter.h
-    nodefilterinterface.h
+    ${backupsynclegacy_SRC}
     )
 
 set (WEBEXTRACTOR_HEADERS 
@@ -164,18 +147,17 @@ set (WEBEXTRACTOR_HEADERS
     selectedpropertiesfunc.h
     plaintextvisitor.h
     ) 
-QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )
-set ( webextractor_SRCS
-    ${webextractor_SRCS}
-    ${webextractor_RES}
-    )
 
 soprano_add_ontology( webextractor_SRCS ${libwebextractor_SOURCE_DIR}/decisions.trig "NDCO" "Nepomuk::WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
-#nepomuk_add_ontology_classes( webextractor_SRCS, ONTOLOGIES ${libwebextractor_SOURCE_DIR}/decisions.trig CLASSES DataPP VISIBILITY webextractor)
 
-add_library( webextractor SHARED ${webextractor_SRCS})
+#QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )
+#set ( webextractor_SRCS
+#    ${webextractor_SRCS}
+#    ${webextractor_RES}
+#    )
 
-#kde4_add_library( webextractor SHARED ${webextractor_SRCS} )
+
+kde4_add_library( webextractor SHARED ${webextractor_SRCS})
 
 set_target_properties(webextractor PROPERTIES
 	VERSION ${WEBEXTRACTOR_VERSION_STRING}
@@ -191,7 +173,6 @@ target_link_libraries( webextractor
   ${QT_LIBRARIES}
   ${QT_QTNETWORK_LIBRARY}
   ${QT_QTCORE_LIBRARY}
-  nepomuksync
   ontologyloader
   )
 
@@ -202,14 +183,6 @@ install(TARGETS webextractor
 )
 remove_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 
-
-
-#installing
-
-#set ( WEBEXTRACTOR_HEADERS 
-#    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzerfactory.h 
-#    ${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor/resourceanalyzer.h
-#    )
 
 install(FILES
 	${WEBEXTRACTOR_HEADERS}

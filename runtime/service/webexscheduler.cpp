@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <QtGlobal>
 #include "webexqueries.h"
-
+#include "categoriespool.h"
 
 namespace NQ = Nepomuk::Query;
 
@@ -86,12 +86,12 @@ void Nepomuk::WebExtractorScheduler::readConfig()
     foreach(const QString  & catname, cats) {
         // Check that this category has any assigned DataPP.
         // If it has not, then ignore it.
-        WebExtractor::ExtractParametersPtr params = m_conf->extractParameters(catname);
-        if(!params->hasAnyDataPP()) {
+        WebExtractor::ExtractParameters params = m_conf->extractParameters(catname);
+        if(!params.hasAnyDataPP()) {
             kDebug() << "Category " << catname << " has no assigned DataPP";
             continue;
         } else {
-            kDebug() << "Category " << catname << "has " << params->dataPPCount() << "assigned DataPP";
+            kDebug() << "Category " << catname << "has " << params.dataPPCount() << "assigned DataPP";
         }
 
         //q = m_conf->queryPrefix(catname);

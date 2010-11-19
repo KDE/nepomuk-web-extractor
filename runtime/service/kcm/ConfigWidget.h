@@ -1,6 +1,7 @@
 /*
    Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
    Copyright (C) 2008 by Dario Freddi <drf@kde.org>                      
+   Copyright (C) 2010 Sebastian Trueg <trueg@kde.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -23,10 +24,12 @@
 #include <kpagewidget.h>
 
 #include "GeneralPage.h"
-#include "CategoriesPage.h"
+
 #include "webextractor_config.h"
 //#include "EditPage.h"
 //#include "CapabilitiesPage.h"
+
+class CategoriesWidget;
 
 class ConfigWidget : public KPageWidget
 {
@@ -35,15 +38,19 @@ class ConfigWidget : public KPageWidget
 public:
     ConfigWidget(Nepomuk::WebExtractorConfig*,QWidget *parent = 0);
     ~ConfigWidget();
-    public Q_SLOTS:
-	virtual void load();
-        void save();
-        void defaults();
-    Q_SIGNALS:
-	void changed(bool ch);
-    private:
-	GeneralPage * m_generalPage;
-	CategoriesPage * m_categoriesPage;
+
+public Q_SLOTS:
+    virtual void load();
+    void save();
+    void defaults();
+    void setChanged();
+
+Q_SIGNALS:
+    void changed(bool ch);
+
+private:
+    GeneralPage * m_generalPage;
+    CategoriesWidget * m_categoriesPage;
 };
 
 #endif

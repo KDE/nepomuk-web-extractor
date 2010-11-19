@@ -1,5 +1,6 @@
 /*
    Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+   Copyright (C) 2010 Sebastian Trueg <trueg@kde.org>
 
    This library is free software; you can redistribute it and/or modify
    it under the terms of the GNU Library General Public License as published by
@@ -19,15 +20,72 @@
 #ifndef __datappdescr_h_
 #define __datappdescr_h_
 
+#include <QtCore/QString>
+#include <QtCore/QSharedDataPointer>
+
+#include <KService>
+
+namespace Nepomuk {
+class CategoriesPool;
+class WebExtractorPlugin;
+}
+
+class KConfigGroup;
+class Category;
+
 class DataPPDescr
 {
-    public:
-	DataPPDescr(const QString & name = QString()):name(name),rank(1.0), coff(1.0),trusted(true) 
-	{;}
-	QString name;
-	double rank;
-	double coff;
-	bool trusted;
-	bool isValid() const { return !name.isEmpty(); }
+public:
+    DataPPDescr(KService::Ptr service);
+    DataPPDescr(const DataPPDescr&);
+    ~DataPPDescr();
+
+    DataPPDescr& operator=(const DataPPDescr&);
+
+    Category* category() const;
+    KService::Ptr service() const;
+
+    /**
+     * Create an instance of the corresponding plugin.
+     * \return The new plugin instance or 0 on failure.
+     * The caller takes ownership.
+     */
+    Nepomuk::WebExtractorPlugin* createPlugin() const;
+
+    /**
+     * A unique ID for the datapp. This is a random string which is
+     * automatically generated for local datapps.
+     * Plugin developers would come up with their own ids.
+     */
+    QString identifier() const;
+
+    double rank() const;
+    double coff() const;
+    bool trusted() const;
+    bool enabled() const;
+
+    void setRank(double rank);
+    void setCoff(double coff);
+    void setTrusted(bool trusted);
+    void setEnabled(bool enabled);
+
+    bool isValid() const;
+
+    bool operator==(const DataPPDescr& other) const;
+
+    void save(KConfigGroup& config) const;
+    static DataPPDescr load(const KConfigGroup& config, Nepomuk::CategoriesPool* pool);
+
+Q_SIGNALS:
+    void changed(DataPPDescr*);
+
+private:
+    class Private;
+    QSharedDataPointer<Private> d;
+
+    void setCategory(Category*);
+
+    friend class Category;
 };
+
 #endif

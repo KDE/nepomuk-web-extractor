@@ -20,13 +20,14 @@
 #define _webexsettings_categories_h_
 
 #include "datappconfig.h"
-#include <QStringList> 
-#include <KDirWatch> 
+#include "category.h"
+#include <QtCore/QStringList>
+#include <KService>
 
 namespace Nepomuk {
     /*! \brief This class is used for storing information about webextractor service categories
      * Category  means some set of configurations here. It is a config object 
-     * that contains information about what Nepomuk resources belong to
+     * that contains information about wha^t Nepomuk resources belong to
      * this category and what DataPP should process this resources.
      * \note <b> Do not mix the webextractor service category and category of the DataPP! </b>
      * The category of the DataPP is just a tags that can be used for more convinient 
@@ -37,21 +38,69 @@ namespace Nepomuk {
      */
     class CategoriesPool: public QObject
     {
-	Q_OBJECT;
-	public:
-	    static QSet< QString> categories();
-	    static CategoriesPool * self(); 
-	    static void addCategory(const QString & name);
-	Q_SIGNALS:
-	    void categoriesChanged();
-	private Q_SLOTS:
-	    void update();
-	private:
-	    CategoriesPool();
-	    void init();
-	    void EmitCatChanged();
-	    QSet< QString > m_categories;
-	    KDirWatch wc;
+	Q_OBJECT
+
+    public:
+        /**
+         * Create a new CategoriesPool. Typically one would use
+         * self() instead.
+         */
+        CategoriesPool();
+        ~CategoriesPool();
+
+        QList<Category*> categories() const;
+        Category* categoryById(const QString& id) const;
+
+        /**
+         * Stores a category into the pool, replacing
+         * an already existing category with the same name.
+         * \return \p true if \p cat was valid.
+         */
+        bool addCategory(Category* cat);
+
+        /**
+         * Remove the Category with the title \p name.
+         * \return \p true if found, \p false otherwise.
+         */
+        //bool removeCategory(const QString& name);
+
+        KService::List availablePlugins() const;
+        KService::Ptr pluginByName(const QString& name) const;
+
+        /**
+         * Access the global CategoriesPool. Categories are
+         * loaded from disk on creation.
+         */
+        static CategoriesPool* self();
+
+    public Q_SLOTS:
+        /**
+         * Reload the categories form configuration on disk.
+         */
+        void reloadCategories();
+
+        /**
+         * Save all categories to disk.
+         */
+        void saveCategories();
+
+        /**
+         * Set the auto update feature. If enabled CategoriesPool
+         * will automatically reload changed on disk. This should
+         * never be enabled for a configuration dialog.
+         *
+         * By default this is disabled.
+         */
+        void setAutoUpdate(bool autoUpdate);
+
+    Q_SIGNALS:
+        void categoriesChanged();
+
+    private:
+        class Private;
+        Private* const d;
+
+        Q_PRIVATE_SLOT(d, void _k_categoryChanged(Category*))
     };
 }
 

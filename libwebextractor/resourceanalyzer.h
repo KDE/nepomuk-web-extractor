@@ -53,7 +53,7 @@ namespace Nepomuk
                  * If resource is incorrect then error() signal will be send.
                  * All signals are sent <b>after</b> the control returns to event loop.
                  */
-                void analyze(Nepomuk::Resource & res);
+                void analyze(const Nepomuk::Resource & res);
 
                 /*! \brief Analyze current resource
                          * If resource is incorrect then error() signal will be send.

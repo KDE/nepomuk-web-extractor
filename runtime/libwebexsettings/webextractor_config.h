@@ -20,7 +20,6 @@
 #define _NEPOMUK_WEBEXTRCT_CONFIG_H_
 
 #include "webexconfigbase.h"
-#include "webexcatconfig.h"
 #include "webextractor_plugin.h"
 #include <QtCore/QHash>
 #include <QtCore/QString>
@@ -35,19 +34,8 @@ namespace Nepomuk
         public:
             WebExtractorConfig();
             ~WebExtractorConfig();
-            //const QHash<QString,WebExCategory*> & categories() const { return m_categories ;}
-
-            QStringList categories() const;
-            WebExCategoryConfig * categoryConfig(const QString & categoryName) const;
-
-
-            //WebExtractor::DataPPKeeper & datapp( const QString categoryName);
-            void update();
-            void clear();
-
 
         protected:
-            QHash<QString, WebExCategoryConfig*> m_categories;
             //QHash< QString, QSharedPointer<WebExtractor::ExtractParameters> > m_parameters;
             //QHash< QString, WebExtractorPlugin *> m_plugins;
             //QHash< QString, DataPPWrapper*> m_datappwrappers;

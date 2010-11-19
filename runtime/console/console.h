@@ -49,10 +49,6 @@ class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
 
 
 
-
-
-
-
 };
 
 #endif

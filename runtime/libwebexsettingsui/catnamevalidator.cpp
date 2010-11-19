@@ -22,19 +22,11 @@
 CategoryNameValidator::CategoryNameValidator(QObject * parent):
     QValidator(parent)
 {
-    update();
-    connect(Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()),
-            this, SLOT(update()));
-}
-
-void CategoryNameValidator::update()
-{
-    m_categories = Nepomuk::CategoriesPool::categories();
 }
 
 QValidator::State CategoryNameValidator::validate(QString & str, int & pos) const
 {
-    if(m_categories.contains(str))
+    if(Nepomuk::CategoriesPool::self()->categoryById(str))
         return Intermediate;
     else
         return Acceptable;

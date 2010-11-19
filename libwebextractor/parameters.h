@@ -21,7 +21,6 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QtDebug>
-#include <QtCore/QSharedPointer>
 #include <QtCore/QSharedDataPointer>
 #include "global.h"
 #include "webextractor_export.h"
@@ -45,6 +44,8 @@ namespace Nepomuk
                 ExtractParameters(const ExtractParameters &);
                 const ExtractParameters & operator=(const ExtractParameters & rhs);
 
+
+                bool isValid() const;
 
                 MergePolitics mergePolitics() const;
                 void setMergePolitics(MergePolitics val) ;
@@ -137,7 +138,6 @@ namespace Nepomuk
                 class Private;
                 QSharedDataPointer<Private> d;
         };
-        typedef QSharedPointer< const ExtractParameters> ExtractParametersPtr;
         WEBEXTRACTOR_EXPORT QDebug operator<<(QDebug dbg,  const ExtractParameters & cat);
     }
 }

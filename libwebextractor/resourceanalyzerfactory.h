@@ -43,7 +43,7 @@ namespace Nepomuk
                 Q_OBJECT;
             public:
                 ResourceAnalyzerFactory(
-                    ExtractParametersPtr extractParams,
+                    const ExtractParameters& extractParams,
                     QObject * parent = 0
                 );
                 ~ResourceAnalyzerFactory();

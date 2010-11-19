@@ -66,7 +66,7 @@ class LaunchPage : public QWidget, public Ui_launchPage
         QThread * workThread;
         Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;
         // Store extract paramters ptr for debugging proposes
-        Nepomuk::WebExtractor::ExtractParametersPtr m_parptr;
+        Nepomuk::WebExtractor::ExtractParameters m_par;
         // This variable store what type of analization - single, set of 
         // resources or category we currently perform. 
         AnalyzationType m_currentAnalizationType;
