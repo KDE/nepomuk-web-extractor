@@ -40,7 +40,7 @@ namespace NQ = Nepomuk::Query;
 Nepomuk::WebExtractorCategoryScheduler::WebExtractorCategoryScheduler(
     const NQ::Query & category_query,
     QObject * parent,
-    NW::ExtractParametersPtr params,
+    const NW::ExtractParameters& params,
     bool optimizeForNepomuk,
     int maxResSimult
 ):
@@ -120,8 +120,8 @@ void Nepomuk::WebExtractorCategoryScheduler::cacheUrls()
         return;
 
     // First we will execute query to check that there is any resource
-    QMap< QString, int> dataPPInfo = m_extractParams->dataPPInfo();
-    NW::ResourceServiceDataManager * rsdManager = m_extractParams->resourceServiceDataManager();
+    QMap< QString, int> dataPPInfo = m_extractParams.dataPPInfo();
+    NW::ResourceServiceDataManager * rsdManager = m_extractParams.resourceServiceDataManager();
     NQ::Query advancedQuery = rsdManager->queryUnparsedResources(m_query.term(), dataPPInfo, Nepomuk::ResourceManager::instance()->mainModel());
 
     if(advancedQuery.isValid()) {
@@ -140,7 +140,7 @@ void Nepomuk::WebExtractorCategoryScheduler::cacheUrls()
         // This checks must be done manually. For each resource uri, return by query,
         // the ResourceServiceData with aproprite backend must be created and the
         // resource should be checked whether there is any unexamined DataPP
-        NW::ResourceServiceDataManager * rsdManager = m_extractParams->resourceServiceDataManager();
+        NW::ResourceServiceDataManager * rsdManager = m_extractParams.resourceServiceDataManager();
 
         kDebug() << "Category has query: " << m_query.toSparqlQuery();
 
@@ -434,7 +434,7 @@ void Nepomuk::WebExtractorCategoryScheduler::run()
     delete m_impl;
     */
 
-    if(m_extractParams.isNull()) {
+    if(!m_extractParams.isValid()) {
         kDebug() << "Extracting parameters is null. Ignoring launch";
         return;
     }

@@ -37,7 +37,7 @@ QString Nepomuk::GlobalSettings::pluginQueryByName(const QString & name)
 QString Nepomuk::GlobalSettings::kcmQueryByName(const QString & name)
 {
     static QString _t = QString("( ( [X-KDE-ParentApp] == 'webextractorconfig' ) and (["WE_PLUGIN_NAME_KEY"] == '%1') ) ");
-    return pluginQueryTemplate().arg(name);
+    return _t.arg(name);
 }
 
 QString Nepomuk::GlobalSettings::pluginQueryTemplate()

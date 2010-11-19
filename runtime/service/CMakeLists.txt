@@ -1,17 +1,5 @@
 project(webextractorservice)
 
-cmake_minimum_required(VERSION 2.6)
-
-set (QT_MIN_VERSION "4.6.0")
-set (QT_USE_QTNETWORK true)
-
-#include(KDE4Defaults)
-#include(MacroLibrary)
-
-find_package(KDE4  REQUIRED)
-find_package(Qt4  REQUIRED)
-find_package(Nepomuk REQUIRED)
-
 # check for required packages
 if(WEBEXTRACTOR_VERSION_STRING)
 	# if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
@@ -31,6 +19,7 @@ include_directories(
   ${SOPRANO_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${NEPOMUK_INCLUDE_DIR}
+  ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${CMAKE_CURRENT_BINARY_DIR}
   ${KDE4_INCLUDES}
   ${LIBWEBEXTRACTOR_INCLUDE_DIRS}
@@ -40,12 +29,9 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/../libwebexsettings
   # some files in service use #include "libwebexsettings/XXX"
   ${CMAKE_CURRENT_SOURCE_DIR}/../libwebexsettings/../
+  ${backupsynclegacy_SOURCE_DIR}
+  ${backupsynclegacy_BINARY_DIR}
   )
-
-
-link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
-
-
 
 set( webexservice_SRCS 
     webexservice.cpp
@@ -58,8 +44,23 @@ set( webexservice_SRCS
     webextractor_settings.cpp
     #${webexsettings_SRCS}
     #webextractor_plugin.cpp
+
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/changelog.cpp
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/changelogrecord.cpp
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/identificationrequest.cpp
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/identificationrequest_p.cpp
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/identificationset.cpp
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/mergerequest.cpp
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/syncfile.cpp
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/simpleresource.cpp
+    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/graphwrapper.cpp
     )
 
+soprano_add_ontology(webexservice_SRCS
+  ${webextractor_SOURCE_DIR}/libbackupsynclegacy/identification.trig
+  "backupsync"
+  "Nepomuk::Vocabulary"
+  "trig")
 
 FILE( GLOB 
     webexservice_categories_CFG

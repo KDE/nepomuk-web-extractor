@@ -16,18 +16,11 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "catnamevalidator.h"
-#include "categoriespool.h"
+#include "childqueryinterface.h"
 
-CategoryNameValidator::CategoryNameValidator(QObject * parent):
-    QValidator(parent)
+Nepomuk::Graph::ChildQueryInterface::ChildQueryInterface( QObject * parent ):
+    QObject(parent)
 {
 }
 
-QValidator::State CategoryNameValidator::validate(QString & str, int & pos) const
-{
-    if(Nepomuk::CategoriesPool::self()->categoryById(str))
-        return Intermediate;
-    else
-        return Acceptable;
-}
+#include "childqueryinterface.moc"

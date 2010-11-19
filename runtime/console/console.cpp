@@ -198,9 +198,9 @@ void ConsoleMainWindow::startExtracting()
 
 
     // Now create a list of parameters
-    NW::ExtractParameters * p = new Nepomuk::WebExtractor::ExtractParameters();
-    p->setACrit(Nepomuk::WebExtractor::maxACrit());
-    p->setUCrit(this->thresholdNumInput->value());
+    NW::ExtractParameters p;
+    p.setACrit(Nepomuk::WebExtractor::maxACrit());
+    p.setUCrit(this->thresholdNumInput->value());
 
     // Add DataPP
     // TODO Currently system use view selection as list of all selected DataPP
@@ -226,7 +226,7 @@ void ConsoleMainWindow::startExtracting()
         hasAny = true;
 
         NW::DataPPWrapper * dppw =  new NW::DataPPWrapper(dpp, dataPPName, 1.0, 1.0);
-        p->addDataPP(dppw);
+        p.addDataPP(dppw);
     }
 
     if(!hasAny) {
@@ -239,32 +239,27 @@ void ConsoleMainWindow::startExtracting()
     Soprano::BackendSettings settings;
     KTempDir * td = 0;    if(this->backendComboBox->currentText() == QString("Redland")) {
         settings << Soprano::BackendOptionStorageMemory;
-        p->setBackendName("redland");
+        p.setBackendName("redland");
     } else if(this->backendComboBox->currentText() == QString("Virtuoso")) {
         td = new KTempDir(KStandardDirs::locateLocal("tmp", "desmodel"));
         settings << Soprano::BackendSetting(Soprano::BackendOptionStorageDir, td->name());
-        p->setBackendName("virtuoso");
+        p.setBackendName("virtuoso");
         // If we use virtuoso backend, then we should clean temporaly created model(s)
-        p->setAutoDeleteModelData(true);
+        p.setAutoDeleteModelData(true);
     } else {
         kDebug() << "Unknown backend is selected. Use default one.";
     }
 
 
-    p->setBackendSettings(settings);
+    p.setBackendSettings(settings);
 
     delete m_tmpDir;
     m_tmpDir = td;
 
 
-    Nepomuk::WebExtractor::ExtractParametersPtr parameters = Nepomuk::WebExtractor::ExtractParametersPtr(p);
+    kDebug() << " Launch Resource Analyzer with folowing parameters: " << p;
 
-
-    kDebug() << " Launch Resource Analyzer with folowing parameters: " << *p;
-
-    m_parptr = parameters;
-
-    NW::ResourceAnalyzerFactory factory(parameters);
+    NW::ResourceAnalyzerFactory factory(p);
 
     NW::ResourceAnalyzer * resanal = factory.newAnalyzer(res);
     if(!resanal) {

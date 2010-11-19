@@ -79,10 +79,10 @@ Nepomuk::CategoriesPool* Nepomuk::CategoriesPool::self()
    return s_pool;
 }
 
-Category* Nepomuk::CategoriesPool::category(const QString &name) const
+Category* Nepomuk::CategoriesPool::categoryById(const QString &id) const
 {
-    if(d->m_categories.contains(name))
-        return d->m_categories[name];
+    if(d->m_categories.contains(id))
+        return d->m_categories[id];
     else
         return 0;
 }
@@ -92,7 +92,7 @@ bool Nepomuk::CategoriesPool::addCategory(Category *cat)
     if(cat->isValid()) {
         connect(cat, SIGNAL(changed(Category*)),
                 this, SLOT(_k_categoryChanged(Category*)));
-        d->m_categories[cat->name()] = cat;
+        d->m_categories[cat->identifer()] = cat;
         emit categoriesChanged();
         return true;
     }
@@ -104,6 +104,7 @@ bool Nepomuk::CategoriesPool::addCategory(Category *cat)
 
 void Nepomuk::CategoriesPool::reloadCategories()
 {
+    kDebug();
     // Idea for better config scheme:
     // - We have one .cat file for each category. In there the category settings are defined
     // - We have one .datapp file for each plugin/cat relation, containing the DataPPDescr settings and the plugin KCM settings
@@ -123,17 +124,19 @@ void Nepomuk::CategoriesPool::reloadCategories()
     qDeleteAll(d->m_categories);
     d->m_categories.clear();
 
+    // load the categories
+    // ==============================
     kDebug() << "Looking at: " << CATEGORY_CONFIG_DIR;
     // we are using the relative paths to allow local settings overriding the global ones
     QStringList categoryFiles;
-    KGlobal::dirs()->findAllResources("config", CATEGORY_CONFIG_DIR"/*rc", KStandardDirs::NoDuplicates, categoryFiles);
+    KGlobal::dirs()->findAllResources("config", CATEGORY_CONFIG_DIR"/*.cat", KStandardDirs::NoDuplicates, categoryFiles);
     if ( categoryFiles.isEmpty() ) {
 	kDebug() << "No category detected";
     }
-    Q_FOREACH(const QString& catFile, categoryFiles) {
-        const QString catConfigFile = KStandardDirs::locate("config", catConfigFile);
+    Q_FOREACH(const QString& relativePath, categoryFiles) {
+        const QString catConfigFile = KStandardDirs::locate("config", relativePath);
         if(QFile::exists(catConfigFile)) {
-            KSharedConfig::Ptr config = KSharedConfig::openConfig(catFile);
+            KSharedConfig::Ptr config = KSharedConfig::openConfig(catConfigFile);
             // TODO: a local installation may be read-write, too
             Category* cat = new Category(config->accessMode() == KConfig::ReadOnly, this);
             cat->load(config->group("Category"));
@@ -143,7 +146,29 @@ void Nepomuk::CategoriesPool::reloadCategories()
             }
             else {
                 delete cat;
-                kDebug() << "Invalid category at" << catFile;
+                kDebug() << "Invalid category at" << catConfigFile;
+            }
+        }
+    }
+
+    // now load all datapps
+    // ==============================
+    QStringList datappFiles;
+    KGlobal::dirs()->findAllResources("config", PLUGIN_CONFIG_DIR"/*.datapp", KStandardDirs::NoDuplicates, datappFiles);
+    if ( datappFiles.isEmpty() ) {
+	kDebug() << "No datapps detected";
+    }
+    Q_FOREACH(const QString& relativePath, datappFiles) {
+        const QString datappConfigFile = KStandardDirs::locate("config", relativePath);
+        if(QFile::exists(datappConfigFile)) {
+            KSharedConfig::Ptr config = KSharedConfig::openConfig(datappConfigFile);
+            KConfigGroup datappGroup = config->group("DataPP");
+            DataPPDescr datapp = DataPPDescr::load(datappGroup, this);
+            if( datapp.isValid() ) {
+                datapp.category()->addPlugin(datapp);
+            }
+            else {
+                kDebug() << "Could not match datapp" << datapp.identifier() << "to any category";
             }
         }
     }
@@ -178,24 +203,24 @@ void Nepomuk::CategoriesPool::saveCategories()
     }
 }
 
-bool Nepomuk::CategoriesPool::removeCategory(const QString &name)
-{
-    QMap<QString, Category*>::iterator it = d->m_categories.find(name);
-    if(it != d->m_categories.end()) {
-        if(it.value()->isGlobal()) {
-            kdDebug() << "Cannot remove global categories";
-            return false;
-        }
-        else {
-            d->m_categories.erase(it);
-            return true;
-        }
-    }
-    else {
-        kDebug() << "Could not find category with name" << name;
-        return false;
-    }
-}
+//bool Nepomuk::CategoriesPool::removeCategory(const QString &name)
+//{
+//    QMap<QString, Category*>::iterator it = d->m_categories.find(name);
+//    if(it != d->m_categories.end()) {
+//        if(it.value()->isGlobal()) {
+//            kdDebug() << "Cannot remove global categories";
+//            return false;
+//        }
+//        else {
+//            d->m_categories.erase(it);
+//            return true;
+//        }
+//    }
+//    else {
+//        kDebug() << "Could not find category with name" << name;
+//        return false;
+//    }
+//}
 
 void Nepomuk::CategoriesPool::setAutoUpdate(bool autoUpdate)
 {
@@ -211,6 +236,22 @@ void Nepomuk::CategoriesPool::setAutoUpdate(bool autoUpdate)
             KDirWatch::self()->disconnect(this);
         }
     }
+}
+
+KService::List Nepomuk::CategoriesPool::availablePlugins() const
+{
+    return KServiceTypeTrader::self()->query(QLatin1String("Nepomuk/WebExtractorPlugin"));
+}
+
+KService::Ptr Nepomuk::CategoriesPool::pluginByName(const QString &name) const
+{
+    KService::List offers = KServiceTypeTrader::self()->query(QLatin1String("Nepomuk/WebExtractorPlugin"));
+    Q_FOREACH(KService::Ptr service, offers) {
+        if(service->name() == name) {
+            return service;
+        }
+    }
+    return KService::Ptr();
 }
 
 #include "categoriespool.moc"

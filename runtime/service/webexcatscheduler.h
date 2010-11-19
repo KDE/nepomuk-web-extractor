@@ -62,7 +62,7 @@ namespace Nepomuk
             WebExtractorCategoryScheduler(
                 const Nepomuk::Query::Query & category_query,
                 QObject * parent,
-                WebExtractor::ExtractParametersPtr params,
+                const WebExtractor::ExtractParameters& params,
                 bool optimizeForNepomuk = false,
                 int maxResSimult = 5
             );
@@ -223,7 +223,7 @@ namespace Nepomuk
             mutable QQueue<QUrl> m_urlQueue;
 
             // Parameters necessary for analyzers
-            WebExtractor::ExtractParametersPtr m_extractParams;
+            WebExtractor::ExtractParameters m_extractParams;
 
             bool m_suspended;
             bool m_stopped;

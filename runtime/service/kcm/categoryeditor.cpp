@@ -45,6 +45,7 @@ using namespace Nepomuk::Query;
 
 CategoryEditor::CategoryEditor(QWidget *parent)
     : KDialog(parent),
+      m_category(0),
       m_addPluginMenu(0)
 {
     setupUi(mainWidget());
@@ -75,7 +76,9 @@ CategoryEditor::CategoryEditor(QWidget *parent)
              FileQuery(ResourceTypeTerm(Nepomuk::Vocabulary::NFO::Audio())));
 
     connect(m_editName, SIGNAL(textChanged(QString)), this, SLOT(slotChanged()));
-    connect(m_pluginModel, SIGNAL(layoutChanged()), this, SLOT(slotChanged()));
+    connect(m_pluginModel, SIGNAL(modelReset()), this, SLOT(slotChanged()));
+    connect(m_pluginModel, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(slotChanged()));
+    connect(m_pluginModel, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(slotChanged()));
 
     slotPluginSelectionChanged(QItemSelection(), QItemSelection());
 }
@@ -171,8 +174,7 @@ void CategoryEditor::buildAddPluginMenu()
 
     m_addPluginMenu->clear();
 
-    // TODO: use a central mangement class to get all available plugins
-    KService::List services = KServiceTypeTrader::self()->query(QLatin1String("Nepomuk/WebExtractorPlugin"));
+    KService::List services = Nepomuk::CategoriesPool::self()->availablePlugins();
     foreach (const KService::Ptr& service, services) {
         kDebug() << "read datapp" << service->name();
         QAction* a = m_addPluginMenu->addAction(service->name());
@@ -193,7 +195,7 @@ void CategoryEditor::slotAddPluginActionTriggered()
 void CategoryEditor::slotChanged()
 {
     // we have a valid name if either the name is the same as the loaded one (editing) or the name does not exist yet
-    const bool haveValidName( (m_category && m_category->name() == m_editName->text()) || !Nepomuk::CategoriesPool::self()->category(m_editName->text()));
+    const bool haveValidName( (m_category && m_category->name() == m_editName->text()) || !Nepomuk::CategoriesPool::self()->categoryById(m_editName->text()));
 
     enableButton(Ok, haveValidName && m_pluginModel->rowCount(QModelIndex()) > 0);
 

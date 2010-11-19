@@ -24,7 +24,7 @@ namespace NG = Nepomuk::Graph;
 class NG::NodeFilterInterface::Private
 {
     public:
-	ChildQueryInterface * subQuery; 
+	ChildQueryInterface * subQuery;
 };
 
 NG::NodeFilterInterface::NodeFilterInterface( ChildQueryInterface * subQuery, bool own, QObject * parent ):
@@ -45,7 +45,7 @@ NG::ChildQueryInterface * NG::NodeFilterInterface::subQuery() const
 
 NG::NodeFilterInterface::~NodeFilterInterface()
 {
-    delete d; 
+    delete d;
 }
 
 Soprano::QueryResultIterator NG::NodeFilterInterface::children(Soprano::Model * model,const Soprano::Node & node)
@@ -55,6 +55,8 @@ Soprano::QueryResultIterator NG::NodeFilterInterface::children(Soprano::Model * 
     // Virtual call
     if (this->isOk(model,node) )
 	return d->subQuery->children(model,node);
-    else 
+    else
 	return Soprano::QueryResultIterator();
 }
+
+#include "nodefilterinterface.moc"

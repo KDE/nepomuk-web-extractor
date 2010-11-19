@@ -25,6 +25,11 @@
 
 #include <KService>
 
+namespace Nepomuk {
+class CategoriesPool;
+class WebExtractorPlugin;
+}
+
 class KConfigGroup;
 class Category;
 
@@ -39,6 +44,13 @@ public:
 
     Category* category() const;
     KService::Ptr service() const;
+
+    /**
+     * Create an instance of the corresponding plugin.
+     * \return The new plugin instance or 0 on failure.
+     * The caller takes ownership.
+     */
+    Nepomuk::WebExtractorPlugin* createPlugin() const;
 
     /**
      * A unique ID for the datapp. This is a random string which is
@@ -62,7 +74,7 @@ public:
     bool operator==(const DataPPDescr& other) const;
 
     void save(KConfigGroup& config) const;
-    void load(const KConfigGroup& config);
+    static DataPPDescr load(const KConfigGroup& config, Nepomuk::CategoriesPool* pool);
 
 Q_SIGNALS:
     void changed(DataPPDescr*);

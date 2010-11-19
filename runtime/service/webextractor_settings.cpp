@@ -65,8 +65,8 @@ void Nepomuk::WebExtractorSettings::clear()
     */
 
     // Free all DataPPWrappers
-    foreach(NW::ExtractParametersPtr ptr, m_parameters) {
-        const NW::DataPPKeeper &  plugins = ptr->plugins();
+    foreach(const NW::ExtractParameters& ptr, m_parameters) {
+        const NW::DataPPKeeper &  plugins = ptr.plugins();
         foreach(NW::DataPPWrapper * dppw, plugins) {
             delete dppw;
         }
@@ -137,16 +137,16 @@ void Nepomuk::WebExtractorSettings::update()
     if(forceDefault) {
     }
 
-    foreach(const Category&  cat, Nepomuk::CategoriesPool::self()->categories()) {
-        NW::ExtractParameters * p  = new NW::ExtractParameters;
+    foreach(Category*  cat, Nepomuk::CategoriesPool::self()->categories()) {
+        NW::ExtractParameters p;
 
-        foreach(const DataPPDescr & dppdescr, cat.plugins()) {
+        foreach(const DataPPDescr & dppdescr, cat->plugins()) {
             /*Load plugin with this name and parse it config*/
             NW::DataPP * dpp = 0 ;
             NW::DataPPWrapper * dppw = 0 ;
-            double rank = dppdescr.rank;
-            double coff = dppdescr.coff;
-            const QString & dataPPName = dppdescr.name;
+            double rank = dppdescr.rank();
+            double coff = dppdescr.coff();
+            const QString & dataPPName = dppdescr.identifier();
 
             if(dataPPName == "debug") {
                 //This is predefined plugin
@@ -165,16 +165,16 @@ void Nepomuk::WebExtractorSettings::update()
             // Add DataPP to category parameters
             if(dpp) {
                 dppw = new NW::DataPPWrapper(dpp, dataPPName, rank, coff);
-                p->addDataPP(dppw);
+                p.addDataPP(dppw);
                 //m_datappwrappers.insert(pluginName,dppw);
             }
 
         }
 
         // TODO: use one setCategory method or put the Category in the ExtractParameters constructor
-        p->setUCrit(cat.uCrit());
-        p->setACrit(cat.aCrit());
-        p->setPluginSelectStep(cat.pluginSelectionStep());
+        p.setUCrit(cat->uCrit());
+        p.setACrit(cat->aCrit());
+        p.setPluginSelectStep(cat->pluginSelectionStep());
         int scheme = decisionsModelScheme();
         switch(scheme) {
         case EnumDecisionsModelScheme::Auto : /* User */
@@ -182,19 +182,19 @@ void Nepomuk::WebExtractorSettings::update()
         case EnumDecisionsModelScheme::Redland : { /* Redland */
             Soprano::BackendSettings settings;
             settings << Soprano::BackendOptionStorageMemory;
-            p->setBackendName("redland");
-            p->setBackendSettings(settings);
+            p.setBackendName("redland");
+            p.setBackendSettings(settings);
             break;
         }
         case EnumDecisionsModelScheme::Virtuoso: { /* Virtuoso */
-            p->setDecisionsModel(m_globalStorageModel);
+            p.setDecisionsModel(m_globalStorageModel);
             break;
         }
         }
 
 
         NW::LaunchPolitics pol;
-        switch(cat.pluginSelectionType()) {
+        switch(cat->pluginSelectionType()) {
         case(Category::Stepwise) : {
             pol = NW::StepWise;
             break;
@@ -204,9 +204,9 @@ void Nepomuk::WebExtractorSettings::update()
             break;
         }
         }
-        p->setLaunchPolitics(pol);
-        p->setMergePolitics(NW::Highest);
-        this->m_parameters.insert(cat.name(), NW::ExtractParametersPtr(p));
+        p.setLaunchPolitics(pol);
+        p.setMergePolitics(NW::Highest);
+        this->m_parameters.insert(cat->name(), p);
     }
 }
 
@@ -214,14 +214,14 @@ int Nepomuk::WebExtractorSettings::maxPluginsLaunched(const QString & categoryNa
 {
 
     int s =  max_plugins_launched_per_category();
-    const Category cat = Nepomuk::CategoriesPool::self()->category(categoryName);
-    if(cat.pluginSelectionType() == Category::All)
+    const Category* cat = Nepomuk::CategoriesPool::self()->categoryById(categoryName);
+    if(cat->pluginSelectionType() == Category::All)
         if(s)
             return s;
         else
             return 0;
     else {
-        int s2 = cat.pluginSelectionStep();
+        int s2 = cat->pluginSelectionStep();
         return qMin(s, s2);
     }
 
@@ -229,15 +229,15 @@ int Nepomuk::WebExtractorSettings::maxPluginsLaunched(const QString & categoryNa
 
 int Nepomuk::WebExtractorSettings::maxResSimult(const QString & categoryName)
 {
-    return qMin(maxResSimultPerCategory(), Nepomuk::CategoriesPool::self()->category(categoryName).maxResSimult());
+    return qMin(maxResSimultPerCategory(), Nepomuk::CategoriesPool::self()->categoryById(categoryName)->maxResSimult());
 }
 
 int Nepomuk::WebExtractorSettings::interval(const QString & categoryName)
 {
-    return Nepomuk::CategoriesPool::self()->category(categoryName).interval();
+    return Nepomuk::CategoriesPool::self()->categoryById(categoryName)->interval();
 }
 
-NW::ExtractParametersPtr  Nepomuk::WebExtractorSettings::extractParameters(const QString categoryName) const
+NW::ExtractParameters  Nepomuk::WebExtractorSettings::extractParameters(const QString categoryName) const
 {
     //return NW::ExtractParametersPtr(m_parameters[categoryName].data());
     if(!m_parameters.contains(categoryName)) {
@@ -266,7 +266,7 @@ bool Nepomuk::WebExtractorSettings::isOptimizedForNepomuk(const QString & catego
 NQ::Term Nepomuk::WebExtractorSettings::query(const QString categoryName)
 {
 #warning Why not return the full query instead of just the term?
-    return Nepomuk::CategoriesPool::self()->category(categoryName).query().term();
+    return Nepomuk::CategoriesPool::self()->categoryById(categoryName)->query().term();
 }
 
 QDebug Nepomuk::operator<<(QDebug dbg,  const WebExtractorSettings & conf)
@@ -293,12 +293,12 @@ QDebug Nepomuk::operator<<(QDebug dbg,  const WebExtractorSettings & conf)
     if(conf.categories().size() > 0) {
         dbg << "Parameters per category" << '\n';
         for(
-            QHash< QString, WebExtractor::ExtractParametersPtr >::const_iterator it = conf.m_parameters.begin();
+            QHash< QString, WebExtractor::ExtractParameters >::const_iterator it = conf.m_parameters.begin();
             it != conf.m_parameters.end();
             it++
         ) {
             dbg << "Category " << it.key() << '\n';
-            dbg << *(it.value()) << '\n';
+            dbg << it.value() << '\n';
         }
     }
     return dbg;

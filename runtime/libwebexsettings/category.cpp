@@ -308,6 +308,13 @@ void Category::setPlugins(const QList<DataPPDescr> &plugins)
     emit changed(this);
 }
 
+void Category::addPlugin(const DataPPDescr& plugin)
+{
+    d->m_plugins << plugin;
+    d->m_plugins.last().setCategory(this);
+    emit changed(this);
+}
+
 QString Category::identifer() const
 {
     if(d->m_id.isEmpty())

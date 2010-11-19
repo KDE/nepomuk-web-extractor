@@ -29,7 +29,7 @@ namespace Soprano
     class Node;
 }
 
-namespace Nepomuk 
+namespace Nepomuk
 {
     namespace Graph
     {
@@ -39,11 +39,10 @@ namespace Nepomuk
 	{
 	    Q_OBJECT;
 	    public:
-	        ChildQueryInterface( QObject * parent = 0):
-		    QObject(parent) {;}
+        ChildQueryInterface( QObject * parent = 0);
 		friend class ModelGraph;
-		virtual Soprano::QueryResultIterator children(Soprano::Model * model,const Soprano::Node &) = 0; 
-	    
+		virtual Soprano::QueryResultIterator children(Soprano::Model * model,const Soprano::Node &) = 0;
+
 	};
     }
 }
