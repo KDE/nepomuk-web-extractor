@@ -22,7 +22,7 @@
 #include <QWidget>
 #include <nepomuk/changelog.h>
 #include "webextractorui_export.h"
-#include <webextractor/decision.h>
+#include "decision.h"
 
 class WEBEXTRACTORUI_EXPORT DecisionWidget : public QWidget
 {

@@ -27,8 +27,8 @@ include_directories(
   #${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor
   ${CMAKE_CURRENT_BINARY_DIR}
   ${NEPOMUK_INCLUDE_DIR}
-  ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${KDE4_INCLUDES}
+  ${backupsynclegacy_SOURCE_DIR}
   )
 
 set(backupsynclegacy_SRC

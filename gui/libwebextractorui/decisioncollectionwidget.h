@@ -22,8 +22,8 @@
 #include <QListWidget>
 #include <QSharedPointer>
 
-#include <webextractor/decision.h>
-#include <webextractor/decisionapplicationrequest.h>
+#include "decision.h"
+#include "decisionapplicationrequest.h"
 
 #include "webextractorui_export.h"
 

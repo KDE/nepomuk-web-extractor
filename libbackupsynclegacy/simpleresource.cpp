@@ -18,8 +18,8 @@
 
 
 #include "simpleresource.h"
-#include "nfo.h"
-#include "nie.h"
+#include <nepomuk/nfo.h>
+#include <nepomuk/nie.h>
 
 #include <Soprano/Vocabulary/RDF>
 #include <Soprano/Statement>

@@ -25,8 +25,8 @@
 #include "tvseries.h"
 #include "tvshow.h"
 
-#include <webextractor/decisionfactory.h>
-#include <webextractor/decision.h>
+#include "decisionfactory.h"
+#include "decision.h"
 
 #include <Nepomuk/Resource>
 #include <KDebug>

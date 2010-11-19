@@ -34,7 +34,7 @@ CategoriesModel::CategoriesModel(QObject *parent) :
 QVariant CategoriesModel::data(const QModelIndex &index, int role) const
 {
     QList<Category*> cats = Nepomuk::CategoriesPool::self()->categories();
-    if( index.row() < cats.count() and index.row() >= 0 ) {
+    if( index.row() >= 0 && index.row() < cats.count() ) {
         Category* cat = cats[index.row()];
 
         switch(role) {

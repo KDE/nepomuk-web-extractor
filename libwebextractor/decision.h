@@ -28,7 +28,7 @@
 #include <QUrl>
 #include <QSharedDataPointer>
 
-#include <nepomuk/identificationset.h>
+#include "identificationset.h"
 
 #include "propertiesgroup.h"
 

@@ -20,8 +20,8 @@
 #include "mergerequest.h"
 #include "changelog.h"
 #include "changelogrecord.h"
-#include "nie.h"
-#include "nfo.h"
+#include <nepomuk/nie.h>
+#include <nepomuk/nfo.h>
 #include "backupsync.h"
 #include "identificationrequest.h"
 #include "graphwrapper_p.h"
