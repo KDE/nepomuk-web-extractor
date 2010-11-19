@@ -36,9 +36,9 @@ namespace Nepomuk
         {
             public:
                 ResourceServiceData();
-                ResourceServiceData(Nepomuk::Resource & res, ResourceServiceDataManager * manager);
-                ResourceServiceData(Nepomuk::Resource & res);
-                ResourceServiceData(ResourceServiceData & arg);
+                ResourceServiceData(const Nepomuk::Resource & res, ResourceServiceDataManager * manager);
+                ResourceServiceData(const Nepomuk::Resource & res);
+                ResourceServiceData(const ResourceServiceData & arg);
                 const ResourceServiceData & operator= (const ResourceServiceData & rhs);
                 ~ResourceServiceData();
                 /*! \brief Add/Update information about examined DataPP ( name, version)

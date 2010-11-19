@@ -16,44 +16,28 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _webexgui_console_h_
-#define _webexgui_console_h_
+#ifndef __webexgui_console_info_page_h_
+#define __webexgui_console_info_page_h_
 
-#include "ui_mainWindow.h"
-#include <QMainWindow>
-#include <KXmlGuiWindow>
+#include "ui_infoPage.h"
+#include <QWidget>
 
-namespace Nepomuk {
-    class WebExtractorPluginKCM;
-}
-
-class LaunchPage;
-class SettingsPage;
-class InfoPage;
-
-class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
+class InfoPage : public QWidget, public Ui_infoPage
 {
-        Q_OBJECT;
+    Q_OBJECT;
     public:
-        ConsoleMainWindow(
-            const QString & uri = QString(),
-            const QStringList & datapps = QStringList(),
-            bool autostart = false,
-            QWidget * parent = 0);
-        ~ConsoleMainWindow();
-	//void kcmButtonClicked();
-    private:
-        LaunchPage * lp;
-        SettingsPage * sp;
-        InfoPage * ip;
+        InfoPage(QWidget * parent = 0);
+    public Q_SLOTS:
+        void onMarkedExamined(const QString & name, int version);
 
-
-
-
-
-
+        void onClearExamined();
+        void onClearAllExamined();
+        void onSelectedResourceChanged();
+        void updateExaminedInfo(const Nepomuk::Resource &);
+        void updateServiceInfo(const Nepomuk::Resource &);
+        void onUriResourceInfoChanged(const QString & text);
+        void updateUriResourceInfo(const Nepomuk::Resource &);
 
 };
-
 #endif
 

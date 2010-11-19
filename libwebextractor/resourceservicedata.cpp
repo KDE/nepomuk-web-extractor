@@ -39,20 +39,20 @@ NW::ResourceServiceData::ResourceServiceData()
 }
 
 
-NW::ResourceServiceData::ResourceServiceData(Nepomuk::Resource & res)
+NW::ResourceServiceData::ResourceServiceData(const Nepomuk::Resource & res)
 {
     d = new Private();
     d->backend = ResourceServiceDataManager::instance()->resourceData(res);
     //d->targetRes = res;
 }
 
-NW::ResourceServiceData::ResourceServiceData(ResourceServiceData & res):
+NW::ResourceServiceData::ResourceServiceData(const ResourceServiceData & res):
     d(res.d)
 {
     ;
 }
 
-NW::ResourceServiceData::ResourceServiceData(Nepomuk::Resource & res, ResourceServiceDataManager * manager)
+NW::ResourceServiceData::ResourceServiceData(const Nepomuk::Resource & res, ResourceServiceDataManager * manager)
 {
     d = new Private();
     if ( !manager )

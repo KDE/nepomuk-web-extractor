@@ -49,10 +49,16 @@ set ( webexconsole_SRCS
     main.cpp
     modeltest.cpp
     examinedwidget.cpp
+    infoPage.cpp
+    launchPage.cpp
+    settingsPage.cpp
     )
 
 kde4_add_ui_files(webexconsole_SRCS
    mainWindow.ui
+   launchPage.ui
+   settingsPage.ui
+   infoPage.ui
   ) 
 kde4_add_executable( webexconsole ${webexconsole_SRCS} )
 

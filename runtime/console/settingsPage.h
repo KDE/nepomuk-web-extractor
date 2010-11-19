@@ -16,44 +16,35 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef _webexgui_console_h_
-#define _webexgui_console_h_
+#ifndef __webexgui_console_settings_page_h_
+#define __webexgui_console_settings_page_h_
 
-#include "ui_mainWindow.h"
-#include <QMainWindow>
-#include <KXmlGuiWindow>
-
+#include "ui_settingsPage.h"
 namespace Nepomuk {
-    class WebExtractorPluginKCM;
+        class WebExtractorPluginKCM;
 }
 
-class LaunchPage;
-class SettingsPage;
-class InfoPage;
-
-class ConsoleMainWindow : public KXmlGuiWindow , public Ui_MainWindow
+class SettingsPage : public QWidget, public Ui_settingsPage
 {
-        Q_OBJECT;
+    Q_OBJECT;
     public:
-        ConsoleMainWindow(
-            const QString & uri = QString(),
-            const QStringList & datapps = QStringList(),
-            bool autostart = false,
-            QWidget * parent = 0);
-        ~ConsoleMainWindow();
-	//void kcmButtonClicked();
+        SettingsPage(QWidget * parent = 0);
+    private Q_SLOTS:
+        void applySettings();
+        void resetSettings();
+        void defaultSettings();
+        void dataPPClicked(QModelIndex);
+        void dataPPSettingsChanged(bool);
+
     private:
-        LaunchPage * lp;
-        SettingsPage * sp;
-        InfoPage * ip;
-
-
-
-
-
-
-
+        /* KCM subsection */
+        Nepomuk::WebExtractorPluginKCM * m_currentKcm;
+        bool m_kcmChanged;
+        QAbstractButton * m_kcmApplyButton;
+        QAbstractButton * m_kcmResetButton;
+        QAbstractButton * m_kcmDefaultButton;
 };
 
 #endif
+
 
