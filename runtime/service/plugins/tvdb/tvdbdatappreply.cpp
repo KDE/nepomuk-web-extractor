@@ -30,6 +30,8 @@
 
 #include <Nepomuk/Resource>
 #include <KDebug>
+#include <KLocale>
+
 
 Nepomuk::TvdbReply::TvdbReply( TvdbDataPP* parent,
                                const WebExtractor::DecisionFactory* factory,
@@ -91,7 +93,15 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
             // 5. calculate the probability of the match the dumb way
             d.setRank( TvdbPlugin::calculateRankTheDumbWay( m_name, series.name() ) );
 
-            // 6. add the decision to the pool of applicable ones
+            // 6. Set a user readable desciption
+            d.setDescription(i18nc("@info %1 is a file name, %2 and %3 are numbers, %4 is the name of a TV show",
+                                   "%1 is episode %2 from season %3 of %4",
+                                   resource().genericLabel(),
+                                   m_episode,
+                                   m_season,
+                                   series.name()));
+
+            // 7. add the decision to the pool of applicable ones
             addDecision( d );
         }
 
