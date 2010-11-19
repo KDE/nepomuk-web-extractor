@@ -35,6 +35,7 @@ namespace Nepomuk
             public:
                 friend class ResourceAnalyzer;
                 friend class DecisionFactory;
+                DecisionList(double threshold = 0);
                 /*! \brief Add decision to the list
                  * The given Decision will be added to the list. If there is the same Decision in this list, then
                  * these Decisions will be merget into one using default merging politics.
@@ -58,11 +59,11 @@ namespace Nepomuk
                 using QList<Decision>::constEnd ;
                 using QList<Decision>::const_iterator;
                 using QList<Decision>::size;
+                using QList<Decision>::clear;
                 const_iterator begin() const;
                 const_iterator end() const;
                 double approximateThreshold() const;
             private:
-                DecisionList(double threshold = 0);
                 // Leave only unique instances
                 //void unique( MergePolitics policis = Highest, double coff = 1 );
                 //void sort();

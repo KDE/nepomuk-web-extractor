@@ -22,6 +22,9 @@
 #include "ui_launchPage.h"
 #include <webextractor/parameters.h>
 #include <QWidget>
+#include <QQueue>
+#include <Nepomuk/Resource>
+#include "decisionlist.h"
 
 namespace Nepomuk {
     namespace WebExtractor {
@@ -70,6 +73,9 @@ class LaunchPage : public QWidget, public Ui_launchPage
         // This variable store what type of analization - single, set of 
         // resources or category we currently perform. 
         AnalyzationType m_currentAnalizationType;
+        QQueue<Nepomuk::Resource> m_toAnalyze;
+        Nepomuk::WebExtractor::DecisionList m_result;
+        bool m_abort;
 
         // Map that store current list of the Decisions. Key is the url.
         //QMap< QUrl, Nepomuk::WebExtractor::Decision > m_decisionMap;
