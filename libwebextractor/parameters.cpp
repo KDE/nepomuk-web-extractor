@@ -285,6 +285,14 @@ QDebug Nepomuk::WebExtractor::operator<<(QDebug dbg,  const Nepomuk::WebExtracto
     } else {
         dbg << "All launch politics\n";
     }
+    if (p.decisionsModel()) {
+        dbg << "Decisions model is given";
+    }
+    else {
+        dbg << "Decisions model will be created [with folowing parameters]";
+        dbg << "Auto delete model data: " << p.autoDeleteModelData();
+    }
+    dbg << "Automait ontologies loading: " << p.autoManageOntologies();
     dbg << "DataPP:( " << p.d->dataPPlugins.size() << ')' << '\n';
     foreach(DataPPWrapper * w, p.d->dataPPlugins) {
         dbg << w->name() << w->version() << '\n';
