@@ -37,3 +37,19 @@ target_link_libraries( timeoutreplytest
   )
 
 add_test( datapptimeout timeoutreplytest )
+
+## ================== DECISION TEST =================================
+set( DECISION_SRCS
+    decisiontest.cpp
+    )
+#QT4_WRAP_CPP( DECISION_MOC ${DECISION_SRCS} )
+kde4_add_executable(decisiontest ${DECISION_SRCS} )
+
+target_link_libraries( decisiontest
+    webextractor
+  ${NEPOMUK_LIBRARIES}
+  ${QT_QTCORE_LIBRARY}
+  ${QT_QTTEST_LIBRARY}
+  )
+
+add_test( decisiontest decisiontest )
