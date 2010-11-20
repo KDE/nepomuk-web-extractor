@@ -197,6 +197,7 @@ namespace Nepomuk {
         bool isDirtySets() const;
         bool isDirtyEmptyness() const;
         bool isDirty() const;
+        bool isDirtyValidness() const;
         bool isDirtyTargetResources() const;
 
 
