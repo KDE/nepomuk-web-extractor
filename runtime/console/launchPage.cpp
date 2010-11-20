@@ -351,9 +351,16 @@ void LaunchPage::startExtracting()
                        break;
                    }
         case ( GuiSelect ) : {
-                                KMessageBox::sorry(this, "Not supported yet");
-                                desiredType = LaunchPage::Set;
-                                return;
+                                 // Get selection
+                                 QList<Nepomuk::Resource> sr = resWidget->selectedResources();
+                                 if (sr.isEmpty()) {
+                                     KMessageBox::sorry(this,"You forget to select resources");
+                                     return;
+                                 }
+
+                                 // There must be some easier method to assign list to queue
+                                 m_toAnalyze.QList<Nepomuk::Resource>::operator=(sr);
+                                 desiredType = LaunchPage::Set;
                                  break;
                              }
         case (CategorySelect) : {
@@ -575,8 +582,18 @@ void LaunchPage::extractingFinished()
     {
 
         case (LaunchPage::Query ): {
+                                       
+                                      break;
+                                      // Add decisions
+                                      m_result.mergeWith(m_currentAnalyzer->decisions());
+                                      if(!m_abort) {
                                         // Relaunch
-                                        break;
+                                        return;
+                                      }
+                                      else {
+                                          kDebug() << "Aborting";
+                                      }
+                                      break;
                                    }
         case ( LaunchPage::Set ): {
                                       // Add decisions
@@ -584,14 +601,26 @@ void LaunchPage::extractingFinished()
                                       // Relaunch if necessary
                                       if(!m_abort) {
                                           if ( m_toAnalyze.size() > 0 ) {
+                                              kDebug() << "Start next resource";
+                                              Nepomuk::Resource nextR = m_toAnalyze.dequeue();
+                                              kDebug() << "Next resource is: " << nextR.resourceUri();
                                               m_currentAnalyzer->setResource(
-                                                      m_toAnalyze.dequeue()
+                                                      nextR
                                                       );
-                                              workThread->quit();
-                                              workThread->start();
+                                             QMetaObject::invokeMethod(
+                                                     this->m_currentAnalyzer,
+                                                     "analyze",
+                                                     Qt::QueuedConnection);
+                                              return;
+                                          }
+                                          else {
+                                              kDebug() << "No more resources. Exiting";
                                           }
                                       }
-                                        break;
+                                      else {
+                                          kDebug() << "Aborting";
+                                      }
+                                      break;
                                     }
         case ( LaunchPage::Single ): {
                                          m_result = m_currentAnalyzer->decisions();

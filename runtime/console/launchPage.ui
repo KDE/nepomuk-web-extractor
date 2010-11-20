@@ -275,9 +275,16 @@ every iteration</string>
              <attribute name="title">
               <string>Select resources</string>
              </attribute>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <layout class="QVBoxLayout" name="verticalLayout">
               <item>
                <widget class="Nepomuk::Utils::SearchWidget" name="resWidget"/>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="useAllResourcesCheckBox">
+                <property name="text">
+                 <string>Use all resource ( Default is use only selected )</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
