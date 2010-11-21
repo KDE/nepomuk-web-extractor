@@ -1,5 +1,6 @@
 /*
    Copyright (C) 2010 by Serebriyskiy Artem <v.for.vandal at gmail.com>
+   Copyright (C) 2010 by Sebastian Trueg <v.for.vandal at gmail.com>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,9 +19,13 @@
 
 #include "launchPage.h"
 #include <Soprano/QueryResultIterator>
+#include <Soprano/Statement>
 #include <Soprano/Global>
 #include <Soprano/BackendSettings>
 #include <Soprano/Backend>
+#include <Soprano/StorageModel>
+#include <Nepomuk/Query/Query>
+
 #include <KMessageBox>
 #include <KStandardDirs>
 #include <KTempDir>
@@ -36,7 +41,10 @@
 #include <QThread>
 
 #include "datapppool.h"
+#include "categoriesmodel.h"
+#include "category.h"
 
+namespace NQ = Nepomuk::Query;
 namespace NW = Nepomuk::WebExtractor;
 using namespace Nepomuk;
 using namespace NW;
@@ -44,11 +52,18 @@ using namespace NW;
 LaunchPage::LaunchPage(const QString & uri, const QStringList & datapps, bool autostart, QWidget * parent):
     QWidget(parent),
     workThread(0),
+    m_abort(false),
+    m_virtuosoModel(0),
     m_tmpDir(0)
 {
     this->setupUi(this);
     // Set properties of the DataPPView
     this->dataPPView->setModel(Nepomuk::DataPPPool::self());
+
+    // Set properties of the selection widgets
+    // 1) Set properties of the category selection widget
+    this->categoryView->setModel(new CategoriesModel(this));
+    this->categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Set Decisions widget
     connect(
@@ -98,6 +113,13 @@ LaunchPage::LaunchPage(const QString & uri, const QStringList & datapps, bool au
 LaunchPage::~LaunchPage()
 {
     workThread->quit();
+    
+    if (m_virtuosoModel) {
+        delete m_virtuosoModel;
+        m_virtuosoBackend->deleteModelData(m_virtuosoSettings);
+        delete m_tmpDir;
+    }
+    
     delete workThread;
 }
 
@@ -270,17 +292,8 @@ void LaunchPage::updateDecisionsInfo()
     //this->decisionInformationWidget->setRowCount(0);
     this->decisionListWidget->clear();
 
-
-    // If there is no analyzer, then return
-    if(!m_currentAnalyzer) {
-        kDebug() << "No curret analyzer";
-        return;
-    }
-
-
-    NW::DecisionList lst(m_currentAnalyzer->decisions());
-    kDebug() << "Number of the decisions: " << lst.size();
-    decisionListWidget->addDecisionList(lst);
+    kDebug() << "Number of the decisions: " << m_result.size();
+    decisionListWidget->addDecisionList(m_result);
 }
 
 void LaunchPage::cleanAfterAnalyzing()
@@ -293,11 +306,13 @@ void LaunchPage::cleanAfterAnalyzing()
     m_currentAnalyzer = 0;
     delete m_tmpDir;
     m_tmpDir = 0;
+    m_abort = false;
 }
 
 void LaunchPage::startExtracting()
 {
     if(workThread->isRunning()) {
+        // TODO Aborting code works incorrectly.
         int answer = KMessageBox::questionYesNo(
                          this,
                          "Application is currently analyzing another resource. \
@@ -306,6 +321,9 @@ void LaunchPage::startExtracting()
                      );
         if(answer == KMessageBox::Yes) {
             QMetaObject::invokeMethod(this->m_currentAnalyzer, "abort", Qt::QueuedConnection);
+            m_abort = true;
+            // TODO It is necessary not to call extractingFinished explicitly
+            // and rely onto analyzer abort() signal
             extractingFinished();
         }
         return;
@@ -338,20 +356,68 @@ void LaunchPage::startExtracting()
                             return;
                         }
                         desiredType = LaunchPage::Single;
+
                         
                        break;
                    }
         case ( GuiSelect ) : {
-                                KMessageBox::sorry(this, "Not supported yet");
-                                desiredType = LaunchPage::Set;
-                                return;
+                                 // Get selection
+                                 QList<Nepomuk::Resource> sr = resWidget->selectedResources();
+                                 if (sr.isEmpty()) {
+                                     KMessageBox::sorry(this,"You forget to select resources");
+                                     return;
+                                 }
+
+                                 // There must be some easier method to assign list to queue
+                                 m_toAnalyze.QList<Nepomuk::Resource>::operator=(sr);
+                                 desiredType = LaunchPage::Set;
                                  break;
                              }
         case (CategorySelect) : {
-                                KMessageBox::sorry(this, "Not supported yet");
                                 desiredType = LaunchPage::Query;
-                                return;
-                                 break;
+                                // 'Take only' checkbox is enabled
+                                // Perform a query, take first X results,
+                                // put them to queue and set desiredType to Set
+                                QModelIndexList selection = categoryView->selectionModel()->selectedIndexes();
+                                if ( selection.isEmpty() ) {
+                                    KMessageBox::sorry(this, "You forget to select a category to launch");
+                                    return;
+                                }
+                                QModelIndex selectedIndex = selection[0];
+
+                                Category* cat = categoryView->model()->data(
+                                        selectedIndex,
+                                        CategoriesModel::CategoryRole).value<Category*>();
+                                if (!cat) {
+                                    KMessageBox::sorry(this, "Something wrong happens. Application can not retrieve category that you have selected");
+                                    return;
+                                }
+                                NQ::Query query = cat->query();
+                                query.setLimit(maxResInQueryNumInput->value());
+                                Soprano::QueryResultIterator it = 
+                                    Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(
+                                            query.toSparqlQuery(),
+                                            Soprano::Query::QueryLanguageSparql
+                                            );
+                                while(it.next()) {
+                                    // FIXME: this is ugly - we should not cache all results!
+                                    m_toAnalyze.enqueue(it[0].uri());
+                                }
+
+                                // Debug: show collected resources
+                                kDebug() << "Query: " << query.toSparqlQuery();
+                                kDebug() << "Resource to analyze";
+                                foreach( const Nepomuk::Resource & r, m_toAnalyze)
+                                {
+                                    kDebug() << r.resourceUri();
+                                }
+                                
+                                // Check
+                                if (m_toAnalyze.isEmpty() ) {
+                                    KMessageBox::sorry(this, "There is no suitable resource in category");
+                                    return;
+                                }
+                                break;
                              }
         default : {
                         KMessageBox::sorry(this, "Unknown selection method");
@@ -404,25 +470,23 @@ void LaunchPage::startExtracting()
 
     // Set backend
     Soprano::BackendSettings settings;
-    KTempDir * td = 0;
     if(this->backendComboBox->currentText() == QString("Redland")) {
         settings << Soprano::BackendOptionStorageMemory;
         p.setBackendName("redland");
+        p.setBackendSettings(settings);
     } else if(this->backendComboBox->currentText() == QString("Virtuoso")) {
-        td = new KTempDir(KStandardDirs::locateLocal("tmp", "desmodel"));
-        settings << Soprano::BackendSetting(Soprano::BackendOptionStorageDir, td->name());
-        p.setBackendName("virtuoso");
-        // If we use virtuoso backend, then we should clean temporaly created model(s)
-        p.setAutoDeleteModelData(true);
+        Soprano::Model * m = virtuosoBackendModel();
+        if (!m) {
+            KMessageBox::sorry(this,"Failed to create virtuoso model. Please select another backend");
+            return;
+        }
+        p.setDecisionsModel(virtuosoBackendModel(),false);
+        p.setAutoDeleteModelData(false);
+        p.setAutoManageOntologies(false);
     } else {
         kDebug() << "Unknown backend is selected. Use default one.";
     }
 
-
-    p.setBackendSettings(settings);
-
-    delete m_tmpDir;
-    m_tmpDir = td;
 
 
     kDebug() << " Launch Resource Analyzer with folowing parameters: " << p;
@@ -431,7 +495,7 @@ void LaunchPage::startExtracting()
 
     NW::ResourceAnalyzerFactory factory(p);
 
-    NW::ResourceAnalyzer * resanal = factory.newAnalyzer(res);
+    NW::ResourceAnalyzer * resanal = factory.newAnalyzer();
     if(!resanal) {
         kError() << "ResourceAnalyzerFactory failed to create Analyzer";
         return;
@@ -455,7 +519,53 @@ void LaunchPage::startExtracting()
     m_currentAnalyzer = resanal;
     m_currentAnalizationType = desiredType;
 
+    // Clean examined info if requested by user
+    if (cleanExaminedCheckBox->isChecked() ) {
+        switch( desiredType )
+        {
+            case ( Single ) : {
+                                          ResourceServiceData rsd(res);
+                                          if (rsd.isValid())
+                                              rsd.clearExaminedInfo();
+                                          break;
+                              }
+            case ( Query ) : {
+                                     break;
+                                 }
+            case ( Set ) : {
+                               // Go through set and clear examined info for all
+                               // resources
+                               foreach(const Nepomuk::Resource & ir, m_toAnalyze)
+                               {
+                                   ResourceServiceData rsd(ir);
+                                   if (rsd.isValid())
+                                       rsd.clearExaminedInfo();
+                               }
+                               break;
+                           }
 
+        }
+    }
+    
+    // Prepare for start
+    switch( desiredType )
+    {
+        case ( Single ) : {
+                                resanal->setResource(res);
+                          }
+        case ( Query ) : {
+                                 break;
+                             }
+        case ( Set ) : {
+                           resanal->setResource(m_toAnalyze.dequeue());
+                       }
+
+    }
+
+    // Clear old Decisions
+    m_result.clear();
+    
+    // Start
     resanal->setParent(0);
     resanal->moveToThread(workThread);
     connect(workThread, SIGNAL(started()), resanal, SLOT(analyze()));
@@ -470,17 +580,109 @@ void LaunchPage::startExtracting()
 
 }
 
+Soprano::Model * LaunchPage::virtuosoBackendModel()
+{
+    if (m_virtuosoModel)
+        return m_virtuosoModel;
+
+    m_virtuosoBackend = Soprano::discoverBackendByName("virtuoso");
+    if (!m_virtuosoBackend)
+        return 0;
+
+    // Create new virtuoso process and model
+    m_tmpDir = new KTempDir(KStandardDirs::locateLocal("tmp", "desmodel"));
+    if (!m_tmpDir) {
+        kError() << "Can't create temporary directory";
+        return 0;
+    }
+
+    m_virtuosoSettings << Soprano::BackendSetting(Soprano::BackendOptionStorageDir, m_tmpDir->name());
+    m_virtuosoModel = m_virtuosoBackend->createModel(m_virtuosoSettings);
+    
+    if (!m_virtuosoModel) {
+        kError() << "Can't create virtuoso model";
+        return 0;
+    }
+
+    // Load ontologies
+    QString loadQuery = "select ?s ?p ?o ?g where { graph ?g { ?s ?p ?o } ?g a nrl:Ontology. }";
+
+    Soprano::QueryResultIterator it = 
+        ResourceManager::instance()->mainModel()->executeQuery(
+                loadQuery,
+                Soprano::Query::QueryLanguageSparql
+                );
+    while ( it.next() ) {
+        // Load statement
+        Soprano::Statement st(it.binding(0), it.binding(1), it.binding(2), it.binding(3) );
+        Soprano::Error::ErrorCode c = m_virtuosoModel->addStatement(st);
+        if (c != Soprano::Error::ErrorNone) {
+            kError() << "Can't load ontologies to model";
+            return 0;
+        }
+    }
+
+
+    return m_virtuosoModel;
+}
+
 void LaunchPage::extractingFinished()
 {
     // 2 possible ways. If we analyze one resource, then
     // we can quit there.
     // If we analyze more then one resource then we should 
     // start analyzing of the next resource
-    if (m_currentAnalizationType == LaunchPage::Query ) {
-        // Relaunch
-    }
-    else if (m_currentAnalizationType == LaunchPage::Set ) {
-        // Relaunch
+    switch ( m_currentAnalizationType ) 
+    {
+
+        case (LaunchPage::Query ): {
+                                       
+                                      break;
+                                      // Add decisions
+                                      m_result.mergeWith(m_currentAnalyzer->decisions());
+                                      if(!m_abort) {
+                                        // Relaunch
+                                        return;
+                                      }
+                                      else {
+                                          kDebug() << "Aborting";
+                                      }
+                                      break;
+                                   }
+        case ( LaunchPage::Set ): {
+                                      // Add decisions
+                                      m_result.mergeWith(m_currentAnalyzer->decisions());
+                                      // Relaunch if necessary
+                                      if(!m_abort) {
+                                          if ( m_toAnalyze.size() > 0 ) {
+                                              kDebug() << "Start next resource";
+                                              Nepomuk::Resource nextR = m_toAnalyze.dequeue();
+                                              kDebug() << "Next resource is: " << nextR.resourceUri();
+                                              m_currentAnalyzer->setResource(
+                                                      nextR
+                                                      );
+                                             QMetaObject::invokeMethod(
+                                                     this->m_currentAnalyzer,
+                                                     "analyze",
+                                                     Qt::QueuedConnection);
+                                              return;
+                                          }
+                                          else {
+                                              kDebug() << "No more resources. Exiting";
+                                          }
+                                      }
+                                      else {
+                                          kDebug() << "Aborting";
+                                      }
+                                      break;
+                                    }
+        case ( LaunchPage::Single ): {
+                                         m_result = m_currentAnalyzer->decisions();
+                                         break;
+                                     }
+        default: {
+                     kError() << "Unknown analization type";
+                 }
     }
     // Either analization type is single or there is no more
     // resources to launch

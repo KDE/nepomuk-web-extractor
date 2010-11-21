@@ -161,7 +161,7 @@ bool NW::Decision::isEmpty() const
 
 bool NW::Decision::isValid() const
 {
-    if (isDirty()) {
+    if (isDirtyValidness()) {
 	kDebug() << "State is dirty. Rechecking";
 
 	const_cast<NW::Decision*>(this)->d.detach();
@@ -557,6 +557,11 @@ bool NW::Decision::isDirtyTargetResources() const
 bool NW::Decision::isDirtyEmptyness() const
 {
     return d->dirty & Private::DIRTY_EMPTYNESS;
+}
+
+bool NW::Decision::isDirtyValidness() const
+{
+    return d->dirty & Private::DIRTY_VALIDNESS;
 }
 
 bool NW::Decision::isDirty() const

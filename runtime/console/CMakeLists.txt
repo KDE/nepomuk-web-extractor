@@ -33,7 +33,7 @@ include_directories(
   ${libwebexsettings_SOURCE_DIR}
   #libwebexsettingsui path
   ${libwebexsettingsui_BINARY_DIR}
-  ${libwebexsettingsui_SORUCE_DIR}
+  ${libwebexsettingsui_SOURCE_DIR}
   ${NEPOMUK_INCLUDE_DIR}
   ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -64,6 +64,7 @@ kde4_add_executable( webexconsole ${webexconsole_SRCS} )
 
 target_link_libraries( webexconsole 
     webexsettings
+    webexsettingsui
     webextractor
     webextractorui
     ${LIBWEBEXTRACTOR_LIBRARIES}

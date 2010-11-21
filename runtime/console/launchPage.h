@@ -22,6 +22,9 @@
 #include "ui_launchPage.h"
 #include <webextractor/parameters.h>
 #include <QWidget>
+#include <QQueue>
+#include <Nepomuk/Resource>
+#include "decisionlist.h"
 
 namespace Nepomuk {
     namespace WebExtractor {
@@ -30,6 +33,7 @@ namespace Nepomuk {
 }
 namespace Soprano {
     class Backend;
+    class StorageModel;
 }
 
 class QThread;
@@ -62,6 +66,10 @@ class LaunchPage : public QWidget, public Ui_launchPage
         void cleanAfterAnalyzing();
         void setButtonApply();
         void setButtonAbort();
+        // Because virtuoso start very slowly, we keep 
+        // one virtuoso instance constantly ( after first request )
+        // running
+        Soprano::Model *  virtuosoBackendModel();
 
         QThread * workThread;
         Nepomuk::WebExtractor::ResourceAnalyzer * m_currentAnalyzer;
@@ -70,11 +78,16 @@ class LaunchPage : public QWidget, public Ui_launchPage
         // This variable store what type of analization - single, set of 
         // resources or category we currently perform. 
         AnalyzationType m_currentAnalizationType;
+        QQueue<Nepomuk::Resource> m_toAnalyze;
+        Nepomuk::WebExtractor::DecisionList m_result;
+        bool m_abort;
+        Soprano::StorageModel * m_virtuosoModel;
+        Soprano::BackendSettings m_virtuosoSettings;
+        const Soprano::Backend * m_virtuosoBackend;
 
         // Map that store current list of the Decisions. Key is the url.
         //QMap< QUrl, Nepomuk::WebExtractor::Decision > m_decisionMap;
-        //QHash< QUrl, Nepomuk::WebExtractor::DecisionApplicationRequest* > m_requestsHash;
-
+        //QHash< QUrl, Nepomuk::WebExtractor::DecisionApplicationRequest* > m_requestsHash
         KTempDir * m_tmpDir;
         const Soprano::Backend * m_usedBackend;
 };
