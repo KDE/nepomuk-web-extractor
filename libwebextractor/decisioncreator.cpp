@@ -210,8 +210,13 @@ Nepomuk::Resource NW::DecisionCreator::proxyResource(const Nepomuk::Resource & r
 {
     // Call proxyUrl
     QUrl answer = proxyUrl(res);
-    // Create resoruce and return it.
-    return Nepomuk::Resource(answer, QUrl(), d->manager);
+    if (answer.isEmpty()) {
+        return Nepomuk::Resource();
+    }
+    else {
+        // Create resoruce and return it.
+        return Nepomuk::Resource(answer, QUrl(), d->manager);
+    }
 }
 
 QHash<QUrl, QUrl> NW::DecisionCreator::proxies() const

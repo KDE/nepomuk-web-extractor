@@ -188,6 +188,12 @@ QUrl NW::DecisionCreatorInternals::proxyUrl(const Nepomuk::Resource & res)
     if(!isValid())
         return QUrl();
 
+    if (!res.isValid()) 
+        return QUrl();
+
+    if (!res.exists())
+        return QUrl();
+
     /*
     QMap< QUrl, QUrl>::iterator it = d->resourceProxyUrlMap.find(res.resourceUri());
     if(it != d->resourceProxyUrlMap.end())
@@ -235,7 +241,7 @@ QUrl NW::DecisionCreatorInternals::proxyUrl(const Nepomuk::Resource & res)
         // Now it is possible situation that resource was copied,
         // but it wasn't marked as target  resource and it's identification set
         // was not created.
-	proxyUrl = fit.value();
+        proxyUrl = fit.value();
         if(!m_data.identificationSets().contains(proxyUrl)) {
             // Create ignore list
             QSet<QUrl> ignoreList = m_data.identificationSets().keys().toSet();

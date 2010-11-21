@@ -189,6 +189,7 @@ bool NW::Decision::isValid() const
 			
 			if ( !tR.contains(url) ) { 
 			    // It is not a target resource.
+                // May be it is an rdf::Class or rdf::Property
 			    // May be it is a auxiliary resources ?
 			    if ( !d->auxiliaryIdentificationSet.contains(url) )   {
 				kDebug() << 
@@ -197,7 +198,7 @@ bool NW::Decision::isValid() const
 				    Resource: " << url << "is nor target resource\
 				    neither auxiliary resource"
 				    ;
-				allGroupsAreGood = false;
+				//allGroupsAreGood = false;
 				break;
 			    }
 			}

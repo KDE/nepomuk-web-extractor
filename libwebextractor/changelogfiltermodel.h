@@ -55,7 +55,7 @@ namespace Nepomuk
 
                 void addTarget(const QUrl & target) {
                     m_targets.insert(target);
-		    kDebug() << "Targets are: " << m_targets;
+                    //kDebug() << "Targets are: " << m_targets;
                 }
 
                 ChangeLog * log() const {
