@@ -66,6 +66,10 @@ Nepomuk::OlenaReply::OlenaReply(OlenaDataPP * parent, const WebExtractor::Decisi
     : SimpleDataPPReply(parent, factory, res)
 {
     kDebug() << res;
+
+    // disable timeout - olena takes quite some time to analyze an image
+    setTimeout(0);
+
     if( res.isFile() && res.toFile().url().isLocalFile() ) {
         const KUrl url = res.toFile().url();
         kDebug() << url;
