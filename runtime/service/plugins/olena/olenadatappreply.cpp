@@ -30,6 +30,7 @@
 #include <Nepomuk/Vocabulary/NIE>
 
 #include <KDebug>
+#include <KLocale>
 
 namespace {
 // TODO: perform some useful checks
@@ -62,6 +63,10 @@ Nepomuk::OlenaReply::OlenaReply(OlenaDataPP * parent, const WebExtractor::Decisi
                 // we are very sure about this since we do not want to burden any user with looking at text
                 // extracted from images
                 d.setRank(1.0);
+
+                d.setDescription(i18n("Image %1 contains the following text: '%2'",
+                                      resource().genericLabel(),
+                                      extractedText));
 
                 addDecision(d);
             }
