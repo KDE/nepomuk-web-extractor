@@ -126,7 +126,7 @@
                 <item>
                  <widget class="QLabel" name="label_4">
                   <property name="text">
-                   <string>Analyzing politics</string>
+                   <string>Analyzing politics:</string>
                   </property>
                  </widget>
                 </item>
@@ -159,7 +159,7 @@ every iteration</string>
                 <item>
                  <widget class="QLabel" name="label_7">
                   <property name="text">
-                   <string>Select backend to use</string>
+                   <string>Select backend to use:</string>
                   </property>
                  </widget>
                 </item>
@@ -243,7 +243,7 @@ every iteration</string>
             </property>
             <widget class="QWidget" name="tab_5">
              <attribute name="title">
-              <string>Enter  uri</string>
+              <string>Enter URI</string>
              </attribute>
              <widget class="QWidget" name="layoutWidget">
               <property name="geometry">
@@ -258,7 +258,7 @@ every iteration</string>
                <item>
                 <widget class="QLabel" name="label_2">
                  <property name="text">
-                  <string>Nepomuk Uri</string>
+                  <string>Nepomuk URI</string>
                  </property>
                 </widget>
                </item>
@@ -279,7 +279,7 @@ every iteration</string>
               <item>
                <widget class="QCheckBox" name="useAllResourcesCheckBox">
                 <property name="text">
-                 <string>Use all resource ( Default is use only selected )</string>
+                 <string>Use all the resources (default is to use only selected)</string>
                 </property>
                </widget>
               </item>
@@ -394,7 +394,7 @@ every iteration</string>
          </widget>
          <widget class="QWidget" name="identificationPage">
           <attribute name="title">
-           <string>Identification </string>
+           <string>Identification</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>

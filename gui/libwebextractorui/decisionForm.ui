@@ -20,7 +20,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Decision information</string>
+      <string>Decision information:</string>
      </property>
     </widget>
    </item>

@@ -29,9 +29,9 @@
 int main(int argc, char ** argv)
 {
     KAboutData about("webextracor_console", 0,
-                     ki18nc("@title", "WebExtractorConsole"),
+                     ki18nc("@title", "WebExtractor Console"),
                      "1.5",
-                     ki18nc("@title", "WebExtracor Console"),
+                     ki18nc("@title", "WebExtractor Console"),
                      KAboutData::License_GPL,
                      ki18nc("@info:credit", "(C) 2010 Artem Serebriyskiy"));
 
@@ -39,9 +39,9 @@ int main(int argc, char ** argv)
 
 
     KCmdLineOptions options;
-    options.add(QByteArray("uri < nepomuk uri >"), ki18n("Nepomuk uri for extracting"));
+    options.add(QByteArray("uri < nepomuk uri >"), ki18n("Nepomuk URI for extracting"));
     options.add("start", ki18n("Start extracting immediately"));
-    options.add("!+datapp", ki18n("Desired set of datapps. Unexisting and invalid will be silently ignored"));
+    options.add("!+datapp", ki18n("Desired set of dataPPs. Unexisting and invalid will be silently ignored."));
 
     KCmdLineArgs::addCmdLineOptions(options);
 

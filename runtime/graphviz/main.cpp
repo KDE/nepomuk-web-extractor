@@ -10,7 +10,7 @@
 int main(int argc, char ** argv)
 {
     KAboutData about("nepomuk_graphviz", 0,
-                     ki18nc("@title", "NepomukGraphViz "),
+                     ki18nc("@title", "NepomukGraphViz"),
                      "1.5",
                      ki18nc("@title", "Nepomuk GraphViz Visualizer"),
                      KAboutData::License_GPL,

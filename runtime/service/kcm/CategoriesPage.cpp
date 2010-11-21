@@ -240,7 +240,7 @@ void CategoriesPage::createCategory(const QString & name)
         return;
 
     if(m_categories.contains(name)) {
-        KMessageBox::sorry(this, i18n("This category already exists"));
+        KMessageBox::sorry(this, i18n("This category already exists."));
         return;
     }
 
@@ -260,7 +260,7 @@ void CategoriesPage::removeCategory(const QString & name)
         return;
 
     if(!m_categories.contains(name)) {
-        KMessageBox::error(this, i18n("This category has been already removed"));
+        KMessageBox::error(this, i18n("This category has been already removed."));
         return;
     }
 
@@ -376,7 +376,7 @@ void CategoriesPage::addButton()
 {
     bool answer;
 
-    QString catname = KInputDialog::getText(i18n("New category name"), i18n("Enter new category name"), QString(), &answer, this, this->m_catvalidator);
+    QString catname = KInputDialog::getText(i18n("New Category Name"), i18n("Enter new category name:"), QString(), &answer, this, this->m_catvalidator);
 
     if(!answer)
         return;

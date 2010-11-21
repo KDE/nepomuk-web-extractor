@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Name</string>
+        <string>Name:</string>
        </property>
       </widget>
      </item>
@@ -41,7 +41,7 @@
    <item>
     <widget class="QCheckBox" name="gitCheckBox">
      <property name="text">
-      <string>Detect missed values with git</string>
+      <string>Detect missed values with Git</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -53,7 +53,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Author</string>
+        <string>Author:</string>
        </property>
       </widget>
      </item>
@@ -67,7 +67,7 @@
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>E-mail</string>
+        <string>E-mail:</string>
        </property>
       </widget>
      </item>
