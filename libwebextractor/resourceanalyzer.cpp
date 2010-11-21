@@ -604,8 +604,8 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
     emit analyzingFinished();
     }
     */
-    for(QMap<DataPPWrapper*, QDateTime>::const_iterator it = d->examinedDates.begin();
-            it != d->examinedDates.end();
+    for(QMap<DataPPWrapper*, QDateTime>::const_iterator it = d->examinedDates.constBegin();
+            it != d->examinedDates.constEnd();
             it++
        ) {
         d->rsd.setExaminedDataPPInfo(it.key()->name(), it.key()->version());
