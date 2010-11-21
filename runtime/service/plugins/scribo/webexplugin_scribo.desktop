@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Service
+X-KDE-ServiceTypes=Nepomuk/WebExtractorPlugin
+X-KDE-Library=webexplugin_scribo
+X-WebExtractor-Name=scribo
+Name=Scribo webextractor plugin
