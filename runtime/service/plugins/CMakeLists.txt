@@ -1,4 +1,8 @@
 find_package(Tesseract)
+find_package(Scribo)
+
+macro_log_feature(SCRIBO_FOUND "Scribo" "Nepomuk Scribo NLP library" "http://nepomuk.kde.org" FALSE "" "Necessary for the Scribo plugin.")
+macro_log_feature(TESSERACT_FOUND "Tesseract" "OCR library" "http://code.google.com/p/tesseract-ocr/" FALSE "" "Necessary for the Olena plugin.")
 
 add_subdirectory(debug)
 add_subdirectory(autotag)
@@ -6,4 +10,7 @@ add_subdirectory(test)
 add_subdirectory(tvdb)
 if(TESSERACT_FOUND)
    add_subdirectory(olena)
+endif()
+if(SCRIBO_FOUND)
+  add_subdirectory(scribo)
 endif()

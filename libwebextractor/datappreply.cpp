@@ -97,7 +97,9 @@ void NW::DataPPReply::setTimeout(int interval)
     Q_D(DataPPReply);
     d->m_timer.stop();
     d->m_timer.setInterval(interval);
-    d->m_timer.start();
+    if(interval > 0) {
+        d->m_timer.start();
+    }
 }
 
 void NW::DataPPReply::finishByTimeout()

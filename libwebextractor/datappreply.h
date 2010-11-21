@@ -67,7 +67,7 @@ namespace Nepomuk
                 /*! \brief Return the time interaval
                  */
                 int timeout() const;
-                /*! \brief Icrease the time allowed for execution
+                /*! \brief Icrease the time allowed for execution, use 0 to disable the timeout.
                  */
                 void setTimeout(int newValue);
             public Q_SLOTS:

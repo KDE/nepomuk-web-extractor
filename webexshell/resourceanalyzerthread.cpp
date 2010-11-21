@@ -40,9 +40,12 @@
 
 using namespace Nepomuk::WebExtractor;
 
+Q_DECLARE_METATYPE(Nepomuk::Resource)
+
 ResourceAnalyzerThread::ResourceAnalyzerThread(QObject *parent)
     : QThread(parent)
 {
+    qRegisterMetaType<Nepomuk::Resource>();
 }
 
 void ResourceAnalyzerThread::run()
@@ -51,6 +54,8 @@ void ResourceAnalyzerThread::run()
     // Prepare settings
     //
     emit infoMessage(i18n("Preparing analyzer"));
+
+    m_resourceQueue.clear();
 
     ExtractParameters params;
     foreach(const DataPPDescr & dppdescr, m_category->plugins()) {
@@ -84,11 +89,18 @@ void ResourceAnalyzerThread::run()
     //
     // Do the actual work
     //
-    Soprano::QueryResultIterator it
-            = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(m_category->query().toSparqlQuery(), Soprano::Query::QueryLanguageSparql);
-    while(it.next()) {
-        // FIXME: this is ugly - we should not cache all results!
-        m_resourceQueue.enqueue(it[0].uri());
+    if(m_url.isEmpty()) {
+        kDebug() << "Analyzing:" << m_category->query();
+        Soprano::QueryResultIterator it
+                = Nepomuk::ResourceManager::instance()->mainModel()->executeQuery(m_category->query().toSparqlQuery(), Soprano::Query::QueryLanguageSparql);
+        while(it.next()) {
+            // FIXME: this is ugly - we should not cache all results!
+            m_resourceQueue.enqueue(it[0].uri());
+        }
+    }
+    else {
+        kDebug() << "Analyzing:" << m_url;
+        m_resourceQueue.enqueue(m_url);
     }
 
     if(!m_resourceQueue.isEmpty()) {
@@ -101,11 +113,17 @@ void ResourceAnalyzerThread::run()
         //
         exec();
     }
+
+    // cleanup
+    delete analyzer;
+    qDeleteAll(params.plugins().values());
+    qDeleteAll(params.plugins().keys());
 }
 
-void ResourceAnalyzerThread::start(Category* cat)
+void ResourceAnalyzerThread::start(Category* cat, const KUrl& optionalFile)
 {
     m_category = cat;
+    m_url = optionalFile;
     QThread::start();
 }
 
@@ -113,6 +131,9 @@ void ResourceAnalyzerThread::slotAnalyzingFinished()
 {
     kDebug();
     ResourceAnalyzer* analyzer = qobject_cast<ResourceAnalyzer*>(sender());
+    Nepomuk::WebExtractor::DecisionList decisions = analyzer->decisions();
+    if(!decisions.isEmpty())
+        emit newDecisions(decisions);
     if(!m_resourceQueue.isEmpty()) {
         emit newDecisions(analyzer->decisions());
 

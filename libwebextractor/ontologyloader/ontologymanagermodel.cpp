@@ -252,7 +252,7 @@ public:
         : q( p ) {
     }
 
-    CrappyInferencer m_inferenceModel;
+//    CrappyInferencer m_inferenceModel;
 
 private:
     OntologyManagerModel* q;
@@ -267,7 +267,7 @@ Nepomuk::OntologyManagerModel::OntologyManagerModel( Soprano::Model* parentModel
       d( new Private( this ) )
 {
     setParent( parent );
-    FilterModel::setParentModel( &d->m_inferenceModel );
+//    FilterModel::setParentModel( &d->m_inferenceModel );
     setParentModel( parentModel );
 }
 
@@ -280,7 +280,8 @@ Nepomuk::OntologyManagerModel::~OntologyManagerModel()
 
 void Nepomuk::OntologyManagerModel::setParentModel( Soprano::Model* parentModel )
 {
-    d->m_inferenceModel.setParentModel( parentModel );
+//    d->m_inferenceModel.setParentModel( parentModel );
+    FilterModel::setParentModel(parentModel);
 }
 
 

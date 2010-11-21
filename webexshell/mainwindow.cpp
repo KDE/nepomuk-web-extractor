@@ -30,6 +30,7 @@
 #include <KDebug>
 #include <KLocale>
 #include <KMessageBox>
+#include <KUrlRequester>
 
 #include <Nepomuk/Resource>
 
@@ -92,9 +93,10 @@ void MainWindow::slotStart()
 {
     if(!m_analyzerThread->isRunning()) {
         Category* cat = m_comboCategory->itemData(m_comboCategory->currentIndex(), CategoriesModel::CategoryRole).value<Category*>();
+        KUrl url = m_editFile->url();
         if( cat ) {
             m_decisionWidget->clear();
-            m_analyzerThread->start(cat);
+            m_analyzerThread->start(cat, url);
             updateButtonStatus();
         }
     }

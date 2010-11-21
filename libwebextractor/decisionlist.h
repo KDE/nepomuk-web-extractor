@@ -60,6 +60,8 @@ namespace Nepomuk
                 using QList<Decision>::const_iterator;
                 using QList<Decision>::size;
                 using QList<Decision>::clear;
+                using QList<Decision>::isEmpty;
+                using QList<Decision>::count;
                 const_iterator begin() const;
                 const_iterator end() const;
                 double approximateThreshold() const;
