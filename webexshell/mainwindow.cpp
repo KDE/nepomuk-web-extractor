@@ -31,9 +31,9 @@
 #include <KLocale>
 #include <KMessageBox>
 
+#include <Nepomuk/Resource>
 
 Q_DECLARE_METATYPE(Category*)
-Q_DECLARE_METATYPE(Nepomuk::WebExtractor::Decision)
 
 namespace {
 const int DecisionRole = 76787;

@@ -26,7 +26,7 @@
 #include <QQueue>
 #include <QUrl>
 
-#include "decision.h"
+#include "decisionlist.h"
 
 namespace Nepomuk {
 class Resource;

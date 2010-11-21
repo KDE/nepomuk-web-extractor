@@ -24,7 +24,7 @@
 
 #include <QWidget>
 #include "ui_mainwindow.h"
-#include "decision.h"
+#include "decisionlist.h"
 
 namespace Nepomuk {
 class Resource;
