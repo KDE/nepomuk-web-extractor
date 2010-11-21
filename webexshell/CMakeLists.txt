@@ -7,9 +7,10 @@ include_directories(
   #libwebexsettings path
   ${libwebexsettings_BINARY_DIR}
   ${libwebexsettings_SOURCE_DIR}
+  ${libwebexsettingsui_SOURCE_DIR}
   #libwebexsettingsui path
   ${libwebexsettingsui_BINARY_DIR}
-  ${libwebexsettingsui_SOURCE_DIR}
+  ${libwebexsettingsui_SORUCE_DIR}
   ${NEPOMUK_INCLUDE_DIR}
   ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${CMAKE_CURRENT_BINARY_DIR}

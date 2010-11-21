@@ -25,11 +25,8 @@
 #include <QThread>
 #include <QQueue>
 #include <QUrl>
-#include <Nepomuk/Resource>
 
 #include "decision.h"
-#include "decisionlist.h"
-
 
 namespace Nepomuk {
 class Resource;
