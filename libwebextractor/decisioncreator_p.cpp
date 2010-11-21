@@ -93,10 +93,10 @@ NW::Decision NW::DecisionCreatorInternals::data()
     // Add auxiliaryIdentificationSet
     QSet<QUrl> ignoreset;
     QHash<QUrl, NS::IdentificationSet>::const_iterator isit =
-        d.identificationSets().begin();
+        resourceProxyISMap.begin();
     QHash<QUrl, NS::IdentificationSet>::const_iterator isit_end =
-        d.identificationSets().end();
-    // Iteration is done over identificationSets()
+        resourceProxyISMap.end();
+    // Iteration is done over identification sets
     // ( the hash proxy resource -> identification set ),
     for(; isit != isit_end; isit++) {
         ignoreset << resourceProxyMap[isit.key()];
@@ -106,6 +106,9 @@ NW::Decision NW::DecisionCreatorInternals::data()
 
     // Set proxy map
     d.setResourceProxyMap( this->resourceProxyMap );
+
+    // Set identification sets
+    d.setIdentificationSets(resourceProxyISMap);
 
     Q_ASSERT(d.isValid());
     return d;
@@ -226,7 +229,7 @@ QUrl NW::DecisionCreatorInternals::proxyUrl(const Nepomuk::Resource & res)
         resourceProxyMap.insert(sourceUrl, newUrl);
 
         // Create ignore list
-        QSet<QUrl> ignoreList = m_data.identificationSets().keys().toSet();
+        QSet<QUrl> ignoreList = resourceProxyISMap.keys().toSet();
 
         // Create identification set
         NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
@@ -242,15 +245,15 @@ QUrl NW::DecisionCreatorInternals::proxyUrl(const Nepomuk::Resource & res)
         // but it wasn't marked as target  resource and it's identification set
         // was not created.
         proxyUrl = fit.value();
-        if(!m_data.identificationSets().contains(proxyUrl)) {
+        if(!resourceProxyISMap.contains(proxyUrl)) {
             // Create ignore list
-            QSet<QUrl> ignoreList = m_data.identificationSets().keys().toSet();
+            QSet<QUrl> ignoreList = resourceProxyISMap.keys().toSet();
             // Create identification set
             NS::IdentificationSet  set = NS::IdentificationSet::fromResource(sourceUrl, ResourceManager::instance()->mainModel(), ignoreList);
             // Add to the ACL of fiter model
             updateModels(proxyUrl);
             // Insert to the map of the identification sets
-            m_data.addIdentificationSet(sourceUrl, set);
+            resourceProxyISMap.insert(sourceUrl, set);
         }
         //kDebug() << "Resource " << sourceUrl << " has already been copied";
 	Q_ASSERT(!proxyUrl.isEmpty());

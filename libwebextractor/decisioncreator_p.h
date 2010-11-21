@@ -57,21 +57,24 @@ namespace Nepomuk
                 DecisionCreatorInternals();
                 DecisionCreatorInternals(const DataPP * parent,  Soprano::Model * decisionsModel, IdentificationSetManager * identsetManager);
                 ~DecisionCreatorInternals();
-		// Do we need to store the pointers to the our PropertiesGroup ?
-		// The DecisionCreatorData store all pointers to the corresponding 
-		// PropertiesGroupData, so may be it is enough
+                // Do we need to store the pointers to the our PropertiesGroup ?
+                // The DecisionCreatorData store all pointers to the corresponding 
+                // PropertiesGroupData, so may be it is enough
                 QList<  PropertiesGroupCreator > groupCreators;
-                
-		// Authors data. Here pointers to the author DataPP
-		// are stored
-		QSet<const DataPP*>  authorsData;
+                        
+                // Authors data. Here pointers to the author DataPP
+                // are stored
+                QSet<const DataPP*>  authorsData;
 
 
-		// Set of the target resources and their identification set
-		// This may is used  for storing pairs < original resource url, it's
-		// copy url> .
-		QHash<QUrl, QUrl> resourceProxyMap;
+                // Set of the target resources and their identification set
+                // This may is used  for storing pairs < original resource url, it's
+                // copy url> .
+                QHash<QUrl, QUrl> resourceProxyMap;
 
+                // This is our storage for all IdentificationSets for all our
+                // proxied resources. The key is the PROXY url, not the source one 
+                QHash< QUrl, Nepomuk::Sync::IdentificationSet > resourceProxyISMap;
 
                 // Manager of the filter model
                 ResourceManager * manager;
