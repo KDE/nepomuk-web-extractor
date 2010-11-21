@@ -24,7 +24,8 @@
 
 #include <QThread>
 #include <QQueue>
-#include <QUrl>
+
+#include <KUrl>
 
 #include "decisionlist.h"
 
@@ -42,7 +43,7 @@ public:
     void run();
 
 public Q_SLOTS:
-    void start(Category* cat);
+    void start(Category* cat, const KUrl& optionalFile = KUrl());
 
 private Q_SLOTS:
     void slotAnalyzingFinished();
@@ -54,6 +55,7 @@ Q_SIGNALS:
 
 private:
     Category* m_category;
+    KUrl m_url;
     QQueue<QUrl> m_resourceQueue;
 };
 
