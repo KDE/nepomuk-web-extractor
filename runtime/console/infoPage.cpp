@@ -54,6 +54,7 @@ InfoPage::InfoPage(QWidget * parent):
 
 
     // Set properties of resource info widget
+    resourcesInfoSelectWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     connect(this->resourcesInfoSelectWidget, SIGNAL(currentResourceChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)), this, SLOT(updateExaminedInfo(const Nepomuk::Resource &)));
     connect(this->resourcesInfoSelectWidget, SIGNAL(currentResourceChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)), this, SLOT(updateServiceInfo(const Nepomuk::Resource &)));
     connect(this->resourcesInfoSelectWidget, SIGNAL(currentResourceChanged(const Nepomuk::Resource &, const Nepomuk::Resource &)), this, SLOT(updateUriResourceInfo(const Nepomuk::Resource &)));

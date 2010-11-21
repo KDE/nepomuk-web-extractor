@@ -73,9 +73,19 @@ namespace Nepomuk
                 bool hasAnyDataPP() const;
                 int dataPPCount() const;
 
+                /*! \brief Settings for the Decisions model
+                 * If you do not provide Decisions model yourself, a new
+                 * one will be created. 
+                 * This is the backendName of such model
+                 */
                 QString backendName() const;
                 void setBackendName(const QString &);
 
+                /*! \brief Settings for the Decisions model
+                 * If you do not provide Decisions model yourself, a new
+                 * one will be created. 
+                 * This is the backend settings of such model
+                 */
                 Soprano::BackendSettings backendSettings() const;
                 void setBackendSettings(const Soprano::BackendSettings &);
 
@@ -112,11 +122,11 @@ namespace Nepomuk
                  *  will be ignored.  The web extractor system will not take ownership
                  *  on the given manager and will not delete or change it in any way.
                  *  If you want to disable this setting, then pass Null as manager
-                         *  \param decisionsModel Model to store Decisions in
-                         *  \param autoManageOntologies Set this flag to true, if you want that
-                         *  ontologies were loaded to the model automatically. You can change you
-                         *  choice later with setAutoManageOntologies() method.
-                         *  \sa setAutoManageOntologies
+                 *  \param decisionsModel Model to store Decisions in
+                 *  \param autoManageOntologies Set this flag to true, if you want that
+                 *  ontologies were loaded to the model automatically. You can change you
+                 *  choice later with setAutoManageOntologies() method.
+                 *  \sa setAutoManageOntologies
                  */
                 void setDecisionsModel(Soprano::Model * decisionsModel, bool autoManageOntologies = true);
 
