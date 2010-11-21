@@ -22,9 +22,12 @@
 
 #include "text_extraction.hh"
 
+#include <QtCore/QChar>
 #include <QtGui/QImage>
 
-#include <webextractor/decisionfactory.h>
+#include "decisionfactory.h"
+#include "decisioncreator.h"
+
 #include <Nepomuk/File>
 #include <Nepomuk/Variant>
 #include <Nepomuk/Vocabulary/NIE>
@@ -33,9 +36,29 @@
 #include <KLocale>
 
 namespace {
-// TODO: perform some useful checks
+/**
+ * We check two basic things:
+ * 1. is there any text at all
+ * 2. Is the letter/non-letter ratio useful - this is a primitive attempt to exclude garbage such as " W Y œe "ii" ï§ _* ,"
+ */
 bool checkText( const QString& text ) {
-    return !text.isEmpty();
+    if(!text.isEmpty()) {
+        int letterCnt = 0;
+        int spaceCnt = 0;
+        Q_FOREACH(const QChar& c, text) {
+            if(c.isLetterOrNumber())
+                ++letterCnt;
+            else if(c.isSpace())
+                ++spaceCnt;
+        }
+        double letterRatio = double(letterCnt)/double(text.length());
+        double spaceRatio = double(spaceCnt)/double(text.length());
+        kDebug() << "Letter ration of" << text << letterRatio << spaceRatio;
+        return letterRatio > 0.7 && spaceRatio < 0.3;
+    }
+    else {
+        return false;
+    }
 }
 }
 
@@ -54,11 +77,10 @@ Nepomuk::OlenaReply::OlenaReply(OlenaDataPP * parent, const WebExtractor::Decisi
                 kDebug() << "Creating decision";
 
                 // create the new decision
-                WebExtractor::Decision d = newDecision();
-                WebExtractor::PropertiesGroup g = d.newGroup();
+                WebExtractor::DecisionCreator d = newDecision();
 
                 // set the actual data
-                g.proxyResource(res).setProperty(Nepomuk::Vocabulary::NIE::plainTextContent(), extractedText);
+                d.proxyResource(res).setProperty(Nepomuk::Vocabulary::NIE::plainTextContent(), extractedText);
 
                 // we are very sure about this since we do not want to burden any user with looking at text
                 // extracted from images
