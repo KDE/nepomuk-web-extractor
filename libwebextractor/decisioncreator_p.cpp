@@ -97,10 +97,12 @@ NW::Decision NW::DecisionCreatorInternals::data()
     QHash<QUrl, NS::IdentificationSet>::const_iterator isit_end =
         resourceProxyISMap.end();
     // Iteration is done over identification sets
-    // ( the hash proxy resource -> identification set ),
+    // ( the hash source resource -> identification set ),
     for(; isit != isit_end; isit++) {
         ignoreset << resourceProxyMap[isit.key()];
     }
+
+    kDebug() << "Ignore set ( in DecisionCreator ): " << ignoreset;
 
     d.setAuxiliaryIdentificationSet(NS::IdentificationSet::fromChangeLog(commonLog, decisionsModel, ignoreset));
 
@@ -236,7 +238,7 @@ QUrl NW::DecisionCreatorInternals::proxyUrl(const Nepomuk::Resource & res)
         // Add url to the ACL of the filter log model
         updateModels(newUrl);
 
-        m_data.addIdentificationSet(sourceUrl, set);
+        resourceProxyISMap.insert(sourceUrl, set);
 
         Q_ASSERT(decisionsModel);
         proxyUrl = newUrl;

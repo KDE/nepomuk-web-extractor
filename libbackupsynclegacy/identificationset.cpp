@@ -114,6 +114,7 @@ namespace {
             const QUrl & objUri = obj.uri();
             if( objUri.toString().startsWith("nepomuk:/res/") ) {
                 if( !done.contains( objUri ) ) {
+                    //kDebug() << "Add resource to identify: " << objUri;
                     notDone.insert( objUri );
                 }
             }
