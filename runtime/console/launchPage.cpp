@@ -46,6 +46,7 @@
 
 namespace NQ = Nepomuk::Query;
 namespace NW = Nepomuk::WebExtractor;
+namespace NS = Nepomuk::Sync;
 using namespace Nepomuk;
 using namespace NW;
 
@@ -75,7 +76,12 @@ LaunchPage::LaunchPage(const QString & uri, const QStringList & datapps, bool au
     connect(this->identifyDecisionButton, SIGNAL(clicked()), this, SLOT(onIdentifyDecision()));
     connect(this->identifyMainButton, SIGNAL(clicked()), this, SLOT(onIdentifyMain()));
     connect(this->onlyMainCheckBox, SIGNAL(toggled(bool)), this, SLOT(updateIdentificationInfo()));
+    // Set headers
+    this->spMappingsTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem("Source url"));
+    this->spMappingsTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Proxy url"));
 
+    // Other connections
+    connect(this->spTargetOnlyCheckBox, SIGNAL(toggled(bool)), this, SLOT(updateSourceProxyMappings()));
     // Init member variables
     
     kDebug() << *Nepomuk::DataPPPool::self();
@@ -185,6 +191,9 @@ void LaunchPage::onApplyDecision()
 
 void LaunchPage::updateIdentificationInfo()
 {
+    // Update auxiliary data
+    updateTargetsInfo();
+    updateSourceProxyMappings();
     NW::Decision dec = this->decisionListWidget->currentDecision();
     this->identificationTableWidget->clear();
 
@@ -282,6 +291,136 @@ void LaunchPage::updateIdentificationInfo()
     }
     identificationTableWidget->resizeColumnsToContents();
     return;
+}
+
+void LaunchPage::updateTargetsInfo()
+{
+    this->targetsTableWidget->clear();
+
+    NW::Decision dec = this->decisionListWidget->currentDecision();
+
+    if(!dec.isValid())
+        return;
+
+    QSharedPointer<NW::DecisionApplicationRequest> req = this->decisionListWidget->currentDecisionApplicationRequest();
+    // If request exists then we will take all necessary data from it.
+    // If request doesn't exist, then we will take information about target resources
+    // from Decision. Of course, if there is no request, there are no mappings :)
+    if(req) {
+        QSet<QUrl> targetResources = req->targetResources();
+        this->targetsTableWidget->setRowCount(targetResources.size());
+        //kDebug() << "Request exists. Targets: " << targetResources;
+       // Populate table
+       int currentRow = 0;
+       foreach( const QUrl & res, targetResources )
+       {
+            QTableWidgetItem * item = new QTableWidgetItem(res.toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(0, 255, 0)));
+            targetsTableWidget->setItem(currentRow, 0, item);
+
+            // Mapping
+            QUrl mapping = req->targetMapping(res);
+            item = new QTableWidgetItem(mapping.toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            if (mapping.isEmpty() )
+                item->setBackground(QBrush(QColor(255, 0, 0)));
+            else 
+                item->setBackground(QBrush(QColor(0, 255, 0)));
+            targetsTableWidget->setItem(currentRow, 1, item);
+
+            currentRow++;
+       }
+    } 
+    else {
+        // Take information from Decision
+        QSet<QUrl> targetResources = dec.targetResources();
+        kDebug() << "Request doesn't exist. Targets: " << targetResources;
+        this->targetsTableWidget->setRowCount(targetResources.size());
+       // Populate table
+       int currentRow = 0;
+       foreach( const QUrl & res, targetResources )
+       {
+            QTableWidgetItem * item = new QTableWidgetItem(res.toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(0, 255, 0)));
+            targetsTableWidget->setItem(currentRow, 0, item);
+
+            // Mapping is not available
+            item = new QTableWidgetItem("No application request exists");
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(255, 0, 0)));
+            targetsTableWidget->setItem(currentRow, 1, item);
+
+            currentRow++;
+       }
+    }
+}
+
+void LaunchPage::updateSourceProxyMappings()
+{
+    this->spMappingsTableWidget->clear();
+
+    NW::Decision dec = this->decisionListWidget->currentDecision();
+
+    if(!dec.isValid())
+        return;
+
+    if ( this->spTargetOnlyCheckBox->isChecked() ) {
+        // Show SOURCE-PROXY mappings only for target resources
+        // Iterate over identification sets hash to retrieve urls of the target
+        // resource in the SOURCE terms
+        QHash<QUrl,QUrl> resourceProxyMap = dec.resourceProxyMap();
+        QHash<QUrl,NS::IdentificationSet> isets = dec.identificationSets();
+        this->spMappingsTableWidget->setRowCount(dec.identificationSets().size());
+
+        QHash<QUrl, NS::IdentificationSet>::const_iterator it = isets.begin();
+        QHash<QUrl, NS::IdentificationSet>::const_iterator it_end = isets.end();
+        int currentRow = 0;
+        for(; it != it_end; it++)
+        {
+            QUrl source = it.key();
+            QTableWidgetItem * item = new QTableWidgetItem(source.toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(0, 255, 0)));
+            spMappingsTableWidget->setItem(currentRow, 0, item);
+
+            // Get proxy url
+            QUrl proxy = resourceProxyMap[it.key()];
+
+            item = new QTableWidgetItem(proxy.toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(0, 255, 0)));
+            spMappingsTableWidget->setItem(currentRow, 1, item);
+
+            currentRow++;
+        }
+    }
+    else {
+        // Show all mappings
+        QHash<QUrl,QUrl> mappings = dec.resourceProxyMap(); 
+        this->spMappingsTableWidget->setRowCount(mappings.size());
+       // Populate table
+       int currentRow = 0;
+       for( 
+               QHash<QUrl,QUrl>::const_iterator it = mappings.begin();
+               it != mappings.end();
+               it++
+          )
+       {
+            QTableWidgetItem * item = new QTableWidgetItem(it.key().toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(0, 255, 0)));
+            spMappingsTableWidget->setItem(currentRow, 0, item);
+
+            item = new QTableWidgetItem(it.value().toString());
+            item->setFlags(Qt::ItemIsEnabled);
+            item->setBackground(QBrush(QColor(0, 255, 0)));
+            spMappingsTableWidget->setItem(currentRow, 1, item);
+
+            currentRow++;
+       }
+    }
 }
 
 void LaunchPage::updateDecisionsInfo()

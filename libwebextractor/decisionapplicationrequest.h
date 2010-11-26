@@ -104,6 +104,19 @@ namespace Nepomuk
                  *
                  */
                 QSet<QUrl> unidentified() const;
+
+                /*! \brief Return identified uri for given one
+                 * Return empty QUrl if given url was not identified. 
+                 * This can happens because identification stage wasn't finished or 
+                 * because resources doesn't exist any more. Or because some
+                 * error in identification process.
+                 */
+                //QUrl mapping( const QUrl & res ) const;
+                /*! \brief Return the mapping of the target resource
+                 * If given resource is not a target resource or it is a target one
+                 * but wasn't identified, then empty QUrl will be returned
+                 */
+                QUrl targetMapping(const QUrl & target ) const;
                 friend class Decision;
             Q_SIGNALS:
                 /*! \brief This signal is called when some resource was identified

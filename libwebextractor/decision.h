@@ -107,8 +107,10 @@ namespace Nepomuk {
         bool isEmpty() const;
 
         /*! \brief Return set of the target resources
+         * For developers: The target resources are expressed in urls that are 
+         * contained in changelog
          */
-                QSet<QUrl> targetResources() const;
+        QSet<QUrl> targetResources() const;
 
         const QHash< QUrl, Nepomuk::Sync::IdentificationSet> & identificationSets() const;
 
@@ -118,26 +120,29 @@ namespace Nepomuk {
          */
         Nepomuk::Sync::ChangeLog log() const;
 
+        /*! \brief Don't use this function
+         */
+        QHash<QUrl,QUrl> resourceProxyMap() const;
         /* ==== Application section ==== */
 
-                /*! \brief Return application request, that will perform identification for Decision
-                 * \param targetModel you cah specify the model for applying changes. If 
+        /*! \brief Return application request, that will perform identification for Decision
+         * \param targetModel you cah specify the model for applying changes. If 
          * set to NULL then ResourceManager::instance()->mainModel() will be used.
-                 * \return New IdentificationRequest. The user is responsible for deleting
-                 * this object. If Decision is invalid, then 0 will be returned
-                 */
-                DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = 0) const;
-                /*! \brief Apply Decision
-                 * Write all statements back to model
+         * \return New IdentificationRequest. The user is responsible for deleting
+         * this object. If Decision is invalid, then 0 will be returned
+         */
+        DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = 0) const;
+        /*! \brief Apply Decision
+         * Write all statements back to model
          * \param targetModel you cah specify the model for applying changes. If
          * set to NULL then ResourceManager::instance()->mainModel() will be used
-                 */
-                bool apply(Soprano::Model * targetModel = 0) const;
+         */
+        bool apply(Soprano::Model * targetModel = 0) const;
 
         /* ==== Editing section ==== */
         public:
-        void setDescription( const QString & );
-        void setRank( double rank );
+            void setDescription( const QString & );
+            void setRank( double rank );
         private:
         /*! \brief This function create and register new PropertiesGroup
          * \return index of the newly created group
@@ -165,7 +170,6 @@ namespace Nepomuk {
         Nepomuk::Sync::IdentificationSet auxiliaryIdentificationSet() const;
 
         void setResourceProxyMap( const QHash<QUrl,QUrl> & map );
-        QHash<QUrl,QUrl> resourceProxyMap() const;
 
         /*! \brief Remove unnecessary elements
          * This function will remove:

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>529</width>
+    <width>720</width>
     <height>544</height>
    </rect>
   </property>
@@ -86,7 +86,7 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>357</width>
+               <width>413</width>
                <height>138</height>
               </rect>
              </property>
@@ -437,6 +437,29 @@ every iteration</string>
              <property name="rowCount">
               <number>0</number>
              </property>
+             <property name="columnCount">
+              <number>2</number>
+             </property>
+             <column/>
+             <column/>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_6">
+          <attribute name="title">
+           <string>Source-Proxy mappings</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QCheckBox" name="spTargetOnlyCheckBox">
+             <property name="text">
+              <string>Show only for target resources</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QTableWidget" name="spMappingsTableWidget">
              <property name="columnCount">
               <number>2</number>
              </property>

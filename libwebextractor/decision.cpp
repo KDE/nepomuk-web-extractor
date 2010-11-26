@@ -391,40 +391,46 @@ NS::IdentificationSet NW::Decision::auxiliaryIdentificationSet() const
 QSet<QUrl> NW::Decision::targetResources() const
 {
     if ( isDirtyTargetResources() ) {
-	// Because we edit mutable member
-	const_cast<NW::Decision*>(this)->d.detach();
-	// Update target resources cache
-	// Target resources are all resocures that contains in
-	// 1) resourceProxyISMap
-	// 2) somewhere in the summary changelog as subjects or objects
-	d->cachedTargetResources.clear();
-	NS::ChangeLog log = this->log();
-	QSet<QUrl> resources = log.resources();
-	for( 
-		QHash<QUrl,NS::IdentificationSet>::const_iterator it = d->resourceProxyISMap.begin();
-		it != d->resourceProxyISMap.end();
-		it++
-	   )
-	{
-	    // Check if there is a proxyResource
-	    QUrl proxyUrl;
+        // Because we edit mutable member
+        const_cast<NW::Decision*>(this)->d.detach();
+        // Update target resources cache
+        // Target resources are all resocures that contains in
+        // 1) resourceProxyISMap
+        // 2) somewhere in the summary changelog as subjects or objects
+        d->cachedTargetResources.clear();
+        NS::ChangeLog log = this->log();
+        QSet<QUrl> resources = log.resources();
+        for( 
+            QHash<QUrl,NS::IdentificationSet>::const_iterator it = d->resourceProxyISMap.begin();
+            it != d->resourceProxyISMap.end();
+            it++
+           )
+        {
+            // We have a target resource expressed in terms of the SOURCE urls. 
+            // We need to convert it to the url expressed in terms of the PROXY urls
+            // ( contained in changelog )
 
-	    QHash<QUrl,QUrl>::const_iterator  fit = d->resourceProxyMap.find(it.key());
-	    if ( fit == d->resourceProxyMap.end() ) { 
-		// Then proxyUrl is the same as sourceUrl
-		proxyUrl = it.key();
-	    }
-	    else {
-		proxyUrl = fit.value();
-	    }
+            // Check if there is a proxyResource
+            QUrl proxyUrl;
 
-	    // Resource is it.key()
-	    // check that it contains somewhere in log
-	    if (resources.contains(proxyUrl) ) {
-		d->cachedTargetResources << proxyUrl;
-	    }
-	}
-	markCleanTargetResources();
+            QHash<QUrl,QUrl>::const_iterator  fit = d->resourceProxyMap.find(it.key());
+            if ( fit == d->resourceProxyMap.end() ) { 
+                // Then proxyUrl is the same as sourceUrl
+                proxyUrl = it.key();
+                kError() << "Direct referencing of target resources is not properly supported yes";
+                    
+            }
+            else {
+                proxyUrl = fit.value();
+            }
+
+            // Resource is it.key()
+            // check that it contains somewhere in log
+            if (resources.contains(proxyUrl) ) {
+                d->cachedTargetResources << proxyUrl;
+            }
+        }
+        markCleanTargetResources();
     }
 
     return d->cachedTargetResources;

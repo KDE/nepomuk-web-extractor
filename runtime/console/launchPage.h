@@ -59,6 +59,8 @@ class LaunchPage : public QWidget, public Ui_launchPage
 
         void updateIdentificationInfo();
         void updateDecisionsInfo();
+        void updateTargetsInfo();
+        void updateSourceProxyMappings();
         void onCurrentDecisionChanged(const QListWidgetItem *,const QListWidgetItem*);
     private:
         enum SelectTargetsTabs { LineEditSelect = 0, GuiSelect = 1, CategorySelect = 2 };

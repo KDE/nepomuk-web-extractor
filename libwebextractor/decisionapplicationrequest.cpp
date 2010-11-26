@@ -80,7 +80,6 @@ void NW::DecisionApplicationRequest::identifyTargets(bool reset)
 
     bool success = true;
     d->decision.cleanUnused();
-    QSet<QUrl> targetResources = d->decision.targetResources();
     // Now, because we have cleaned unused identifications sets,
     // we can iterate over sets hash as if we would iterate over target resources set
     QHash<QUrl, NS::IdentificationSet>::const_iterator it = d->decision.identificationSets().begin();
@@ -91,14 +90,14 @@ void NW::DecisionApplicationRequest::identifyTargets(bool reset)
         QUrl sourceUrl = it.key();
         Q_ASSERT(!sourceUrl.isEmpty());
 
-        kDebug() << "Identification set for the resource " << sourceUrl << "is:";
-        kDebug() << it.value().toList();
+        //kDebug() << "Identification set for the resource " << sourceUrl << "is:";
+        //kDebug() << it.value().toList();
 
         NS::IdentificationRequest * req = new NS::IdentificationRequest(NS::ChangeLog(), it.value(), d->targetModel);
         connect(req, SIGNAL(identified(QUrl, QUrl)), this, SIGNAL(identified(QUrl, QUrl)));
         req->load();
 
-        kDebug() << "The following resources are going to be identified: " << req->unidentified();
+        //kDebug() << "The following resources are going to be identified: " << req->unidentified();
         req->identifyAll();
 
         if(!req->done()) {
@@ -111,28 +110,31 @@ void NW::DecisionApplicationRequest::identifyTargets(bool reset)
         // The identified uri in the target model
         // mpUri == (m)a(p)ped (Uri)
         QUrl mpUri = req->mappedUri(sourceUrl);
-	kDebug() << "Source url " << sourceUrl << "was identified as : " << mpUri ; 
+        kDebug() << "Source url " << sourceUrl << "was identified as : " << mpUri ; 
         Q_ASSERT(!mpUri.isEmpty());
 
-	// Now we have identified so-called SOURCE url.
-	// But in identification hash we will add mapping for
-	// PROXY url, because proxy url is used in changelog
-	QUrl proxyUrl;
-	QHash<QUrl,QUrl>::const_iterator fit = 
-	    d->decision.resourceProxyMap().find(sourceUrl);
+        // Now we have identified so-called SOURCE url.
+        // But in identification hash we will add mapping for
+        // PROXY url, because proxy url is used in changelog
+        QUrl proxyUrl;
+        QHash<QUrl,QUrl> resourceProxyMap = d->decision.resourceProxyMap();
+        kDebug() << "Resource proxy map: " << resourceProxyMap;
+        QHash<QUrl,QUrl>::const_iterator fit = 
+            resourceProxyMap.find(sourceUrl);
 
-	if ( fit == d->decision.resourceProxyMap().end() ) { 
-	    // Resource is not in resourceProxyMap. This mean that proxy is the same as
-	    // source
-	    proxyUrl = it.key();
-	}
-	else {
-	    proxyUrl = fit.value();
-	}
+        if ( fit == resourceProxyMap.end() ) { 
+            // Resource is not in resourceProxyMap. This mean that proxy is the same as
+            // source
+            proxyUrl = it.key();
+            kError() << "Direct referencing of target resources is not properly supported yes";
+        }
+        else {
+            proxyUrl = fit.value();
+        }
 
         kDebug() << "Target resource " << proxyUrl << " was identified as :" <<
                  mpUri ;
-		 /* <<  '\n' <<
+         /* <<  '\n' <<
                  "It's proxy (" << proxyUrl << ")" <<
                  "will be forced to match this resource";*/
 
@@ -267,6 +269,42 @@ QHash<QUrl, QUrl> NW::DecisionApplicationRequest::mappings() const
         return QHash<QUrl, QUrl>();
 
     return  d->mainRequest->mappings();
+}
+
+/*
+QUrl NW::DecisionApplicationRequest::mapping( const QUrl & res ) const
+{
+    Q_D(const DecisionApplicationRequest);
+    // first search in targets
+    QHash<QUrl,QUrl>::const_iterator fit = 
+        d->targetResourceIdentificationHash.find(res);
+
+    if ( fit != d->targetResourceIdentificationHash.end() ) {
+        // Resource is found
+        return fit.value();
+    }
+    else {
+        // Resource is not in targets. If targets identification stage 
+        // was completed, then either resource is not target, or
+        // it wasn't successfuly identified.
+        if ( d->targetsIdentified ) {
+    d->targetResourceIdentificationHash;
+}
+*/
+
+QUrl NW::DecisionApplicationRequest::targetMapping(const QUrl & target ) const
+{
+    Q_D(const DecisionApplicationRequest);
+    QHash<QUrl,QUrl>::const_iterator fit = 
+        d->targetResourceIdentificationHash.find(target);
+
+    if ( fit != d->targetResourceIdentificationHash.end() ) {
+        // Resource is found
+        return fit.value();
+    }
+    else {
+        return QUrl();
+    }
 }
 
 QSet<QUrl> NW::DecisionApplicationRequest::unidentified() const
