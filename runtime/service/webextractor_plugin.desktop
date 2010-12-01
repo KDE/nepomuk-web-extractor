@@ -9,6 +9,7 @@ Name[pt_BR]=Plug-in do extrator da Web
 Name[sv]=Insticksprogram för webbextrahering
 Name[uk]=Додаток видобування інтернет-даних
 Name[x-test]=xxWeb Extractor Pluginxx
+Name[zh_TW]=網頁展開器外掛程式
 
 [PropertyDef::X-WebExtractor-Name]
 Type=QString

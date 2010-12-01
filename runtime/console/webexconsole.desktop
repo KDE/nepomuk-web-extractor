@@ -10,6 +10,7 @@ Name[pt_BR]=Console de extração da Web
 Name[sv]=Konsol för webbextrahering
 Name[uk]=Консоль видобування інтернет-даних
 Name[x-test]=xxWebExtractorConsolexx
+Name[zh_TW]=網頁展開主控台
 GenericName=Web Extractor Console
 GenericName[nds]=Nett-Ruttrecker-Konsool
 GenericName[nl]=Console voor webextractie
@@ -18,5 +19,6 @@ GenericName[pt_BR]=Console do extrator da Web
 GenericName[sv]=Konsol för webbextrahering
 GenericName[uk]=Консоль видобування інтернет-даних
 GenericName[x-test]=xxWeb Extractor Consolexx
+GenericName[zh_TW]=網頁展開主控台
 Terminal=false
 
