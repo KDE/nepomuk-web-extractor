@@ -26,14 +26,24 @@
 #include <QStateMachine>
 #include <KXmlGuiWindow>
 
+namespace Nepomuk {
+    namespace Graph {
+        class ModelGraphVisitor;
+    }
+}
+
 class GraphVizMainWindow : public KXmlGuiWindow, public Ui_MainWindow
 {
     Q_OBJECT;
     public:
-	GraphVizMainWindow(QWidget * parent = 0);
-	~GraphVizMainWindow();
+    GraphVizMainWindow(QWidget * parent = 0);
+    ~GraphVizMainWindow();
+    private:
+    //Nepomuk::Graph::ModelGraphVisitor * prepareVisitor();
+
+    
     private Q_SLOTS:
-	void draw();
+    void draw();
 
 };
 #endif

@@ -16,39 +16,11 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include "childqueryinterface.h"
 
-#ifndef __NEPOMUK_GRAPH_MODEL_GRAPH_H_
-#define  __NEPOMUK_GRAPH_MODEL_GRAPH_H_
-
-#include <Soprano/QueryResultIterator>
-#include "webextractor_export.h" 
-
-namespace Soprano
+Nepomuk::Graph::ChildQueryInterface::ChildQueryInterface( QObject * parent ):
+    QObject(parent)
 {
-    class Model;
-    class Node;
 }
 
-namespace Nepomuk 
-{
-    namespace Graph
-    {
-	class ChildQueryInterface;
-	class WEBEXTRACTOR_EXPORT ModelGraph
-	{
-	    public:
-		ModelGraph(Soprano::Model*, ChildQueryInterface *);
-		~ModelGraph();
-		Soprano::QueryResultIterator children(const Soprano::Node &);
-
-	    private:
-		// Only defenition, no implementatin
-		ModelGraph(const ModelGraph & rhs);
-		ModelGraph & operator=(const ModelGraph & rhs);
-
-		class Private;
-		Private *  d;
-	};
-    }
-}
-#endif
+//#include "childqueryinterface.moc"

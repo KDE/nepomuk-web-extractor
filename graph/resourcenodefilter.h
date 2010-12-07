@@ -17,11 +17,12 @@
  */
 
 
-#ifndef __NEPOMUK_GRAPH_CHILD_FILTER_INTERFACE_H_
-#define  __NEPOMUK_GRAPH_CHILD_FILTER_INTERFACE_H_
+#ifndef __NEPOMUK_GRAPH_RESOURCE_NODE_FILTER_H_
+#define  __NEPOMUK_GRAPH_RESOURCE_NODE_FILTER_H_
 
 
-#include "childqueryinterface.h"
+#include "nodefilterinterface.h"
+#include "sopranograph_export.h" 
 
 
 namespace Soprano {
@@ -29,33 +30,30 @@ namespace Soprano {
     class Model;
 }
 
-namespace Nepomuk
+namespace Nepomuk 
 {
     namespace Graph
     {
-	/*! \brief This class is used to filter stop parsing of  the Node
-	 * If condition of filter is not satisfied then given Node is
-	 * treated as leaf node.
-	 * \note This class can not be used to filter which childs of the Node
-	 * should be parsed
-	 */
-	class NodeFilterInterface : public ChildQueryInterface
-	{
-	    Q_OBJECT
-	    public:
-		NodeFilterInterface( ChildQueryInterface * subQuery, bool own = true, QObject * parent = 0 );
-	        ChildQueryInterface * subQuery() const;
-
-		virtual ~NodeFilterInterface();
-		Soprano::QueryResultIterator children(Soprano::Model * model,const Soprano::Node &);
-	    protected:
-		virtual bool isOk( Soprano::Model * model, const Soprano::Node & ) = 0;
-	    private:
-		class Private;
-		Private * d;
-
-	};
+    /*! \brief This class stops parsing all nodes that are not Resources
+     * It check the type of the node (rdfs:type ) and if it is not resource, then
+     * node is leaf node
+     */
+    class SOPRANOGRAPH_EXPORT ResourceNodeFilter : public NodeFilterInterface
+    {
+        Q_OBJECT;
+        public:
+            ResourceNodeFilter( ChildQueryInterface * subQuery, bool own = true, QObject * parent = 0 );  
+        
+            virtual ~ResourceNodeFilter();
+        protected:
+            virtual bool isOk( Soprano::Model * model, const Soprano::Node & ) ;
+        private:
+            class Private;
+            Private * d;
+        
+    };
     }
 }
 #endif
+
 

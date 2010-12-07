@@ -19,7 +19,7 @@
 #ifndef __NEPOMUK_GRAPH_PLAIN_TEXT_VISITOR_H_
 #define __NEPOMUK_GRAPH_PLAIN_TEXT_VISITOR_H_
 
-#include "webextractor_export.h"
+#include "sopranograph_export.h"
 #include "modelgraphvisitor.h"
 
 class QTextStream;
@@ -50,7 +50,7 @@ namespace Nepomuk
          * If you want to avoid writing non-resource node as top-level node
          * set approprite flag
          */
-        class WEBEXTRACTOR_EXPORT PlainTextVisitor : public ModelGraphVisitor
+        class SOPRANOGRAPH_EXPORT PlainTextVisitor : public ModelGraphVisitor
         {
 
             public:

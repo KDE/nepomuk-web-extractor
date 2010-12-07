@@ -16,43 +16,39 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __NEPOMUK_GRAPH_DOT_VISITOR_H_
-#define __NEPOMUK_GRAPH_DOT_VISITOR_H_
 
-#include "webextractor_export.h" 
-#include "modelgraphvisitor.h"
+#ifndef __NEPOMUK_GRAPH_MODEL_GRAPH_H_
+#define  __NEPOMUK_GRAPH_MODEL_GRAPH_H_
 
-class QTextStream;
+#include <Soprano/QueryResultIterator>
+#include "sopranograph_export.h" 
 
+namespace Soprano
+{
+    class Model;
+    class Node;
+}
 
-
-namespace Nepomuk {
-    namespace Graph {
-
-	class WEBEXTRACTOR_EXPORT DotVisitor : public ModelGraphVisitor
+namespace Nepomuk 
+{
+    namespace Graph
+    {
+	class ChildQueryInterface;
+	class SOPRANOGRAPH_EXPORT ModelGraph
 	{
-
 	    public:
-		DotVisitor(QTextStream * stream);
-		virtual ~DotVisitor();
-		void start(bool);
-		void finish(bool);
-		void enter_vertex(const Soprano::Node & node);
-		void enter_edge(const Soprano::Node &  currentNode, const Soprano::Node &  propertyNode, const Soprano::Node &  childNode);
-		//  write(QTextStream &);
+		ModelGraph(Soprano::Model*, ChildQueryInterface *);
+		~ModelGraph();
+		Soprano::QueryResultIterator children(const Soprano::Node &);
+
 	    private:
+		// Only defenition, no implementatin
+		ModelGraph(const ModelGraph & rhs);
+		ModelGraph & operator=(const ModelGraph & rhs);
+
 		class Private;
-		Private * d;
-		QString vertexDescription(const Soprano::Node & node);
-		QString vertexID(const Soprano::Node & node);
-		//Q
-		/*
-		    class Private;
-		    QSharedPointer<Private> d;
-		    */
+		Private *  d;
 	};
     }
 }
 #endif
-
-

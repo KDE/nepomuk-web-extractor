@@ -23,7 +23,7 @@
 
 
 #include "nodefilterinterface.h"
-#include "webextractor_export.h" 
+#include "sopranograph_export.h" 
 #include <Soprano/Node> // for qHash(QUrl)
 #include <QSet>
 #include <QUrl>
@@ -42,7 +42,7 @@ namespace Nepomuk
 	 * It check the type of the node (rdfs:type ) and if it is not resource, then
 	 * node is leaf node
 	 */
-	class WEBEXTRACTOR_EXPORT VisitedNodeFilter : public NodeFilterInterface
+	class SOPRANOGRAPH_EXPORT VisitedNodeFilter : public NodeFilterInterface
 	{
 	    Q_OBJECT;
 	    public:

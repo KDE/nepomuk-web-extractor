@@ -23,7 +23,7 @@
 #include <QList>
 #include <QSet>
 #include <QUrl>
-#include "webextractor_export.h"
+#include "sopranograph_export.h"
 
 namespace Nepomuk
 {
@@ -38,14 +38,14 @@ namespace Nepomuk
          * algorithm ( \p targets ) has depth 0. If set to -1, then no limit will be used.
              * \param visitors List of visitors. If empty, then algorithm will not execute
          */
-        WEBEXTRACTOR_EXPORT void visit_model_graph(
+        SOPRANOGRAPH_EXPORT void visit_model_graph(
             ModelGraph * graph,
             const QSet<QUrl> & targets,
             QList<ModelGraphVisitor *> visitors,
             int depth_limit = -1,
             bool caching = true);
 
-        WEBEXTRACTOR_EXPORT void visit_model_graph(
+        SOPRANOGRAPH_EXPORT void visit_model_graph(
             ModelGraph * graph,
             const QSet<QUrl> & targets,
             ModelGraphVisitor * visitors,

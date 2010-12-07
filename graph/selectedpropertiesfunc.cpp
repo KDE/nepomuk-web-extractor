@@ -70,4 +70,4 @@ Soprano::QueryResultIterator NG::SelectedPropertiesFunc::children(Soprano::Model
     }
 }
 
-#include "selectedpropertiesfunc.moc"
+//#include "selectedpropertiesfunc.moc"

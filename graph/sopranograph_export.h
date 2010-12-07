@@ -17,34 +17,22 @@
  */
 
 
-#ifndef __NEPOMUK_GRAPH_CHILD_QUERY_INTERFACE_H_
-#define  __NEPOMUK_GRAPH_CHILD_QUERY_INTERFACE_H_
+#ifndef __SOPRANOGRAPH_EXPORT_H_
+#define __SOPRANOGRAPH_EXPORT_H_
 
-#include <QObject>
-#include <Soprano/QueryResultIterator>
+/* needed for KDE_EXPORT and KDE_IMPORT macros */
+#include <QtCore/QtGlobal>
 
-namespace Soprano
-{
-    class Model;
-    class Node;
-}
+#ifndef SOPRANOGRAPH_EXPORT
+# if defined(MAKE_SOPRANOGRAPH_LIB)
+   /* We are building this library */
+#  define SOPRANOGRAPH_EXPORT Q_DECL_EXPORT
+# else
+   /* We are using this library */
+#  define SOPRANOGRAPH_EXPORT Q_DECL_IMPORT
+# endif
+#endif
 
-namespace Nepomuk
-{
-    namespace Graph
-    {
-	class ModelGraph;
 
-	class ChildQueryInterface : public QObject
-	{
-	    Q_OBJECT;
-	    public:
-        ChildQueryInterface( QObject * parent = 0);
-		friend class ModelGraph;
-		virtual Soprano::QueryResultIterator children(Soprano::Model * model,const Soprano::Node &) = 0;
-
-	};
-    }
-}
 #endif
 

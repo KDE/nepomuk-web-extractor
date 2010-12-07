@@ -21,7 +21,7 @@
 #define  __NEPOMUK_MODEL_GRAPH_VISITOR__
 #include <QUrl>
 #include <Soprano/Node>
-#include "webextractor_export.h"
+#include "sopranograph_export.h"
 
 namespace Soprano
 {
@@ -38,7 +38,7 @@ namespace Nepomuk
          * This is reference visitor concept implementation. All it functions
          * do nothing
          */
-        class WEBEXTRACTOR_EXPORT ModelGraphVisitor
+        class SOPRANOGRAPH_EXPORT ModelGraphVisitor
         {
             public:
                 /*! \brief This function is called when algorithm start
@@ -60,8 +60,8 @@ namespace Nepomuk
                  * Method is called  after the vertex is taken from the queue,but before it's childs are determined
                  * If you need to modificate Node before it's childs are determined, use this function.
                  * The algorithm guarantee that this function will be called only once for each Node.
-                         * The default implementation will call one if the folowing methods: enter_resource(), enter_blank(), enter_literal().
-                         * You may want to overload this methods instead of overloading enter_vertex()
+                 * The default implementation will call one if the folowing methods: enter_resource(), enter_blank(), enter_literal().
+                 * You may want to overload this methods instead of overloading enter_vertex()
                  */
                 virtual void enter_vertex(const Soprano::Node & node) {
                     if(node.isResource())
@@ -120,7 +120,7 @@ namespace Nepomuk
                 /*! \brief This function is called on every time the Node is discovered after it was parsed - either in queue or in childs of some other Node.
                  * This function can be called multiple times during algorithm work. You can use this function, for example, to count number
                  * of occurence of the Node in the graph
-                         * This function <b> will not </b> be called for vertex that is met first time ( with enter_vertex() )
+                 * This function <b> will not </b> be called for vertex that is met first time ( with enter_vertex() )
                  */
                 virtual void meet_vertex(const Soprano::Node & node) {
                     Q_UNUSED(node);

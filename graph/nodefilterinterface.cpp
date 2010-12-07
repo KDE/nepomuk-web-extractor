@@ -54,9 +54,9 @@ Soprano::QueryResultIterator NG::NodeFilterInterface::children(Soprano::Model * 
 
     // Virtual call
     if (this->isOk(model,node) )
-	return d->subQuery->children(model,node);
+        return d->subQuery->children(model,node);
     else
-	return Soprano::QueryResultIterator();
+        return Soprano::QueryResultIterator();
 }
 
-#include "nodefilterinterface.moc"
+//#include "nodefilterinterface.moc"

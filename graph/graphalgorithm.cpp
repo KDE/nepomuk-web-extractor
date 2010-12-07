@@ -26,12 +26,11 @@
 #include <Soprano/Vocabulary/RDFS>
 #include <Soprano/BindingSet>
 #include <Soprano/QueryResultIterator>
-#include <Nepomuk/ResourceManager>
 #include <QUrl>
 #include <QSet>
 #include <QtGlobal>
 #include <QHash>
-#include <KDebug>
+#include <QtDebug>
 
 namespace NG = Nepomuk::Graph;
 
@@ -82,7 +81,7 @@ void NG::visit_model_graph(
     Soprano::Node currentNode = queue.begin().key();
     queue.erase(queue.begin());
     do {
-        //kDebug() << "Current node: " << currentNode;
+        //qDebug() << "Current node: " << currentNode;
         // Create new Node instance
         // Call enter method
         foreach(ModelGraphVisitor * visitor, visitors) {

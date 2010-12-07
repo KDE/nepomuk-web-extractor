@@ -29,6 +29,9 @@ include_directories(
   ${NEPOMUK_INCLUDE_DIR}
   ${KDE4_INCLUDES}
   ${backupsynclegacy_SOURCE_DIR}
+  ## Add soprano graph include directories
+  ${sopranograph_SOURCE_DIR}
+  ${sopranograph_BINARY_DIR}
   )
 
 set(backupsynclegacy_SRC
@@ -78,19 +81,8 @@ set( webextractor_SRCS
     dummyservicedatabackend.cpp
     servicedatabackend.cpp
     identsetmanager.cpp
-    # Graph  part
-    modelgraph.cpp
     algorithm.cpp
-    graphalgorithm.cpp
     copyvisitor.cpp
-    visitednodefilter.cpp
-    dotvisitor.cpp
-    nodefilterinterface.cpp
-    selectedpropertiesfunc.cpp
-    visitednodefilter.cpp
-    resourcenodefilter.cpp
-    childqueryinterface.cpp
-    plaintextvisitor.cpp
 
     ${backupsynclegacy_SRC}
     )
@@ -130,22 +122,9 @@ set (WEBEXTRACTOR_HEADERS
     webextractor_export.h
     identsetmanager.h
     algorithm.h
-    modelgraphvisitor.h
+    copyvisitor.h
     ${CMAKE_CURRENT_BINARY_DIR}/ndco.h
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
-    # Graph  part
-    algorithm.h
-    graphalgorithm.h
-    copyvisitor.h
-    childqueryinterface.h
-    visitednodefilter.h
-    nodefilterinterface.h
-    resourcenodefilter.h
-    dotvisitor.h
-    modelgraphvisitor.h
-    modelgraph.h
-    selectedpropertiesfunc.h
-    plaintextvisitor.h
     ) 
 
 soprano_add_ontology( webextractor_SRCS ${libwebextractor_SOURCE_DIR}/decisions.trig "NDCO" "Nepomuk::WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
@@ -174,6 +153,7 @@ target_link_libraries( webextractor
   ${QT_QTNETWORK_LIBRARY}
   ${QT_QTCORE_LIBRARY}
   ontologyloader
+  sopranograph
   )
 
 install(TARGETS webextractor

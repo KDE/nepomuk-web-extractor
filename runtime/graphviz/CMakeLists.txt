@@ -10,6 +10,8 @@ set (QT_USE_QTNETWORK true)
 
 find_package(KDE4  REQUIRED)
 find_package(Nepomuk REQUIRED)
+find_package(VTK)
+include(${VTK_USE_FILE})
 # find_package(LibNepomuksearchgui REQUIRED)
 
 # check for required packages
@@ -39,6 +41,8 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${KDE4_INCLUDES}
   ${LIBWEBEXTRACTOR_INCLUDE_DIRS}
+  ${sopranograph_SOURCE_DIR}
+  ${sopranograph_BINARY_DIR}
   )
 
 
@@ -47,10 +51,12 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 set( nepomuk_graphviz_SRCS
     main.cpp
     graphvizmainwindow.cpp
+    vtkGraphDisplay.cpp
     )
 
 kde4_add_ui_files(nepomuk_graphviz_SRCS 
     mainWindow.ui
+    vtkGraphDisplay.ui
     )
 kde4_add_executable( nepomuk_graphviz ${nepomuk_graphviz_SRCS} )
 
@@ -61,5 +67,9 @@ target_link_libraries( nepomuk_graphviz
     ${KDE4_KDECORE_LIBS}
     ${KDE4_KDEUI_LIBRARY}
     nepomukutils
+    QVTK
+    vtkCommon
+    vtkRendering
+    sopranograph
     )
 install( TARGETS nepomuk_graphviz ${INSTALL_TARGETS_DEFAULT_ARGS} )

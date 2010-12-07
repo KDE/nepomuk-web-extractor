@@ -21,7 +21,7 @@
 #include <Soprano/Node>
 #include <Soprano/Vocabulary/RDFS>
 #include <Soprano/Vocabulary/RDF>
-#include <KDebug>
+#include <QtDebug>
 
 namespace NG = Nepomuk::Graph;
 class NG::ResourceNodeFilter::Private
@@ -73,3 +73,4 @@ NG::ResourceNodeFilter::~ResourceNodeFilter()
     delete d;
 }
 
+//#include "resourcenodefilter.moc"

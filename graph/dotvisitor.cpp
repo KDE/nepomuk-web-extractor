@@ -53,7 +53,7 @@ QString NG::DotVisitor::vertexDescription(const Soprano::Node & node)
         static QString blank("blank");
         return blank;
     } else if(node.isLiteral())
-        return node.toString().replace('\"', "'");
+        return node.toString().replace('\"', "'").replace('\n',"\\n");
     else { // Node is resource
         return node.uri().toString();
     }

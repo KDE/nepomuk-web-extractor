@@ -16,41 +16,40 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#ifndef __NEPOMUK_GRAPH_DOT_VISITOR_H_
+#define __NEPOMUK_GRAPH_DOT_VISITOR_H_
 
-#ifndef __NEPOMUK_GRAPH_RESOURCE_NODE_FILTER_H_
-#define  __NEPOMUK_GRAPH_RESOURCE_NODE_FILTER_H_
+#include "sopranograph_export.h" 
+#include "modelgraphvisitor.h"
+
+class QTextStream;
 
 
-#include "nodefilterinterface.h"
-#include "webextractor_export.h" 
 
+namespace Nepomuk {
+    namespace Graph {
 
-namespace Soprano {
-    class Node;
-    class Model;
-}
-
-namespace Nepomuk 
-{
-    namespace Graph
-    {
-	/*! \brief This class stops parsing all nodes that are not Resources
-	 * It check the type of the node (rdfs:type ) and if it is not resource, then
-	 * node is leaf node
-	 */
-	class WEBEXTRACTOR_EXPORT ResourceNodeFilter : public NodeFilterInterface
+	class SOPRANOGRAPH_EXPORT DotVisitor : public ModelGraphVisitor
 	{
-	    Q_OBJECT;
+
 	    public:
-		ResourceNodeFilter( ChildQueryInterface * subQuery, bool own = true, QObject * parent = 0 );  
-		
-		virtual ~ResourceNodeFilter();
-	    protected:
-		virtual bool isOk( Soprano::Model * model, const Soprano::Node & ) ;
+		DotVisitor(QTextStream * stream);
+		virtual ~DotVisitor();
+		void start(bool);
+		void finish(bool);
+		void enter_vertex(const Soprano::Node & node);
+		void enter_edge(const Soprano::Node &  currentNode, const Soprano::Node &  propertyNode, const Soprano::Node &  childNode);
+		//  write(QTextStream &);
 	    private:
 		class Private;
 		Private * d;
-	    
+		QString vertexDescription(const Soprano::Node & node);
+		QString vertexID(const Soprano::Node & node);
+		//Q
+		/*
+		    class Private;
+		    QSharedPointer<Private> d;
+		    */
 	};
     }
 }

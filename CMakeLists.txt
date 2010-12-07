@@ -19,6 +19,7 @@ include_directories(
 
 set( backupsynclegacy_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbackupsynclegacy )
 
+add_subdirectory( graph )
 add_subdirectory( libwebextractor )
 add_subdirectory( gui )
 add_subdirectory( runtime )
