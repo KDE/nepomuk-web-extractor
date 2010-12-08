@@ -154,12 +154,15 @@ VtkGraphDisplay::VtkGraphDisplay(vtkMutableDirectedGraph * inputGraph, const cha
 
     w->GetRenderWindow()->AddRenderer(ren);
     */
-    view->GetRenderWindow();
+    //view->GetRenderWindow();
     //vtkWidget->GetRenderWindow();
     //vtkWidget->SetRenderWindow(view->GetRenderWindow());
-    view->SetupRenderWindow(vtkWidget->GetRenderWindow());
+    view->SetInteractor(vtkWidget->GetInteractor());
+    vtkWidget->SetRenderWindow(view->GetRenderWindow());
+
     //vtkWidget->GetRenderWindow()->Render();
     //view->SetInteractor(vtkWidget->GetInteractor());
+    //vtkWidget->GetRenderWindow()->AddRenderer(view->GetRenderer());
 
     // Add orientation marker
     vtkAnnotatedCubeActor * axesActor = vtkAnnotatedCubeActor::New();
@@ -179,6 +182,7 @@ VtkGraphDisplay::VtkGraphDisplay(vtkMutableDirectedGraph * inputGraph, const cha
     marker->SetInteractive(1);
 
     view->GetRenderer()->ResetCamera();
+    //vtkWidget->GetRenderWindow()->Render();
 }
 
 /*
