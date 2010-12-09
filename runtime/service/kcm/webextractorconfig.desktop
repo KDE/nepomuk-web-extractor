@@ -11,6 +11,7 @@ X-KDE-ParentApp=kcontrol
 
 X-KDE-System-Settings-Parent-Category=hardware
 Name=Web Extractor Settings
+Name[km]=ការ​កំណត់​កម្មវិធី​ស្រង់ចេញ​តាមបណ្ដាញ
 Name[nds]=Nett-Ruttrecker instellen
 Name[nl]=Instellingen voor webextractie
 Name[pt]=Configuração da Extracção da Web

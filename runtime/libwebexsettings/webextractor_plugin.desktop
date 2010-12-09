@@ -2,6 +2,7 @@
 Type=ServiceType
 X-KDE-ServiceType=Nepomuk/WebExtractorPlugin
 Name=Web Extractor Plugin
+Name[km]=កម្មវិធី​ជំនួយ​របស់​កម្មវិធី​ស្រង់ចេញ​តាមបណ្ដាញ
 Name[nds]=Nett-Ruttrecker-Moduul
 Name[nl]=Plugin voor webextractie
 Name[pt]='Plugin' de Extracção da Web
