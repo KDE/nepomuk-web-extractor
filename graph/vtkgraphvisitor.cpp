@@ -43,6 +43,9 @@ class VtkGraphVisitor::Private
         const char * edgeLabelArrayName;
         const char * vertexLabelArrayName;
         bool valid;
+        VtkGraphVisitor::LiteralBehaviour lbehaviour;
+        bool vertexLabelCreation;
+        bool edgeLabelCreation;
         
 };
 
@@ -52,7 +55,10 @@ VtkGraphVisitor::Private::Private():
     vertexLabels(0),
     edgeLabelArrayName(0),
     vertexLabelArrayName(0),
-    valid(false)
+    valid(false),
+    lbehaviour(VtkGraphVisitor::VertexProperty),
+    vertexLabelCreation(true),
+    edgeLabelCreation(true)
 {
 }
 
@@ -153,22 +159,44 @@ void VtkGraphVisitor::enter_resource( const Soprano::Node & node )
 
 */
 
+vtkIdType VtkGraphVisitor::newVertex( const Soprano::Node & node )
+{
+        // Create a vertex
+        QString l;
+        vtkIdType id = d->graph->AddVertex();
+        if (d->vertexLabelCreation ) {
+            Q_ASSERT(d->vertexLabels);
+            // Automaticaly create necessary label
+            l = node.uri().toString();
+            d->vertexLabels->InsertValue(id,l.toStdString());
+        }
+
+        // Make it user invisible
+        qDebug() << "Node: " << node.uri() << "Id: " << id << " Label: " << l;
+
+        return id;
+}
+
+vtkIdType VtkGraphVisitor::newEdge( vtkIdType v1, vtkIdType v2, const Soprano::Node & node)
+{
+        // Add edge
+        vtkIdType edgeId = d->graph->AddEdge(v1, v2, 0 ).Id;
+        if (d->edgeLabelCreation ) {
+            // Create data of the edge
+            d->edgeLabels->InsertValue(edgeId,node.uri().fragment().toStdString());
+        }
+        return edgeId;
+}
+
 vtkIdType VtkGraphVisitor::vertexID( const Soprano::Node & node )
 {
     vtkIdType id;
     QHash<Soprano::Node,vtkIdType>::const_iterator fit = d->vertices.find(node);
     if ( fit == d->vertices.end() ) {
         // Create a vertex
-        id = d->graph->AddVertex();
+        id = newVertex(node);
         // Add to hash
         d->vertices.insert(node,id);
-        // Automaticaly create necessary label
-        QString l = node.uri().toString();
-        d->vertexLabels->InsertValue(id,l.toStdString());
-
-        // Make it user invisible
-        //d->vertexUserVisibility->InsertValue(id,false);
-        qDebug() << "Node: " << node.uri() << "Id: " << id << " Label: " << l;
     }
     else {
         id = fit.value();
@@ -190,21 +218,47 @@ void VtkGraphVisitor::enter_edge( const Soprano::Node & currentNode, const Sopra
     // the list of properties value of the vertex
     if ( childNode.isResource() ) {
         vtkIdType childId = vertexID(childNode);
-        // Add edge
-        vtkIdType edgeId = d->graph->AddEdge(id, childId, 0 ).Id;
-        // Create data of the edge
-        d->edgeLabels->InsertValue(edgeId,propertyNode.uri().fragment().toStdString());
+        newEdge(id,childId,propertyNode);
     }
     else if ( childNode.isBlank() ){
         // What to do with blank nodes ?
     }
     else if (childNode.isLiteral() ) {
-        // We should add literals as vertex members
-        // Treat label in a separate way
-        if ( propertyNode.uri() == Soprano::Vocabulary::RDFS::label() or propertyNode.uri() == Soprano::Vocabulary::NAO::prefLabel() ) {
-            QString ls = childNode.literal().toString();
-            d->vertexLabels->InsertValue(id,ls.toStdString());
-            qDebug() << "ID: " << id << " Label: " << ls; 
+        // The behaviour depends from the d->lbehaviour;
+        switch (d->lbehaviour )
+        {
+            case ( SingleNode ) : {
+                                   vtkIdType childId = vertexID(childNode);
+                                    // Add edge
+                                    newEdge(id,childId,propertyNode);
+                                    break;
+                               }
+            case ( MultipleNodes ) : {
+                                   vtkIdType childId = newVertex(childNode);
+                                    // Add edge
+                                    newEdge(id,childId,propertyNode);
+                                    break;
+                               }
+            case ( VertexProperty ) : {
+                                          // Check whether this property is in the list
+                                          // of tracked propreties
+                                          break;
+                                      }
+            default : {
+                          qDebug() << "Unknow behaviour";
+                      }
+        }
+
+    
+        // If label populating is enabled, then some properties is treated in special way
+
+        if (d->vertexLabelCreation) {
+            // Treat label in a separate way
+            if ( propertyNode.uri() == Soprano::Vocabulary::RDFS::label() or propertyNode.uri() == Soprano::Vocabulary::NAO::prefLabel() ) {
+                QString ls = childNode.literal().toString();
+                d->vertexLabels->InsertValue(id,ls.toStdString());
+                qDebug() << "ID: " << id << " Label: " << ls; 
+            }
         }
     }
     else {
@@ -232,4 +286,17 @@ const char * VtkGraphVisitor::vertexLabelArrayName() const
     return d->vertexLabelArrayName;
 }
 
+VtkGraphVisitor::LiteralBehaviour VtkGraphVisitor::literalBehaviour() const
+{
+    return d->lbehaviour;
+}
+
+void VtkGraphVisitor::setLiteralBehaviour( LiteralBehaviour b)
+{
+    if ( b > VertexProperty )
+        b = VertexProperty;
+    if ( b < 0 )
+        b = SingleNode;
+    d->lbehaviour = b;
+}
 //#include "vtkgraphvisitor.moc"

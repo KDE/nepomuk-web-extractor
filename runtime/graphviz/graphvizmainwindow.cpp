@@ -27,6 +27,8 @@
 #include <Soprano/Node>
 #include <Nepomuk/Resource>
 #include <Nepomuk/ResourceManager>
+#include <Nepomuk/Query/Query>
+#include <Nepomuk/Query/Term>
 #include <dotvisitor.h>
 #include <childqueryinterface.h>
 #include <selectedpropertiesfunc.h>
@@ -37,12 +39,19 @@
 #include <plaintextvisitor.h>
 #include <vtkgraphvisitor.h>
 #include <Nepomuk/Query/Query>
+#include <Nepomuk/Query/ResourceTypeTerm>
+#include <Nepomuk/Types/Class>
+#include <Nepomuk/Vocabulary/NFO>
+#include <Soprano/Vocabulary/RDFS>
+#include <Soprano/Vocabulary/RDF>
 
 #include <vtkMutableDirectedGraph.h>
 
 
 
 using namespace Nepomuk::Graph;
+using namespace Nepomuk::Query;
+using namespace Nepomuk::Utils;
 
 
 GraphVizMainWindow::GraphVizMainWindow(QWidget * parent):
@@ -57,6 +66,12 @@ GraphVizMainWindow::GraphVizMainWindow(QWidget * parent):
     this->resultFileRequester->setMode(KFile::File);
 
     this->resourcesSelectWidget->setQuery(Nepomuk::Query::Query());
+
+    this->propertiesSelectWidget->setConfigFlags(SearchWidget::SearchWhileYouType);
+    Query q(ResourceTypeTerm(Nepomuk::Types::Class(Soprano::Vocabulary::RDF::Property())));
+    q.setQueryFlags(q.NoResultRestrictions);
+    q.setLimit(100);
+    this->propertiesSelectWidget->setBaseQuery(q);
 
     //  connect signals
     connect(this->applybutton, SIGNAL(clicked()), this, SLOT(draw()));
@@ -120,12 +135,42 @@ void GraphVizMainWindow::draw()
     else if ( this->vtkRadioButton->isChecked() ) {
         vtkGV = new VtkGraphVisitor();
         visitor = vtkGV;
+
+        if (singleNodeRadioButton->isChecked()) {
+            vtkGV->setLiteralBehaviour(VtkGraphVisitor::SingleNode);
+        }
+        else if ( multipleNodeRadioButton->isChecked() ) {
+            vtkGV->setLiteralBehaviour(VtkGraphVisitor::MultipleNodes);
+        }
+        else {
+            vtkGV->setLiteralBehaviour(VtkGraphVisitor::VertexProperty);
+        }
     }
 
 
 
     // launch algorithm
-    ChildQueryInterface * childrenFunc = new SelectedPropertiesFunc();
+    QList<Nepomuk::Resource> lp = this->propertiesSelectWidget->selectedResources();
+    QSet<QUrl> sp;
+    foreach( const Nepomuk::Resource & r, lp )
+    {
+        sp << r.resourceUri();
+    }
+
+    kDebug() << "Selected properties: " << sp;
+    SelectedPropertiesFunc::ConfigFlags f = SelectedPropertiesFunc::NoConfigFlags;
+    if ( sp.size() ) {
+        if (literalPropertiesCheckBox->isChecked() ) {
+            f = f | SelectedPropertiesFunc::AddLiteralProperties;
+        }
+        if ( defaultPropertiesCheckBox->isChecked() ) {
+            f = f | SelectedPropertiesFunc::AddDefaultProperties;
+            // Hack. Add nfo:fileName to the list
+            sp << Nepomuk::Vocabulary::NFO::fileName();
+        }
+    }
+
+    ChildQueryInterface * childrenFunc = new SelectedPropertiesFunc(sp,f);
 
     // Parse some parames
     if(this->nonresourceFilterCheckBox->isChecked())

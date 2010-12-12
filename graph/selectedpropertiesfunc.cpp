@@ -20,6 +20,11 @@
 #include "selectedpropertiesfunc.h"
 #include <QSet>
 #include <QUrl>
+#include <QtDebug>
+#include <Soprano/Vocabulary/RDF>
+#include <Soprano/Vocabulary/RDFS>
+#include <Soprano/Vocabulary/NAO>
+//#include <Soprano/Vocabulary/NFO>
 #include <Soprano/Model>
 #include <Soprano/Node>
 
@@ -30,44 +35,105 @@ namespace NG = Nepomuk::Graph;
 class NG::SelectedPropertiesFunc::Private
 {
     public:
-	QSet<QUrl> properties;
-	QString queryString;
+        static QSet<QUrl> defaultProperties();
+        QSet<QUrl> properties;
+        QString queryString;
+        NG::SelectedPropertiesFunc::ConfigFlags flags;
 };
 
-NG::SelectedPropertiesFunc::SelectedPropertiesFunc(const QSet<QUrl> & properties, QObject * parent):
+NG::SelectedPropertiesFunc::SelectedPropertiesFunc(const QSet<QUrl> & properties, ConfigFlags flags, QObject * parent):
    ChildQueryInterface(parent),
    d( new Private() )
 {
 
+    updateData(properties,flags);
+}
+
+void NG::SelectedPropertiesFunc::updateData( const QSet<QUrl> & properties, ConfigFlags flags )
+{
+    d->flags = flags;
     QStringList urlList;
     foreach(const QUrl & url, properties) {
-	urlList << Soprano::Node::resourceToN3(url);
+        urlList << Soprano::Node::resourceToN3(url);
+    }
+
+    if ( flags & AddDefaultProperties ) {
+        foreach(const QUrl & url, d->defaultProperties()) {
+            urlList << Soprano::Node::resourceToN3(url);
+        }
     }
 
     if(urlList.isEmpty()) {
-	d->queryString = QString::fromLatin1("select distinct ?s ?p ?o where { %1 ?p ?o. }");
+        d->queryString = QString::fromLatin1("select distinct ?s ?p ?o where { %1 ?p ?o. }");
     } else {
-	d->queryString = QString::fromLatin1("select distinct ?s ?p ?o where { %1 ?p ?o. "
-					    " FILTER( ?p in ( %2 ) ) . } ")
-			.arg("%1",
-			     urlList.join(", "));
+
+        if ( flags & AddLiteralProperties ) {
+            d->queryString = 
+                QString::fromLatin1(
+                        "select distinct ?s ?p ?o where {"
+                            "{ %1 ?p ?o."
+                            "  FILTER( ?p in ( %2 ) ) . } "
+                            " UNION "
+                            "{ %1 ?p ?o. ?p a %3. ?p %4 %5 } "
+                            " } "
+                        ).arg(
+                            "%1",
+                            /*%2*/urlList.join(", "),
+                            /*%3*/Soprano::Node::resourceToN3(
+                                Soprano::Vocabulary::RDF::Property() ),
+                            /*%4*/Soprano::Node::resourceToN3(
+                                Soprano::Vocabulary::RDFS::range() ),
+                            /*%5*/Soprano::Node::resourceToN3(
+                                Soprano::Vocabulary::RDFS::Literal() )
+                            );
+        }
+        else {
+            d->queryString = 
+                QString::fromLatin1(
+                        "select distinct ?s ?p ?o where { %1 ?p ?o."
+                        "  FILTER( ?p in ( %2 ) ) . } "
+                        ).arg("%1",urlList.join(", "));
+        }
     }
 
 }
 Soprano::QueryResultIterator NG::SelectedPropertiesFunc::children(Soprano::Model * model,const Soprano::Node & targetNode)
 {
     if ( targetNode.isResource() ) {
-	QString query = d->queryString.arg(
-	     Soprano::Node::resourceToN3(targetNode.uri())
-	 );
-	return model->executeQuery(
-			  query,
-			  Soprano::Query::QueryLanguageSparql
-		      );
+    QString query = d->queryString.arg(
+         Soprano::Node::resourceToN3(targetNode.uri())
+     );
+    qDebug() << "Query: " << query;
+    return model->executeQuery(
+              query,
+              Soprano::Query::QueryLanguageSparql
+              );
     }
     else {
-	return Soprano::QueryResultIterator();
+    return Soprano::QueryResultIterator();
     }
 }
 
+void NG::SelectedPropertiesFunc::setConfigFlags( ConfigFlags flags )
+{
+    d->flags = flags;
+}
+
+NG::SelectedPropertiesFunc::ConfigFlags NG::SelectedPropertiesFunc::configFlags() const
+{
+    return d->flags;
+}
 //#include "selectedpropertiesfunc.moc"
+//
+QSet<QUrl> NG::SelectedPropertiesFunc::Private::defaultProperties()
+{
+    static bool f = false;
+    static QSet<QUrl> answer;
+    if (!f ) {
+        f = true;
+        answer << Soprano::Vocabulary::RDFS::label();
+        answer << Soprano::Vocabulary::NAO::prefLabel();
+        //answer << Soprano::Vocabulary::NFO::fileName();
+    }
+    return answer;
+}

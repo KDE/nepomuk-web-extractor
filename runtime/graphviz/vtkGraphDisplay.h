@@ -25,6 +25,10 @@
 #include <vtkSmartPointer.h>
 
 #include "ui_vtkGraphDisplay.h"
+#include <vtkCosmicTreeLayoutStrategy.h>
+#include <vtkCircularLayoutStrategy.h>
+#include <vtkRandomLayoutStrategy.h>
+#include <vtkForceDirectedLayoutStrategy.h>
 
 class vtkMutableDirectedGraph;
 class vtkViewTheme;
@@ -41,6 +45,9 @@ class VtkGraphDisplay : public QWidget, public Ui_VtkGraphDisplay
         void downCamera();
         void leftCamera();
         void rightCamera();
+        void vertexLabels(bool);
+        void edgeLabels(bool);
+        void layoutChanged();
 
     private:
         double dAsimuth;
@@ -52,5 +59,12 @@ class VtkGraphDisplay : public QWidget, public Ui_VtkGraphDisplay
         vtkSmartPointer<vtkGraphLayoutView> view; 
         const char * edgeLabelArrayName;
         const char * vertexLabelArrayName;
+
+        // Layout stategies
+        vtkSmartPointer<vtkGraphLayoutStrategy> currentLS;
+        vtkSmartPointer<vtkRandomLayoutStrategy> randomLS;
+        vtkSmartPointer<vtkForceDirectedLayoutStrategy> forceDirectedLS;
+        vtkSmartPointer<vtkCircularLayoutStrategy> circularLS;
+        vtkSmartPointer<vtkCosmicTreeLayoutStrategy> cosmicLS;
 };
 #endif

@@ -53,6 +53,10 @@ VtkGraphDisplay::VtkGraphDisplay(vtkMutableDirectedGraph * inputGraph, const cha
     connect(this->downButton, SIGNAL(clicked()),this,SLOT(downCamera()));
     connect(this->leftButton, SIGNAL(clicked()),this,SLOT(leftCamera()));
     connect(this->rightButton, SIGNAL(clicked()),this,SLOT(rightCamera()));
+
+    connect(this->vertexLabelsCheckBox, SIGNAL(toggled(bool)),this,SLOT(vertexLabels(bool)));
+    connect(this->edgeLabelsCheckBox, SIGNAL(toggled(bool)),this,SLOT(edgeLabels(bool)));
+    connect(this->layoutStrategyComboBox, SIGNAL(currentIndexChanged(int)), this,SLOT(layoutChanged()));
     //QVTKWidget * vtkWidget = new QVTKWidget(this);
     // Add to layout
     //this->gridLayout->addWidget(new QCheckBox(),0,0);
@@ -120,6 +124,8 @@ VtkGraphDisplay::VtkGraphDisplay(vtkMutableDirectedGraph * inputGraph, const cha
     vtkRandomLayoutStrategy * layout = vtkRandomLayoutStrategy::New();
     layout->ThreeDimensionalLayoutOn();
     view->SetLayoutStrategy(layout);
+    this->currentLS = layout;
+    this->randomLS = layout;
     //view->SetEdgeLayoutStrategy("Arc Parallel");
     //view->ColorEdgesOn();
     //view->ColorVerticesOn();
@@ -230,4 +236,57 @@ void VtkGraphDisplay::rightCamera()
     vtkCamera * c = view->GetRenderer()->GetActiveCamera();
     c->Azimuth(-dAsimuth);
     vtkWidget->GetRenderWindow()->Render();
+}
+
+void VtkGraphDisplay::vertexLabels(bool v)
+{
+    view->SetVertexLabelVisibility(v);
+    vtkWidget->GetRenderWindow()->Render();
+}
+void VtkGraphDisplay::edgeLabels(bool v)
+{
+    view->SetEdgeLabelVisibility(v);
+    vtkWidget->GetRenderWindow()->Render();
+}
+
+#define MC_SELECT_LAYOUT(varname,classname)\
+        if (!varname) {\
+            varname = classname::New();\
+        }\
+        currentLS = varname;
+
+#define MC_SELECT_LAYOUT_WITH3D(varname, classname) \
+        MC_SELECT_LAYOUT(varname,classname)\
+        varname->SetThreeDimensionalLayout(layout3D);\
+
+void VtkGraphDisplay::layoutChanged()
+{
+    // Get new layout
+    QString lsText = this->layoutStrategyComboBox->currentText();
+    bool layout3D = this->layout3DRadioButton->isChecked();
+    if ( lsText == "Random" ) {
+        MC_SELECT_LAYOUT_WITH3D(randomLS,vtkRandomLayoutStrategy);
+    }
+    else if ( lsText == "Force Directed" ) {
+        MC_SELECT_LAYOUT_WITH3D(forceDirectedLS,vtkForceDirectedLayoutStrategy);
+    }
+    else if ( lsText == "Circular" ) {
+        MC_SELECT_LAYOUT(circularLS, vtkCircularLayoutStrategy);
+    }
+    else if ( lsText == "Cosmic Tree" ) {
+        MC_SELECT_LAYOUT(cosmicLS, vtkCosmicTreeLayoutStrategy);
+    }
+    else {
+        kDebug() << "Unknow layout: " << lsText;
+        return;
+    }
+    kDebug() << "Change layout to: " << lsText;
+    view->SetLayoutStrategy(currentLS);
+    /*
+    while (!view->IsLayoutComplete()) {
+        view->UpdateLayout();
+    }
+    */
+    vtkWidget->GetRenderWindow()->Render();
+
 }

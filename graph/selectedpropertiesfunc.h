@@ -29,18 +29,23 @@ namespace Nepomuk
     namespace Graph
     {
 
-	class SOPRANOGRAPH_EXPORT SelectedPropertiesFunc : public ChildQueryInterface
-	{
-	    Q_OBJECT;
-	    public:
-	        SelectedPropertiesFunc( const QSet<QUrl> & properties = QSet<QUrl>(), QObject * parent = 0);
-		friend class ModelGraph;
-		virtual Soprano::QueryResultIterator children(Soprano::Model * model,const Soprano::Node &); 
-	    private:
-		class Private;
-		Private * d;
-	    
-	};
+        class SOPRANOGRAPH_EXPORT SelectedPropertiesFunc : public ChildQueryInterface
+        {
+            Q_OBJECT;
+            public:
+                enum ConfigFlag { NoConfigFlags = 0x0, AddLiteralProperties = 0x1, AddDefaultProperties = 0x2 }; 
+                Q_DECLARE_FLAGS( ConfigFlags, ConfigFlag );
+                SelectedPropertiesFunc( const QSet<QUrl> & properties = QSet<QUrl>(), ConfigFlags cfg = NoConfigFlags, QObject * parent = 0);
+                ConfigFlags configFlags() const;
+                void setConfigFlags( ConfigFlags flags );
+            friend class ModelGraph;
+                virtual Soprano::QueryResultIterator children(Soprano::Model * model,const Soprano::Node &); 
+            private:
+                void updateData( const QSet<QUrl> & properties, ConfigFlags flags );
+                class Private;
+                Private * d;
+            
+        };
     }
 }
 

@@ -34,6 +34,10 @@ namespace Nepomuk {
         {
 
             public:
+                enum TrackType { TrackAll, TrackSelected, TrackExceptSelected };
+                /*! \brief This enum describes how literals should be treated
+                 */
+                enum LiteralBehaviour { SingleNode, MultipleNodes, VertexProperty };
                 VtkGraphVisitor(const char * edgeLabelArrayName = 0, const char * vertexLabelArrayName = 0);
                 virtual ~VtkGraphVisitor();
                 virtual void start(bool);
@@ -47,6 +51,9 @@ namespace Nepomuk {
                 vtkMutableDirectedGraph * graph() const;
                 const char * edgeLabelArrayName() const;
                 const char * vertexLabelArrayName() const;
+
+                LiteralBehaviour literalBehaviour() const;
+                void setLiteralBehaviour( LiteralBehaviour b);
             private:
                 class Private;
                 Private * d;
@@ -56,6 +63,14 @@ namespace Nepomuk {
                 void init();
                 QString vertexDescription(const Soprano::Node & node);
                 vtkIdType vertexID(const Soprano::Node & node);
+                /*! \brief Create new vertex
+                 * This function will not register the vertex anywhere.
+                 * It will simply create a new vertex in graph and populate
+                 * it with label if necessary.
+                 * It won't populate vertex data with tracked properties
+                 */
+                vtkIdType newVertex( const Soprano::Node & node);
+                vtkIdType newEdge( vtkIdType v1, vtkIdType v2, const Soprano::Node & edge);
         };
     }
 }

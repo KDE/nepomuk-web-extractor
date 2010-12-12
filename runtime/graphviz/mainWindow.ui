@@ -51,6 +51,26 @@ Or deselect all to use all properties</string>
        <item>
         <widget class="Nepomuk::Utils::SearchWidget" name="propertiesSelectWidget"/>
        </item>
+       <item>
+        <widget class="QCheckBox" name="literalPropertiesCheckBox">
+         <property name="text">
+          <string>Add literal-valued properties</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="defaultPropertiesCheckBox">
+         <property name="text">
+          <string>Add some default propreties</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </item>
@@ -121,6 +141,39 @@ Or deselect all to use all properties</string>
        </item>
        <item row="1" column="0" colspan="2">
         <widget class="KUrlRequester" name="resultFileRequester"/>
+       </item>
+       <item row="0" column="2">
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Literal options</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="singleNodeRadioButton">
+            <property name="text">
+             <string>Single node</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="multipleNodeRadioButton">
+            <property name="text">
+             <string>Multiple nodes</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="vertexPartRadioButton">
+            <property name="text">
+             <string>Vertex part</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
