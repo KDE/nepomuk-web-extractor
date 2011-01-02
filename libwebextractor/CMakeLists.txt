@@ -186,7 +186,7 @@ remove_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 
 install(FILES
 	${WEBEXTRACTOR_HEADERS}
-	DESTINATION include/webextractor
+	DESTINATION ${INCLUDE_INSTALL_DIR}/webextractor
 	)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/LibWebextractorConfig.cmake

@@ -101,9 +101,9 @@ install(
   DESTINATION ${SERVICETYPES_INSTALL_DIR}
   )
 install (
-    FILES webextractor_plugin.h DESTINATION include/webextractor
+    FILES webextractor_plugin.h DESTINATION ${INCLUDE_INSTALL_DIR}/webextractor
     )
 install (
-    FILES webextractor_kcm.h DESTINATION include/webextractor
+    FILES webextractor_kcm.h DESTINATION ${INCLUDE_INSTALL_DIR}/webextractor
     )
 remove_definitions(-DMAKE_WEBEXSETTINGS_LIB)

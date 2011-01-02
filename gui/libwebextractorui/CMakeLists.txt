@@ -142,7 +142,7 @@ target_link_libraries( decisionwidgetdesignerplugin
 
 install(FILES
 	${webextractorui_HEADERS}
-	DESTINATION include/webextractor
+	DESTINATION ${INCLUDE_INSTALL_DIR}/webextractor
 	)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/LibWebextractoruiConfig.cmake
