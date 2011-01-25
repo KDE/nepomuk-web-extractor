@@ -46,6 +46,7 @@ include_directories(
   ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${CMAKE_BUILD_DIR}
   ${KDE4_INCLUDES}
+  ${backupsynclegacy_SOURCE_DIR}
   )
 
 
