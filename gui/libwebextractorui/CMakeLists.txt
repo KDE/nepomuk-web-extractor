@@ -49,24 +49,6 @@ include_directories(
   ${backupsynclegacy_SOURCE_DIR}
   )
 
-
-set(backupsynclegacy_SRC
-    ${backupsynclegacy_SOURCE_DIR}/changelog.cpp
-    ${backupsynclegacy_SOURCE_DIR}/changelogrecord.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationrequest.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationrequest_p.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationset.cpp
-    ${backupsynclegacy_SOURCE_DIR}/mergerequest.cpp
-    ${backupsynclegacy_SOURCE_DIR}/syncfile.cpp
-    ${backupsynclegacy_SOURCE_DIR}/simpleresource.cpp
-    ${backupsynclegacy_SOURCE_DIR}/graphwrapper.cpp
-)
-soprano_add_ontology(backupsynclegacy_SRC
-  ${backupsynclegacy_SOURCE_DIR}/identification.trig
-  "backupsync"
-  "Nepomuk::Vocabulary"
-  "trig")
-
 add_definitions(-DMAKE_WEBEXTRACTORUI_LIB)
 set( webextractorui_SRCS 
     changelogwidget.cpp
@@ -84,7 +66,6 @@ set (webextractorui_HEADERS
 set( webextractorui_UI
     changeLogForm.ui
     decisionForm.ui
-
     )
 
 
@@ -108,6 +89,7 @@ target_link_libraries( webextractorui
   ${KDE4_NEPOMUK_LIBS}
   ${QT_LIBRARIES}
   ${LIBWEBEXTRACTOR_LIBRARIES}
+  nepomuksynclegacy
   )
 
 install(TARGETS webextractorui
@@ -129,7 +111,7 @@ kde4_add_plugin( decisionwidgetdesignerplugin
 target_link_libraries( decisionwidgetdesignerplugin
 	${QT_LIBRARIES}
 	${KDE4_KIO_LIBS}
-	nepomuksync
+	nepomuksynclegacy
 	webextractorui
 	)
 
