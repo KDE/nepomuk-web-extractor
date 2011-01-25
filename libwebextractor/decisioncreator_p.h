@@ -24,8 +24,8 @@
 #include <QList>
 #include <QHash>
 #include <QSharedPointer>
-#include <nepomuk/changelog.h>
-#include <nepomuk/identificationrequest.h>
+#include "changelog.h"
+#include "identificationrequest.h"
 
 #include "propertiesgroupcreator.h"
 #include "decision.h"

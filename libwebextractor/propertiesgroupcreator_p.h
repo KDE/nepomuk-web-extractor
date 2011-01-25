@@ -19,7 +19,7 @@
 #ifndef __properties_group_private_h_
 #define __properties_group_private_h_
 
-#include <nepomuk/changelog.h>
+#include "changelog.h"
 #include <QString>
 
 namespace NS = Nepomuk::Sync;

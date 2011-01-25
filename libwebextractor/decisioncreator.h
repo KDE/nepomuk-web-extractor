@@ -27,8 +27,8 @@
 #include <QSharedPointer>
 
 #include <Nepomuk/Resource>
-#include <nepomuk/changelog.h>
-#include <nepomuk/identificationrequest.h>
+#include "changelog.h"
+#include "identificationrequest.h"
 
 #include "propertiesgroupcreator.h"
 #include "decision.h"

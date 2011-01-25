@@ -20,8 +20,8 @@
 #define _NEPOMUK_WEBEXTRCT_DESICION_APPLICATION_REQUEST_PRIVATE_H_
 
 #include "decisiondata.h"
-#include <nepomuk/identificationrequest.h>
-#include <nepomuk/changelog.h>
+#include "identificationrequest.h"
+#include "changelog.h"
 #include <Soprano/Model>
 #include <Soprano/Node> // for qHash<QUrl>
 #include <QSharedPointer>

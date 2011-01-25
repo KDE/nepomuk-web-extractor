@@ -20,7 +20,7 @@
 #define __webextractor_ui_changelog_widget_h_
 
 #include <QWidget>
-#include <nepomuk/changelog.h>
+#include "changelog.h"
 #include "webextractorui_export.h"
 
 class WEBEXTRACTORUI_EXPORT ChangeLogWidget : public QWidget

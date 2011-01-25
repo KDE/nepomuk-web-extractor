@@ -19,7 +19,7 @@
 #ifndef _NEPOMUK_WEBEXTRCT_IDENTSET_MANAGER_H_
 #define _NEPOMUK_WEBEXTRCT_IDENTSET_MANAGER_H_
 
-#include <nepomuk/identificationset.h>
+#include "identificationset.h"
 #include <QSharedPointer>
 
 
