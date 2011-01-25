@@ -108,7 +108,6 @@ target_link_libraries( webextractorui
   ${KDE4_NEPOMUK_LIBS}
   ${QT_LIBRARIES}
   ${LIBWEBEXTRACTOR_LIBRARIES}
-  nepomuksync
   )
 
 install(TARGETS webextractorui
