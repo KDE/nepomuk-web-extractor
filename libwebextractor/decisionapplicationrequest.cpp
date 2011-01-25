@@ -17,6 +17,8 @@
  */
 
 #include "mergerequest.h"
+#include "identificationset.h"
+
 #include <KDebug>
 #include <Soprano/Statement>
 

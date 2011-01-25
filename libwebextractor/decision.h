@@ -28,8 +28,6 @@
 #include <QUrl>
 #include <QSharedDataPointer>
 
-#include "identificationset.h"
-
 #include "propertiesgroup.h"
 
 namespace Soprano {
@@ -37,6 +35,11 @@ namespace Soprano {
 }
 
 namespace Nepomuk {
+
+    namespace Sync {
+        class IdentificationSet;
+    }
+    
     namespace WebExtractor {
     class DecisionApplicationRequest;
     class DecisionCreator;
