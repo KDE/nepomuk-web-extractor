@@ -55,7 +55,7 @@ namespace {
         QSet<QUrl> notDone;
 
         QList<Soprano::Statement> statements;
-
+        
         Soprano::QueryResultIterator performQuery( const QStringList& uris );
         void iterate();
         QList<Soprano::Statement> generate();
@@ -89,7 +89,7 @@ namespace {
     void IdentificationSetGenerator::iterate()
     {
         QStringList uris;
-
+        
         QMutableSetIterator<QUrl> iter( notDone );
         while( iter.hasNext() ) {
             const QUrl & uri = iter.next();
@@ -107,7 +107,7 @@ namespace {
             Soprano::Node sub = it["r"];
             Soprano::Node pred = it["p"];
             Soprano::Node obj = it["o"];
-
+            
             statements.push_back( Soprano::Statement( sub, pred, obj ) );
 
             // If the object is also a nepomuk uri, it too needs to be identified.
@@ -169,7 +169,7 @@ Nepomuk::Sync::IdentificationSet Nepomuk::Sync::IdentificationSet::fromUrl(const
         kWarning() << "The file " << url << " failed to load";
         return IdentificationSet();
     }
-
+    
     QTextStream in( &file );
     return fromTextStream( in );
 }
@@ -181,12 +181,12 @@ Nepomuk::Sync::IdentificationSet Nepomuk::Sync::IdentificationSet::fromTextStrea
     // Parse all the statements
     //
     const Soprano::Parser * parser = Soprano::PluginManager::instance()->discoverParserForSerialization( Soprano::SerializationNQuads );
-
+    
     if( !parser ) {
         kDebug() << "The required parser could not be loaded.";
         return IdentificationSet();
     }
-
+    
     Soprano::StatementIterator iter = parser->parseStream( ts, QUrl(), Soprano::SerializationNQuads );
 
     IdentificationSet identSet;
@@ -205,7 +205,7 @@ namespace {
         foreach( const Nepomuk::Sync::ChangeLogRecord & r, records ) {
             QUrl sub = r.st().subject().uri();
             uniqueUris.insert( sub );
-
+            
             // If the Object is a resource, then it has to be identified as well.
             const Soprano::Node obj = r.st().object();
             if( obj.isResource() ) {
@@ -221,7 +221,7 @@ namespace {
 Nepomuk::Sync::IdentificationSet Nepomuk::Sync::IdentificationSet::fromChangeLog(const Nepomuk::Sync::ChangeLog& log, Soprano::Model* model, const QSet<QUrl> & ignoreList)
 {
     QSet<QUrl> uniqueUris = getUniqueUris( log.toList() );
-
+    
     IdentificationSetGenerator ifg( uniqueUris, model, ignoreList );
     IdentificationSet is;
     is.d->m_statements = ifg.generate();
@@ -232,7 +232,7 @@ Nepomuk::Sync::IdentificationSet Nepomuk::Sync::IdentificationSet::fromResource(
 {
     QSet<QUrl> uniqueUris;
     uniqueUris.insert(resourceUrl);
-
+    
     IdentificationSetGenerator ifg(uniqueUris, model, ignoreList);
     IdentificationSet is;
     is.d->m_statements = ifg.generate();
@@ -250,7 +250,7 @@ Nepomuk::Sync::IdentificationSet Nepomuk::Sync::IdentificationSet::fromResourceL
 
 
 namespace {
-
+    
     //TODO: Use Nepomuk::Type::Property
     bool isIdentifyingProperty( QUrl prop, Soprano::Model * model ) {
         QString query = QString::fromLatin1( "ask { %1 %2 %3 }" )
@@ -283,7 +283,7 @@ bool Nepomuk::Sync::IdentificationSet::save( const QUrl& output ) const
         kWarning() << "File could not be opened : " << output.path();
         return false;
     }
-
+    
     QTextStream out( &file );
     return save( out );
 }
@@ -299,12 +299,12 @@ bool Nepomuk::Sync::IdentificationSet::save( QTextStream& out ) const
     // Serialize the statements and output them
     //
     const Soprano::Serializer * serializer = Soprano::PluginManager::instance()->discoverSerializerForSerialization( Soprano::SerializationNQuads );
-
+    
     if( !serializer ) {
         kWarning() << "Could not find the required serializer";
         return false;
     }
-
+    
     if( d->m_statements.empty() ) {
         kWarning() << "No statements to Serialize";
         return false;
@@ -315,21 +315,20 @@ bool Nepomuk::Sync::IdentificationSet::save( QTextStream& out ) const
         kWarning() << "Serialization Failed";
         return false;
     }
-
+    
     return true;
 }
 
-
 bool Nepomuk::Sync::IdentificationSet::contains(const QUrl & url) const
 {
-    foreach( const Soprano::Statement & st, d->m_statements)
-    {
+    foreach( const Soprano::Statement & st, d->m_statements) {
         if ( st.subject() == url  or st.object() == url or st.predicate() == url )
             return true;
     }
     return false;
 }
 
+        
 QList< Soprano::Statement > Nepomuk::Sync::IdentificationSet::toList() const
 {
     return d->m_statements;
@@ -341,7 +340,7 @@ void Nepomuk::Sync::IdentificationSet::clear()
     d->m_statements.clear();
 }
 
-Nepomuk::Sync::IdentificationSet& Nepomuk::Sync::IdentificationSet::operator+=(const Nepomuk::Sync::IdentificationSet& rhs)
+Nepomuk::Sync::IdentificationSet& Nepomuk::Sync::IdentificationSet::operator<<(const Nepomuk::Sync::IdentificationSet& rhs)
 {
     d->m_statements << rhs.d->m_statements;
     return *this;
@@ -349,6 +348,7 @@ Nepomuk::Sync::IdentificationSet& Nepomuk::Sync::IdentificationSet::operator+=(c
 
 void Nepomuk::Sync::IdentificationSet::mergeWith(const IdentificationSet & rhs)
 {
-    operator+=(rhs);
+    this->d->m_statements << rhs.d->m_statements;
+    return;
 }
 

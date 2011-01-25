@@ -23,8 +23,9 @@
 #include "changelogrecord.h"
 #include "syncfile.h"
 #include "identificationset.h"
-#include <nepomuk/nie.h>
-#include <nepomuk/nfo.h>
+#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NFO>
+#include <Soprano/Vocabulary/NAO>
 #include "backupsync.h"
 
 #include <QtCore/QDir>
@@ -57,7 +58,7 @@ Nepomuk::Sync::IdentificationRequest::IdentificationRequest(const Nepomuk::Sync:
 {
     d->m_identificationSet = sf.identificationSet();
     d->m_masterChangeLog = sf.changeLog();
-
+    
     d->m_id = Private::NextId;
     Private::NextId++;
 
@@ -71,7 +72,7 @@ Nepomuk::Sync::IdentificationRequest::IdentificationRequest(const Nepomuk::Sync:
 {
     d->m_identificationSet = sf.identificationSet();
     d->m_masterChangeLog = sf.changeLog();
-
+    
     d->m_id = Private::NextId;
     Private::NextId++;
 
@@ -88,7 +89,7 @@ Nepomuk::Sync::IdentificationRequest::IdentificationRequest(const Nepomuk::Sync:
 
     d->m_id = Private::NextId;
     Private::NextId++;
-
+    
     initModel(toModel);
 }
 
@@ -100,13 +101,13 @@ Nepomuk::Sync::IdentificationRequest::IdentificationRequest(const Nepomuk::Sync:
     kDebug() << "ChangeLog: ";// << log;
     foreach( const ChangeLogRecord &rec, log.toList() )
         kDebug() << rec.toString();
-
+    
     d->m_masterChangeLog = log;
     d->m_identificationSet = identSet;
-
+    
     d->m_id = Private::NextId;
     Private::NextId++;
-
+    
     initModel(toModel);
 }
 
@@ -187,7 +188,7 @@ Nepomuk::Sync::ChangeLog Nepomuk::Sync::IdentificationRequest::convert()
 
     // Update the master change log
     d->m_masterChangeLog = ChangeLog( masterLogRecords );
-
+    
     return ChangeLog( identifiedRecords );
 }
 
@@ -234,9 +235,9 @@ void Nepomuk::Sync::IdentificationRequest::provideNieUrl( const QUrl & resourceU
     res.remove( nieUrlProp );
     res.insert( nieUrlProp, Soprano::Node( newNieUrl ) );
 
-    // Remove from list. Insert later
+    // Remove from list. Insert later 
     d->m_notIdentified.remove( resourceUri );
-
+    
     //
     // Modify other non identified resources with similar nie:urls
     //
@@ -260,7 +261,7 @@ void Nepomuk::Sync::IdentificationRequest::provideNieUrl( const QUrl & resourceU
             continue;
 
         Sync::SimpleResource& simpleRes = d->m_resourceHash[ uri ];
-        // Check if it has a nie:url
+        // Check if it has a nie:url   
         QString nieUrl = simpleRes.nieUrl().toString();
         if( nieUrl.isEmpty() )
             return;
@@ -306,7 +307,7 @@ void Nepomuk::Sync::IdentificationRequest::identifyAll()
             emit notIdentified( d->m_id, res.toStatementList() );
             emit notIdentified( uri );
         }
-
+        
         numDone++;
         emit completed( static_cast<float>( numDone ) / totalSize );
     }
