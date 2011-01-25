@@ -1,4 +1,4 @@
-project(libnepomuksync)
+project(libnepomuksynclegacy)
 
 find_package(KDE4 REQUIRED)
 find_package(Nepomuk REQUIRED)
@@ -17,7 +17,7 @@ include_directories(
 add_definitions (${QT_DEFINITIONS} ${KDE4_DEFINITIONS})
 add_definitions(-DDISABLE_NEPOMUK_LEGACY=1)
 
-set(nepomuksync_SRCS
+set(nepomuksynclegacy_SRCS
     changelog.cpp
     changelogrecord.cpp
     identificationset.cpp
@@ -29,17 +29,17 @@ set(nepomuksync_SRCS
     graphwrapper.cpp
 )
 
-soprano_add_ontology(nepomuksync_SRCS
+soprano_add_ontology(nepomuksynclegacy_SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/identification.trig
   "backupsync"
   "Nepomuk::Vocabulary"
   "trig")
 
-kde4_add_library(nepomuksync SHARED ${nepomuksync_SRCS})
+kde4_add_library(nepomuksynclegacy SHARED ${nepomuksynclegacy_SRCS})
 
-set_target_properties(nepomuksync PROPERTIES VERSION ${GENERIC_LIB_VERSION} SOVERSION ${GENERIC_LIB_SOVERSION})
+set_target_properties(nepomuksynclegacy PROPERTIES VERSION ${GENERIC_LIB_VERSION} SOVERSION ${GENERIC_LIB_SOVERSION})
 
-target_link_libraries(nepomuksync
+target_link_libraries(nepomuksynclegacy
   ${QT_QTCORE_LIBRARY}
   ${SOPRANO_LIBRARIES}
   ${NEPOMUK_LIBRARIES}
@@ -48,7 +48,7 @@ target_link_libraries(nepomuksync
   kdecore
   )
 
-#install(TARGETS nepomuksync EXPORT kdelibsLibraryTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
+#install(TARGETS nepomuksynclegacy EXPORT kdelibsLibraryTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
 #
 #install(FILES
 #    syncfile.h
