@@ -49,7 +49,7 @@ target_link_libraries(nepomuksynclegacy
   kdecore
   )
 
-#install(TARGETS nepomuksynclegacy EXPORT kdelibsLibraryTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
+install(TARGETS nepomuksynclegacy EXPORT kdelibsLibraryTargets ${INSTALL_TARGETS_DEFAULT_ARGS})
 #
 #install(FILES
 #    syncfile.h
