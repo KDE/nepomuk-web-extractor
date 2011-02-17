@@ -27,7 +27,7 @@
 #include <KConfigGroup>
 #include <KRandom>
 
-class DataPPDescr::Private : public QSharedData
+class DppExecutiveDescr::Private : public QSharedData
 {
 public:
     Private()
@@ -46,132 +46,139 @@ public:
     bool m_enabled;
 
     Category* m_category;
-    KService::Ptr m_service;
 };
 
-DataPPDescr::DataPPDescr(KService::Ptr service)
+DppExecutiveDescr::DppExecutiveDescr(const QString & id)
     : d(new Private())
 {
-    d->m_service = service;
-    d->m_id = KRandom::randomString(10);
+    //d->m_service = service;
+    //d->m_id = KRandom::randomString(10);
+    d->m_id = id;
 }
 
-DataPPDescr::DataPPDescr(const DataPPDescr& other)
+DppExecutiveDescr::DppExecutiveDescr(const DppExecutiveDescr& other)
     : d(other.d)
 {
 }
 
-DataPPDescr::~DataPPDescr()
+DppExecutiveDescr::~DppExecutiveDescr()
 {
 }
 
 
-DataPPDescr & DataPPDescr::operator =(const DataPPDescr &other)
+DppExecutiveDescr & DppExecutiveDescr::operator =(const DppExecutiveDescr &other)
 {
     d = other.d;
     return *this;
 }
 
-void DataPPDescr::save(KConfigGroup& config) const
+void DppExecutiveDescr::save(KConfigGroup& config) const
 {
     config.writeEntry("id", identifier());
     config.writeEntry("rank", rank());
     config.writeEntry("coff", coff());
     config.writeEntry("trusted", trusted());
     config.writeEntry("enabled", enabled());
-    config.writeEntry("plugin", service()->name());
+    //config.writeEntry("plugin", service()->name());
+#if 0
     if(category())
         config.writeEntry("category", category()->identifer());
+#endif
 }
 
 // static
-DataPPDescr DataPPDescr::load(const KConfigGroup &config, Nepomuk::CategoriesPool* pool)
+DppExecutiveDescr DppExecutiveDescr::load(const KConfigGroup &config)
 {
-    DataPPDescr datapp(pool->pluginByName(config.readEntry("plugin", QString())));
-    datapp.d->m_id = config.readEntry("id", KRandom::randomString(10));
+    DppExecutiveDescr datapp = DppExecutiveDescr(QString());
+    datapp.d->m_id = config.readEntry("id", QString());
     datapp.d->m_rank = config.readEntry("rank", datapp.rank());
     datapp.d->m_coff = config.readEntry("coff", datapp.coff());
     datapp.d->m_trusted = config.readEntry("trusted", datapp.trusted());
     datapp.d->m_enabled = config.readEntry("enabled", datapp.enabled());
-    datapp.d->m_category = pool->categoryById(config.readEntry("category", QString()));
+    //datapp.d->m_category = pool->categoryById(config.readEntry("category", QString()));
     return datapp;
 }
 
-double DataPPDescr::rank() const
+double DppExecutiveDescr::rank() const
 {
     return d->m_rank;
 }
 
-double DataPPDescr::coff() const
+double DppExecutiveDescr::coff() const
 {
     return d->m_coff;
 }
 
-bool DataPPDescr::trusted() const
+bool DppExecutiveDescr::trusted() const
 {
     return d->m_trusted;
 }
 
-bool DataPPDescr::enabled() const
+bool DppExecutiveDescr::enabled() const
 {
     return d->m_enabled;
 }
 
-void DataPPDescr::setRank(double rank)
+void DppExecutiveDescr::setRank(double rank)
 {
     d->m_rank = rank;
 }
 
-void DataPPDescr::setCoff(double coff)
+void DppExecutiveDescr::setCoff(double coff)
 {
     d->m_coff = coff;
 }
 
-void DataPPDescr::setTrusted(bool trusted)
+void DppExecutiveDescr::setTrusted(bool trusted)
 {
     d->m_trusted = trusted;
 }
 
-void DataPPDescr::setEnabled(bool enabled)
+void DppExecutiveDescr::setEnabled(bool enabled)
 {
     d->m_enabled = enabled;
 }
 
-bool DataPPDescr::operator==(const DataPPDescr& other) const
+bool DppExecutiveDescr::operator==(const DppExecutiveDescr& other) const
 {
-    return (service() == other.service() &&
+    return (
+            identifier() == other.identifier() &&
             rank() == other.rank() &&
             coff() == other.coff() &&
             trusted() == other.trusted() &&
             enabled() == other.enabled());
 }
 
-Category * DataPPDescr::category() const
+Category * DppExecutiveDescr::category() const
 {
     return d->m_category;
 }
 
-KService::Ptr DataPPDescr::service() const
+#if 0
+KService::Ptr DppExecutiveDescr::service() const
 {
     return d->m_service;
 }
+#endif 
 
-void DataPPDescr::setCategory(Category *cat)
+void DppExecutiveDescr::setCategory(Category *cat)
 {
     d->m_category = cat;
 }
 
-bool DataPPDescr::isValid() const
+bool DppExecutiveDescr::isValid() const
 {
-    return d->m_category != 0 && !d->m_service.isNull();
+    //return d->m_category != 0 && !d->m_service.isNull();
+    return !d->m_id.isEmpty();
 }
 
-QString DataPPDescr::identifier() const
+QString DppExecutiveDescr::identifier() const
 {
     return d->m_id;
 }
 
-Nepomuk::WebExtractorPlugin * DataPPDescr::createPlugin() const
+/*
+Nepomuk::WebExtractorPlugin * DppExecutiveDescr::createPlugin() const
 {
     KPluginFactory *factory = KPluginLoader(service()->library()).factory();
     if (factory) {
@@ -182,3 +189,4 @@ Nepomuk::WebExtractorPlugin * DataPPDescr::createPlugin() const
         return 0;
     }
 }
+*/

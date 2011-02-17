@@ -58,7 +58,7 @@ Nepomuk::WebExtractorPlugin * Nepomuk::GlobalSettings::plugin( const QString & n
 	    if (offers.begin() == offers.end() ) {
 		//TODO May be it is necessary to put NULL to m_plugins to remeber that 
 		//this plugin failed to load
-		kError() << "Plugin "<<name<< " was not found. All it's DataPP will be ignored";
+		kError() << "Plugin "<<name<< " was not found. All it's DppExecutive will be ignored";
 		return 0;
 	    }
 

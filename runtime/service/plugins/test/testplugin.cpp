@@ -39,7 +39,7 @@ int Nepomuk::TestPlugin::version()
     return (TEST_PLUGIN_INTERNAL_VERSION);
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::TestPlugin::getDataPP(const QSharedPointer<KConfigBase> & configFile)
+Nepomuk::WebExtractor::DataPP * Nepomuk::TestPlugin::getExecutive(const QSharedPointer<KConfigBase> & configFile)
 {
     return new TestDataPP(version());
 }

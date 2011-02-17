@@ -31,34 +31,35 @@ namespace Nepomuk
 
     namespace WebExtractor
     {
-        class DataPP;
+        class DppExecutive;
     }
 
     class WebExtractorPlugin;
     class WebExtractorPluginKCM;
 
-    /*!\brief  This class represent the config object for DataPP
+    /*!\brief  This class represent the config object for DppExecutive
      * It inherits from KConfigBase
      */
-    class DataPPConfig : public DataPPConfigBase
+    class DppExecutiveConfig : public DppExecutiveConfigBase
     {
         public:
+            //typedef KSharedConfig<DppExecutiveConfigBase> Ptr;
 
-            DataPPConfig(const QString &);
-            /*! \brief Return config file for this DataPP
+            DppExecutiveConfig(const QString &);
+            /*! \brief Return config file for this DppExecutive
             */
             KSharedConfigPtr config();
 
-	    /*! \brief Returns the config object with use settings
-	     * All settings of the DataPP can be devided into 2 groups - the system DataPP
-	     * settings ( source, and some other ) and user settings - aka source plugin dependent
-	     * settings. The config() returns whole config object  and userConfig() - only
-	     * part with user settings. You should prefer using userConfig() as this helps to
-	     * avoid hard-to-detect erros connected to accidentally overwriting system settings
-	     */
-	    QSharedPointer<KConfigBase> userConfig();
+            /*! \brief Returns the config object with use settings
+             * All settings of the DppExecutive can be devided into 2 groups - the system DppExecutive
+             * settings ( source, and some other ) and user settings - aka source plugin dependent
+             * settings. The config() returns whole config object  and userConfig() - only
+             * part with user settings. You should prefer using userConfig() as this helps to
+             * avoid hard-to-detect erros connected to accidentally overwriting system settings
+             */
+            QSharedPointer<KConfigBase> userConfig();
 
-            virtual ~DataPPConfig();
+            virtual ~DppExecutiveConfig();
             /*! \brief Return true if there is a datapp with given name and config is valid
              */
             bool isValid() const;
@@ -66,25 +67,25 @@ namespace Nepomuk
             /*! \brief Return source plugin.
              * Attention! It will load libwebextractor and any other dependencies of this
              * plugin.
-             * Return 0 if DataPPConfig is invalid or some other error occur
+             * Return 0 if DppExecutiveConfig is invalid or some other error occur
              */
             WebExtractorPlugin * plugin();
 
-            /*! \brief Return DataPP
-             * Generate and return DataPP  using config object returned by userConfig() 
-             * Return 0 if DataPPConfig is invalid or some other error occur
+            /*! \brief Return DppExecutive
+             * Generate and return DppExecutive  using config object returned by userConfig() 
+             * Return 0 if DppExecutiveConfig is invalid or some other error occur
              */
-            WebExtractor::DataPP * dataPP();
+            WebExtractor::DppExecutive * dataPP();
 
-	    /*! \brief Return KCM for the DataPP
-	     * Return 0 if there is no KCM of DataPPConfig is invalid. 
-	     * The KCM is unique for plugin and thus shared across several DataPP.
-	     * The returned KCM will be automatically switched to the DataPPConfig.
-	     * If it was used somewhere else you are responsible for applying/discarding
-	     * changes of the previous DataPP before calling this function. If you don't 
-	     * save changes, you loose them.
-	     */
-	    WebExtractorPluginKCM * kcm();
+            /*! \brief Return KCM for the DppExecutive
+             * Return 0 if there is no KCM or DppExecutiveConfig is invalid. 
+             * The KCM is unique for plugin and thus shared across several DppExecutive.
+             * The returned KCM will be automatically switched to this DppExecutiveConfig.
+             * If it was used somewhere else you are responsible for applying/discarding
+             * changes of the previous DppExecutive before calling this function. If you don't 
+             * save changes, you loose them.
+             */
+            WebExtractorPluginKCM * kcm();
 
             /*! \brief Return source plugin name
              */
@@ -92,17 +93,18 @@ namespace Nepomuk
 
             /*! \brief Load plugin, create datapp and return it
              */
-            static WebExtractor::DataPP * dataPP(const QString & name);
+            static WebExtractor::DppExecutive * dataPP(const QString & name);
 
             static int dataPPCount();
         private:
             QString m_name;
+            //QString m_displayName;
             // FIXME Wrap into method
             static QString path;
 
             static QReadWriteLock & m_lock();
 
-            static QHash< QString, Nepomuk::WebExtractor::DataPP*> & m_datapp();
+            static QHash< QString, Nepomuk::WebExtractor::DppExecutive*> & m_datapp();
     };
 
 }

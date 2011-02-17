@@ -1,5 +1,6 @@
 project(libwebextractor)
 
+add_subdirectory(graph)
 option( WEBEXTRACTOR_ENABLE_TESTS "Enable testing" OFF )
 
 set(WEBEXTRACTOR_VERSION_MAJOR 0 CACHE INT "Major WebExtractor version number" FORCE)
@@ -22,6 +23,9 @@ include_directories(
   ${SOPRANO_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/decisions/
+  ${CMAKE_CURRENT_SOURCE_DIR}/resourceservicedata/
+  ${CMAKE_CURRENT_SOURCE_DIR}/graph/
   ${ontologyloader_SOURCE_DIR}
   #  ${CMAKE_CURRENT_SOURCE_DIR}/include
   #${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor
@@ -49,112 +53,80 @@ soprano_add_ontology(backupsynclegacy_SRC
   "trig")
 
 add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
+add_subdirectory(decisions)
+add_subdirectory(resourceservicedata)
 set( webextractor_SRCS 
+    #Decisions part
+    #    decisions/decision.cpp
+    #    decisions/decisioncreator.cpp
+    #    decisions/decisioncreator_p.cpp
+    #    decisions/decisionfactory.cpp
+    #    decisions/decisionlist.cpp
+    #    decisions/decisionapplicationrequest.cpp
+    #    decisions/propertiesgroup.cpp
+    #    decisions/propertiesgroupcreator.cpp
+    #    decisions/propertiesgroupcreator_p.cpp
+    #Main part
     resourceanalyzerfactory.cpp
     resourceanalyzer.cpp
-    decision.cpp
-    decisioncreator.cpp
-    decisioncreator_p.cpp
-    decisionfactory.cpp
-    decisionlist.cpp
-    decisionapplicationrequest.cpp
-    datappreply.cpp
-    datapp.cpp
-    debug_datapp.cpp
+    executivereply.cpp
+    executive.cpp
+    executivewrapper.cpp
+    debugexecutive.cpp
     parameters.cpp
     global.cpp
-    datappwrapper.cpp
-    propertiesgroup.cpp
-    propertiesgroupcreator.cpp
-    propertiesgroupcreator_p.cpp
-    simplenetworkdatapp.cpp
+    simplenetworkexecutive.cpp
     simplenetworkreplyfactory.cpp
     simplenetworkreply.cpp
     simplenetworkrequest.cpp
-    simpledatappreply.cpp
-    resourceservicedatamanager.cpp
-    resourceservicedata.cpp
-    nepomukservicedatabackend.cpp
-    dummyservicedatabackend.cpp
-    servicedatabackend.cpp
-    identsetmanager.cpp
-    # Graph  part
-    modelgraph.cpp
-    algorithm.cpp
-    graphalgorithm.cpp
-    copyvisitor.cpp
-    visitednodefilter.cpp
-    dotvisitor.cpp
-    nodefilterinterface.cpp
-    selectedpropertiesfunc.cpp
-    visitednodefilter.cpp
-    resourcenodefilter.cpp
-    childqueryinterface.cpp
-    plaintextvisitor.cpp
-
-    ${backupsynclegacy_SRC}
+    simpleexecutivereply.cpp
+    # Resource service data part
+    #    resourceservicedata/resourceservicedatamanager.cpp
+    #    resourceservicedata/resourceservicedata.cpp
+    #    resourceservicedata/nepomukservicedatabackend.cpp
+    #    resourceservicedata/dummyservicedatabackend.cpp
+    #    resourceservicedata/servicedatabackend.cpp
+    #    identsetmanager.cpp
     )
 
 set (WEBEXTRACTOR_HEADERS 
-    datapp.h
-    datappkeeper.h
-    datappreply.h
-    datappreply_p.h
-    datapprequest.h
-    datappwrapper.h
-    datapptemplate.h
-    debug_datapp.h
-    decisionfactory.h
-    decision.h
-    decisionapplicationrequest.h
-    decisionlist.h
-    decisioncreator.h
+    # Decisions part
+    #    decisions/decisionfactory.h
+    #    decisions/decision.h
+    #    decisions/decisionapplicationrequest.h
+    #    decisions/decisionlist.h
+    #    decisions/decisioncreator.h
+    #    decisions/propertiesgroup.h
+    #    decisions/propertiesgroupcreator.h
+    # Main part
+    executivereply.h
+    executivereply_p.h
+    executivewrapper.h
+    debugexecutive.h
     global.h
     parameters.h
-    propertiesgroup.h
-    propertiesgroupcreator.h
     resourceanalyzerfactory.h
     resourceanalyzer.h
-    simpledatappreply.h
-    simplenetworkdatapp.h
+    simpleexecutivereply.h
+    simplenetworkexecutive.h
     simplenetworkreplyfactory.h
     simplenetworkreply.h
     simplenetworkrequest.h
-    resourceservicedatamanager.h
-    resourceservicedata.h
-    nepomukservicedatabackend.h
-    dummyservicedatabackend.h
-    nepomukservicedatabackendfactory.h
-    servicedatabackend.h
-    servicedatabackendfactory.h
     webextractor_export.h
+    # Resource service data part
+    resourceservicedata/resourceservicedatamanager.h
+    resourceservicedata/resourceservicedata.h
+    resourceservicedata/nepomukservicedatabackend.h
+    resourceservicedata/dummyservicedatabackend.h
+    resourceservicedata/nepomukservicedatabackendfactory.h
+    resourceservicedata/servicedatabackend.h
+    resourceservicedata/servicedatabackendfactory.h
     identsetmanager.h
-    algorithm.h
-    modelgraphvisitor.h
     ${CMAKE_CURRENT_BINARY_DIR}/ndco.h
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
-    # Graph  part
-    algorithm.h
-    graphalgorithm.h
-    copyvisitor.h
-    childqueryinterface.h
-    visitednodefilter.h
-    nodefilterinterface.h
-    resourcenodefilter.h
-    dotvisitor.h
-    modelgraphvisitor.h
-    modelgraph.h
-    selectedpropertiesfunc.h
-    plaintextvisitor.h
     ) 
 
-soprano_add_ontology( webextractor_SRCS ${libwebextractor_SOURCE_DIR}/decisions.trig "NDCO" "Nepomuk::WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
-
-#QT4_WRAP_CPP( webextractor_RES ${webextractor_MOC} )
-#set ( webextractor_SRCS
-#    ${webextractor_SRCS}
-#    ${webextractor_RES}
-#    )
+soprano_add_ontology( webextractor_SRCS ${libwebextractor_SOURCE_DIR}/ontology/decisions.trig "NDCO" "Nepomuk::WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
 
 
 kde4_add_library( webextractor SHARED ${webextractor_SRCS})
@@ -174,6 +146,9 @@ target_link_libraries( webextractor
   ${QT_QTNETWORK_LIBRARY}
   ${QT_QTCORE_LIBRARY}
   ontologyloader
+  nepomukgraph
+  decisions
+  rsd
   )
 
 install(TARGETS webextractor
@@ -199,7 +174,7 @@ macro(INSTALL_ONTOLOGY _name _group)
   install(FILES "${_name}.trig" DESTINATION ${ONTO_INSTALL_DIR})
 endmacro(INSTALL_ONTOLOGY)
 
-install_ontology(decisions nepomuk)
+install_ontology(ontology/decisions nepomuk)
 
 ## TESTS
 if ( WEBEXTRACTOR_ENABLE_TESTS)

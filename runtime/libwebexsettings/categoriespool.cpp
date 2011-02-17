@@ -107,7 +107,7 @@ void Nepomuk::CategoriesPool::reloadCategories()
     kDebug();
     // Idea for better config scheme:
     // - We have one .cat file for each category. In there the category settings are defined
-    // - We have one .datapp file for each plugin/cat relation, containing the DataPPDescr settings and the plugin KCM settings
+    // - We have one .datapp file for each plugin/cat relation, containing the DppExecutiveDescr settings and the plugin KCM settings
     // - There is a list of default global categories which can be used by plugin devs to have default configs for their plugins
     // - Plugin devels can install new categories
     // - The user can create new categories and relations
@@ -131,7 +131,7 @@ void Nepomuk::CategoriesPool::reloadCategories()
     QStringList categoryFiles;
     KGlobal::dirs()->findAllResources("config", CATEGORY_CONFIG_DIR"/*.cat", KStandardDirs::NoDuplicates, categoryFiles);
     if ( categoryFiles.isEmpty() ) {
-	kDebug() << "No category detected";
+        kDebug() << "No category detected";
     }
     Q_FOREACH(const QString& relativePath, categoryFiles) {
         const QString catConfigFile = KStandardDirs::locate("config", relativePath);
@@ -151,19 +151,20 @@ void Nepomuk::CategoriesPool::reloadCategories()
         }
     }
 
+#if 0
     // now load all datapps
     // ==============================
     QStringList datappFiles;
     KGlobal::dirs()->findAllResources("config", PLUGIN_CONFIG_DIR"/*.datapp", KStandardDirs::NoDuplicates, datappFiles);
     if ( datappFiles.isEmpty() ) {
-	kDebug() << "No datapps detected";
+    kDebug() << "No datapps detected";
     }
     Q_FOREACH(const QString& relativePath, datappFiles) {
         const QString datappConfigFile = KStandardDirs::locate("config", relativePath);
         if(QFile::exists(datappConfigFile)) {
             KSharedConfig::Ptr config = KSharedConfig::openConfig(datappConfigFile);
-            KConfigGroup datappGroup = config->group("DataPP");
-            DataPPDescr datapp = DataPPDescr::load(datappGroup, this);
+            KConfigGroup datappGroup = config->group("DppExecutive");
+            DppExecutiveDescr datapp = DppExecutiveDescr::load(datappGroup, this);
             if( datapp.isValid() ) {
                 datapp.category()->addPlugin(datapp);
             }
@@ -172,6 +173,7 @@ void Nepomuk::CategoriesPool::reloadCategories()
             }
         }
     }
+#endif
 }
 
 void Nepomuk::CategoriesPool::saveCategories()
@@ -181,8 +183,8 @@ void Nepomuk::CategoriesPool::saveCategories()
     Q_FOREACH(const QString& oldCatFile, localCatDir.entryList(QStringList(QLatin1String("*.cat")), QDir::Files)) {
         localCatDir.remove(oldCatFile);
     }
-    Q_FOREACH(const QString& oldDataPPFile, localCatDir.entryList(QStringList(QLatin1String("*.datapp")), QDir::Files)) {
-        localCatDir.remove(oldDataPPFile);
+    Q_FOREACH(const QString& oldDppExecutiveFile, localCatDir.entryList(QStringList(QLatin1String("*.datapp")), QDir::Files)) {
+        localCatDir.remove(oldDppExecutiveFile);
     }
 
     // 2. save all categories in the pool
@@ -191,11 +193,11 @@ void Nepomuk::CategoriesPool::saveCategories()
         KConfigGroup catGroup = config->group("Category");
         cat->save(catGroup);
 
-        // 3. Save all the DataPPs
-        Q_FOREACH(const DataPPDescr& datapp, cat->plugins()) {
+        // 3. Save all the DppExecutives
+        Q_FOREACH(const DppExecutiveDescr& datapp, cat->plugins()) {
             const QString datappName = cat->identifer() + QLatin1String("_") + datapp.identifier();
             KSharedConfig::Ptr config = KSharedConfig::openConfig(QString::fromLatin1(PLUGIN_CONFIG_DIR"%1.datapp").arg(datappName));
-            KConfigGroup datappGroup = config->group("DataPP");
+            KConfigGroup datappGroup = config->group("DppExecutive");
             datapp.save(datappGroup);
 
             // TODO: load the plugin-specific configuration and provide API to change it

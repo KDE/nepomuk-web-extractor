@@ -8,6 +8,8 @@
 <group name="webextractor">
     <entry name="source" type="String">
     </entry>
+    <entry name="displayName" type="String">
+    </entry>
     <entry name="categories" type="StringList">
     </entry>
 </group>

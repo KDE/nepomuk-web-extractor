@@ -41,7 +41,7 @@ int Nepomuk::AutotagPlugin::version()
     return (AUTOTAG_PLUGIN_INTERNAL_VERSION);
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::AutotagPlugin::getDataPP(const QSharedPointer<KConfigBase> & configFile)
+Nepomuk::WebExtractor::DataPP * Nepomuk::AutotagPlugin::getExecutive(const QSharedPointer<KConfigBase> & configFile)
 {
     // Parse config
     KConfigGroup grp = configFile->group(AUTOTAG_CONFIG_GROUP);

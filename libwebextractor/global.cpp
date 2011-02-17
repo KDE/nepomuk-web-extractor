@@ -23,7 +23,7 @@
 namespace NW = Nepomuk::WebExtractor;
 
 // Some static variables
-int m_defaultDataPPTimeout = DEFAULT_DATAPP_TIMEOUT;
+int m_defaultExecutiveTimeout = DEFAULT_DATAPP_TIMEOUT;
 
 double NW::minACrit()
 {
@@ -113,9 +113,9 @@ double NW::boundScaleCoff(double val)
     return qBound(minScaleCoff(), maxScaleCoff(), val);
 }
 
-int NW::defaultDataPPTimeout()
+int NW::defaultExecutiveTimeout()
 {
-    return m_defaultDataPPTimeout;
+    return m_defaultExecutiveTimeout;
 }
 /*
 Soprano::Model * NW::decisionsModel()

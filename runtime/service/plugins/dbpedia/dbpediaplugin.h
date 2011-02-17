@@ -27,7 +27,7 @@ namespace Nepomuk
     {
         public:
             DbpediaPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(KSharedConfigPtr configFile);
+            virtual Nepomuk::WebExtractor::DataPP * getExecutive(KSharedConfigPtr configFile);
             static QString  version();
     };
 }

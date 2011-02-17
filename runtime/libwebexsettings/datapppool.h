@@ -29,52 +29,56 @@
 #include <QCache>
 #include <QMimeData>
 
-// FIXME Mode defenition of treeitem to the source file instead of header
 class TreeItem;
 
 namespace Nepomuk
 {
-    class WEBEXSETTINGS_EXPORT DataPPPool: public QAbstractItemModel
+    class WEBEXSETTINGS_EXPORT DppExecutivePool: public QAbstractItemModel
     {
             Q_OBJECT;
         public:
-            /*! \brief Return list of all DataPP in the system
-             * This function will return set of all available DataPP in the system.
-             * It will return both valid and invalid DataPP.
+            /*! \brief Return list of all DppExecutive in the system
+             * This function will return set of id of all available DppExecutive in the system.
+             * It will return both valid and invalid DppExecutive.
              */
-            static QStringList plugins();
+            static QStringList availableDppExecutive();
 
-            // Return all datapp that belong to category
-            static QSet< QString >  categoryDataPPs(const QString & categoryName) ;
+            /*! \brief Return list of all DppExecutive in the system
+             * This function will return set of id of all valid DppExecutive in the system.
+             */
+            static QStringList validDppExecutive();
+
+            /*! \brief  Return id of all datapp that belong to category
+             */
+            static QSet< QString >  categoryDppExecutives(const QString & categoryName) ;
 
             // Return number of main categories
             static int categoryCount() ;
 
-            static DataPPPool * self();
+            static DppExecutivePool * self();
 
             enum Roles {
-                /*! \brief Boolean role. Store type of this item - DataPP or Category
+                /*! \brief Boolean role. Store type of this item - DppExecutive or Category
                  */
-                DataPPRole = Qt::UserRole + 1,
-                /*! \brief Store source plugin for DataPP or NULL string for category
+                DppExecutiveRole = Qt::UserRole + 1,
+                /*! \brief Store source plugin for DppExecutive or NULL string for category
                  */
                 SourceRole = Qt::UserRole + 2,
 
-		/*! \brief Store the system name of the DataPP
-		 * This is the name that can be used in DataPPConfig and
-		 * other system functions
-		 */
-		SystemNameRole,
+                /*! \brief Store the system name of the DppExecutive
+                 * This is the name that can be used in DppExecutiveConfig and
+                 * other system functions
+                 */
+                IdRole,
 
                 /*! \brief Store name of datapp/category
                  */
                 NameRole = Qt::DisplayRole,
-
-
             };
             static QString  dataPPSource(const QString &);
+            static QString displayNameById(const QString & id);
             //static KSharedConfigPtr dataPPConfig(const QString & name);
-            friend QDebug operator<<(QDebug dbg,  const DataPPPool & cat);
+            friend QDebug operator<<(QDebug dbg,  const DppExecutivePool & cat);
         public:
             int rowCount(const QModelIndex &parent = QModelIndex()) const;
             int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -98,13 +102,14 @@ namespace Nepomuk
         private Q_SLOTS:
             void update();
         private:
-            DataPPPool(QObject * parent = 0);
-            // List of all available DataPP in system
+            DppExecutivePool(QObject * parent = 0);
+            // List of all available DppExecutive in system
             // TODO Use QSet<QString> instead of QStringList
-            QStringList m_plugins;
+            QStringList m_availableDppExecutive;
+            QStringList m_validDppExecutive;
 
             // Hash CategoryName->List of all available datapp in system that belongs to
-            // this category(DataPP category, not WebEXtractor Categories)
+            // this category(DppExecutive category, not WebEXtractor Categories)
             //
             //QHash< QString, QSet<QString> > m_categoryPlugins;
             TreeItem * m_categoryPlugins;
@@ -112,12 +117,15 @@ namespace Nepomuk
             // Cache the source plugin for datapp
             QHash< QString, QString > m_dataPPSources;
 
+            // Cache the display name for datapp
+            QHash< QString, QString > m_displayNames;
+
             // Watch for directories where datapp config files are stored
             KDirWatch wc;
 
-            static DataPPPool * m_self;
+            static DppExecutivePool * m_self;
     };
-    QDebug operator<<(QDebug dbg,  const DataPPPool & cat);
+    QDebug operator<<(QDebug dbg,  const DppExecutivePool & cat);
 }
 
 #endif

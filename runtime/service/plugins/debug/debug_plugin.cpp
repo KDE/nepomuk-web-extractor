@@ -33,7 +33,7 @@ Nepomuk::DebugPlugin::DebugPlugin(QObject* parent, const QList<QVariant>&):
 }
 
 
-Nepomuk::WebExtractor::DataPP* Nepomuk::DebugPlugin::getDataPP(const QSharedPointer<KConfigBase> & configFile)
+Nepomuk::WebExtractor::DataPP* Nepomuk::DebugPlugin::getExecutive(const QSharedPointer<KConfigBase> & configFile)
 {
     static WebExtractor::SimpleNetworkDataPP * m_dataPP = new Nepomuk::WebExtractor::SimpleNetworkDataPP(
         Nepomuk::DebugPlugin::version(),

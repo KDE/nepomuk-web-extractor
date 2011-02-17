@@ -29,30 +29,30 @@
 using namespace Nepomuk;
 
 /*
-DataPPConfig::DataPPConfig(  KSharedConfig::Ptr config  )
-  : DataPPConfigBase( config )
+DppExecutiveConfig::DppExecutiveConfig(  KSharedConfig::Ptr config  )
+  : DppExecutiveConfigBase( config )
 {
 }
 */
 
 
-DataPPConfig::DataPPConfig(const QString & name)
-    : DataPPConfigBase(KSharedConfig::openConfig(path.arg(name))),
+DppExecutiveConfig::DppExecutiveConfig(const QString & name)
+    : DppExecutiveConfigBase(KSharedConfig::openConfig(path.arg(name))),
       m_name(name)
 {
 }
 
-KSharedConfigPtr DataPPConfig::config()
+KSharedConfigPtr DppExecutiveConfig::config()
 {
     // TODO what about storing a weak pointer to avoid
     // reopenning of config on each call ?
     return KSharedConfig::openConfig(path.arg(m_name));
 }
 
-QSharedPointer<KConfigBase> DataPPConfig::userConfig()
+QSharedPointer<KConfigBase> DppExecutiveConfig::userConfig()
 {
     KConfigGroup * answer = new KConfigGroup();
-    *answer = DataPPConfigBase::config()->group(WE_USER_CONFIG_GROUP);
+    *answer = DppExecutiveConfigBase::config()->group(WE_USER_CONFIG_GROUP);
     QSharedPointer<KConfigBase> a(answer);
     Q_ASSERT(a);
     if (!a) {
@@ -61,61 +61,61 @@ QSharedPointer<KConfigBase> DataPPConfig::userConfig()
     return a;
 }
 
-DataPPConfig::~DataPPConfig()
+DppExecutiveConfig::~DppExecutiveConfig()
 {
 }
 
-bool DataPPConfig::isValid() const
+bool DppExecutiveConfig::isValid() const
 {
-    return DataPPConfigBase::source().size();
+    return DppExecutiveConfigBase::source().size();
 }
 
-WebExtractorPlugin * DataPPConfig::plugin()
+WebExtractorPlugin * DppExecutiveConfig::plugin()
 {
-    return GlobalSettings::plugin(DataPPConfigBase::source());
+    return GlobalSettings::plugin(DppExecutiveConfigBase::source());
 }
 
-WebExtractorPluginKCM * DataPPConfig::kcm()
+WebExtractorPluginKCM * DppExecutiveConfig::kcm()
 {
-    WebExtractorPluginKCM * answer = GlobalSettings::kcm(DataPPConfigBase::source());
+    WebExtractorPluginKCM * answer = GlobalSettings::kcm(DppExecutiveConfigBase::source());
     if ( answer )
-	answer->setCurrentDataPP(this->userConfig());
+	answer->setCurrentDppExecutive(this->userConfig());
     return answer;
 }
 
-WebExtractor::DataPP * DataPPConfig::dataPP()
+WebExtractor::DppExecutive * DppExecutiveConfig::dataPP()
 {
     return dataPP(m_name);
 }
 
-QHash< QString, Nepomuk::WebExtractor::DataPP*> & DataPPConfig::m_datapp()
+QHash< QString, Nepomuk::WebExtractor::DppExecutive*> & DppExecutiveConfig::m_datapp()
 {
-    static QHash< QString, Nepomuk::WebExtractor::DataPP*> m_dp;
+    static QHash< QString, Nepomuk::WebExtractor::DppExecutive*> m_dp;
     return m_dp;
 }
 
-QReadWriteLock & DataPPConfig::m_lock()
+QReadWriteLock & DppExecutiveConfig::m_lock()
 {
     static QReadWriteLock m_l;
     return m_l;
 }
 
 
-WebExtractor::DataPP * DataPPConfig::dataPP(const QString & name)
+WebExtractor::DppExecutive * DppExecutiveConfig::dataPP(const QString & name)
 {
     QReadLocker rl(&m_lock());
-    QHash< QString, Nepomuk::WebExtractor::DataPP*>::iterator it = m_datapp().find(name);
+    QHash< QString, Nepomuk::WebExtractor::DppExecutive*>::iterator it = m_datapp().find(name);
 
     if(it == m_datapp().end()) {
         rl.unlock();
         // Load datapp
-        DataPPConfig * dppcfg = new DataPPConfig(name);
+        DppExecutiveConfig * dppcfg = new DppExecutiveConfig(name);
         if(!dppcfg->isValid())
             return 0;
 
         WebExtractorPlugin * plg = dppcfg->plugin();
         if(plg) {
-            WebExtractor::DataPP * dpp = plg->getDataPP(dppcfg->userConfig());
+            WebExtractor::DppExecutive * dpp = plg->getExecutive(dppcfg->userConfig());
             // Insert even if dpp == 0.
             QWriteLocker wl(&m_lock());
             m_datapp().insert(name, dpp);
@@ -130,10 +130,10 @@ WebExtractor::DataPP * DataPPConfig::dataPP(const QString & name)
     return *it;
 }
 
-int DataPPConfig::dataPPCount()
+int DppExecutiveConfig::dataPPCount()
 {
     QReadLocker rl(&m_lock());
     return m_datapp().size();
 }
 
-QString Nepomuk::DataPPConfig::path = QString(PLUGIN_CONFIG_DIR"%1rc");
+QString Nepomuk::DppExecutiveConfig::path = QString(PLUGIN_CONFIG_DIR"%1rc");

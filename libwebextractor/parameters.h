@@ -24,7 +24,7 @@
 #include <QtCore/QSharedDataPointer>
 #include "global.h"
 #include "webextractor_export.h"
-#include "datappwrapper.h"
+#include "executivewrapper.h"
 #include <Soprano/Backend>
 #include <Soprano/Global>
 #include <Nepomuk/ResourceManager>
@@ -63,14 +63,14 @@ namespace Nepomuk
                 void setUCrit(double);
 
                 /*
-                double scaleCoff(DataPP*)  const;
-                void setScaleCoff(DataPP*, double) ;
+                double scaleCoff(Executive*)  const;
+                void setScaleCoff(Executive*, double) ;
                 */
 
-                const DataPPKeeper & plugins() const;
-                void addDataPP(DataPPWrapper *) ;
+                const ExecutiveKeeper & plugins() const;
+                void addExecutive(ExecutiveWrapper *) ;
 
-                bool hasAnyDataPP() const;
+                bool hasAnyExecutive() const;
                 int dataPPCount() const;
 
                 QString backendName() const;
@@ -121,7 +121,7 @@ namespace Nepomuk
                 void setDecisionsModel(Soprano::Model * decisionsModel, bool autoManageOntologies = true);
 
                 /*! \brief Set resource service data manager
-                 * ResourceServiceData is responsible for storing information about examined DataPP
+                 * ResourceServiceData is responsible for storing information about examined Executive
                  * for resource
                  */
                 ResourceServiceDataManager * resourceServiceDataManager() const;

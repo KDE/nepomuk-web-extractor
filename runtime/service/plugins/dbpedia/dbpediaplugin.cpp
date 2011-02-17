@@ -30,7 +30,7 @@ Nepomuk::DbpediaPlugin::DbpediaPlugin(QObject * parent, const QList<QVariant> &)
     ;
 }
 
-Nepomuk::WebExtractor::DataPP*  Nepomuk::DbpediaPlugin::getDataPP(KSharedConfigPtr configFile)
+Nepomuk::WebExtractor::DataPP*  Nepomuk::DbpediaPlugin::getExecutive(KSharedConfigPtr configFile)
 {
 }
 

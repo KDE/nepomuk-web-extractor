@@ -28,14 +28,14 @@ class Nepomuk::WebExtractor::ExtractParameters::Private : public QSharedData
     public:
         // Merging politics
         MergePolitics m_mergePolitics;
-        // DataPP launch politics
+        // Executive launch politics
         LaunchPolitics m_launchPolitics;
-        // DataPP launch step. Used in some launch politics
+        // Executive launch step. Used in some launch politics
         unsigned int m_pss;
         // Thresholds
         double acrit, ucrit;
         // Storage of all plugins to launch
-        DataPPKeeper dataPPlugins;
+        ExecutiveKeeper dataPPlugins;
         // Backend name. If set to empty string,
         // then the most apropriate backend will be found
         QString backendName;
@@ -81,7 +81,7 @@ const Nepomuk::WebExtractor::ExtractParameters & Nepomuk::WebExtractor::ExtractP
     return *this;
 }
 
-bool Nepomuk::WebExtractor::ExtractParameters::hasAnyDataPP() const
+bool Nepomuk::WebExtractor::ExtractParameters::hasAnyExecutive() const
 {
     return (d->dataPPlugins.size() != 0);
 }
@@ -167,12 +167,12 @@ void Nepomuk::WebExtractor::ExtractParameters::setUCrit(double val)
 
 }
 
-const Nepomuk::WebExtractor::DataPPKeeper & Nepomuk::WebExtractor::ExtractParameters::plugins()  const
+const Nepomuk::WebExtractor::ExecutiveKeeper & Nepomuk::WebExtractor::ExtractParameters::plugins()  const
 {
     return d->dataPPlugins;
 }
 
-void Nepomuk::WebExtractor::ExtractParameters::addDataPP(DataPPWrapper * pp)
+void Nepomuk::WebExtractor::ExtractParameters::addExecutive(ExecutiveWrapper * pp)
 {
     d->dataPPlugins.insert(pp->data(), pp);
 }
@@ -247,16 +247,16 @@ QMap<QString, int> NW::ExtractParameters::dataPPInfo() const
     // TODO Introduce caching of the result
     QMap<QString, int> answer;
 
-    foreach(const DataPPWrapper * wrp, d->dataPPlugins) {
+    foreach(const ExecutiveWrapper * wrp, d->dataPPlugins) {
         answer.insert(wrp->name(), wrp->version());
     }
     return answer;
 }
 /*
-double Nepomuk::WebExtractor::ExtractParameters::scaleCoff(DataPP* pp)  const
+double Nepomuk::WebExtractor::ExtractParameters::scaleCoff(Executive* pp)  const
 {
     if (!d->coffs.contains(pp) ) {
-    kDebug() << "Unknown DataPP.";
+    kDebug() << "Unknown Executive.";
     return 0;
     }
     else {
@@ -264,10 +264,10 @@ double Nepomuk::WebExtractor::ExtractParameters::scaleCoff(DataPP* pp)  const
     }
 }
 
-void Nepomuk::WebExtractor::ExtractParameters::setScaleCoff(DataPP* pp, double coff)
+void Nepomuk::WebExtractor::ExtractParameters::setScaleCoff(Executive* pp, double coff)
 {
     if (!d->coffs.contains(pp) ) {
-    kDebug() << "Unknown DataPP.";
+    kDebug() << "Unknown Executive.";
     }
     else {
      d->coffs[pp] = coff;;
@@ -285,8 +285,8 @@ QDebug Nepomuk::WebExtractor::operator<<(QDebug dbg,  const Nepomuk::WebExtracto
     } else {
         dbg << "All launch politics\n";
     }
-    dbg << "DataPP:( " << p.d->dataPPlugins.size() << ')' << '\n';
-    foreach(DataPPWrapper * w, p.d->dataPPlugins) {
+    dbg << "Executive:( " << p.d->dataPPlugins.size() << ')' << '\n';
+    foreach(ExecutiveWrapper * w, p.d->dataPPlugins) {
         dbg << w->name() << w->version() << '\n';
     }
     return dbg;

@@ -33,51 +33,56 @@ class WebExtractorPlugin;
 class KConfigGroup;
 class Category;
 
-class DataPPDescr
+class DppExecutiveDescr
 {
 public:
-    DataPPDescr(KService::Ptr service);
-    DataPPDescr(const DataPPDescr&);
-    ~DataPPDescr();
+    DppExecutiveDescr(const QString & id);
+    DppExecutiveDescr(const DppExecutiveDescr&);
+    ~DppExecutiveDescr();
 
-    DataPPDescr& operator=(const DataPPDescr&);
+    DppExecutiveDescr& operator=(const DppExecutiveDescr&);
 
     Category* category() const;
-    KService::Ptr service() const;
+    //KService::Ptr service() const;
 
     /**
      * Create an instance of the corresponding plugin.
      * \return The new plugin instance or 0 on failure.
      * The caller takes ownership.
      */
-    Nepomuk::WebExtractorPlugin* createPlugin() const;
+    //Nepomuk::WebExtractorPlugin* createPlugin() const;
 
     /**
      * A unique ID for the datapp. This is a random string which is
      * automatically generated for local datapps.
      * Plugin developers would come up with their own ids.
      */
-    QString identifier() const;
+    //QString identifier() const;
 
     double rank() const;
     double coff() const;
     bool trusted() const;
     bool enabled() const;
+    /*! \brief System name of the DppExecutive.
+     * It is not for displaying
+     */
+    QString identifier() const;
 
     void setRank(double rank);
     void setCoff(double coff);
     void setTrusted(bool trusted);
     void setEnabled(bool enabled);
 
+
     bool isValid() const;
 
-    bool operator==(const DataPPDescr& other) const;
+    bool operator==(const DppExecutiveDescr& other) const;
 
     void save(KConfigGroup& config) const;
-    static DataPPDescr load(const KConfigGroup& config, Nepomuk::CategoriesPool* pool);
+    static DppExecutiveDescr load(const KConfigGroup& config);
 
 Q_SIGNALS:
-    void changed(DataPPDescr*);
+    void changed(DppExecutiveDescr*);
 
 private:
     class Private;

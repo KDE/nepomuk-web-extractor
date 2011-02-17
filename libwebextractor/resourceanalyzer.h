@@ -23,7 +23,7 @@
 #include <QSharedDataPointer>
 #include <Nepomuk/Resource>
 #include "webextractor_export.h"
-#include "datappwrapper.h"
+#include "executivewrapper.h"
 #include "global.h"
 #include "decisionlist.h"
 
@@ -64,18 +64,18 @@ namespace Nepomuk
                 /*! \brief Abort analyzing. No signal will be send
                  * The method will abort analyzing but will not clear already
                  * collected data. Call clear() to do this.
-                         * No information about examined DataPP  will be written back
+                         * No information about examined Executive  will be written back
                          * to storage.
                          * The already generated Decisions still can be retrived
                          * with decisions() method.
                  */
                 void abort();
 
-                /*! \brief Mark all finished DataPP as examined for this resource
-                 * After executing this function  will mark finished DataPP as
+                /*! \brief Mark all finished Executive as examined for this resource
+                 * After executing this function  will mark finished Executive as
                  * examined for this resource
                  */
-                //void markExaminedDataPP() const;
+                //void markExaminedExecutive() const;
             public:
                 enum AnalyzingError {
                     /*! \brief No error
@@ -94,9 +94,9 @@ namespace Nepomuk
                      */
                     InvalidResource,
 
-                    /*! No unexamined DataPP
+                    /*! No unexamined Executive
                      */
-                    NoUnexaminedDataPP,
+                    NoUnexaminedExecutive,
 
                     /*! Unknown resource.
                      * This is usually a bug in system
@@ -112,27 +112,27 @@ namespace Nepomuk
                      * can be generated or when none of decisions generated can not be
                      * applied automatically.
 		     * There is one more benefit  in this mode - if in previous iteration
-		     * some DataPP was examined, then in this iteration it will be exmained
+		     * some Executive was examined, then in this iteration it will be exmained
 		     * too. The problem that it solves is: what if changes, introduced
 		     * with applied (at the end of the iteration) Decision has not changed
 		     * nao:lastModified date of the resource. For example Decision change
 		     * the information about author of the song. Then we have a situation
 		     * where information is actually changed, but there is no records
-		     * about it. In SingleStep politics all DataPP will be marked as
-		     * examined - because to detect non-examined DataPP system compares
+		     * about it. In SingleStep politics all Executive will be marked as
+		     * examined - because to detect non-examined Executive system compares
 		     * 2 dates - last modification date of the resource and extraction
-		     * date of the DataPP. In Iterative politics all DataPP from previous
+		     * date of the Executive. In Iterative politics all Executive from previous
 		     * iteration  will be executed in current iteration.
                      * Choosing this politics help decrease request to Nepomuk because
-                     * auxilary data(DataPP name, version, time of extracting) will
+                     * auxilary data(Executive name, version, time of extracting) will
                      * be written only once - at the end.
                      */
                     Iterative,
                     /*! \brief Stop after each analyzing step
                      * When this politics is selected, analyzing process will stop
-                     * after the extracting session finished (All selected DataPP
+                     * after the extracting session finished (All selected Executive
                      * generate Decisions or report an error). After that necessary
-                     * metadata will be added to Nepomuk - list of DataPP that succeeded,
+                     * metadata will be added to Nepomuk - list of Executive that succeeded,
                      * their version, time extracting finished.
                      * After analyzing process finished, you can call apply() to apply
                      * the best decision or do what ever you want.
@@ -220,21 +220,21 @@ namespace Nepomuk
 
 
 
-                /*! \brief Return list of emamined DataPP for given resource
+                /*! \brief Return list of emamined Executive for given resource
                  * Be aware that calling this function while given resource is being
                  * analyzed may return obsolete results
                  */
-                //static QMap<QString,QString > examinedDataPPInfo(const Nepomuk::Resource & res);
-                //static void setExaminedDataPPInfo( Nepomuk::Resource & res, const QMap< QString, QString > & info);
-                /*! \brief Mark given DataPP ( name, version) as finished for given resource
+                //static QMap<QString,QString > examinedExecutiveInfo(const Nepomuk::Resource & res);
+                //static void setExaminedExecutiveInfo( Nepomuk::Resource & res, const QMap< QString, QString > & info);
+                /*! \brief Mark given Executive ( name, version) as finished for given resource
                  * Resource must exists
                  */
-                //static void setExaminedDataPPInfo( Nepomuk::Resource & res, const  QString & name,const QString & info);
+                //static void setExaminedExecutiveInfo( Nepomuk::Resource & res, const  QString & name,const QString & info);
 
-                /*! \brief Clear obsolete DataPP info for given resource
+                /*! \brief Clear obsolete Executive info for given resource
                  */
-                //static void clearObsoleteExaminedDataPPInfo( Nepomuk::Resource & res, int expirationInterval = 0);
-                //static void clearExaminedDataPPInfo( Nepomuk::Resource & res );
+                //static void clearObsoleteExaminedExecutiveInfo( Nepomuk::Resource & res, int expirationInterval = 0);
+                //static void clearExaminedExecutiveInfo( Nepomuk::Resource & res );
 
             Q_SIGNALS:
                 /*! \brief This signal is emmited when analyzing is finished
@@ -265,7 +265,7 @@ namespace Nepomuk
                 // Implementation API
             private:
                 ResourceAnalyzer(
-                    const DataPPKeeper & ,
+                    const ExecutiveKeeper & ,
                     DecisionFactory * fact, // Take ownership
 		    ResourceServiceDataManager * rsdManager,
                     MergePolitics mergePolitics,
@@ -281,17 +281,17 @@ namespace Nepomuk
                 const ResourceAnalyzer & operator=(const ResourceAnalyzer &);
 
             private Q_SLOTS:
-                /*! \brief This slot is called when DataPP has finished without error
+                /*! \brief This slot is called when Executive has finished without error
                  */
                 void pluginFinished();
-                /*! \brief This slot is callde when DataPP has finished with error
+                /*! \brief This slot is callde when Executive has finished with error
                       */
                 void pluginError();
 
-                //  This is service slot. It tries to launch next pack of the DataPP.
-                //  It return true if any DataPP was launched and false - otherwise.
+                //  This is service slot. It tries to launch next pack of the Executive.
+                //  It return true if any Executive was launched and false - otherwise.
                 //  The only reason for returning false is that there is no more
-                //  DataPP to launch.
+                //  Executive to launch.
                 bool launchNext();
 
                 // This is service slot. It is just a shorthand for
@@ -337,9 +337,9 @@ namespace Nepomuk
                 // this method and return directly back to Qt main loop
                 void abortWithError(AnalyzingError code);
 
-                // This method will return DataPPReply * pointer retrived from
-                // QObject::sender(). If the sender is not DataPPReply, 0 will
-                // be returned. Is reply is from unregistered DataPP, then
+                // This method will return ExecutiveReply * pointer retrived from
+                // QObject::sender(). If the sender is not ExecutiveReply, 0 will
+                // be returned. Is reply is from unregistered Executive, then
                 // 0 will be returned.
                 //  The reply  will be deleted from the m_replies variable.
                 //  If reply is registered, then counter of replies will be
@@ -347,8 +347,8 @@ namespace Nepomuk
                 // This method is necessary only to avoid code duplicates in
                 // pluginFinished() and pluginError()
                 // Again, ATTENTION: Reply will be deleted form the m_replies
-                // For unregistered DataPPReply, deleteLater will also be called,
-                DataPPReply * acceptReply();
+                // For unregistered ExecutiveReply, deleteLater will also be called,
+                ExecutiveReply * acceptReply();
 
             public:
                 friend class ResourceAnalyzerFactory;

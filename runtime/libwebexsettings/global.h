@@ -30,13 +30,13 @@ namespace Nepomuk {
 	public:
 	    static int pluginCount();
 	// FIXME Make all members private and open them to some config classes:
-	// DataPPConfig , may be category config
+	// DppExecutiveConfig , may be category config
 	public:
-	    /*! \brief Return plugin for given DataPP
+	    /*! \brief Return plugin for given DppExecutive
 	     */
 	    static WebExtractorPlugin * plugin(const QString & name );
 	    /*! \brief Return KCM for given plugin
-	     * \param pluginName It is name of the plugin. <b>Not name of the DataPP </b>
+	     * \param pluginName It is name of the plugin. <b>Not name of the DppExecutive </b>
 	     */
 	    static WebExtractorPluginKCM * kcm( const QString & pluginName );
 	    // Temporaly desabled as unused

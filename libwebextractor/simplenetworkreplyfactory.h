@@ -25,14 +25,14 @@
 namespace Nepomuk {
     namespace WebExtractor {
 
-	class SimpleNetworkDataPPReply;
-	class SimpleNetworkDataPP;
+	class SimpleNetworkExecutiveReply;
+	class SimpleNetworkExecutive;
 	class DecisionFactory;
 
 	class WEBEXTRACTOR_EXPORT SimpleReplyFactory 
 	{
 	    public:
-		virtual SimpleNetworkDataPPReply * newReply(SimpleNetworkDataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource  & res) = 0;
+		virtual SimpleNetworkExecutiveReply * newReply(SimpleNetworkExecutive * parent, const DecisionFactory * factory, const Nepomuk::Resource  & res) = 0;
 		virtual ~SimpleReplyFactory();
 	};
 
@@ -40,7 +40,7 @@ namespace Nepomuk {
 	class SimpleReplyFactoryTemplate : public SimpleReplyFactory
 	{
 	    public:
-		virtual SimpleNetworkDataPPReply * newReply(SimpleNetworkDataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource  & res)
+		virtual SimpleNetworkExecutiveReply * newReply(SimpleNetworkExecutive * parent, const DecisionFactory * factory, const Nepomuk::Resource  & res)
 		{
 		    return new T(parent, factory, res);
 		}

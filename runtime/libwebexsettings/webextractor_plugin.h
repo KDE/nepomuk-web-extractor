@@ -19,7 +19,7 @@
 #ifndef _WEBEXTRCT_PLUGIN
 #define _WEBEXTRCT_PLUGIN
 #include <kdemacros.h>
-//#include "datapp.h"
+//#include "dppexecutive.h"
 #include <KConfigBase>
 #include <QSharedPointer>
 #include <QtCore/QObject>
@@ -27,7 +27,7 @@
 namespace Nepomuk
 {
     namespace WebExtractor {
-	class DataPP;
+	class DppExecutive;
     }
 
     class KDE_EXPORT WebExtractorPlugin : public QObject
@@ -35,7 +35,7 @@ namespace Nepomuk
             Q_OBJECT;
         public:
             WebExtractorPlugin(QObject *);
-            virtual Nepomuk::WebExtractor::DataPP * getDataPP(const QSharedPointer<KConfigBase> & configFile) = 0;
+            virtual Nepomuk::WebExtractor::DppExecutive * getExecutive(const QSharedPointer<KConfigBase> & configFile) = 0;
             virtual ~WebExtractorPlugin() = 0;
             // QWidget *
             //

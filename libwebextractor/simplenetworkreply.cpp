@@ -17,10 +17,10 @@
  */
 
 #include "simplenetworkreply.h"
-#include "simplenetworkdatapp.h"
+#include "simplenetworkexecutive.h"
 
 namespace NW=Nepomuk::WebExtractor;
 
-NW::SimpleNetworkDataPPReply::SimpleNetworkDataPPReply( SimpleNetworkDataPP * parent, const DecisionFactory * factory, const Nepomuk::Resource & res):
-    DataPPReply(parent)
+NW::SimpleNetworkExecutiveReply::SimpleNetworkExecutiveReply( SimpleNetworkExecutive * parent, const DecisionFactory * factory, const Nepomuk::Resource & res):
+    ExecutiveReply(parent)
 {;}

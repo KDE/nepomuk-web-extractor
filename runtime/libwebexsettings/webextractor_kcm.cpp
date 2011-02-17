@@ -36,7 +36,7 @@ Nepomuk::WebExtractorPluginKCM::WebExtractorPluginKCM(const KComponentData & dat
 {
 }
 
-void Nepomuk::WebExtractorPluginKCM::setCurrentDataPP( const QSharedPointer<KConfigBase> & dataPPConfig )
+void Nepomuk::WebExtractorPluginKCM::setCurrentDppExecutive( const QSharedPointer<KConfigBase> & dataPPConfig )
 {
     d->m_config = dataPPConfig;
     this->load();

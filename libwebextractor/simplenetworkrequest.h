@@ -26,26 +26,26 @@
 
 namespace Nepomuk {
     namespace WebExtractor { 
-	class SimpleNetworkDataPP;
-	/*! \brief Class representing one reques to servegr, guarded by SimpleNetworkDataPP 
-	 * Class usage: Create instance, connect to it signals, send it to SimpleNetworkDataPP
+	class SimpleNetworkExecutive;
+	/*! \brief Class representing one reques to servegr, guarded by SimpleNetworkExecutive 
+	 * Class usage: Create instance, connect to it signals, send it to SimpleNetworkExecutive
 	 * Attention: To prevent problems in multithreaded applications connect to signals
-	 * before sending to SimleDataPP
+	 * before sending to SimleExecutive
 	 */
-	class WEBEXTRACTOR_EXPORT SimpleNetworkDataPPRequest : public QObject
+	class WEBEXTRACTOR_EXPORT SimpleNetworkExecutiveRequest : public QObject
 	{
 	    Q_OBJECT;
 	    public:
-		SimpleNetworkDataPPRequest(const QString & requestUrlPart, QObject * parent = 0);
-		~SimpleNetworkDataPPRequest();
+		SimpleNetworkExecutiveRequest(const QString & requestUrlPart, QObject * parent = 0);
+		~SimpleNetworkExecutiveRequest();
 		QNetworkReply * reply() const;
 		QString requestUrlPart() const;
 		/*! \brief This function delete accosiated QNetworkReply( if any )
 		 * This function will be called automatically when request is sent to
-		 * SimpleNetworkDataPP. But you can call it yourself.
+		 * SimpleNetworkExecutive. But you can call it yourself.
 		 */
 		void clear();
-		friend class SimpleNetworkDataPP;
+		friend class SimpleNetworkExecutive;
 	    Q_SIGNALS:	
 		void finished();
 		void error();

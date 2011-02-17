@@ -28,9 +28,9 @@ namespace Nepomuk {
     /*! \brief This class is used for storing information about webextractor service categories
      * Category  means some set of configurations here. It is a config object 
      * that contains information about wha^t Nepomuk resources belong to
-     * this category and what DataPP should process this resources.
-     * \note <b> Do not mix the webextractor service category and category of the DataPP! </b>
-     * The category of the DataPP is just a tags that can be used for more convinient 
+     * this category and what DppExecutive should process this resources.
+     * \note <b> Do not mix the webextractor service category and category of the DppExecutive! </b>
+     * The category of the DppExecutive is just a tags that can be used for more convinient 
      * representation.
      *
      * CategoriesPool contains all information about all existing categories, both 

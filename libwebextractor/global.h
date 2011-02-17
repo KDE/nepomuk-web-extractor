@@ -63,7 +63,7 @@ namespace Nepomuk
         WEBEXTRACTOR_EXPORT double boundACrit(double val);
         WEBEXTRACTOR_EXPORT double boundUCrit(double val);
 
-        WEBEXTRACTOR_EXPORT int defaultDataPPTimeout();
+        WEBEXTRACTOR_EXPORT int defaultExecutiveTimeout();
 
     }
 }

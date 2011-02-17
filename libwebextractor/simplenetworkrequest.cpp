@@ -21,36 +21,36 @@
 
 namespace NW=Nepomuk::WebExtractor;
 
-NW::SimpleNetworkDataPPRequest::SimpleNetworkDataPPRequest(const QString & requestUrlPart, QObject* parent):
+NW::SimpleNetworkExecutiveRequest::SimpleNetworkExecutiveRequest(const QString & requestUrlPart, QObject* parent):
     QObject(parent),
     m_requestUrlPart(requestUrlPart),
     m_reply(0)
 {
 }
 
-NW::SimpleNetworkDataPPRequest::~SimpleNetworkDataPPRequest()
+NW::SimpleNetworkExecutiveRequest::~SimpleNetworkExecutiveRequest()
 {
     delete m_reply;
 }
 
-QNetworkReply * NW::SimpleNetworkDataPPRequest::reply() const
+QNetworkReply * NW::SimpleNetworkExecutiveRequest::reply() const
 {
     return m_reply;
 }
 
-void NW::SimpleNetworkDataPPRequest::clear()
+void NW::SimpleNetworkExecutiveRequest::clear()
 {
     if (m_reply)
 	m_reply->deleteLater();
     m_reply = 0;
 }
 
-QString NW::SimpleNetworkDataPPRequest::requestUrlPart() const
+QString NW::SimpleNetworkExecutiveRequest::requestUrlPart() const
 {
     return m_requestUrlPart;
 }
 
-void NW::SimpleNetworkDataPPRequest::setReply( QNetworkReply * reply )
+void NW::SimpleNetworkExecutiveRequest::setReply( QNetworkReply * reply )
 {
     Q_ASSERT(m_reply == 0);
     m_reply = reply;

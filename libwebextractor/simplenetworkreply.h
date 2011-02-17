@@ -19,19 +19,19 @@
 #ifndef __simple_network_datareply_h_
 #define __simple_network_datareply_h_
 
-#include "datappreply.h"
+#include "executivereply.h"
 #include "webextractor_export.h"
 #include <Nepomuk/Resource>
 
 namespace Nepomuk {
     namespace WebExtractor {
-	class SimpleNetworkDataPP;
+	class SimpleNetworkExecutive;
 	class DecisionFactory;
-	class WEBEXTRACTOR_EXPORT SimpleNetworkDataPPReply : public DataPPReply
+	class WEBEXTRACTOR_EXPORT SimpleNetworkExecutiveReply : public ExecutiveReply
 	{
 	    Q_OBJECT;
 	    public:
-		SimpleNetworkDataPPReply(SimpleNetworkDataPP * parent , const DecisionFactory * factory, const Nepomuk::Resource & res);
+		SimpleNetworkExecutiveReply(SimpleNetworkExecutive * parent , const DecisionFactory * factory, const Nepomuk::Resource & res);
 		/*! \brief main function for Reply. All work should be done here
 		 * This methon must return 0 when all work is finished,
 		 * and non-zero otherwise. The method will be called untill it

@@ -24,7 +24,7 @@
 #include <Soprano/Global>
 #include <Nepomuk/Tag>
 #include <Soprano/StorageModel>
-#include "datapp.h"
+#include "executive.h"
 
 namespace NW = Nepomuk::WebExtractor;
 
@@ -32,7 +32,7 @@ class NW::ResourceAnalyzerFactory::Private
 {
     public:
         Private();
-        DataPPKeeper  dataPPKeeper;
+        ExecutiveKeeper  dataPPKeeper;
 
 #warning trueg: Instead of copying every valus why not simply store an ExtractParameters instance?
         LaunchPolitics launchPolitics;
