@@ -21,9 +21,9 @@
 
 #include "autotagplugin_config.h"
 
-#include "autotagdatappreply.h"
+#include "autotagexecutivereply.h"
 
-#include "autotagdatapp.h"
+#include "autotagexecutive.h"
 
 #include "decisionfactory.h"
 #include <Nepomuk/Resource>
@@ -37,8 +37,8 @@
 
 namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::AutotagReply::AutotagReply(AutotagDataPP * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res):
-    SimpleDataPPReply(parent, factory, res)
+Nepomuk::AutotagReply::AutotagReply(AutotagExecutive * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res):
+    SimpleExecutiveReply(parent, factory, res)
 {
     // Check that resource is file object
     if(!res.hasType(Nepomuk::Vocabulary::NFO::FileDataObject())) {

@@ -21,9 +21,9 @@
 
 #include "testplugin_config.h"
 
-#include "testdatappreply.h"
+#include "testexecutivereply.h"
 
-#include "testdatapp.h"
+#include "testexecutive.h"
 
 #include <webextractor/decisionfactory.h>
 #include <Nepomuk/Resource>
@@ -35,8 +35,8 @@
 
 namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::TestReply::TestReply(TestDataPP * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res):
-    SimpleDataPPReply(parent, factory, res)
+Nepomuk::TestReply::TestReply(TestExecutive * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res):
+    SimpleExecutiveReply(parent, factory, res)
 {
     bool result = true;
 

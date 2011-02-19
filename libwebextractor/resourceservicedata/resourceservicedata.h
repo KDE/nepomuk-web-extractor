@@ -41,21 +41,21 @@ namespace Nepomuk
                 ResourceServiceData(const ResourceServiceData & arg);
                 const ResourceServiceData & operator= (const ResourceServiceData & rhs);
                 ~ResourceServiceData();
-                /*! \brief Add/Update information about examined Executive ( name, version)
+                /*! \brief Add/Update information about examined DataPP ( name, version)
                  */
-                void setExaminedExecutiveInfo(const QString & dataPPName, int  dataPPVersion) ;
+                void setExaminedDataPPInfo(const QString & dataPPName, int  dataPPVersion) ;
 
-                /*! \brief Return map (name, version ) about all examined Executive
+                /*! \brief Return map (name, version ) about all examined DataPP
                  */
-                QMap< QString, int > examinedExecutiveInfo();
+                QMap< QString, int > examinedDataPPInfo();
 
-                /*! \brief Return true if all given Executive has been examined for the resource
+                /*! \brief Return true if all given DataPP has been examined for the resource
                  */
-                bool checkExaminedExecutiveInfo(const QMap< QString, int> & dataPP) const;
-                bool checkExaminedExecutiveInfo(const QString  & name) const;
-                bool checkExaminedExecutiveInfo(const QString  & name, int version) const;
+                bool checkExaminedDataPPInfo(const QMap< QString, int> & dataPP) const;
+                bool checkExaminedDataPPInfo(const QString  & name) const;
+                bool checkExaminedDataPPInfo(const QString  & name, int version) const;
 
-                /*! \brief Clear all information about examined Executive
+                /*! \brief Clear all information about examined DataPP
                  */
                 void clearExaminedInfo() ;
                 void clearExaminedInfo(const QString & dataPPName) ;
@@ -67,7 +67,7 @@ namespace Nepomuk
                 void clearServiceInfo();
 
 
-                QMap< QString, QDateTime > examinedExecutiveDates();
+                QMap< QString, QDateTime > examinedDataPPDates();
                 QDateTime examinedDate(const QString & name);
                 bool isValid() const;
 

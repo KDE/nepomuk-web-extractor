@@ -1,4 +1,4 @@
-#include "musicbrainz_datapp.h"
+#include "musicbrainz_executive.h"
 #include "musicbrainzconfig.h"
 
 
@@ -11,7 +11,7 @@ Nepomuk::MusicBrainzWEPlugin::MusicBrainzWEPlugin()
 {
 }
 
-Nepomuk::WebExtractor::DataPP * MusicBrainzWEPlugin::getExecutive( KSharedConfigPtr configFile )
+Nepomuk::WebExtractor::Executive * MusicBrainzWEPlugin::getExecutive( KSharedConfigPtr configFile )
 {
     MusicBrainzConfig * c = new MusicBrainzConfig(configFile);
     QString serverName = c->serverName();
@@ -21,8 +21,8 @@ Nepomuk::WebExtractor::DataPP * MusicBrainzWEPlugin::getExecutive( KSharedConfig
 	    ) 
     {
 
-	MusicBrainzDataPP* mdpp =  new MusicBrainzDataPP(serverName);
-	m_datappCache[serverName] = QPointer<MusicBrainzDataPP>(mdpp);
+	MusicBrainzExecutive* mdpp =  new MusicBrainzExecutive(serverName);
+	m_datappCache[serverName] = QPointer<MusicBrainzExecutive>(mdpp);
 	return mdpp;
     }
     else { 

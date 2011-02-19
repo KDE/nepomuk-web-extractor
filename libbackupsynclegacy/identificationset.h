@@ -27,6 +27,8 @@
 #include <QtCore/QSharedDataPointer>
 #include <Nepomuk/ResourceManager>
 
+#include "nepomuksync_export.h"
+
 namespace Soprano {
     class Statement;
     class Model;
@@ -34,10 +36,10 @@ namespace Soprano {
 
 namespace Nepomuk {
     namespace Sync {
-
+        
         class ChangeLog;
-
-        class IdentificationSet
+        
+        class NEPOMUKSYNC_EXPORT IdentificationSet
         {
         public :
             IdentificationSet();
@@ -77,7 +79,7 @@ namespace Nepomuk {
              * Creates an IdentificationSet for all the resources present in \p resList
              */
             static IdentificationSet fromResourceList( const QList<QUrl> resList, Soprano::Model* model = Nepomuk::ResourceManager::instance()->mainModel() );
-
+            
             /**
              * Creates an IdentificationSet which contains all the identification properties
              * of all the resources present in the \p log. No model is queried to get these
@@ -91,15 +93,15 @@ namespace Nepomuk {
             bool save( const QUrl & url ) const;
             bool save( QTextStream & out ) const;
 
-	    bool contains( const QUrl & url ) const;
-
+            bool contains( const QUrl & url ) const;
+            
             QList<Soprano::Statement> toList() const;
 
             void clear();
             void mergeWith(const IdentificationSet & rhs);
-
-            IdentificationSet& operator=( const IdentificationSet & rhs );
-            IdentificationSet& operator+=(const IdentificationSet & rhs);
+            
+            IdentificationSet & operator=( const IdentificationSet & rhs );
+            IdentificationSet& operator<<(const IdentificationSet & rhs);
         private :
             class Private;
             QSharedDataPointer<Private> d;

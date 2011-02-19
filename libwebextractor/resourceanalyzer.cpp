@@ -103,8 +103,8 @@ class Nepomuk::WebExtractor::ResourceAnalyzer::Private /*: public QSharedData*/
 
         //static Nepomuk::Query::Query findContextGraphQuery(const Nepomuk::Resource & );
 
-        //QSet<QString> findUnexaminedExecutive() const;
-        void filterExaminedExecutive() ;
+        //QSet<QString> findUnexaminedDataPP() const;
+        void filterExaminedDataPP() ;
 
 };
 
@@ -153,8 +153,8 @@ Nepomuk::Query::Query NW::ResourceAnalyzer::Private::findContextGraphQuery(const
 */
 
 
-//QSet< QString > NW::ResourceAnalyzer::Private::findExaminedExecutive() const
-void NW::ResourceAnalyzer::Private::filterExaminedExecutive()
+//QSet< QString > NW::ResourceAnalyzer::Private::findExaminedDataPP() const
+void NW::ResourceAnalyzer::Private::filterExaminedDataPP()
 {
     // "Select ?d where { <res> nao:lastModified ?d1 ; <res> ndco:lastExtractionDate ?d2;
     // ?d2 > ?d1; <res> ndco:extractionFinished ?d . }
@@ -280,7 +280,7 @@ void Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::analyze(cons
 void NW::ResourceAnalyzer::doAnalyze()
 {
     // Add all datapp to queue
-    QMap< QString, int > examined = d->rsd.examinedExecutiveInfo();
+    QMap< QString, int > examined = d->rsd.examinedDataPPInfo();
     //kDebug() << "Examind info: " << examined;
     foreach(ExecutiveWrapper * dppw, d->m_dataPPKeeper) {
         // The algorithm is the folowing:
@@ -321,7 +321,7 @@ void NW::ResourceAnalyzer::doAnalyze()
         // Executive are already analyzed of becase no Executive was assigned
         // to avoid infinite recursion the analyzingFinished signal will
         // be called via QTimer::singleShot(0)
-        d->m_error = NoUnexaminedExecutive;
+        d->m_error = NoUnexaminedDataPP;
         d->m_running = false;
         kDebug() << "No unexamined Executive.";
         QTimer::singleShot(0, this, SLOT(exitWithError()));
@@ -608,7 +608,7 @@ void NW::ResourceAnalyzer::analyzingSessionFinished()
             it != d->examinedDates.end();
             it++
        ) {
-        d->rsd.setExaminedExecutiveInfo(it.key()->name(), it.key()->version());
+        d->rsd.setExaminedDataPPInfo(it.key()->name(), it.key()->version());
         kDebug() << "Mark as examined:" << it.key()->name();
     }
 
@@ -687,7 +687,7 @@ void NW::ResourceAnalyzer::setDebugInterrupter( void (*newInterrupter)() )
 }
 */
 /*
-QMap< QString, QString> NW::ResourceAnalyzer::examinedExecutiveInfo(const Nepomuk::Resource & res)
+QMap< QString, QString> NW::ResourceAnalyzer::examinedDataPPInfo(const Nepomuk::Resource & res)
 {
 }
 
@@ -735,13 +735,13 @@ QUrl NW::ResourceAnalyzer::getDecisionMetaGraph(const Nepomuk::Resource & res)
     }
     return graph;
 }
-void NW::ResourceAnalyzer::setExaminedExecutiveInfo( Nepomuk::Resource & res, const  QString & name,const QString & version)
+void NW::ResourceAnalyzer::setExaminedDataPPInfo( Nepomuk::Resource & res, const  QString & name,const QString & version)
 {
 
 }
 */
 #if 0
-void NW::ResourceAnalyzer::clearObsoleteExaminedExecutiveInfo(Nepomuk::Resource & res, int expirationInterval)
+void NW::ResourceAnalyzer::clearObsoleteExaminedDataPPInfo(Nepomuk::Resource & res, int expirationInterval)
 {
     // If lastExtractionDate is less then last modification date, then remove all
     // information about examined Executive

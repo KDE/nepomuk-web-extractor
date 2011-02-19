@@ -16,34 +16,37 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#ifndef __webextractor_datappreply_tvdb_h_
+#define __webextractor_datappreply_tvdb_h_
 
-#ifndef __webextractor_datapp_tvdb
-#define __webextractor_datapp_tvdb
-
-#include "datapp.h"
+#include "simpleexecutivereply.h"
 #include "tvshowfilenameanalyzer.h"
 
-class SeriesCache;
+#include <QtCore/QList>
 
-namespace Nepomuk
-{
-    class TvdbReply;
-    class TvdbDataPP : public WebExtractor::DataPP
+#include <tvdb/series.h>
+
+namespace Nepomuk  {
+    class TvdbExecutive;
+
+    class TvdbReply : public WebExtractor::SimpleExecutiveReply
     {
-            Q_OBJECT
-        public:
-            TvdbDataPP(int pluginVersion);
-            ~TvdbDataPP();
+        Q_OBJECT
 
-            SeriesCache* seriesCache() const {
-                return m_seriesCache;
-            }
+    public:
+        TvdbReply(TvdbExecutive* parent, const WebExtractor::DecisionFactory* factory, const Nepomuk::Resource& res, const QString& name, int season, int episode );
 
-            WebExtractor::DataPPReply* requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
+        virtual void abort();
+        virtual bool isValid() const;
 
-        private:
-            TVShowFilenameAnalyzer m_filenameAnalyzer;
-            SeriesCache* m_seriesCache;
+    private Q_SLOTS:
+        void slotRequestDone( int id, const QList<Tvdb::Series>& );
+
+    private:
+        int m_seriesCacheId;
+        const QString m_name;
+        const int m_season;
+        const int m_episode;
     };
 }
 

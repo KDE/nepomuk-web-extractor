@@ -7,6 +7,7 @@ set( rsd_SRCS
    servicedatabackend.cpp
     )
 
+soprano_add_ontology( rsd_SRCS ${libwebextractor_SOURCE_DIR}/ontology/decisions.trig "NDCO" "Nepomuk::WebExtractor::Vocabulary" "trig" VISIBILITY WEBEXTRACTOR )
 kde4_add_library( rsd STATIC ${rsd_SRCS} )
 
 IF(UNIX AND NOT WIN32)

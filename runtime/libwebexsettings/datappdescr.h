@@ -33,14 +33,14 @@ class WebExtractorPlugin;
 class KConfigGroup;
 class Category;
 
-class DppExecutiveDescr
+class DataPPDescr
 {
 public:
-    DppExecutiveDescr(const QString & id);
-    DppExecutiveDescr(const DppExecutiveDescr&);
-    ~DppExecutiveDescr();
+    DataPPDescr(const QString & id);
+    DataPPDescr(const DataPPDescr&);
+    ~DataPPDescr();
 
-    DppExecutiveDescr& operator=(const DppExecutiveDescr&);
+    DataPPDescr& operator=(const DataPPDescr&);
 
     Category* category() const;
     //KService::Ptr service() const;
@@ -63,7 +63,7 @@ public:
     double coff() const;
     bool trusted() const;
     bool enabled() const;
-    /*! \brief System name of the DppExecutive.
+    /*! \brief System name of the DataPP.
      * It is not for displaying
      */
     QString identifier() const;
@@ -76,13 +76,13 @@ public:
 
     bool isValid() const;
 
-    bool operator==(const DppExecutiveDescr& other) const;
+    bool operator==(const DataPPDescr& other) const;
 
     void save(KConfigGroup& config) const;
-    static DppExecutiveDescr load(const KConfigGroup& config);
+    static DataPPDescr load(const KConfigGroup& config);
 
 Q_SIGNALS:
-    void changed(DppExecutiveDescr*);
+    void changed(DataPPDescr*);
 
 private:
     class Private;

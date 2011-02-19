@@ -44,21 +44,21 @@ namespace Nepomuk
                 Q_OBJECT;
             public:
                 NepomukServiceDataBackend(const Nepomuk::Resource &);
-                /*! \brief Add/Update information about examined Executive ( name, version)
+                /*! \brief Add/Update information about examined DataPP ( name, version)
                  */
-                virtual void setExaminedExecutiveInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & = QDateTime());
+                virtual void setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & = QDateTime());
 
-                /*! \brief Return map (name, version ) about all examined Executive
+                /*! \brief Return map (name, version ) about all examined DataPP
                  */
-                virtual QMap< QString, int > examinedExecutiveInfo();
+                virtual QMap< QString, int > examinedDataPPInfo();
 
-                /*! \brief Clear all information about examined Executive
+                /*! \brief Clear all information about examined DataPP
                  */
                 virtual void clearExaminedInfo() ;
                 virtual void clearExaminedInfo(const QString & name) ;
 
                 // TODO Reimplement function clearServiceInfo. This function must clear
-                // all unused Executive Resources, all examined info ( including statements
+                // all unused DataPP Resources, all examined info ( including statements
                 // that are outside appropriate graph ( clearExaminedInfo() doesn't do
                 // this). Such statements may appear because of some program errors.
                 virtual void clearServiceInfo();
@@ -69,25 +69,25 @@ namespace Nepomuk
 
                 virtual QStringList serviceInfoPropertiesNames() const;
 
-                /*! \brief This is optional function, that returns map of (Executive name, last extraction date)
+                /*! \brief This is optional function, that returns map of (DataPP name, last extraction date)
                  * This function is for introspection proporses only.
                  *
                  * Backends that doesn't store this information may not implement this function. Default one will return
                  * empty map
                  */
-                virtual QMap< QString, QDateTime > examinedExecutiveDates();
+                virtual QMap< QString, QDateTime > examinedDataPPDates();
 
-                /*! \brief This is optional function that return last extraction date for given Executive
+                /*! \brief This is optional function that return last extraction date for given DataPP
                  * This function is for introspection proporses only.
                  *
-                 * This function should return date of last extraction of Executive with given name. If Executive with given name
+                 * This function should return date of last extraction of DataPP with given name. If DataPP with given name
                  * has not been used, then invalid Date should be return.
                  * Backends that doesn't store this information may not implement this function. Default one will return
-                 * invalid Executive.
+                 * invalid DataPP.
                  */
                 virtual QDateTime examinedDate(const QString & name);
 
-                static Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedExecutive, Soprano::Model * model);
+                static Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model);
 
             private:
                 /*! \brief This function tries to found graph where all information should be stored
@@ -97,16 +97,16 @@ namespace Nepomuk
                 /*! \brief This function behaves like loadGraph(), but it create the graph, if there is no one
                  */
                 void loadCreateGraph();
-                /*! \brief return url of resource, corresponding this Executive
+                /*! \brief return url of resource, corresponding this DataPP
                  * If there is no such resource, then this resource will be created.
-                 * name is the name of the Executive, version is its version.
+                 * name is the name of the DataPP, version is its version.
                  * If name or version are invalid(empty) invalid url will be returned
                  */
                 static QUrl dataPPResourceUrl(const QString & name, int version, ResourceManager * manager);
-                /*! \brief This function remove unnecessary Executive resources
+                /*! \brief This function remove unnecessary DataPP resources
                  * TODO Enable it usage
                  */
-                static void clearUnusedExecutive(ResourceManager * manager);
+                static void clearUnusedDataPP(ResourceManager * manager);
 
                 static QString date_query_templ() ;
 

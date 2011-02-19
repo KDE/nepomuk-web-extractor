@@ -20,7 +20,6 @@
 #define __webextractor_ui_decision_widget_h_
 
 #include <QWidget>
-#include <nepomuk/changelog.h>
 #include "webextractorui_export.h"
 #include "decision.h"
 

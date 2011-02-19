@@ -88,12 +88,12 @@ public:
     int pluginSelectionStep() const;
     void setPluginSelectionStep(int step);
 
-    QList<DppExecutiveDescr> plugins() const;
-    void setPlugins(const QList<DppExecutiveDescr>& plugins);
-    void addPlugin(const DppExecutiveDescr& plugin);
+    QList<DataPPDescr> plugins() const;
+    void setPlugins(const QList<DataPPDescr>& plugins);
+    void addPlugin(const DataPPDescr& plugin);
 
     /**
-     * Saves the category settings without any DppExecutive details.
+     * Saves the category settings without any DataPP details.
      */
     void save(KConfigGroup& config) const;
     void load(const KConfigGroup& config);

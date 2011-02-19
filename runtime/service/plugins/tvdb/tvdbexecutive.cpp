@@ -17,23 +17,23 @@
  */
 
 #include "tvdbplugin_config.h"
-#include "tvdbdatapp.h"
-#include "tvdbdatappreply.h"
+#include "tvdbexecutive.h"
+#include "tvdbexecutivereply.h"
 #include "seriescache.h"
 
-#include <webextractor/datappreply.h>
+#include <webextractor/executivereply.h>
 
 #include <Nepomuk/File>
 
 
-Nepomuk::TvdbDataPP::TvdbDataPP(int pluginVersion)
-    : DataPP(pluginVersion)
+Nepomuk::TvdbExecutive::TvdbExecutive(int pluginVersion)
+    : Executive(pluginVersion)
 {
     m_seriesCache = new SeriesCache(this);
 }
 
 
-Nepomuk::WebExtractor::DataPPReply* Nepomuk::TvdbDataPP::requestDecisions(const WebExtractor::DecisionFactory* factory, const Nepomuk::Resource & res)
+Nepomuk::WebExtractor::ExecutiveReply* Nepomuk::TvdbExecutive::requestDecisions(const WebExtractor::DecisionFactory* factory, const Nepomuk::Resource & res)
 {
     if(res.isFile()) {
         const KUrl url = res.toFile().url();
@@ -49,6 +49,6 @@ Nepomuk::WebExtractor::DataPPReply* Nepomuk::TvdbDataPP::requestDecisions(const 
     return 0;
 }
 
-Nepomuk::TvdbDataPP::~TvdbDataPP()
+Nepomuk::TvdbExecutive::~TvdbExecutive()
 {
 }

@@ -25,26 +25,26 @@
 namespace Nepomuk {
     class AutotagKCM : public WebExtractorPluginKCM
     {
-	Q_OBJECT;
+    Q_OBJECT;
 
-	private:
-	    void connectAll();
-	    void disconnectAll();
+    private:
+        void connectAll();
+        void disconnectAll();
 
 
 
-	public:
-            AutotagKCM(QWidget *, const QVariantList &args);
-	    virtual ~AutotagKCM();
-	    virtual void load();
-	    virtual void save();
-	    virtual void defaults();
+    public:
+        AutotagKCM(QWidget *, const QVariantList &args);
+        virtual ~AutotagKCM();
+        virtual void load();
+        virtual void save();
+        virtual void defaults();
 
-	private:
-	    AutotagKCM( const AutotagKCM & ); // No realization
-	    void operator=( const AutotagKCM &); // No realization;
-	    class Private;
-	    Private * d;
+    private:
+        AutotagKCM( const AutotagKCM & ); // No realization
+        void operator=( const AutotagKCM &); // No realization;
+        class Private;
+        Private * d;
     };
 }
 #endif

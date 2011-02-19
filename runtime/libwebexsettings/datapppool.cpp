@@ -17,7 +17,6 @@
  */
 
 #include "datapppool.h"
-#include "datappconfig.h"
 #include "webextractor_kcm.h"
 #include "settings_config.h"
 #include <QDir>
@@ -30,32 +29,35 @@
 #include <QQueue>
 #include <kstandarddirs.h>
 
+using namespace Nepomuk;
+
 class TreeItem
 {
     public:
 	TreeItem(const QString & name);
 	~TreeItem();
 	// Add datapp only if this datpp doesn't exist
-	TreeItem *  addDppExecutive(const QString & systemName, const QString & displayName);
+	TreeItem *  addDataPP(const QString & systemName, const QString & displayName);
 	// Add category only if this category doesn't exist
 	// Return pointer to category
 	TreeItem * addCategory(const QString & name);
 	TreeItem * child(int row);
-	TreeItem * category(const QString & name);
-	TreeItem * datapp(const QString & name);
-	QList< TreeItem* > allDppExecutive() const;
-	QSet< QString > allDppExecutiveNames() const;
+	TreeItem * categoryItem(const QString & name);
+	TreeItem * datappItem(const QString & name);
+	QList< TreeItem* > allDataPP() const;
+	QSet< QString > allDataPPNames() const;
 	TreeItem * parent();
 	int childsCount();
 	int row() const;
 	bool isCategory() const;
 	QString displayName() const;
 	QString sysName() const;
+    DataPP * datapp() const;
 	void print(int displacments, QDebug & stream);
 
     private:
 	// This is the system name. It can be used
-	// for DppExecutiveConfig and so on
+	// for DataPPConfig and so on
 	QString m_sysname;
 	// Name of datapp or name of category.
 	// This is human readable name and it may be used
@@ -63,7 +65,7 @@ class TreeItem
 	QString  m_name;
 	QString source;
 	// This is the pointer to KCM. It is not unique -
-	// another DppExecutive can have the same pointer
+	// another DataPP can have the same pointer
 	// This pointer is load on-demand.
 	// If there is no KCM for plugin, then pointer
 	// is equal to NULL.
@@ -77,6 +79,8 @@ class TreeItem
 	QHash< QString, TreeItem *> categories;
 
 	bool m_category;
+    mutable DataPP * m_datapp;
+    
 	TreeItem * parentItem;
 
 };
@@ -84,6 +88,7 @@ TreeItem::TreeItem(const QString & name):
     m_sysname(name),
     m_name(name),
     m_category(true),
+    m_datapp(0),
     parentItem(0)
 {
     ;
@@ -96,7 +101,7 @@ TreeItem::~TreeItem()
     }
 }
 
-TreeItem *  TreeItem::addDppExecutive(const QString & systemName, const QString & displayName)
+TreeItem *  TreeItem::addDataPP(const QString & systemName, const QString & displayName)
 {
     if(m_datapps.contains(systemName))
         return m_datapps[systemName];
@@ -125,7 +130,7 @@ TreeItem *  TreeItem::addCategory(const QString & name)
     return item;
 }
 
-TreeItem *  TreeItem::category(const QString & name)
+TreeItem *  TreeItem::categoryItem(const QString & name)
 {
     if(categories. contains(name))
         return categories[name];
@@ -133,14 +138,22 @@ TreeItem *  TreeItem::category(const QString & name)
 }
 
 
-TreeItem *  TreeItem::datapp(const QString & name)
+TreeItem *  TreeItem::datappItem(const QString & name)
 {
     if(m_datapps.contains(name))
         return m_datapps[name];
     return 0;
 }
 
-QList< TreeItem* > TreeItem::allDppExecutive() const
+DataPP * TreeItem::datapp() const
+{
+    if (m_datapp == 0) {
+        m_datapp = DataPPPool::dataPPById(m_sysname);
+    }
+    return m_datapp;
+}
+
+QList< TreeItem* > TreeItem::allDataPP() const
 {
     if(isCategory())
         return m_datapps.values();
@@ -148,7 +161,7 @@ QList< TreeItem* > TreeItem::allDppExecutive() const
 }
 
 
-QSet< QString > TreeItem::allDppExecutiveNames() const
+QSet< QString > TreeItem::allDataPPNames() const
 {
     if(isCategory())
         return m_datapps.keys().toSet();
@@ -206,7 +219,7 @@ void TreeItem::print(int displacments, QDebug & stream)
     } else {
         stream << m_name << '\n';
     }
-    // Print DppExecutive first
+    // Print DataPP first
     foreach(TreeItem * item , m_datapps) {
         item->print(displacments + 4, stream);
     }
@@ -215,7 +228,7 @@ void TreeItem::print(int displacments, QDebug & stream)
     }
 }
 
-Nepomuk::DppExecutivePool::DppExecutivePool(QObject * parent):
+Nepomuk::DataPPPool::DataPPPool(QObject * parent):
     QAbstractItemModel(parent)
 {
     m_categoryPlugins = 0;
@@ -230,13 +243,13 @@ Nepomuk::DppExecutivePool::DppExecutivePool(QObject * parent):
     //connect(&wc,SIGNAL(dirty(const QString &)),this,SLOT(update()));
 }
 
-void Nepomuk::DppExecutivePool::update()
+void Nepomuk::DataPPPool::update()
 {
     /*
     KService::List services;
     KServiceTypeTrader* trader = KServiceTypeTrader::self();
 
-    services = trader->query("WebExtractor/DppExecutive");
+    services = trader->query("WebExtractor/DataPP");
     foreach (KService::Ptr service, services) {
         kDebug() << "read datapp" << service->name();
     }
@@ -249,29 +262,29 @@ void Nepomuk::DppExecutivePool::update()
     QStringList list = myDir.entryList(filters, QDir::Files);
     */
     delete m_categoryPlugins;
-    m_categoryPlugins = new TreeItem("DppExecutive");
+    m_categoryPlugins = new TreeItem("DataPP");
     QStringList list = KGlobal::dirs()->findAllResources("config", PLUGIN_CONFIG_DIR"/*.datapp");
     foreach(const QString & plg, list) {
         QFileInfo info(plg);
         QString filename = info.fileName();
         QString name = filename;
 
-        name.remove(name.size() - 2, 2);
+        name.remove(name.size() - 6, 6);
         if(!name.isEmpty()) {
             // Put name of the plugin into the list of all plugins
-            m_availableDppExecutive.push_back(name);
+            m_availableDataPP.push_back(name);
         }
 
 
         // Open it's config to read file
-        DppExecutiveConfig * dppcfg = new DppExecutiveConfig(name);
+        DataPP* dppcfg = new DataPP(name);
         // If it is valid, add it to the list of the valid plugins
         if ( dppcfg->isValid() ) {
-            m_validDppExecutive.push_back(name);
+            m_validDataPP.push_back(name);
         }
         // Take categories
-        if(dppcfg->categories().isEmpty())   // DppExecutive is uncategorized
-            m_categoryPlugins->addDppExecutive(name, dppcfg->displayName());
+        if(dppcfg->categories().isEmpty())   // DataPP is uncategorized
+            m_categoryPlugins->addDataPP(name, dppcfg->displayName());
         else {
             foreach(const QString & categoryName, dppcfg->categories()) {
                 // Split category into subcategories
@@ -281,7 +294,7 @@ void Nepomuk::DppExecutivePool::update()
                     item = item->addCategory(cat);
                 }
 
-                item->addDppExecutive(name,dppcfg->displayName());
+                item->addDataPP(name,dppcfg->displayName());
             }
         }
 
@@ -297,17 +310,17 @@ void Nepomuk::DppExecutivePool::update()
     //m_init = true;
 }
 
-QStringList Nepomuk::DppExecutivePool::availableDppExecutive()
+QStringList Nepomuk::DataPPPool::availableDataPP()
 {
-    return self()->m_availableDppExecutive;
+    return self()->m_availableDataPP;
 }
 
-QStringList Nepomuk::DppExecutivePool::validDppExecutive()
+QStringList Nepomuk::DataPPPool::validDataPP()
 {
-    return self()->m_validDppExecutive;
+    return self()->m_validDataPP;
 }
 
-QSet< QString >  Nepomuk::DppExecutivePool::categoryDppExecutives(const QString & categoryName)
+QSet< QString >  Nepomuk::DataPPPool::categoryDataPPs(const QString & categoryName)
 {
     //return self()->m_categoryPlugins[categoryName];
     if(!categoryName.isEmpty()) {
@@ -315,13 +328,13 @@ QSet< QString >  Nepomuk::DppExecutivePool::categoryDppExecutives(const QString 
         QStringList catpath = categoryName.split('/');
         TreeItem * item = self()->m_categoryPlugins;
         foreach(const QString & cat, catpath) {
-            item = item->category(cat);
+            item = item->categoryItem(cat);
             if(!item) {  // No such category
                 kDebug() << "No such category: " << cat << "Full path: " << categoryName;
                 return QSet<QString> ();
             }
         }
-        return item->allDppExecutiveNames();
+        return item->allDataPPNames();
     }
     else {
 #warning IMPLEMENTME
@@ -331,62 +344,79 @@ QSet< QString >  Nepomuk::DppExecutivePool::categoryDppExecutives(const QString 
 }
 
 #if 0
-void Nepomuk::DppExecutivePool::addDppExecutive(const QString & name, const QString & sourcePlugin)
+void Nepomuk::DataPPPool::addDataPP(const QString & name, const QString & sourcePlugin)
 {
-    if(self()->m_availableDppExecutive.contains(name))
+    if(self()->m_availableDataPP.contains(name))
         return;
 
-    DppExecutiveConfig * dppcfg = new DppExecutiveConfig(name);
+    DataPPConfig * dppcfg = new DataPPConfig(name);
 
-    // If DppExecutive already exists
+    // If DataPP already exists
     if(dppcfg->plugin().size()) {
         // Clear it config file
-        self()->m_availableDppExecutive <<
+        self()->m_availableDataPP <<
                       }
 
-    KSharedConfigPtr Nepomuk::DppExecutivePool::dataPPConfig(const QString & name) {
+    KSharedConfigPtr Nepomuk::DataPPPool::dataPPConfig(const QString & name) {
         return KSharedConfig::openConfig()
            }
        }
 #endif
 
-QString Nepomuk::DppExecutivePool::dataPPSource(const QString & id)
+QString Nepomuk::DataPPPool::sourceById(const QString & id)
 {
     QHash<QString,QString>::const_iterator fit = self()->m_dataPPSources.find(id);
     if(fit == self()->m_dataPPSources.end()) {
-        kDebug() << "No such DppExecutive: " << id ;
+        kDebug() << "No such DataPP: " << id ;
         return QString();
     } else {
         return fit.value();
     }
 }
 
-QString Nepomuk::DppExecutivePool::displayNameById( const QString & id)
+QString Nepomuk::DataPPPool::displayNameById( const QString & id)
 {
     QHash<QString,QString>::const_iterator fit = self()->m_displayNames.find(id);
     if(fit == self()->m_displayNames.end()) {
-        kDebug() << "No such DppExecutive: " << id ;
+        kDebug() << "No such DataPP: " << id ;
         return QString();
     } else {
         return fit.value();
     }
 }
 
-Nepomuk::DppExecutivePool * Nepomuk::DppExecutivePool::self()
+DataPP * Nepomuk::DataPPPool::dataPPById(const QString & id)
 {
-    static DppExecutivePool *  m_self = new DppExecutivePool();
+    QHash< QString, DataPP*>::const_iterator fit = self()->m_dataPPHash.find(id);
+    bool s = ( fit == self()->m_dataPPHash.end() );
+    if ( s ) {
+        DataPP * dpp = new DataPP(id);
+        self()->m_dataPPHash[id] = dpp;
+        return dpp;
+    }
+    return fit.value();
+}
+
+Nepomuk::DataPPPool * Nepomuk::DataPPPool::self()
+{
+    static DataPPPool *  m_self = new DataPPPool();
     return m_self;
 }
 
-int Nepomuk::DppExecutivePool::categoryCount()
+int Nepomuk::DataPPPool::categoryCount()
 {
     return self()->m_categoryPlugins->childsCount();
+}
+
+int Nepomuk::DataPPPool::availableDataPPCount()
+{
+    return self()->m_availableDataPP.size();
 }
 
 // Non-static methods of the class
 // These are methods that realize  model functionality
 //
-QModelIndex Nepomuk::DppExecutivePool::index(int row, int column, const QModelIndex & parent) const
+QModelIndex Nepomuk::DataPPPool::index(int row, int column, const QModelIndex & parent) const
 {
     //kDebug() << "Index " << row << ' ' << column << ' ' << parent;
     if(!hasIndex(row, column, parent))
@@ -405,7 +435,7 @@ QModelIndex Nepomuk::DppExecutivePool::index(int row, int column, const QModelIn
         return QModelIndex();
 }
 
-QModelIndex Nepomuk::DppExecutivePool::parent(const QModelIndex & index) const
+QModelIndex Nepomuk::DataPPPool::parent(const QModelIndex & index) const
 {
     if(!index.isValid())
         return QModelIndex();
@@ -422,7 +452,7 @@ QModelIndex Nepomuk::DppExecutivePool::parent(const QModelIndex & index) const
 }
 
 
-int Nepomuk::DppExecutivePool::rowCount(const QModelIndex & parent) const
+int Nepomuk::DataPPPool::rowCount(const QModelIndex & parent) const
 {
     //kDebug() << "Row  count. parent: "<<parent;
     if(!parent.isValid()) {
@@ -439,7 +469,7 @@ int Nepomuk::DppExecutivePool::rowCount(const QModelIndex & parent) const
     return static_cast<TreeItem*>(parent.internalPointer())->childsCount();
 }
 
-int Nepomuk::DppExecutivePool::columnCount(const QModelIndex & parent) const
+int Nepomuk::DataPPPool::columnCount(const QModelIndex & parent) const
 {
     //kDebug() << "Column  count. parent: "<<parent;
     // If parent root item return 1
@@ -452,13 +482,13 @@ int Nepomuk::DppExecutivePool::columnCount(const QModelIndex & parent) const
     if(item->isCategory() && item->childsCount())
         return 1;
     else {
-        // If it is DppExecutive or Category without any DppExecutive assigned
+        // If it is DataPP or Category without any DataPP assigned
         return 0;
     }
 
 }
 
-QVariant Nepomuk::DppExecutivePool::data(const QModelIndex & index, int role) const
+QVariant Nepomuk::DataPPPool::data(const QModelIndex & index, int role) const
 {
     if(!index.isValid())
         return QVariant();
@@ -470,25 +500,28 @@ QVariant Nepomuk::DppExecutivePool::data(const QModelIndex & index, int role) co
         //kDebug() << item->name();
         return item->displayName();
     }
-    case DppExecutivePool::DppExecutiveRole : {
+    case DataPPPool::TypeRole : {
         return !item->isCategory() ;
     }
-    case DppExecutivePool::SourceRole : {
-        return DppExecutivePool::dataPPSource(item->sysName());
+    case DataPPPool::SourceRole : {
+        return DataPPPool::sourceById(item->sysName());
     }
-    case DppExecutivePool::IdRole : {
+    case DataPPPool::IdRole : {
 	  return item->sysName();
+    }
+    case DataPPPool::DataPPRole : {
+      return QVariant::fromValue(item->datapp());
     }
     }
     return QVariant();
 }
 
-Qt::ItemFlags Nepomuk::DppExecutivePool::flags(const QModelIndex & index) const
+Qt::ItemFlags Nepomuk::DataPPPool::flags(const QModelIndex & index) const
 {
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
 }
 
-QVariant Nepomuk::DppExecutivePool::headerData(int section, Qt::Orientation orientation,
+QVariant Nepomuk::DataPPPool::headerData(int section, Qt::Orientation orientation,
         int role) const
 {
     if(orientation == Qt::Horizontal)
@@ -498,7 +531,7 @@ QVariant Nepomuk::DppExecutivePool::headerData(int section, Qt::Orientation orie
 
 }
 
-QModelIndexList Nepomuk::DppExecutivePool::match(
+QModelIndexList Nepomuk::DataPPPool::match(
     const QModelIndex & start,
     int role,
     const QVariant & value,
@@ -536,14 +569,14 @@ QModelIndexList Nepomuk::DppExecutivePool::match(
     return answer;
 }
 
-QStringList Nepomuk::DppExecutivePool::mimeTypes() const
+QStringList Nepomuk::DataPPPool::mimeTypes() const
 {
     QStringList types;
     types << "application/vnd.text.list";
     return types;
 }
 
-QMimeData * Nepomuk::DppExecutivePool::mimeData(const QModelIndexList & indexes) const
+QMimeData * Nepomuk::DataPPPool::mimeData(const QModelIndexList & indexes) const
 {
     QMimeData *_mimeData = new QMimeData();
     //QByteArray encodedData;
@@ -551,7 +584,7 @@ QMimeData * Nepomuk::DppExecutivePool::mimeData(const QModelIndexList & indexes)
 
     foreach(QModelIndex index, indexes) {
         if(index.isValid()) {
-            if(data(index, DppExecutiveRole).toBool()) {
+            if(data(index, DataPPRole).toBool()) {
                 QString text = data(index, NameRole).toString();
                 kDebug() << "Create mimetype for index: " << index << "Name: " <<
                 text;
@@ -567,14 +600,14 @@ QMimeData * Nepomuk::DppExecutivePool::mimeData(const QModelIndexList & indexes)
 }
 
 
-QDebug Nepomuk::operator<<(QDebug dbg,  const DppExecutivePool & pool)
+QDebug Nepomuk::operator<<(QDebug dbg,  const DataPPPool & pool)
 {
-    dbg << " Pool of all DppExecutive installed in system/user " << '\n';
-    foreach(const QString & plg, pool.m_availableDppExecutive) {
+    dbg << " Pool of all DataPP installed in system/user " << '\n';
+    foreach(const QString & plg, pool.m_availableDataPP) {
         dbg << plg << /*" source: " << pool.m_dataPPSources[plg]<<*/'\n';
     }
     if(pool.m_categoryPlugins) {
-        dbg << " DppExecutive,per-category " << '\n';
+        dbg << " DataPP,per-category " << '\n';
         pool.m_categoryPlugins->print(0, dbg);
     }
 

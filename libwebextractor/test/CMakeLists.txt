@@ -20,20 +20,20 @@ add_test( dummysdbtest dummyservicedatabackendtest )
 ## ==================================================================
 
 
-##  ======================= TIMEOUT TEST ============================
-set( DATAPPTIMEOUT_SRCS
-    datapptimeouttest.cpp
-    )
-#QT4_WRAP_CPP( DATAPPTIMEOUT_MOC ${DATAPPTIMEOUT_SRCS} )
-
-kde4_add_executable(timeoutreplytest ${DATAPPTIMEOUT_SRCS} )
-
-
-target_link_libraries( timeoutreplytest
-    webextractor
-  ${NEPOMUK_LIBRARIES}
-  ${QT_QTCORE_LIBRARY}
-  ${QT_QTTEST_LIBRARY}
-  )
-
-add_test( datapptimeout timeoutreplytest )
+####  ======================= TIMEOUT TEST ============================
+##set( DATAPPTIMEOUT_SRCS
+##    datapptimeouttest.cpp
+##    )
+###QT4_WRAP_CPP( DATAPPTIMEOUT_MOC ${DATAPPTIMEOUT_SRCS} )
+##
+##kde4_add_executable(timeoutreplytest ${DATAPPTIMEOUT_SRCS} )
+##
+##
+##target_link_libraries( timeoutreplytest
+##    webextractor
+##  ${NEPOMUK_LIBRARIES}
+##  ${QT_QTCORE_LIBRARY}
+##  ${QT_QTTEST_LIBRARY}
+##  )
+##
+##add_test( datapptimeout timeoutreplytest )

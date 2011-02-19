@@ -13,15 +13,12 @@ find_package(Nepomuk REQUIRED)
 # find_package(LibNepomuksearchgui REQUIRED)
 
 # check for required packages
-if(WEBEXTRACTOR_VERSION_STRING)
+if(BUILD_METAPACKAGE)
 	# if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-	set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-		../libwebextractor/include
-		${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
 	set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
-else(WEBEXTRACTOR_VERSION_STRING)
+else(BUILD_METAPACKAGE)
 	find_package(LibWebextractor REQUIRED)
-endif(WEBEXTRACTOR_VERSION_STRING)
+endif(BUILD_METAPACKAGE)
 
 
 include_directories(

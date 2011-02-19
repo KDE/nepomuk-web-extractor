@@ -25,7 +25,7 @@
 #include <KPluginFactory>
 #include <KTempDir>
 #include "webextractor_config.h"
-#include "datappconfig.h"
+#include "datapp.h"
 #include <Nepomuk/Query/Term>
 
 namespace NQ = Nepomuk::Query;
@@ -49,7 +49,7 @@ namespace Nepomuk
         protected:
             QHash< QString, WebExtractor::ExtractParameters > m_parameters;
             //QHash< QString, Nepomuk::WebExtractor::DataPP*> m_datapp;
-            QHash< QString, Nepomuk::DataPPConfig*> m_datappConfig;
+            QHash< QString, Nepomuk::DataPP*> m_datappConfig;
             //QHash< QString, WebExtractorPlugin* > m_plugins;
             KTempDir * m_globalTempDir;
             Nepomuk::ResourceManager * m_globalManager;

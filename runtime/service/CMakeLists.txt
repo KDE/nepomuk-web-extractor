@@ -1,14 +1,16 @@
 project(webextractorservice)
 
 # check for required packages
-if(WEBEXTRACTOR_VERSION_STRING)
+if(BUILD_METAPACKAGE)
 	# if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-	set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-		${libwebextractor_SOURCE_DIR})
+    #set(LIBWEBEXTRACTOR_INCLUDE_DIRS
+    #	${libwebextractor_SOURCE_DIR})
 	set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
-else(WEBEXTRACTOR_VERSION_STRING)
+    message( STATUS "Building in metapackage. ")
+else(BUILD_METAPACKAGE)
 	find_package(LibWebextractor REQUIRED)
-endif(WEBEXTRACTOR_VERSION_STRING)
+    message( STATUS "Building in separate way " )
+endif(BUILD_METAPACKAGE)
 
 set(WEBEXTRACTOR_SERVICE_VERSION_MAJOR 0 CACHE INT "Major WebExtractor Service version number" FORCE)
 set(WEBEXTRACTOR_SERVICE_VERSION_MINOR 0 CACHE INT "Minor WebExtractor Service version number" FORCE)

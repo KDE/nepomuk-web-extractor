@@ -87,11 +87,11 @@ void Nepomuk::WebExtractorScheduler::readConfig()
         // Check that this category has any assigned DataPP.
         // If it has not, then ignore it.
         WebExtractor::ExtractParameters params = m_conf->extractParameters(catname);
-        if(!params.hasAnyDataPP()) {
+        if(!params.hasAnyExecutive()) {
             kDebug() << "Category " << catname << " has no assigned DataPP";
             continue;
         } else {
-            kDebug() << "Category " << catname << "has " << params.dataPPCount() << "assigned DataPP";
+            kDebug() << "Category " << catname << "has " << params.executiveCount() << "assigned DataPP";
         }
 
         //q = m_conf->queryPrefix(catname);

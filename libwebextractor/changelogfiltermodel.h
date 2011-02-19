@@ -26,8 +26,8 @@
 #include <QUrl>
 #include <QSet>
 #include <kdebug.h>
-#include "nepomuk/changelogrecord.h"
-#include "nepomuk/changelog.h"
+#include "changelogrecord.h"
+#include "changelog.h"
 
 #include "webextractor_export.h"
 

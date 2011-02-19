@@ -1,0 +1,59 @@
+/*
+   Copyright (C) 2010 by $author <$mail>
+
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2, or (at your option)
+   any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+
+
+#set lname = $name.lower()
+#set classname = $name + 'Reply'
+
+#raw 
+#include #end raw "${lname}plugin_config.h"
+
+#raw
+ #include #end raw "${lname}executivereply.h"
+
+#if $use_simple
+#raw 
+#include #end raw "${lname}executive.h"
+#end if
+
+#raw
+#include "decisionfactory.h"
+#include <Nepomuk/Resource>
+#include <KDebug>
+#end raw
+
+Nepomuk::${classname}::${classname}(${name}Executive * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res ):
+#if $use_simple
+    SimpleExecutiveReply(parent, factory, res)
+#else
+    ExecutiveReply((Nepomuk::WebExtractor::Executive*)(parent))
+#end if
+{
+}
+
+bool Nepomuk::${classname}::isValid() const
+{
+    kError() <<  "ATTENTION: Not implemented";
+    return true;
+}
+
+void Nepomuk::${classname}::abort() 
+{
+    kError() <<  "ATTENTION: Not implemented";
+}

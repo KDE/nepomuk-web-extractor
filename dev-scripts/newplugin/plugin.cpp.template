@@ -24,7 +24,7 @@
 #include #end raw "${name.lower()}plugin_config.h"
 
 #raw 
-#include #end raw  "${name.lower()}datapp.h"
+#include #end raw  "${name.lower()}executive.h"
 
 #raw
 #include <KPluginFactory>
@@ -45,10 +45,10 @@ int Nepomuk::${classname}::version()
     return (${name.upper()}_PLUGIN_INTERNAL_VERSION);
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::${classname}::getDataPP(const QSharedPointer<KConfigBase> &  configFile)
+Nepomuk::WebExtractor::Executive * Nepomuk::${classname}::getExecutive(const KConfigGroup &  configFile)
 {
     kError() << "ATTENTION! Reimplement this! ";
-    return new ${name}DataPP(version()/* add your parameters here */);
+    return new ${name}Executive(version()/* add your parameters here */);
 }
 
 

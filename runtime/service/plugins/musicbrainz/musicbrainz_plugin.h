@@ -26,9 +26,9 @@ namespace Nepomuk {
     {
 	Q_OBJECT;
 	public:
-	    virtual Nepomuk::WebExtractor::DataPP * getExecutive( KSharedConfigPtr configFile );
+	    virtual Nepomuk::WebExtractor::Executive * getExecutive( KSharedConfigPtr configFile );
 	protected:
-	    QHash< QString, QPointer<MusicBrainzDataPP> > m_datappCache; 
+	    QHash< QString, QPointer<MusicBrainzExecutive> > m_datappCache; 
     };
 }    
 

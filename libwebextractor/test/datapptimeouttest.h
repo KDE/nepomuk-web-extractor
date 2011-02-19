@@ -23,19 +23,18 @@
 #include <QtCore/QObject>
 #include <QtTest/QtTest>
 
-#include "datapptemplate.h"
 #include "simpledatappreply.h"
 #include "decisionfactory.h"
 #include <Nepomuk/Resource>
 #include <QtCore/QTimer>
 using namespace Nepomuk::WebExtractor;
 
-class TestTimeoutReply : public SimpleDataPPReply
+class TestTimeoutReply : public SimpleExecutiveReply
 {
     Q_OBJECT;
     public:
-	TestTimeoutReply(DataPP * parent, const  DecisionFactory * factory, const Nepomuk::Resource & res):
-	    SimpleDataPPReply(parent,factory,res)
+	TestTimeoutReply(Executive * parent, const  DecisionFactory * factory, const Nepomuk::Resource & res):
+	    SimpleExecutiveReply(parent,factory,res)
 	{
 	    kDebug() << "Set timeout";
 	    this->setTimeout(200);
@@ -62,9 +61,9 @@ class TestTimeout : public QObject
 	{
 	    Nepomuk::Resource res;
 	    DecisionFactory * factory = DecisionFactory::debugFactory();
-	    DataPP * dpp = new DataPPTempalate<TestTimeoutReply>();
-	    DataPPReply * reply = dpp->requestDecisions(factory, res );
-	    //QSignalSpy spy(reply, SIGNAL(error(DataPPReply::DataPPReplyError)));
+	    Executive * dpp = new ExecutiveTempalate<TestTimeoutReply>();
+	    ExecutiveReply * reply = dpp->requestDecisions(factory, res );
+	    //QSignalSpy spy(reply, SIGNAL(error(ExecutiveReply::ExecutiveReplyError)));
 	    
 	    /*
 	    QTimer t;
@@ -76,7 +75,7 @@ class TestTimeout : public QObject
 	    QTest::qWait(reply->timeout() + 100 );
 	    //QCOMPARE(spy.count(), 1);
 	    //QVERIFY(!t.isActive());
-	    QCOMPARE(reply->error(),DataPPReply::TimeExceeded);
+	    QCOMPARE(reply->error(),ExecutiveReply::TimeExceeded);
 	}
 
 };

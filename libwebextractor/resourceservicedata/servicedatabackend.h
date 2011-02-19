@@ -28,7 +28,7 @@ namespace Nepomuk
 {
     namespace WebExtractor
     {
-        /*! \brief This is interface class for storing information about examined Executive
+        /*! \brief This is interface class for storing information about examined DataPP
          * Different storages will be available - SQL, Nepomuk, etc. Backend is bound to
          * resource. For each new Nepomuk::Resource object new instance of backend will
          * be created
@@ -41,68 +41,68 @@ namespace Nepomuk
                       * \param res Resource for the backend
                       */
                 ServiceDataBackend(const Nepomuk::Resource & res);
-                /*! \brief Add/Update information about examined Executive ( name, version)
-                         * This function is used to mark that Executive with given name (dataPPName) has finished extraction
-                         * for the resource. Current time is used as time of extraction finishing. Version of the Executive
-                         * is also stored. If the previous version of the Executive was examined, then the version is updated.
-                         * Implementation must not store the more, than one Executive, that differ only by version!
-                         * \param dataPPName Name of the Executive
-                         * \param dataPPVersion Version of the Executive
+                /*! \brief Add/Update information about examined DataPP ( name, version)
+                         * This function is used to mark that DataPP with given name (dataPPName) has finished extraction
+                         * for the resource. Current time is used as time of extraction finishing. Version of the DataPP
+                         * is also stored. If the previous version of the DataPP was examined, then the version is updated.
+                         * Implementation must not store the more, than one DataPP, that differ only by version!
+                         * \param dataPPName Name of the DataPP
+                         * \param dataPPVersion Version of the DataPP
                  */
-                virtual void setExaminedExecutiveInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & date = QDateTime()) = 0;
+                virtual void setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & date = QDateTime()) = 0;
 
-                /*! \brief This function checks that all given Executive has been examined for the resource.
-                 * Default implementation will compare examinedExecutiveInfo() with given map
+                /*! \brief This function checks that all given DataPP has been examined for the resource.
+                 * Default implementation will compare examinedDataPPInfo() with given map
                  */
-                virtual bool checkExaminedExecutiveInfo(const QMap< QString, int> & dataPPInfo) ;
+                virtual bool checkExaminedDataPPInfo(const QMap< QString, int> & dataPPInfo) ;
 
-                /*! \brief This function checks whether the Executive with given name was examined
+                /*! \brief This function checks whether the DataPP with given name was examined
                  * Version is unimportant
                  */
-                virtual bool checkExaminedExecutiveInfo(const QString & name);
+                virtual bool checkExaminedDataPPInfo(const QString & name);
 
-                /*! \brief This function checks whether the Executive with given name and version was examined
+                /*! \brief This function checks whether the DataPP with given name and version was examined
                  */
-                virtual bool checkExaminedExecutiveInfo(const QString & name, int version);
-                /*! \brief Return map (name, version ) about all examined Executive
-                         * This function must return the set of non-obsolete ( this is important ) records about Executive that
+                virtual bool checkExaminedDataPPInfo(const QString & name, int version);
+                /*! \brief Return map (name, version ) about all examined DataPP
+                         * This function must return the set of non-obsolete ( this is important ) records about DataPP that
                          * has been examined. Usually this mean then implementations of this function should clear
                          * all obsolete data upon the call.
-                         * \note The return value must be Map, not MultiMap. Do not store several versions of the same Executive marked
+                         * \note The return value must be Map, not MultiMap. Do not store several versions of the same DataPP marked
                          * as examined.
                          *
                          * \return Return the map <name, version>
                  */
-                virtual QMap< QString, int > examinedExecutiveInfo() = 0;
+                virtual QMap< QString, int > examinedDataPPInfo() = 0;
 
-                /*! \brief This is optional function, that returns map of (Executive name, last extraction date)
+                /*! \brief This is optional function, that returns map of (DataPP name, last extraction date)
                  * This function is for introspection proporses only.
                  *
                  * Backends that doesn't store this information may not implement this function. Default one will return
                  * empty map
                  */
-                virtual QMap< QString, QDateTime > examinedExecutiveDates();
+                virtual QMap< QString, QDateTime > examinedDataPPDates();
 
-                /*! \brief This is optional function that return last extraction date for given Executive
+                /*! \brief This is optional function that return last extraction date for given DataPP
                  * This function is for introspection proporses only.
                  *
-                 * This function should return date of last extraction of Executive with given name. If Executive with given name
+                 * This function should return date of last extraction of DataPP with given name. If DataPP with given name
                  * has not been used, then invalid Date should be return.
                  * Backends that doesn't store this information may not implement this function. Default one will return
-                 * invalid Executive.
+                 * invalid DataPP.
                  */
                 virtual QDateTime examinedDate(const QString & name);
 
 
-                /*! \brief Clear all information about examined Executive
-                         * This function should remove all information about examined Executive. After call to this function,
-                         * the examinedExecutiveInfo() must return empty map. But if any other information is stored too, it
+                /*! \brief Clear all information about examined DataPP
+                         * This function should remove all information about examined DataPP. After call to this function,
+                         * the examinedDataPPInfo() must return empty map. But if any other information is stored too, it
                          * could remain in storage.
                  */
                 virtual void clearExaminedInfo() = 0;
-                /*! \brief Unmark Executive with given name as examined
-                 * This function mark Executive as not-examined. Version parameter is not necessary, because there must be
-                 * only one version of the Executive marked as examined.
+                /*! \brief Unmark DataPP with given name as examined
+                 * This function mark DataPP as not-examined. Version parameter is not necessary, because there must be
+                 * only one version of the DataPP marked as examined.
                  */
                 virtual void clearExaminedInfo(const QString & name) = 0;
 

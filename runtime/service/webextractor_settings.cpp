@@ -24,9 +24,9 @@
 #include <KPluginFactory>
 #include <KPluginLoader>
 #include <QtGlobal>
-#include "debug_datapp.h"
+#include "debugexecutive.h"
 #include "datapp.h"
-#include "datappwrapper.h"
+#include "executivewrapper.h"
 #include "global.h"
 #include "parameters.h"
 #include "datapppool.h"
@@ -64,10 +64,10 @@ void Nepomuk::WebExtractorSettings::clear()
     m_datapp.clear();
     */
 
-    // Free all DataPPWrappers
+    // Free all ExecutiveWrappers
     foreach(const NW::ExtractParameters& ptr, m_parameters) {
-        const NW::DataPPKeeper &  plugins = ptr.plugins();
-        foreach(NW::DataPPWrapper * dppw, plugins) {
+        const NW::ExecutiveKeeper &  plugins = ptr.plugins();
+        foreach(NW::ExecutiveWrapper * dppw, plugins) {
             delete dppw;
         }
     }
@@ -142,30 +142,30 @@ void Nepomuk::WebExtractorSettings::update()
 
         foreach(const DataPPDescr & dppdescr, cat->plugins()) {
             /*Load plugin with this name and parse it config*/
-            NW::DataPP * dpp = 0 ;
-            NW::DataPPWrapper * dppw = 0 ;
+            NW::Executive * dpp = 0 ;
+            NW::ExecutiveWrapper * dppw = 0 ;
             double rank = dppdescr.rank();
             double coff = dppdescr.coff();
-            const QString & dataPPName = dppdescr.identifier();
+            const QString & dataPPId = dppdescr.identifier();
 
-            if(dataPPName == "debug") {
+            if(dataPPId == "debug") {
                 //This is predefined plugin
-                dpp = new NW::DebugDataPP();
+                dpp = new NW::DebugExecutive();
                 //m_datapp.insert("debug",dpp);
             } else {
                 // Create new DataPP
-                dpp = DataPPConfig::dataPP(dataPPName);
+                dpp = DataPP::executive(dataPPId);
                 if(dpp) {
-                    kDebug() << "Loaded DataPP " << dataPPName << "version: " << dpp->version();
+                    kDebug() << "Loaded DataPP " << dataPPId << "version: " << dpp->version();
                 } else {
-                    kError() << "Error while generating DataPP " << dataPPName;
+                    kError() << "Error while generating DataPP " << dataPPId;
                 }
             }
 
             // Add DataPP to category parameters
             if(dpp) {
-                dppw = new NW::DataPPWrapper(dpp, dataPPName, rank, coff);
-                p.addDataPP(dppw);
+                dppw = new NW::ExecutiveWrapper(dpp, dataPPId, rank, coff);
+                p.addExecutive(dppw);
                 //m_datappwrappers.insert(pluginName,dppw);
             }
 
@@ -289,7 +289,7 @@ QDebug Nepomuk::operator<<(QDebug dbg,  const WebExtractorSettings & conf)
     }
 #endif
     dbg << "Total plugins loaded: " << GlobalSettings::pluginCount() << '\n';
-    dbg << "Total DataPP loaded: " << DataPPConfig::dataPPCount() << '\n';
+    dbg << "Total DataPP loaded: " << DataPPPool::availableDataPPCount() << '\n';
     if(conf.categories().size() > 0) {
         dbg << "Parameters per category" << '\n';
         for(

@@ -32,11 +32,12 @@
 #include "resourceservicedata.h"
 #include "decisionapplicationrequest.h"
 #include "global.h"
-#include "debug_datapp.h"
+#include "debugexecutive.h"
 #include <kdebug.h>
 #include <QUrl>
 #include <stdint.h>
 #include <QThread>
+#include <QTimer>
 
 #include "datapppool.h"
 #include "categoriesmodel.h"
@@ -437,9 +438,9 @@ void LaunchPage::startExtracting()
             continue;
 
 
-        QString dataPPName = index.data(DataPPPool::NameRole).toString();
+        QString dataPPId = index.data(DataPPPool::IdRole).toString();
 
-        NW::DataPP * dpp = DataPPConfig::dataPP(dataPPName);
+        NW::Executive * dpp = DataPP::executive(dataPPId);
         //FIXME Enable proper plugin selection back
         //kDebug() << "DataPP selection is disabled. DebugDataPP is used instead";
         //NW::DataPP * dpp = new NW::DebugDataPP();
@@ -448,8 +449,8 @@ void LaunchPage::startExtracting()
 
         hasAny = true;
 
-        NW::DataPPWrapper * dppw =  new NW::DataPPWrapper(dpp, dataPPName, 1.0, 1.0);
-        p.addDataPP(dppw);
+        NW::ExecutiveWrapper * dppw =  new NW::ExecutiveWrapper(dpp, dataPPId, 1.0, 1.0);
+        p.addExecutive(dppw);
     }
 
     if(!hasAny) {

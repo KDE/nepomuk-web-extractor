@@ -18,7 +18,7 @@
 
 #include "tvdbplugin.h"
 #include "tvdbplugin_config.h"
-#include "tvdbdatapp.h"
+#include "tvdbexecutive.h"
 
 #include <KPluginFactory>
 #include <KDebug>
@@ -30,7 +30,7 @@ Q_DECLARE_METATYPE(QList<Tvdb::Series>)
 Nepomuk::TvdbPlugin::TvdbPlugin(QObject* parent, const QList<QVariant>&)
     : WebExtractorPlugin(parent)
 {
-    // apparently DataPP and DataPPReply can live in different threads.
+    // apparently Executive and ExecutiveReply can live in different threads.
     qRegisterMetaType<QList<Tvdb::Series> >();
 }
 
@@ -41,9 +41,9 @@ int Nepomuk::TvdbPlugin::version()
 }
 
 
-Nepomuk::WebExtractor::DataPP* Nepomuk::TvdbPlugin::getExecutive(const QSharedPointer<KConfigBase> & configFile)
+Nepomuk::WebExtractor::Executive* Nepomuk::TvdbPlugin::getExecutive(const KConfigGroup & configFile)
 {
-    return new TvdbDataPP(version());
+    return new TvdbExecutive(version());
 }
 
 

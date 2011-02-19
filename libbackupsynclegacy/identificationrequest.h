@@ -27,6 +27,7 @@
 #include <KUrl>
 
 #include <Nepomuk/ResourceManager>
+#include "nepomuksync_export.h"
 
 namespace Soprano {
     class Statement;
@@ -35,7 +36,7 @@ namespace Soprano {
 
 namespace Nepomuk {
     namespace Sync {
-
+        
         class ChangeLog;
         class IdentificationSet;
         class SyncFile;
@@ -52,7 +53,7 @@ namespace Nepomuk {
         *
         * \author Vishesh Handa <handa.vish@gmail.com>
         */
-        class IdentificationRequest : public QObject
+        class NEPOMUKSYNC_EXPORT IdentificationRequest : public QObject
         {
             Q_OBJECT
 
@@ -97,7 +98,7 @@ namespace Nepomuk {
              * \param matchedUris List of uris matched with score \p score
              */
             void duplicateMatch( const QUrl & uri, const QList<QUrl> & matchedUris, float score );
-
+            
         public:
             /**
             * Loads the Identification File from the syncFile into resource hash

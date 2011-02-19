@@ -32,8 +32,8 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
 set (tvdb_plugin_SRCS
     tvdbplugin.cpp
-    tvdbdatappreply.cpp
-    tvdbdatapp.cpp
+    tvdbexecutivereply.cpp
+    tvdbexecutive.cpp
     tvshowfilenameanalyzer.cpp
     seriescache.cpp
     )

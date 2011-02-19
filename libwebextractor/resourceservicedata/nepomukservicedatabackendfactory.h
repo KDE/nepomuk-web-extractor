@@ -37,8 +37,8 @@ namespace Nepomuk
                 ~NepomukServiceDataBackendFactory() {
                     ;
                 }
-                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedExecutive, Soprano::Model * model) {
-                    return NepomukServiceDataBackend::queryUnparsedResources(mainTerm, assignedExecutive, model);
+                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model) {
+                    return NepomukServiceDataBackend::queryUnparsedResources(mainTerm, assignedDataPP, model);
                 }
         };
     }

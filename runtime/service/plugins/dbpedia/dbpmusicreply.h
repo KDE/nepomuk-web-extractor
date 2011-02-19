@@ -18,14 +18,14 @@
 
 #ifndef __dbpedia_music_relpy_h_
 #define __dbpedia_music_relpy_h_
-#include <webextractor/simpledatappreply.h>
+#include <webextractor/simpleexecutivereply.h>
 namespace Nepomuk
 {
-    class DbpMusicReply : public WebExtractor::SimpleDataPPReply
+    class DbpMusicReply : public WebExtractor::SimpleExecutiveReply
     {
             Q_OBJECT;
         public:
-            DbpMusicReply(DbpMusicDataPP * parent, WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
+            DbpMusicReply(DbpMusicExecutive * parent, WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
             //void queryFinished();
 
     };

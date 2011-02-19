@@ -20,8 +20,7 @@
 */
 
 #include "pluginmodel.h"
-
-#include <KService>
+#include "datapppool.h"
 
 PluginModel::PluginModel(QObject *parent)
     : QAbstractListModel(parent)
@@ -34,7 +33,7 @@ QVariant PluginModel::data(const QModelIndex &index, int role) const
         const DataPPDescr& plugin = m_plugins[index.row()];
         switch(role) {
         case Qt::DisplayRole:
-            return plugin.service()->name();
+            return Nepomuk::DataPPPool::displayNameById(plugin.identifier());
         }
     }
 

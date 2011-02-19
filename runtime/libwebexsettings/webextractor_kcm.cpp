@@ -17,17 +17,16 @@
  */
 
 #include "webextractor_kcm.h"
-#include "datappconfig.h"
+#include "datapp.h"
 
 class Nepomuk::WebExtractorPluginKCM::Private 
 {
     public:
 	Private();
-	QSharedPointer<KConfigBase> m_config;
+	KConfigGroup m_config;
 };
 
-Nepomuk::WebExtractorPluginKCM::Private::Private():
-    m_config(0)
+Nepomuk::WebExtractorPluginKCM::Private::Private()
 {;}
 
 Nepomuk::WebExtractorPluginKCM::WebExtractorPluginKCM(const KComponentData & data, QWidget * parent, const QVariantList &args):
@@ -36,13 +35,13 @@ Nepomuk::WebExtractorPluginKCM::WebExtractorPluginKCM(const KComponentData & dat
 {
 }
 
-void Nepomuk::WebExtractorPluginKCM::setCurrentDppExecutive( const QSharedPointer<KConfigBase> & dataPPConfig )
+void Nepomuk::WebExtractorPluginKCM::setCurrentDataPP( const KConfigGroup & dataPPConfig )
 {
     d->m_config = dataPPConfig;
     this->load();
 }
 
-QSharedPointer<KConfigBase> Nepomuk::WebExtractorPluginKCM::currentConfig() const
+KConfigGroup& Nepomuk::WebExtractorPluginKCM::currentConfig() const
 {
     return d->m_config;
 }

@@ -17,8 +17,8 @@
  */
 
 #include "tvdbplugin_config.h"
-#include "tvdbdatappreply.h"
-#include "tvdbdatapp.h"
+#include "tvdbexecutivereply.h"
+#include "tvdbexecutive.h"
 #include "seriescache.h"
 #include "tvdbplugin.h"
 
@@ -31,11 +31,11 @@
 #include <Nepomuk/Resource>
 #include <KDebug>
 
-Nepomuk::TvdbReply::TvdbReply( TvdbDataPP* parent,
+Nepomuk::TvdbReply::TvdbReply( TvdbExecutive* parent,
                                const WebExtractor::DecisionFactory* factory,
                                const Nepomuk::Resource& res,
                                const QString& name, int season, int episode )
-    : SimpleDataPPReply(parent, factory, res),
+    : SimpleExecutiveReply(parent, factory, res),
       m_name( name ),
       m_season( season ),
       m_episode( episode )

@@ -19,7 +19,7 @@
 #include "testplugin.h"
 
 #include "testplugin_config.h"
-#include "testdatapp.h"
+#include "testexecutive.h"
 
 #include <KPluginFactory>
 #include <KDebug>
@@ -39,9 +39,9 @@ int Nepomuk::TestPlugin::version()
     return (TEST_PLUGIN_INTERNAL_VERSION);
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::TestPlugin::getExecutive(const QSharedPointer<KConfigBase> & configFile)
+Nepomuk::WebExtractor::Executive * Nepomuk::TestPlugin::getExecutive(const KConfigGroup & configFile)
 {
-    return new TestDataPP(version());
+    return new TestExecutive(version());
 }
 
 

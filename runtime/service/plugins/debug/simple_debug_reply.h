@@ -22,11 +22,11 @@
 #include "simplenetworkreply.h"
 namespace Nepomuk
 {
-    class SimpleDebugReply : public Nepomuk::WebExtractor::SimpleNetworkDataPPReply
+    class SimpleDebugReply : public Nepomuk::WebExtractor::SimpleNetworkExecutiveReply
     {
             Q_OBJECT;
         public:
-            SimpleDebugReply(Nepomuk::WebExtractor::SimpleNetworkDataPP * parent , const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
+            SimpleDebugReply(Nepomuk::WebExtractor::SimpleNetworkExecutive * parent , const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
             virtual void start();
             void step();
             virtual bool isValid() const {

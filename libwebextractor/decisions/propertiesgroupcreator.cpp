@@ -20,7 +20,7 @@
 #include <QtCore/QSharedData>
 #include <Soprano/Model>
 #include <Nepomuk/ResourceManager>
-#include <nepomuk/changelog.h>
+#include "changelog.h"
 
 #include "propertiesgroupcreator.h"
 #include "propertiesgroupcreator_p.h"

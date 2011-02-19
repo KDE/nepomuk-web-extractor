@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by $author <$mail>
+   Copyright (C) 2010 by Artem Serebriyskiy <v.for.vandal@gmail.com>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,37 +16,29 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#set lname = $name.lower()
-#set classname = $name + 'DataPP'
-#raw 
-#include #end raw "${lname}plugin_config.h"
-
-#raw 
-#include #end raw "${lname}datapp.h"
-
-#raw
-#include <webextractor/datappreply.h>
-#end raw
-
-#raw
-#include #end raw "${lname}datappreply.h"
 
 
-Nepomuk::${classname}::${classname}( int pluginVersion )
-    : DataPP(pluginVersion)
-{
+#ifndef __webextractor_datappreply_test_h_
+#define __webextractor_datappreply_test_h_
+
+#include "simpleexecutivereply.h"
+
+
+namespace Nepomuk  {
+    class TestExecutive;
+    class TestReply : public WebExtractor::SimpleExecutiveReply
+    {
+	Q_OBJECT;
+	public:
+	    TestReply(TestExecutive * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res );
+                virtual void abort() ;
+                virtual bool isValid() const ;
+		bool testProxy();
+	private:
+		QStringList m_testsResults;
+
+    };
 }
 
+#endif 
 
-Nepomuk::WebExtractor::DataPPReply * Nepomuk::${classname}::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
-{
-
-#if $use_simple
-    return new ${name}Reply(this, factory, res ); 
-#end if
-
-} 
-
-Nepomuk::${classname}::~${classname}()
-{
-}

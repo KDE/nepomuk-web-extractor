@@ -18,7 +18,7 @@
 
 #include "autotagkcm.h"
 #include "autotagplugin_config.h"
-#include "datappconfig.h"
+#include "datapp.h"
 #include "ui_kcm.h"
 
 #include <KConfigGroup>
@@ -51,12 +51,12 @@ Nepomuk::AutotagKCM::AutotagKCM( QWidget * parent, const QVariantList & args ):
 
 void Nepomuk::AutotagKCM::load()
 {
-    QSharedPointer<KConfigBase> cfg = currentConfig();
-    if (!cfg)
+    KConfigGroup cfg = currentConfig();
+    if (!cfg.isValid())
 	return;
 
     // Get group
-    KConfigGroup grp = cfg->group(AUTOTAG_CONFIG_GROUP);
+    KConfigGroup grp = cfg.group(AUTOTAG_CONFIG_GROUP);
     // Read params
     QString regexpString = grp.readEntry(AUTOTAG_CONFIG_REGEXP_KEY, QString());
     QString tag = grp.readEntry(AUTOTAG_CONFIG_TAG_KEY, QString());
@@ -71,12 +71,12 @@ void Nepomuk::AutotagKCM::load()
 
 void Nepomuk::AutotagKCM::save()
 {
-    QSharedPointer<KConfigBase> cfg = currentConfig();
-    if (!cfg)
+    KConfigGroup cfg = currentConfig();
+    if (!cfg.isValid())
 	return;
 
     // Get group
-    KConfigGroup grp = cfg->group(AUTOTAG_CONFIG_GROUP);
+    KConfigGroup grp = cfg.group(AUTOTAG_CONFIG_GROUP);
     // Read params
     QString regexpString = d->ui->regexpLineEdit->text();
     QString tag = d->ui->tagLineEdit->text();
@@ -84,18 +84,18 @@ void Nepomuk::AutotagKCM::save()
     grp.writeEntry(AUTOTAG_CONFIG_REGEXP_KEY, regexpString);
     grp.writeEntry(AUTOTAG_CONFIG_TAG_KEY, tag);
 
-    cfg->sync();
+    cfg.sync();
 }
 
 void Nepomuk::AutotagKCM::defaults()
 {
-    QSharedPointer<KConfigBase> cfg = currentConfig();
-    if (!cfg) {
+    KConfigGroup cfg = currentConfig();
+    if (!cfg.isValid()) {
 	return;
     }
 
     // Get group
-    KConfigGroup grp = cfg->group(AUTOTAG_CONFIG_GROUP);
+    KConfigGroup grp = cfg.group(AUTOTAG_CONFIG_GROUP);
     // Read params
     QString regexpString = ".*";
     QString tag = "autotag";
@@ -108,7 +108,7 @@ void Nepomuk::AutotagKCM::defaults()
     this->d->ui->tagLineEdit->setText(tag);
     connectAll();
 
-    cfg->sync();
+    cfg.sync();
 }
 
 void Nepomuk::AutotagKCM::connectAll()

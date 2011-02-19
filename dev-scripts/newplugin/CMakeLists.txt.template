@@ -20,15 +20,13 @@ find_package(Nepomuk REQUIRED)
 
 #raw
 # check for required packages
-if(WEBEXTRACTOR_VERSION_STRING)
+if(BUILD_METAPACKAGE)
     # if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-    set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-        ../libwebextractor/include
-        ${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
     set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
-else(WEBEXTRACTOR_VERSION_STRING)
+else(BUILD_METAPACKAGE)
     find_package(LibWebextractor REQUIRED)
-endif(WEBEXTRACTOR_VERSION_STRING)
+    message( STATUS "Found Libwebextractor. IncDir: ${LIBWEBEXTRACTOR_INCLUDE_DIRS}" )
+endif(BUILD_METAPACKAGE)
 
 
 include_directories(
@@ -47,8 +45,8 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
 set (${src}
     ${lname}plugin.cpp
-    ${lname}datappreply.cpp
-    ${lname}datapp.cpp
+    ${lname}executivereply.cpp
+    ${lname}executive.cpp
     )
 
 #if $kcm

@@ -42,16 +42,16 @@ namespace Nepomuk
                  * \param res Uri of the resource
                  */
                 virtual ServiceDataBackend * backend(const Nepomuk::Resource & res) = 0;
-                /*! \brief Return Nepomuk::Query that will match all resources that should be examined with given Executive
+                /*! \brief Return Nepomuk::Query that will match all resources that should be examined with given DataPP
                  * This method must be eqivalent for quering all resources that matchs mainTerm and checking for every resource
-                 * recived that any of the given Executive has not be examined for the resources. If such query can not be created,
+                 * recived that any of the given DataPP has not be examined for the resources. If such query can not be created,
                  * then invalid Query must be returned. Default implementation will return invalid query;
-                 * \param assignedExecutive Map of Executive name, Executive version
+                 * \param assignedDataPP Map of DataPP name, DataPP version
                          * \return Query for selecting all unparsed resource or invalid query if this feature is not supported
                  */
-                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedExecutive, Soprano::Model * model) {
+                virtual Nepomuk::Query::Query queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model) {
                     Q_UNUSED(mainTerm);
-                    Q_UNUSED(assignedExecutive);
+                    Q_UNUSED(assignedDataPP);
                     Q_UNUSED(model);
                     return Nepomuk::Query::Query();
                 }

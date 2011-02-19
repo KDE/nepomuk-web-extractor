@@ -17,42 +17,49 @@
  */
 
 
-
 #set lname = $name.lower()
 #set classname = $name + 'Reply'
 
 #raw 
-#include #end raw "${lname}plugin_config.h"
-
-#raw
- #include #end raw "${lname}datappreply.h"
-
-#if $use_simple
+#ifndef #end raw __webextractor_datappreply_${lname}_h_
 #raw 
-#include #end raw "${lname}datapp.h"
-#end if
+#define #end raw __webextractor_datappreply_${lname}_h_
 
-#raw
-#include <webextractor/decisionfactory.h>
-#include <Nepomuk/Resource>
-#include <KDebug>
-#end raw
-
-Nepomuk::${classname}::${classname}(${name}DataPP * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res ):
 #if $use_simple
-    SimpleDataPPReply(parent, factory, res)
+#raw
+#include "simpleexecutivereply.h"
+#end raw
 #else
-    DataPPReply((Nepomuk::WebExtractor::DataPP*)(parent))
+#raw
+#include "executivereply.h"
+#end raw
 #end if
-{
+
+
+namespace Nepomuk  {
+    namespace WebExtractor {
+        class DecisionFactory;
+    }
+    class ${name}Executive;
+    class Resource;
+#if $use_simple
+    class $classname : public WebExtractor::SimpleExecutiveReply
+#else
+    class $classname : public WebExtractor::ExecutiveReply
+#end if
+    {
+    Q_OBJECT
+    public:
+        ${classname}(${name}Executive * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res );
+                virtual void abort() ;
+                virtual bool isValid() const ;
+#if not $use_simple
+                virtual WebExtractor::DecisionList decisions() const;
+#end if
+
+    };
 }
 
-bool Nepomuk::${classname}::isValid() const
-{
-    kError() <<  "ATTENTION: Not implemented";
-}
+#raw 
+#endif #end raw
 
-void Nepomuk::${classname}::abort() 
-{
-    kError() <<  "ATTENTION: Not implemented";
-}

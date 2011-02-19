@@ -19,7 +19,7 @@
 #include "debug_plugin.h"
 #include "debug_plugin_config.h"
 #include "simple_debug_reply.h"
-#include "simplenetworkdatapp.h"
+#include "simplenetworkexecutive.h"
 #include "simplenetworkreplyfactory.h"
 #include <KPluginFactory>
 
@@ -33,9 +33,9 @@ Nepomuk::DebugPlugin::DebugPlugin(QObject* parent, const QList<QVariant>&):
 }
 
 
-Nepomuk::WebExtractor::DataPP* Nepomuk::DebugPlugin::getExecutive(const QSharedPointer<KConfigBase> & configFile)
+Nepomuk::WebExtractor::Executive* Nepomuk::DebugPlugin::getExecutive(const KConfigGroup & configFile)
 {
-    static WebExtractor::SimpleNetworkDataPP * m_dataPP = new Nepomuk::WebExtractor::SimpleNetworkDataPP(
+    static WebExtractor::SimpleNetworkExecutive * m_dataPP = new Nepomuk::WebExtractor::SimpleNetworkExecutive(
         Nepomuk::DebugPlugin::version(),
         "http://www.example.org/",
         new Nepomuk::WebExtractor::SimpleReplyFactoryTemplate<SimpleDebugReply>()

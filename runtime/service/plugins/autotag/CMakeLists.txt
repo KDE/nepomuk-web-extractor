@@ -36,8 +36,8 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
 set (autotag_plugin_SRCS
     autotagplugin.cpp
-    autotagdatappreply.cpp
-    autotagdatapp.cpp
+    autotagexecutivereply.cpp
+    autotagexecutive.cpp
     )
 set ( autotag_kcm_SRCS
     autotagkcm.cpp

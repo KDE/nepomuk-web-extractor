@@ -22,11 +22,11 @@
 #define __${name.lower()}_relpy_h_
 
 namespace Nepomuk  {
-    class ${classname} : public WebExtractor::SimpleDataPPReply
+    class ${classname} : public WebExtractor::SimpleExecutiveReply
     {
 	Q_OBJECT;
 	public:
-	    ${classname}(${name}DataPP * parent, WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res );
+	    ${classname}(${name}Executive * parent, WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res );
 	    //void queryFinished();
 
     };

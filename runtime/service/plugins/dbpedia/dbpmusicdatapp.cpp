@@ -16,20 +16,20 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "dbpmusicdatapp.h"
+#include "dbpmusicexecutive.h"
 
-Nepomuk::DbpMusicDataPP:: DbpMusicDataPP(
+Nepomuk::DbpMusicExecutive:: DbpMusicExecutive(
 		    Soprano::SparqlModel * model,
 		    const QString & pluginVersion
 		    ):
-    DataPP(pluginVersion),
+    Executive(pluginVersion),
     m_model(model)
 {
     Q_ASSERT(m_model)
 }
 
 
-DataPPReply * Nepomuk::DbpMusicDataPP::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
+ExecutiveReply * Nepomuk::DbpMusicExecutive::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
 {
     //return DbpMusicReply(this, factory, res ); 
 } 

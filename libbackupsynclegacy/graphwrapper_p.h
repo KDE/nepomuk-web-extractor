@@ -24,6 +24,7 @@
 #include <QtCore/QObject>
 #include <QtCore/QTimer>
 #include <QtCore/QUrl>
+#include "nepomuksync_export.h"
 
 namespace Soprano {
     class Model;
@@ -50,7 +51,7 @@ namespace Nepomuk {
      *       Akonadi feeders would result in a single graph while separate user actions in a GUI would always
      *       lead to separate graphs.
      */
-    class GraphWrapper : public QObject
+    class NEPOMUKSYNC_EXPORT GraphWrapper : public QObject
     {
         Q_OBJECT
 

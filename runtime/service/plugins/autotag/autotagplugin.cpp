@@ -17,7 +17,7 @@
  */
 
 #include "autotagplugin.h"
-#include "autotagdatapp.h"
+#include "autotagexecutive.h"
 
 #include "autotagplugin_config.h"
 
@@ -41,10 +41,10 @@ int Nepomuk::AutotagPlugin::version()
     return (AUTOTAG_PLUGIN_INTERNAL_VERSION);
 }
 
-Nepomuk::WebExtractor::DataPP * Nepomuk::AutotagPlugin::getExecutive(const QSharedPointer<KConfigBase> & configFile)
+Nepomuk::WebExtractor::Executive * Nepomuk::AutotagPlugin::getExecutive(const KConfigGroup & configFile)
 {
     // Parse config
-    KConfigGroup grp = configFile->group(AUTOTAG_CONFIG_GROUP);
+    KConfigGroup grp = configFile.group(AUTOTAG_CONFIG_GROUP);
 
     QString regexpString = grp.readEntry(AUTOTAG_CONFIG_REGEXP_KEY, QString());
 
@@ -54,7 +54,7 @@ Nepomuk::WebExtractor::DataPP * Nepomuk::AutotagPlugin::getExecutive(const QShar
 
     QRegExp regexp(regexpString);
 
-    return new AutotagDataPP(version(), regexp, tag);
+    return new AutotagExecutive(version(), regexp, tag);
 }
 
 

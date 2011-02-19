@@ -27,7 +27,7 @@ namespace Nepomuk
 {
     namespace WebExtractor
     {
-        class DataPP;
+        class Executive;
     }
 
     class TvdbPlugin : public WebExtractorPlugin
@@ -36,7 +36,7 @@ namespace Nepomuk
 
         public:
             TvdbPlugin(QObject*, const QList<QVariant>&);
-            Nepomuk::WebExtractor::DataPP* getExecutive(const QSharedPointer<KConfigBase> & configFile);
+            Nepomuk::WebExtractor::Executive* getExecutive(const KConfigGroup & configFile);
             static int version();
 
             static double calculateRankTheDumbWay(const QString& queryString, const QString& name);

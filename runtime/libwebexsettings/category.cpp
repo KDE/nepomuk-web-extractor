@@ -74,7 +74,7 @@ public:
     PluginSelectionType m_pluginSelectionType;
     int m_pluginSelectionStep;
 
-    QList<DppExecutiveDescr> m_plugins;
+    QList<DataPPDescr> m_plugins;
 
     Category* q;
 };
@@ -237,7 +237,7 @@ void Category::setPluginSelectionStep(int step)
     }
 }
 
-QList<DppExecutiveDescr> Category::plugins() const
+QList<DataPPDescr> Category::plugins() const
 {
     return d->m_plugins;
 }
@@ -296,7 +296,7 @@ void Category::load(const KConfigGroup& catGroup)
     foreach( const QString & groupName, groups)
     {
         KConfigGroup group = catGroup.group(groupName);
-        DppExecutiveDescr dpd = DppExecutiveDescr::load(group);
+        DataPPDescr dpd = DataPPDescr::load(group);
         this->addPlugin(dpd);
     }
 }
@@ -308,7 +308,7 @@ QDebug operator<<(QDebug& dbg, const Category& cat)
     return dbg;
 }
 
-void Category::setPlugins(const QList<DppExecutiveDescr> &plugins)
+void Category::setPlugins(const QList<DataPPDescr> &plugins)
 {
     d->m_plugins = plugins;
     for(int i = 0; i < d->m_plugins.count(); ++i )
@@ -316,7 +316,7 @@ void Category::setPlugins(const QList<DppExecutiveDescr> &plugins)
     emit changed(this);
 }
 
-void Category::addPlugin(const DppExecutiveDescr& plugin)
+void Category::addPlugin(const DataPPDescr& plugin)
 {
     d->m_plugins << plugin;
     //d->m_plugins.last().setCategory(this);

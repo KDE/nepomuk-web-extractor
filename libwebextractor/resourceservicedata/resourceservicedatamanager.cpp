@@ -69,7 +69,7 @@ NW::ServiceDataBackend * NW::ResourceServiceDataManager::resourceData(const Nepo
     return d->backendFactory->backend(res);
 }
 
-Nepomuk::Query::Query NW::ResourceServiceDataManager::queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedExecutive, Soprano::Model * model)
+Nepomuk::Query::Query NW::ResourceServiceDataManager::queryUnparsedResources(const Nepomuk::Query::Term & mainTerm, const QMap<QString, int> & assignedDataPP, Soprano::Model * model)
 {
-    return d->backendFactory->queryUnparsedResources(mainTerm, assignedExecutive, model);
+    return d->backendFactory->queryUnparsedResources(mainTerm, assignedDataPP, model);
 }

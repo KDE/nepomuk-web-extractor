@@ -78,14 +78,14 @@ void NW::ResourceServiceData::clearServiceInfo()
 
 }
 
-void NW::ResourceServiceData::setExaminedExecutiveInfo(const QString & dataPPName, int dataPPVersion)
+void NW::ResourceServiceData::setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion)
 {
-    d->backend->setExaminedExecutiveInfo(dataPPName, dataPPVersion);
+    d->backend->setExaminedDataPPInfo(dataPPName, dataPPVersion);
 }
 
-QMap< QString, int > NW::ResourceServiceData::examinedExecutiveInfo()
+QMap< QString, int > NW::ResourceServiceData::examinedDataPPInfo()
 {
-    return d->backend->examinedExecutiveInfo();
+    return d->backend->examinedDataPPInfo();
 }
 
 void NW::ResourceServiceData::clearExaminedInfo()
@@ -98,19 +98,19 @@ void NW::ResourceServiceData::clearExaminedInfo(const QString & dataPPName)
     d->backend->clearExaminedInfo(dataPPName);
 }
 
-bool NW::ResourceServiceData::checkExaminedExecutiveInfo(const QMap< QString, int> & dataPP) const
+bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QMap< QString, int> & dataPP) const
 {
-    return d->backend->checkExaminedExecutiveInfo(dataPP);
+    return d->backend->checkExaminedDataPPInfo(dataPP);
 }
 
-bool NW::ResourceServiceData::checkExaminedExecutiveInfo(const QString  & name) const
+bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QString  & name) const
 {
-    return d->backend->checkExaminedExecutiveInfo(name);
+    return d->backend->checkExaminedDataPPInfo(name);
 }
 
-bool NW::ResourceServiceData::checkExaminedExecutiveInfo(const QString  & name, int version) const
+bool NW::ResourceServiceData::checkExaminedDataPPInfo(const QString  & name, int version) const
 {
-    return d->backend->checkExaminedExecutiveInfo(name, version);
+    return d->backend->checkExaminedDataPPInfo(name, version);
 }
 
 bool NW::ResourceServiceData::isValid() const
@@ -131,9 +131,9 @@ QVariant NW::ResourceServiceData::property(const char * name) const
 {
     return d->backend->property(name);
 }
-QMap< QString, QDateTime > NW::ResourceServiceData::examinedExecutiveDates()
+QMap< QString, QDateTime > NW::ResourceServiceData::examinedDataPPDates()
 {
-    return d->backend->examinedExecutiveDates();
+    return d->backend->examinedDataPPDates();
 }
 QDateTime NW::ResourceServiceData::examinedDate(const QString & name)
 {

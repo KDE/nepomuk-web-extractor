@@ -17,8 +17,9 @@
  */
 
 #include "examinedwidget.h"
-#include "datappconfig.h"
 #include "datapp.h"
+#include "executive.h"
+#include "datapppool.h"
 #include <KMessageBox>
 #include <QMimeData>
 
@@ -46,7 +47,7 @@ bool ExaminedWidget::dropMimeData(int row, int column, const QMimeData * data, Q
     QString name = data->text();
 
     // Get version
-    Nepomuk::DataPPConfig * dppcfg = new Nepomuk::DataPPConfig(name);
+    Nepomuk::DataPP * dppcfg = new Nepomuk::DataPP(name);
     if(!dppcfg->isValid()) {
         KMessageBox::error(this, "Incorrect value was passed as DataPP name");
         return false;
@@ -150,15 +151,13 @@ void ExaminedWidget::dropEvent(QDropEvent *event)
     //stream >> name;
 
     // Get version
-    Nepomuk::DataPPConfig * dppcfg = new Nepomuk::DataPPConfig(name);
-    if(!dppcfg->isValid()) {
+    Nepomuk::DataPP * dppcfg = Nepomuk::DataPPPool::dataPPById(name);
+    if(!dppcfg or !dppcfg->isValid()) {
         KMessageBox::sorry(this, "No such DataPP or it is invalid:\n" + name);
         event->accept();
         return;
     }
-
-    int version = dppcfg->dataPP()->version();
-    delete dppcfg;
+    int version = dppcfg->executive()->version();
 
     kDebug() << "Name: " << name << " Version: " << version;
 

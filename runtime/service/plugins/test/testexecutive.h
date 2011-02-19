@@ -21,20 +21,20 @@
 
 #define __webextractor_datapp_test
 
-#include "datapp.h"
+#include "executive.h"
 
 namespace Nepomuk
 {
     class TestReply;
-    class TestDataPP : public WebExtractor::DataPP
+    class TestExecutive : public WebExtractor::Executive
     {
             Q_OBJECT;
         public:
-            WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
-            TestDataPP(
+            WebExtractor::ExecutiveReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
+            TestExecutive(
                 int pluginVersion
             );
-            ~TestDataPP();
+            ~TestExecutive();
             friend class TestReply;
     };
 }

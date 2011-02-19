@@ -27,7 +27,7 @@
 #include <KConfigGroup>
 #include <KRandom>
 
-class DppExecutiveDescr::Private : public QSharedData
+class DataPPDescr::Private : public QSharedData
 {
 public:
     Private()
@@ -48,7 +48,7 @@ public:
     Category* m_category;
 };
 
-DppExecutiveDescr::DppExecutiveDescr(const QString & id)
+DataPPDescr::DataPPDescr(const QString & id)
     : d(new Private())
 {
     //d->m_service = service;
@@ -56,23 +56,23 @@ DppExecutiveDescr::DppExecutiveDescr(const QString & id)
     d->m_id = id;
 }
 
-DppExecutiveDescr::DppExecutiveDescr(const DppExecutiveDescr& other)
+DataPPDescr::DataPPDescr(const DataPPDescr& other)
     : d(other.d)
 {
 }
 
-DppExecutiveDescr::~DppExecutiveDescr()
+DataPPDescr::~DataPPDescr()
 {
 }
 
 
-DppExecutiveDescr & DppExecutiveDescr::operator =(const DppExecutiveDescr &other)
+DataPPDescr & DataPPDescr::operator =(const DataPPDescr &other)
 {
     d = other.d;
     return *this;
 }
 
-void DppExecutiveDescr::save(KConfigGroup& config) const
+void DataPPDescr::save(KConfigGroup& config) const
 {
     config.writeEntry("id", identifier());
     config.writeEntry("rank", rank());
@@ -87,9 +87,9 @@ void DppExecutiveDescr::save(KConfigGroup& config) const
 }
 
 // static
-DppExecutiveDescr DppExecutiveDescr::load(const KConfigGroup &config)
+DataPPDescr DataPPDescr::load(const KConfigGroup &config)
 {
-    DppExecutiveDescr datapp = DppExecutiveDescr(QString());
+    DataPPDescr datapp = DataPPDescr(QString());
     datapp.d->m_id = config.readEntry("id", QString());
     datapp.d->m_rank = config.readEntry("rank", datapp.rank());
     datapp.d->m_coff = config.readEntry("coff", datapp.coff());
@@ -99,47 +99,47 @@ DppExecutiveDescr DppExecutiveDescr::load(const KConfigGroup &config)
     return datapp;
 }
 
-double DppExecutiveDescr::rank() const
+double DataPPDescr::rank() const
 {
     return d->m_rank;
 }
 
-double DppExecutiveDescr::coff() const
+double DataPPDescr::coff() const
 {
     return d->m_coff;
 }
 
-bool DppExecutiveDescr::trusted() const
+bool DataPPDescr::trusted() const
 {
     return d->m_trusted;
 }
 
-bool DppExecutiveDescr::enabled() const
+bool DataPPDescr::enabled() const
 {
     return d->m_enabled;
 }
 
-void DppExecutiveDescr::setRank(double rank)
+void DataPPDescr::setRank(double rank)
 {
     d->m_rank = rank;
 }
 
-void DppExecutiveDescr::setCoff(double coff)
+void DataPPDescr::setCoff(double coff)
 {
     d->m_coff = coff;
 }
 
-void DppExecutiveDescr::setTrusted(bool trusted)
+void DataPPDescr::setTrusted(bool trusted)
 {
     d->m_trusted = trusted;
 }
 
-void DppExecutiveDescr::setEnabled(bool enabled)
+void DataPPDescr::setEnabled(bool enabled)
 {
     d->m_enabled = enabled;
 }
 
-bool DppExecutiveDescr::operator==(const DppExecutiveDescr& other) const
+bool DataPPDescr::operator==(const DataPPDescr& other) const
 {
     return (
             identifier() == other.identifier() &&
@@ -149,36 +149,36 @@ bool DppExecutiveDescr::operator==(const DppExecutiveDescr& other) const
             enabled() == other.enabled());
 }
 
-Category * DppExecutiveDescr::category() const
+Category * DataPPDescr::category() const
 {
     return d->m_category;
 }
 
 #if 0
-KService::Ptr DppExecutiveDescr::service() const
+KService::Ptr DataPPDescr::service() const
 {
     return d->m_service;
 }
 #endif 
 
-void DppExecutiveDescr::setCategory(Category *cat)
+void DataPPDescr::setCategory(Category *cat)
 {
     d->m_category = cat;
 }
 
-bool DppExecutiveDescr::isValid() const
+bool DataPPDescr::isValid() const
 {
     //return d->m_category != 0 && !d->m_service.isNull();
     return !d->m_id.isEmpty();
 }
 
-QString DppExecutiveDescr::identifier() const
+QString DataPPDescr::identifier() const
 {
     return d->m_id;
 }
 
 /*
-Nepomuk::WebExtractorPlugin * DppExecutiveDescr::createPlugin() const
+Nepomuk::WebExtractorPlugin * DataPPDescr::createPlugin() const
 {
     KPluginFactory *factory = KPluginLoader(service()->library()).factory();
     if (factory) {

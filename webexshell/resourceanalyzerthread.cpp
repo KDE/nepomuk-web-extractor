@@ -24,6 +24,7 @@
 #include "global.h"
 #include "resourceanalyzerfactory.h"
 #include "category.h"
+#include "datapppool.h"
 #include "webextractor_plugin.h"
 #include "datapp.h"
 #include "resourceanalyzer.h"
@@ -54,9 +55,8 @@ void ResourceAnalyzerThread::run()
 
     ExtractParameters params;
     foreach(const DataPPDescr & dppdescr, m_category->plugins()) {
-        if(Nepomuk::WebExtractorPlugin* plugin = dppdescr.createPlugin()) {
-            KConfigGroup * group = new KConfigGroup();
-            params.addDataPP(new DataPPWrapper(plugin->getDataPP(QSharedPointer<KConfigGroup>(group)), dppdescr.identifier(), dppdescr.rank(), dppdescr.coff()));
+        if(Nepomuk::DataPP* dpp = Nepomuk::DataPPPool::dataPPById(dppdescr.identifier()) ) {
+            params.addExecutive(new ExecutiveWrapper(dpp->executive(), dppdescr.identifier(), dppdescr.rank(), dppdescr.coff()));
         }
     }
     params.setUCrit(m_category->uCrit());

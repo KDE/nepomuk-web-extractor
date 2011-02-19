@@ -27,7 +27,7 @@
 namespace Nepomuk
 {
     namespace WebExtractor {
-	class DppExecutive;
+	class Executive;
     }
 
     class KDE_EXPORT WebExtractorPlugin : public QObject
@@ -35,7 +35,7 @@ namespace Nepomuk
             Q_OBJECT;
         public:
             WebExtractorPlugin(QObject *);
-            virtual Nepomuk::WebExtractor::DppExecutive * getExecutive(const QSharedPointer<KConfigBase> & configFile) = 0;
+            virtual Nepomuk::WebExtractor::Executive * getExecutive(const KConfigGroup & configFile) = 0;
             virtual ~WebExtractorPlugin() = 0;
             // QWidget *
             //

@@ -31,7 +31,7 @@ namespace Nepomuk
             Q_OBJECT;
         public:
             TestPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getExecutive(const QSharedPointer<KConfigBase> & configFile);
+            virtual Nepomuk::WebExtractor::Executive * getExecutive(const KConfigGroup & configFile);
             static int  version();
     };
 }

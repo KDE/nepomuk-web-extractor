@@ -13,6 +13,15 @@ set( LIBWEBEXTRACTOR_VERSION $WEBEXTRACTOR_VERSION_STRING})
 set (LIB_SUFFIX "" CACHE STRING "Define suffix of directory name (32/64)" )
 set (LIB_DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}" CACHE STRING "Library directory name" FORCE)
 
+set (LIBWEBEXTRACTOR_INCLUDE_DIRS
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/decisions/
+  ${CMAKE_CURRENT_SOURCE_DIR}/resourceservicedata/
+  ${CMAKE_CURRENT_SOURCE_DIR}/graph/
+  ${CMAKE_CURRENT_BINARY_DIR}
+  )
+
+
 configure_file(LibWebextractorConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/LibWebextractorConfig.cmake @ONLY )
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY )
 
@@ -21,11 +30,11 @@ add_subdirectory(ontologyloader)
 
 include_directories(
   ${SOPRANO_INCLUDE_DIR}
-  ${CMAKE_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/decisions/
   ${CMAKE_CURRENT_SOURCE_DIR}/resourceservicedata/
   ${CMAKE_CURRENT_SOURCE_DIR}/graph/
+  ${CMAKE_CURRENT_BINARY_DIR}
   ${ontologyloader_SOURCE_DIR}
   #  ${CMAKE_CURRENT_SOURCE_DIR}/include
   #${CMAKE_CURRENT_SOURCE_DIR}/include/webextractor
@@ -35,26 +44,7 @@ include_directories(
   ${backupsynclegacy_SOURCE_DIR}
   )
 
-set(backupsynclegacy_SRC
-    ${backupsynclegacy_SOURCE_DIR}/changelog.cpp
-    ${backupsynclegacy_SOURCE_DIR}/changelogrecord.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationrequest.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationrequest_p.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationset.cpp
-    ${backupsynclegacy_SOURCE_DIR}/mergerequest.cpp
-    ${backupsynclegacy_SOURCE_DIR}/syncfile.cpp
-    ${backupsynclegacy_SOURCE_DIR}/simpleresource.cpp
-    ${backupsynclegacy_SOURCE_DIR}/graphwrapper.cpp
-)
-soprano_add_ontology(backupsynclegacy_SRC
-  ${backupsynclegacy_SOURCE_DIR}/identification.trig
-  "backupsync"
-  "Nepomuk::Vocabulary"
-  "trig")
-
 add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
-add_subdirectory(decisions)
-add_subdirectory(resourceservicedata)
 set( webextractor_SRCS 
     #Decisions part
     #    decisions/decision.cpp
@@ -91,14 +81,16 @@ set( webextractor_SRCS
 
 set (WEBEXTRACTOR_HEADERS 
     # Decisions part
-    #    decisions/decisionfactory.h
-    #    decisions/decision.h
-    #    decisions/decisionapplicationrequest.h
-    #    decisions/decisionlist.h
-    #    decisions/decisioncreator.h
-    #    decisions/propertiesgroup.h
-    #    decisions/propertiesgroupcreator.h
+    decisions/decisionfactory.h
+    decisions/decision.h
+    decisions/decisionapplicationrequest.h
+    decisions/decisionlist.h
+    decisions/decisioncreator.h
+    decisions/propertiesgroup.h
+    decisions/propertiesgroupcreator.h
+    decisions/identsetmanager.h
     # Main part
+    executive.h
     executivereply.h
     executivereply_p.h
     executivewrapper.h
@@ -121,7 +113,6 @@ set (WEBEXTRACTOR_HEADERS
     resourceservicedata/nepomukservicedatabackendfactory.h
     resourceservicedata/servicedatabackend.h
     resourceservicedata/servicedatabackendfactory.h
-    identsetmanager.h
     ${CMAKE_CURRENT_BINARY_DIR}/ndco.h
     ${CMAKE_CURRENT_BINARY_DIR}/config.h
     ) 
@@ -137,6 +128,8 @@ set_target_properties(webextractor PROPERTIES
 	DEFINE_SYMBOL MAKE_WEBEXTRACTOR_LIB
 )
 
+add_subdirectory(decisions)
+add_subdirectory(resourceservicedata)
 
 target_link_libraries( webextractor 
   ${NEPOMUK_LIBRARIES}
@@ -149,6 +142,7 @@ target_link_libraries( webextractor
   nepomukgraph
   decisions
   rsd
+  nepomuksynclegacy
   )
 
 install(TARGETS webextractor

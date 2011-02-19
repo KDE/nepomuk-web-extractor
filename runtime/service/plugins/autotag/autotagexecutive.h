@@ -17,28 +17,34 @@
  */
 
 
+#ifndef __webextractor_datapp_autotag
 
-#ifndef __webextractor_datappreply_test_h_
-#define __webextractor_datappreply_test_h_
+#define __webextractor_datapp_autotag
 
-#include "simpledatappreply.h"
+#include "executive.h"
+#include <QRegExp>
 
 
-namespace Nepomuk  {
-    class TestDataPP;
-    class TestReply : public WebExtractor::SimpleDataPPReply
+namespace Nepomuk
+{
+    class AutotagReply;
+    class AutotagExecutive : public WebExtractor::Executive
     {
-	Q_OBJECT;
-	public:
-	    TestReply(TestDataPP * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res );
-                virtual void abort() ;
-                virtual bool isValid() const ;
-		bool testProxy();
-	private:
-		QStringList m_testsResults;
-
+            Q_OBJECT;
+        public:
+            WebExtractor::ExecutiveReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
+            AutotagExecutive(
+                int pluginVersion,
+                const QRegExp & regexp,
+                const QString & tag
+            );
+            ~AutotagExecutive();
+            friend class AutotagReply;
+        private:
+            QRegExp m_regexp;
+            QString m_tag;
     };
 }
 
-#endif 
+#endif
 

@@ -57,7 +57,7 @@ NW::NepomukServiceDataBackend::NepomukServiceDataBackend(const Nepomuk::Resource
 
     m_dataPPQuery = NQ::Query(m_dataPPTerm);
     // TODO Comment the folowing kDebug
-    //kDebug() << "Search for Executive query: " << query.toSparqlQuery();
+    //kDebug() << "Search for DataPP query: " << query.toSparqlQuery();
     /*
     NQ::Query query(NQ::NegationTerm::negateTerm(NQ::ComparisonTerm(
                         NW::Vocabulary::NDCO::decisionMetaGraphFor(),
@@ -69,7 +69,7 @@ NW::NepomukServiceDataBackend::NepomukServiceDataBackend(const Nepomuk::Resource
 
 }
 
-void NW::NepomukServiceDataBackend::setExaminedExecutiveInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & ed)
+void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & ed)
 {
     // Get graph node
     loadCreateGraph();
@@ -80,11 +80,11 @@ void NW::NepomukServiceDataBackend::setExaminedExecutiveInfo(const QString & dat
 
     Soprano::Model * model = resource().manager()->mainModel();
 
-    // Get Executive Resource uri
+    // Get DataPP Resource uri
     QUrl dataPPUrl = dataPPResourceUrl(dataPPName, dataPPVersion, resource().manager());
 
     if(!dataPPUrl.isValid()) {
-        kError() << "Invalid Executive: " << dataPPName << ',' << dataPPVersion;
+        kError() << "Invalid DataPP: " << dataPPName << ',' << dataPPVersion;
         return;
     }
 
@@ -136,7 +136,7 @@ void NW::NepomukServiceDataBackend::setExaminedExecutiveInfo(const QString & dat
 }
 
 
-QMap< QString, int> NW::NepomukServiceDataBackend::examinedExecutiveInfo()
+QMap< QString, int> NW::NepomukServiceDataBackend::examinedDataPPInfo()
 {
     loadGraph();
     if(!m_graphNode.isValid()) {
@@ -169,7 +169,7 @@ QMap< QString, int> NW::NepomukServiceDataBackend::examinedExecutiveInfo()
     while(it.next()) {
         Nepomuk::Resource dataPPRes(it.binding("r").uri());
         // TODO Comment folowing kDebug
-        kDebug() << "Found folowing Executive Resource: " << dataPPRes.resourceUri();
+        kDebug() << "Found folowing DataPP Resource: " << dataPPRes.resourceUri();
 
         // Name and version
         QString name = dataPPRes.property(Soprano::Vocabulary::RDFS::label()).toString();
@@ -239,7 +239,7 @@ QMap< QString, int> NW::NepomukServiceDataBackend::examinedExecutiveInfo()
     }
 
     // Clear obsolete examined info
-    kDebug() << "The records about the folowing examined Executive are now invalid and will be removed: " << toRemove;
+    kDebug() << "The records about the folowing examined DataPP are now invalid and will be removed: " << toRemove;
     foreach(const QString & name, toRemove) {
         clearExaminedInfo(name);
     }
@@ -382,7 +382,7 @@ QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int 
                                 )
                                );
     // TODO Comment the folowing kDebug() message
-    kDebug() << "Query for searching Executive Resource: " << query.toSparqlQuery();
+    kDebug() << "Query for searching DataPP Resource: " << query.toSparqlQuery();
 
     Soprano::QueryResultIterator it = manager->mainModel()->executeQuery(
                                           query.toSparqlQuery(), Soprano::Query::QueryLanguageSparql
@@ -390,7 +390,7 @@ QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int 
 
     if(it.next()) {
         // TODO Comment the folowing kDebug() message
-        kDebug() << "Found Executive Resource| name :" << name << " version: " << version << " uri " << it.binding("r").uri();
+        kDebug() << "Found DataPP Resource| name :" << name << " version: " << version << " uri " << it.binding("r").uri();
         return it.binding("r").uri();
     } else {
 
@@ -405,16 +405,16 @@ QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int 
         res.setProperty(NW::Vocabulary::NDCO::version(), Nepomuk::Variant(version));
 
         // TODO Comment the folowing kDebug() message
-        kDebug() << "Creating new Executive Resource| name :" << name << " version: " << version << "uri" << res.resourceUri();
+        kDebug() << "Creating new DataPP Resource| name :" << name << " version: " << version << "uri" << res.resourceUri();
         return res.resourceUri();
     }
 
 
 }
 
-void NW::NepomukServiceDataBackend::clearUnusedExecutive(ResourceManager * manager)
+void NW::NepomukServiceDataBackend::clearUnusedDataPP(ResourceManager * manager)
 {
-    // Find all unreferenced Executive
+    // Find all unreferenced DataPP
     NQ::Query query(NQ::NegationTerm::negateTerm(NQ::ComparisonTerm(
                         NW::Vocabulary::NDCO::decisionMetaGraphFor(),
                         NQ::Term()
@@ -575,7 +575,7 @@ QStringList NW::NepomukServiceDataBackend::serviceInfoPropertiesNames() const
     return lst;
 }
 
-QMap< QString, QDateTime > NW::NepomukServiceDataBackend::examinedExecutiveDates()
+QMap< QString, QDateTime > NW::NepomukServiceDataBackend::examinedDataPPDates()
 {
     loadGraph();
     if(!m_graphNode.isValid())
@@ -675,18 +675,18 @@ QDateTime NW::NepomukServiceDataBackend::examinedDate(const QString & name)
 
 NQ::Query NW::NepomukServiceDataBackend::queryUnparsedResources(
     const NQ::Term & mainTerm,
-    const QMap<QString, int> & assignedExecutive,
+    const QMap<QString, int> & assignedDataPP,
     Soprano::Model * model)
 {
     // TODO Implement advanced quering for resource that has not been parsed ( of parsing
     // information is obsolete
     // )
 #if 0
-    // Convert list of Executive to the list of terms
+    // Convert list of DataPP to the list of terms
     QList<NQ::Term> dataPPTerms;
     for(
-        QMap<QString, float>::const_iterator it = assignedExecutive.begin();
-        it != assignedExecutive.end();
+        QMap<QString, float>::const_iterator it = assignedDataPP.begin();
+        it != assignedDataPP.end();
         it++
     ) {
         NQ::ComparisonTerm term = NQ::ComparisonTerm(NW::Vocabulary::NDCO::

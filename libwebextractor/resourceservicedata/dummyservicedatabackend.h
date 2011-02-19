@@ -26,7 +26,7 @@ namespace Nepomuk
 {
     namespace WebExtractor
     {
-        /*! \brief This is interface class for storing information about examined Executive
+        /*! \brief This is interface class for storing information about examined DataPP
          * Different storages will be available - SQL, Nepomuk, etc. Backend is bound to
          * resource. For each new Nepomuk::Resource object new instance of backend will
          * be created
@@ -37,33 +37,33 @@ namespace Nepomuk
             public:
 		typedef ServiceDataBackendFactoryTemplate<DummyServiceDataBackend> Factory;
 		DummyServiceDataBackend(const Nepomuk::Resource & res);
-                /*! \brief Add/Update information about examined Executive ( name, version)
+                /*! \brief Add/Update information about examined DataPP ( name, version)
 		 * Do nothing
-		 * \param dataPPName Name of the Executive
-		 * \param dataPPVersion Version of the Executive
+		 * \param dataPPName Name of the DataPP
+		 * \param dataPPVersion Version of the DataPP
                  */
-                virtual void setExaminedExecutiveInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & date = QDateTime());
+                virtual void setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & date = QDateTime());
 
-                /*! \brief This function checks that all given Executive has been examined for the resource.
+                /*! \brief This function checks that all given DataPP has been examined for the resource.
 		 * return false
                  */
-                virtual bool checkExaminedExecutiveInfo(const QMap< QString, int> & dataPPInfo) ;
-		virtual bool checkExaminedExecutiveInfo( const QString & name );
-		virtual bool checkExaminedExecutiveInfo( const QString & name, int version );
-                /*! \brief Return map (name, version ) about all examined Executive
+                virtual bool checkExaminedDataPPInfo(const QMap< QString, int> & dataPPInfo) ;
+		virtual bool checkExaminedDataPPInfo( const QString & name );
+		virtual bool checkExaminedDataPPInfo( const QString & name, int version );
+                /*! \brief Return map (name, version ) about all examined DataPP
 		 * \return Return the empty map
                  */
-                virtual QMap< QString, int > examinedExecutiveInfo() ;
+                virtual QMap< QString, int > examinedDataPPInfo() ;
 
 
 
-                /*! \brief Clear all information about examined Executive
+                /*! \brief Clear all information about examined DataPP
 		 * Do nothing.
                  */
                 virtual void clearExaminedInfo() ;
-                /*! \brief Unmark Executive with given name as examined
-                 * This function mark Executive as not-examined. Version parameter is not necessary, because there must be
-                 * only one version of the Executive marked as examined.
+                /*! \brief Unmark DataPP with given name as examined
+                 * This function mark DataPP as not-examined. Version parameter is not necessary, because there must be
+                 * only one version of the DataPP marked as examined.
                  */
                 virtual void clearExaminedInfo(const QString & name) ;
 

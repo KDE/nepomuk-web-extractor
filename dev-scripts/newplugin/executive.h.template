@@ -17,7 +17,7 @@
  */
 
 #set lname = $name.lower()
-#set classname = $name + 'DataPP'
+#set classname = $name + 'Executive'
 
 #raw 
 #ifndef #end raw __webextractor_datapp_${lname} 
@@ -26,16 +26,16 @@
 #define #end raw __webextractor_datapp_${lname} 
 
 #raw
-#include "datapp.h"
+#include "executive.h"
 #end raw
 
 namespace Nepomuk {
     class ${name}Reply;
-    class $classname : public WebExtractor::DataPP 
+    class $classname : public WebExtractor::Executive 
     {
     Q_OBJECT
     public:
-        WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
+        WebExtractor::ExecutiveReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
         ${classname}( int pluginVersion );
         ~${classname}();
         friend class ${name}Reply;

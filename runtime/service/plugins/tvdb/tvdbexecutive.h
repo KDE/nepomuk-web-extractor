@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2010 by Artem Serebriyskiy <v.for.vandal@gmail.com>
+   Copyright (C) 2010 by Sebastian Trueg <trueg@kde.org>
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -17,32 +17,33 @@
  */
 
 
-#ifndef __webextractor_datapp_autotag
+#ifndef __webextractor_datapp_tvdb
+#define __webextractor_datapp_tvdb
 
-#define __webextractor_datapp_autotag
+#include "executive.h"
+#include "tvshowfilenameanalyzer.h"
 
-#include "datapp.h"
-#include <QRegExp>
-
+class SeriesCache;
 
 namespace Nepomuk
 {
-    class AutotagReply;
-    class AutotagDataPP : public WebExtractor::DataPP
+    class TvdbReply;
+    class TvdbExecutive : public WebExtractor::Executive
     {
-            Q_OBJECT;
+            Q_OBJECT
         public:
-            WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
-            AutotagDataPP(
-                int pluginVersion,
-                const QRegExp & regexp,
-                const QString & tag
-            );
-            ~AutotagDataPP();
-            friend class AutotagReply;
+            TvdbExecutive(int pluginVersion);
+            ~TvdbExecutive();
+
+            SeriesCache* seriesCache() const {
+                return m_seriesCache;
+            }
+
+            WebExtractor::ExecutiveReply* requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
+
         private:
-            QRegExp m_regexp;
-            QString m_tag;
+            TVShowFilenameAnalyzer m_filenameAnalyzer;
+            SeriesCache* m_seriesCache;
     };
 }
 

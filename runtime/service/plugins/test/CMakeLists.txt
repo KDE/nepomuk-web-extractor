@@ -36,8 +36,8 @@ link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
 set (test_plugin_SRCS
     testplugin.cpp
-    testdatappreply.cpp
-    testdatapp.cpp
+    testexecutivereply.cpp
+    testexecutive.cpp
     )
 
 set (TEST_PLUGIN_VERSION 0.1)

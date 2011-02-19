@@ -69,12 +69,12 @@ Nepomuk::${name}KCM::${name}KCM( QWidget * parent, const QVariantList & args ):
 
 void Nepomuk::${name}KCM::load()
 {
-    QSharedPointer<KConfigBase> cfg = currentConfig();
-    if (!cfg)
+   KConfigGroup cfg = currentConfig();
+    if (!cfg.isValid())
 	return;
 
     // Get group
-    KConfigGroup grp = cfg->group(${name.upper()}_CONFIG_GROUP);
+    KConfigGroup grp = cfg.group(${name.upper()}_CONFIG_GROUP);
     // Read params
 
      
@@ -82,30 +82,30 @@ void Nepomuk::${name}KCM::load()
 
 void Nepomuk::${name}KCM::save()
 {
-    QSharedPointer<KConfigBase> cfg = currentConfig();
-    if (!cfg)
+   KConfigGroup cfg = currentConfig();
+    if (!cfg.isValid())
 	return;
 
     // Get group
-    KConfigGroup grp = cfg->group(${name.upper()}_CONFIG_GROUP);
+    KConfigGroup grp = cfg.group(${name.upper()}_CONFIG_GROUP);
     // write params
     // ...
     // sync file
-    cfg->sync();
+    cfg.sync();
 }
 
 void Nepomuk::${name}KCM::defaults()
 {
-    QSharedPointer<KConfigBase> cfg = currentConfig();
-    if (!cfg)
+   KConfigGroup cfg = currentConfig();
+    if (!cfg.isValid())
 	return;
 
     // Get group
-    KConfigGroup grp = cfg->group(${name.upper()}_CONFIG_GROUP);
+    KConfigGroup grp = cfg.group(${name.upper()}_CONFIG_GROUP);
     // Read params
     // Write to file and to KCM
 
-    cfg->sync();
+    cfg.sync();
 }
 
 Nepomuk::${name}KCM::~${name}KCM()

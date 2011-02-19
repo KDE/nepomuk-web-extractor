@@ -18,29 +18,29 @@
 
 #include "testplugin_config.h"
 
-#include "testdatapp.h"
+#include "testexecutive.h"
 
-#include <webextractor/datappreply.h>
+#include <webextractor/executivereply.h>
 
-#include "testdatappreply.h"
+#include "testexecutivereply.h"
 
 
-Nepomuk::TestDataPP::TestDataPP(
+Nepomuk::TestExecutive::TestExecutive(
     int pluginVersion
 ):
-    DataPP(pluginVersion)
+    Executive(pluginVersion)
 {
 }
 
 
-Nepomuk::WebExtractor::DataPPReply * Nepomuk::TestDataPP::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
+Nepomuk::WebExtractor::ExecutiveReply * Nepomuk::TestExecutive::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
 {
 
     return new TestReply(this, factory, res);
 
 }
 
-Nepomuk::TestDataPP::~TestDataPP()
+Nepomuk::TestExecutive::~TestExecutive()
 {
     ;
 }

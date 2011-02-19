@@ -48,24 +48,24 @@ QStringList NW::ServiceDataBackend::serviceInfoPropertiesNames() const
     return QStringList();
 }
 
-QMap< QString, QDateTime > NW::ServiceDataBackend::examinedExecutiveDates()
+QMap< QString, QDateTime > NW::ServiceDataBackend::examinedDataPPDates()
 {
     return QMap< QString, QDateTime >();
 }
 
-bool NW::ServiceDataBackend::checkExaminedExecutiveInfo(const QMap< QString, int> & dataPP)
+bool NW::ServiceDataBackend::checkExaminedDataPPInfo(const QMap< QString, int> & dataPP)
 {
-    return (examinedExecutiveInfo() == dataPP);
+    return (examinedDataPPInfo() == dataPP);
 }
 
-bool NW::ServiceDataBackend::checkExaminedExecutiveInfo(const QString & name)
+bool NW::ServiceDataBackend::checkExaminedDataPPInfo(const QString & name)
 {
-    return (examinedExecutiveInfo().contains(name));
+    return (examinedDataPPInfo().contains(name));
 }
 
-bool NW::ServiceDataBackend::checkExaminedExecutiveInfo(const QString & name, int version)
+bool NW::ServiceDataBackend::checkExaminedDataPPInfo(const QString & name, int version)
 {
-    QMap<QString, int> info = examinedExecutiveInfo();
+    QMap<QString, int> info = examinedDataPPInfo();
     return (info.contains(name) and(info[name] == version));
 }
 

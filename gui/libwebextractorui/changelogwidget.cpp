@@ -18,8 +18,8 @@
 
 #include "changelogwidget.h"
 #include "ui_changeLogForm.h"
-#include <nepomuk/changelog.h>
-#include <nepomuk/changelogrecord.h>
+#include "changelog.h"
+#include "changelogrecord.h"
 
 namespace NS = Nepomuk::Sync;
 

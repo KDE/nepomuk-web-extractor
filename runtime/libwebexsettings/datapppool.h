@@ -19,7 +19,7 @@
 #ifndef _webexsettings_datapppool_h_
 #define _webexsettings_datapppool_h_
 
-#include "datappconfig.h"
+#include "datapp.h"
 #include "webexsettings_export.h"
 #include <QStringList>
 #include <QAbstractItemModel>
@@ -33,52 +33,65 @@ class TreeItem;
 
 namespace Nepomuk
 {
-    class WEBEXSETTINGS_EXPORT DppExecutivePool: public QAbstractItemModel
+    class WEBEXSETTINGS_EXPORT DataPPPool: public QAbstractItemModel
     {
             Q_OBJECT;
         public:
-            /*! \brief Return list of all DppExecutive in the system
-             * This function will return set of id of all available DppExecutive in the system.
-             * It will return both valid and invalid DppExecutive.
+            /*! \brief Return list of all DataPP in the system
+             * This function will return set of id of all available DataPP in the system.
+             * It will return both valid and invalid DataPP.
              */
-            static QStringList availableDppExecutive();
+            static QStringList availableDataPP();
 
-            /*! \brief Return list of all DppExecutive in the system
-             * This function will return set of id of all valid DppExecutive in the system.
+            /*! \brief Return list of all DataPP in the system
+             * This function will return set of id of all valid DataPP in the system.
              */
-            static QStringList validDppExecutive();
+            static QStringList validDataPP();
 
             /*! \brief  Return id of all datapp that belong to category
              */
-            static QSet< QString >  categoryDppExecutives(const QString & categoryName) ;
+            static QSet< QString >  categoryDataPPs(const QString & categoryName) ;
+
+            /*! \brief Return pointer to the DataPP object
+             * Parentship of the pointer is not transfered - you should not
+             * delete it
+             */
+            static DataPP * dataPPById(const QString & id);
 
             // Return number of main categories
             static int categoryCount() ;
+            static int availableDataPPCount();
 
-            static DppExecutivePool * self();
+            static DataPPPool * self();
 
             enum Roles {
-                /*! \brief Boolean role. Store type of this item - DppExecutive or Category
+                /*! \brief Boolean role. Store type of this item - DataPP or Category
                  */
-                DppExecutiveRole = Qt::UserRole + 1,
-                /*! \brief Store source plugin for DppExecutive or NULL string for category
+                TypeRole = Qt::UserRole + 1,
+                /*! \brief Store source plugin for DataPP or NULL string for category
                  */
                 SourceRole = Qt::UserRole + 2,
 
-                /*! \brief Store the system name of the DppExecutive
-                 * This is the name that can be used in DppExecutiveConfig and
+                /*! \brief Store the system name of the DataPP
+                 * This is the system name that can be used in DataPPConfig and
                  * other system functions
                  */
                 IdRole,
+
+                /*! \brief Return pointer to the DataPP
+                 * If it is first request of the DataPP, then new DataPP object
+                 * will be created. So it is not constant-time operation
+                 */
+                DataPPRole,
 
                 /*! \brief Store name of datapp/category
                  */
                 NameRole = Qt::DisplayRole,
             };
-            static QString  dataPPSource(const QString &);
+            static QString  sourceById(const QString &);
             static QString displayNameById(const QString & id);
             //static KSharedConfigPtr dataPPConfig(const QString & name);
-            friend QDebug operator<<(QDebug dbg,  const DppExecutivePool & cat);
+            friend QDebug operator<<(QDebug dbg,  const DataPPPool & cat);
         public:
             int rowCount(const QModelIndex &parent = QModelIndex()) const;
             int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -102,14 +115,14 @@ namespace Nepomuk
         private Q_SLOTS:
             void update();
         private:
-            DppExecutivePool(QObject * parent = 0);
-            // List of all available DppExecutive in system
+            DataPPPool(QObject * parent = 0);
+            // List of all available DataPP in system
             // TODO Use QSet<QString> instead of QStringList
-            QStringList m_availableDppExecutive;
-            QStringList m_validDppExecutive;
+            QStringList m_availableDataPP;
+            QStringList m_validDataPP;
 
             // Hash CategoryName->List of all available datapp in system that belongs to
-            // this category(DppExecutive category, not WebEXtractor Categories)
+            // this category(DataPP category, not WebEXtractor Categories)
             //
             //QHash< QString, QSet<QString> > m_categoryPlugins;
             TreeItem * m_categoryPlugins;
@@ -120,12 +133,15 @@ namespace Nepomuk
             // Cache the display name for datapp
             QHash< QString, QString > m_displayNames;
 
+            // Hash of DataPP*
+            QHash< QString, DataPP*> m_dataPPHash;
+
             // Watch for directories where datapp config files are stored
             KDirWatch wc;
 
-            static DppExecutivePool * m_self;
+            static DataPPPool * m_self;
     };
-    QDebug operator<<(QDebug dbg,  const DppExecutivePool & cat);
+    QDebug operator<<(QDebug dbg,  const DataPPPool & cat);
 }
 
 #endif

@@ -22,6 +22,7 @@
 
 #include <QtCore/QUrl>
 
+#include "nepomuksync_export.h"
 #include <Nepomuk/ResourceManager>
 
 namespace Soprano {
@@ -31,7 +32,7 @@ namespace Soprano {
 
 namespace Nepomuk {
     namespace Sync {
-
+        
         class ChangeLog;
         class IdentificationSet;
 
@@ -45,7 +46,7 @@ namespace Nepomuk {
         *
         * \author Vishesh Handa <handa.vish@gmail.com>
         */
-        class SyncFile
+        class NEPOMUKSYNC_EXPORT SyncFile
         {
         public:
             SyncFile();
@@ -111,9 +112,9 @@ namespace Nepomuk {
             ChangeLog& changeLog();
             IdentificationSet & identificationSet();
 
-            ChangeLog changeLog() const;
-            IdentificationSet identificationSet() const;
-
+            const ChangeLog& changeLog() const;
+            const IdentificationSet & identificationSet() const;
+            
         private:
             class Private;
             Private * d;

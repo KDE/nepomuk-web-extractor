@@ -16,27 +16,27 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef __dbpedia_music_datapp_h_
-#define __dbpedia_music_datapp_h_
+#ifndef __dbpedia_music_executive.h_
+#define __dbpedia_music_executive.h_
 
-#include <webextractor/datapp.h>
+#include <webextractor/executive.h>
 #include <Soprano/SparqlModel>
 
 namespace Nepomuk {
     class DbpMusicReply;
-    class DbpMusicDataPP : public WebExtractor::DataPP 
+    class DbpMusicExecutive : public WebExtractor::Executive 
     {
 	Q_OBJECT;
 	public:
-	WebExtractor::DataPPReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
-	    DbpMusicDataPP(
+	WebExtractor::ExecutiveReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
+	    DbpMusicExecutive(
 		    // Actualy any async model can be used here. Unfortunately Soprano::Util::AsyncModel is 
 		    // not a base class for SparqlModel and can not be used. What a pity ((. 
 		    Soprano::SparqlModel * model,
 		    // This parameter is passed only for convinience. It can be retrived automatically.
 		    const QString & pluginVersion
 		    );
-	    ~DbpMusicDataPP();
+	    ~DbpMusicExecutive();
 	    friend class DbpMusicReply;
 	private:
 	    // Make a shared pointer

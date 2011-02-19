@@ -1,5 +1,5 @@
 #include "graphvizmainwindow.h"
-#include <webextractor/algorithm.h>
+#include "algorithm.h"
 #include <QHash>
 #include <QFile>
 #include <KMessageBox>
@@ -8,14 +8,14 @@
 #include <Soprano/Node>
 #include <Nepomuk/Resource>
 #include <Nepomuk/ResourceManager>
-#include <webextractor/dotvisitor.h>
-#include <webextractor/childqueryinterface.h>
-#include <webextractor/selectedpropertiesfunc.h>
-#include <webextractor/resourcenodefilter.h>
-#include <webextractor/modelgraphvisitor.h>
-#include <webextractor/modelgraph.h>
-#include <webextractor/graphalgorithm.h>
-#include <webextractor/plaintextvisitor.h>
+#include "dotvisitor.h"
+#include "childqueryinterface.h"
+#include "selectedpropertiesfunc.h"
+#include "resourcenodefilter.h"
+#include "modelgraphvisitor.h"
+#include "modelgraph.h"
+#include "graphalgorithm.h"
+#include "plaintextvisitor.h"
 #include <Nepomuk/Query/Query>
 
 

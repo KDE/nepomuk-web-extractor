@@ -18,16 +18,16 @@
 
 #include "simple_debug_reply.h"
 #include "decisionfactory.h"
-#include "datapp.h"
-#include "simplenetworkdatapp.h"
+#include "executive.h"
+#include "simplenetworkexecutive.h"
 #include "simplenetworkrequest.h"
 #include <KDebug>
 #include <stdint.h>
 
 namespace NW = Nepomuk::WebExtractor;
 
-Nepomuk::SimpleDebugReply::SimpleDebugReply(NW::SimpleNetworkDataPP * parent , const NW::DecisionFactory * factory, const Nepomuk::Resource & res):
-    SimpleNetworkDataPPReply(parent, factory, res),
+Nepomuk::SimpleDebugReply::SimpleDebugReply(NW::SimpleNetworkExecutive * parent , const NW::DecisionFactory * factory, const Nepomuk::Resource & res):
+    SimpleNetworkExecutiveReply(parent, factory, res),
     m_state(0),
     m_decisions(factory->newDecisionList(parent))
 {
@@ -54,11 +54,11 @@ void Nepomuk::SimpleDebugReply::requestFinished()
 void Nepomuk::SimpleDebugReply::step()
 {
     // Create request and connect it
-    NW::SimpleNetworkDataPPRequest * req = new NW::SimpleNetworkDataPPRequest("");
+    NW::SimpleNetworkExecutiveRequest * req = new NW::SimpleNetworkExecutiveRequest("");
     connect(req, SIGNAL(finished()), this, SLOT(requestFinished()));
     connect(req, SIGNAL(error()), this, SLOT(requestError()));
 
-    NW::SimpleNetworkDataPP * dpp = qobject_cast<NW::SimpleNetworkDataPP*>(this->parentDataPP());
+    NW::SimpleNetworkExecutive * dpp = qobject_cast<NW::SimpleNetworkExecutive*>(this->parentExecutive());
     dpp->get(req);
     kDebug() << "SimpleDebugReply: " << uintptr_t(this) << " Step number: " << m_state;
     m_state++;

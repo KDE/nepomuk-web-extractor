@@ -21,8 +21,8 @@
 #include <QtCore/QMultiMap>
 #include <KDebug>
 #include "ndco.h"
-#include <nepomuk/mergerequest.h>
-#include <nepomuk/changelog.h>
+#include "mergerequest.h"
+#include "changelog.h"
 
 #include "decision.h"
 #include "changelogfiltermodel.h"

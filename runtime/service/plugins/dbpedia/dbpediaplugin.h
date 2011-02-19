@@ -20,14 +20,14 @@
 #define __dbpedia_plugin_h_
 
 #include <webextractor_plugin.h>
-#include <webextractor/simple_datapp.h>
+#include <webextractor/simple_executive.h>
 namespace Nepomuk
 {
     class DbpediaPlugin : public WebExtractorPlugin
     {
         public:
             DbpediaPlugin(QObject*, const QList<QVariant>&);
-            virtual Nepomuk::WebExtractor::DataPP * getExecutive(KSharedConfigPtr configFile);
+            virtual Nepomuk::WebExtractor::Executive * getExecutive(KSharedConfigPtr configFile);
             static QString  version();
     };
 }

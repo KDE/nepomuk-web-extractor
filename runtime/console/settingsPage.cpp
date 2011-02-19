@@ -19,7 +19,7 @@
 #include <KStandardGuiItem>
 #include <KMessageBox>
 
-#include "datappconfig.h"
+#include "datapp.h"
 #include "settingsPage.h"
 #include "webextractor_kcm.h"
 #include "datapppool.h"
@@ -111,8 +111,8 @@ void SettingsPage::dataPPClicked(QModelIndex index)
         this->sourceNameLabel->setText("Source: " + dataPPSource);
 
 	/* Get KCM and display it */
-	DataPPConfig * dppcfg = new DataPPConfig( index.data(DataPPPool::SystemNameRole).toString() );
-	//m_currentDataPPConfig = dppcfg;
+	DataPP * dppcfg = new DataPP( index.data(DataPPPool::IdRole).toString() );
+	//m_currentDataPP = dppcfg;
 	WebExtractorPluginKCM * kcm = dppcfg->kcm();
 	this->m_currentKcm = kcm;
 	if ( kcm ) {

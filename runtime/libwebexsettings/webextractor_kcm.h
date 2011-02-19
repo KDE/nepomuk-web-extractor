@@ -20,7 +20,7 @@
 #define _WEBEXTRCT_PLUGIN_KCM
 #include <kdemacros.h>
 //#include "dppexecutive.h"
-#include <KSharedConfig>
+#include <KConfigGroup>
 #include <KCModule>
 #include <QtCore/QObject>
 
@@ -40,8 +40,8 @@ namespace Nepomuk
             Q_OBJECT;
         public:
             WebExtractorPluginKCM(const KComponentData & data, QWidget *, const QVariantList &args);
-	    void setCurrentDppExecutive( const QSharedPointer<KConfigBase>  & config );
-	    QSharedPointer<KConfigBase> currentConfig() const;
+	    void setCurrentDataPP( const KConfigGroup  & config );
+	    KConfigGroup& currentConfig() const;
             virtual ~WebExtractorPluginKCM() ;
 	private:
 	    class Private;

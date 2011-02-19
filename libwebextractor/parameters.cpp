@@ -86,7 +86,7 @@ bool Nepomuk::WebExtractor::ExtractParameters::hasAnyExecutive() const
     return (d->dataPPlugins.size() != 0);
 }
 
-int NW::ExtractParameters::dataPPCount() const
+int NW::ExtractParameters::executiveCount() const
 {
     return d->dataPPlugins.size();
 }

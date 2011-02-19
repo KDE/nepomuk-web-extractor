@@ -17,6 +17,21 @@ include_directories(
 
 set( backupsynclegacy_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbackupsynclegacy )
 
+## Prepare variables for building metapackage
+set( BUILD_METAPACKAGE 1)
+set( LIBWEBEXTRACTOR_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/libwebextractor
+    ${CMAKE_CURRENT_SOURCE_DIR}/libwebextractor/decisions
+    ${CMAKE_CURRENT_SOURCE_DIR}/libwebextractor/resourceservicedata
+    ${CMAKE_CURRENT_SOURCE_DIR}/libwebextractor/graph
+    ${CMAKE_CURRENT_BINARY_DIR}
+    )
+set( LIBWEBEXTRACTORUI_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/gui/libwebextractorui
+    ${CMAKE_CURRENT_BINARY_DIR}/gui/libwebextractorui
+    )
+
+add_subdirectory( libbackupsynclegacy )
 add_subdirectory( libwebextractor )
 add_subdirectory( gui )
 add_subdirectory( runtime )

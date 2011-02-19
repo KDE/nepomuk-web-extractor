@@ -16,7 +16,7 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include <webextractor/datapp.h>
+#include <webextractor/executive.h>
 #include "dbpediaplugin.h"
 #include <KPluginFactory>
 #include "dbpedia_config.h"
@@ -30,7 +30,7 @@ Nepomuk::DbpediaPlugin::DbpediaPlugin(QObject * parent, const QList<QVariant> &)
     ;
 }
 
-Nepomuk::WebExtractor::DataPP*  Nepomuk::DbpediaPlugin::getExecutive(KSharedConfigPtr configFile)
+Nepomuk::WebExtractor::Executive*  Nepomuk::DbpediaPlugin::getExecutive(KSharedConfigPtr configFile)
 {
 }
 

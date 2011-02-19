@@ -71,7 +71,7 @@ namespace Nepomuk
                 void addExecutive(ExecutiveWrapper *) ;
 
                 bool hasAnyExecutive() const;
-                int dataPPCount() const;
+                int executiveCount() const;
 
                 QString backendName() const;
                 void setBackendName(const QString &);

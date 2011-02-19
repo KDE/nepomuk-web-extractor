@@ -25,31 +25,31 @@ NW::DummyServiceDataBackend::DummyServiceDataBackend( const Nepomuk::Resource & 
     ServiceDataBackend(res)
 {;}
 
-void NW::DummyServiceDataBackend::setExaminedExecutiveInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & date)
+void NW::DummyServiceDataBackend::setExaminedDataPPInfo(const QString & dataPPName, int dataPPVersion, const QDateTime & date)
 {
     Q_UNUSED(dataPPName);
     Q_UNUSED(dataPPVersion);
     Q_UNUSED(date);
 }
 
-QMap< QString, int > NW::DummyServiceDataBackend::examinedExecutiveInfo()
+QMap< QString, int > NW::DummyServiceDataBackend::examinedDataPPInfo()
 {
     return QMap<QString, int>();
 }
 
-bool NW::DummyServiceDataBackend::checkExaminedExecutiveInfo(const QMap< QString, int> & dataPPInfo)
+bool NW::DummyServiceDataBackend::checkExaminedDataPPInfo(const QMap< QString, int> & dataPPInfo)
 {
     Q_UNUSED(dataPPInfo);
     return false;
 }
 
-bool NW::DummyServiceDataBackend::checkExaminedExecutiveInfo( const QString & name )
+bool NW::DummyServiceDataBackend::checkExaminedDataPPInfo( const QString & name )
 {
     Q_UNUSED(name);
     return false;
 }
 
-bool NW::DummyServiceDataBackend::checkExaminedExecutiveInfo( const QString & name, int version )
+bool NW::DummyServiceDataBackend::checkExaminedDataPPInfo( const QString & name, int version )
 {
     Q_UNUSED(name);
     Q_UNUSED(version);

@@ -45,7 +45,7 @@ set( webexsettings_SRCS
     webextractor_config.cpp
     #webexcatconfig.cpp
     datapppool.cpp
-    datappconfig.cpp
+    datapp.cpp
     categoriespool.cpp
     global.cpp
     webextractor_kcm.cpp

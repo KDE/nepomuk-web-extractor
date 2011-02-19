@@ -11,16 +11,12 @@ find_package(KDE4  REQUIRED)
 find_package(Nepomuk REQUIRED)
 
 # check for required packages
-if(WEBEXTRACTOR_VERSION_STRING)
+if(BUILD_METAPACKAGE)
 	# if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-	set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-	    ${libwebextractor_SOURCE_DIR}
-	    ${libwebextractor_BINARY_DIR}
-	    )
 	set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
-else(WEBEXTRACTOR_VERSION_STRING)
+else(BUILD_METAPACKAGE)
 	find_package(LibWebextractor REQUIRED)
-endif(WEBEXTRACTOR_VERSION_STRING)
+endif(BUILD_METAPACKAGE)
 
 include(KDE4Defaults)
 include(MacroLibrary)
@@ -46,25 +42,9 @@ include_directories(
   ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${CMAKE_BUILD_DIR}
   ${KDE4_INCLUDES}
+  ${LIBWEBEXTRACTOR_INCLUDE_DIRS}
+  ${backupsynclegacy_SOURCE_DIR}
   )
-
-
-set(backupsynclegacy_SRC
-    ${backupsynclegacy_SOURCE_DIR}/changelog.cpp
-    ${backupsynclegacy_SOURCE_DIR}/changelogrecord.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationrequest.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationrequest_p.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationset.cpp
-    ${backupsynclegacy_SOURCE_DIR}/mergerequest.cpp
-    ${backupsynclegacy_SOURCE_DIR}/syncfile.cpp
-    ${backupsynclegacy_SOURCE_DIR}/simpleresource.cpp
-    ${backupsynclegacy_SOURCE_DIR}/graphwrapper.cpp
-)
-soprano_add_ontology(backupsynclegacy_SRC
-  ${backupsynclegacy_SOURCE_DIR}/identification.trig
-  "backupsync"
-  "Nepomuk::Vocabulary"
-  "trig")
 
 add_definitions(-DMAKE_WEBEXTRACTORUI_LIB)
 set( webextractorui_SRCS 
@@ -83,7 +63,6 @@ set (webextractorui_HEADERS
 set( webextractorui_UI
     changeLogForm.ui
     decisionForm.ui
-
     )
 
 
@@ -107,7 +86,7 @@ target_link_libraries( webextractorui
   ${KDE4_NEPOMUK_LIBS}
   ${QT_LIBRARIES}
   ${LIBWEBEXTRACTOR_LIBRARIES}
-  nepomuksync
+  nepomuksynclegacy
   )
 
 install(TARGETS webextractorui
@@ -129,7 +108,7 @@ kde4_add_plugin( decisionwidgetdesignerplugin
 target_link_libraries( decisionwidgetdesignerplugin
 	${QT_LIBRARIES}
 	${KDE4_KIO_LIBS}
-	nepomuksync
+	nepomuksynclegacy
 	webextractorui
 	)
 

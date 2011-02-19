@@ -16,36 +16,27 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "autotagplugin_config.h"
-
-#include "autotagdatapp.h"
-
-#include "datappreply.h"
-
-#include "autotagdatappreply.h"
 
 
-Nepomuk::AutotagDataPP::AutotagDataPP(
-    int pluginVersion,
-    const QRegExp & regexp,
-    const QString & tag
-):
-    DataPP(pluginVersion),
-    m_regexp(regexp),
-    m_tag(tag)
+#ifndef __webextractor_datappreply_autotag_h_
+#define __webextractor_datappreply_autotag_h_
+
+#include "simpleexecutivereply.h"
+
+
+namespace Nepomuk
 {
+    class AutotagExecutive;
+    class AutotagReply : public WebExtractor::SimpleExecutiveReply
+    {
+            Q_OBJECT;
+        public:
+            AutotagReply(AutotagExecutive * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
+            virtual void abort() ;
+            virtual bool isValid() const ;
+
+    };
 }
 
-
-Nepomuk::WebExtractor::DataPPReply * Nepomuk::AutotagDataPP::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
-{
-
-    return new AutotagReply(this, factory, res);
-
-}
-
-Nepomuk::AutotagDataPP::~AutotagDataPP()
-{
-    ;
-}
+#endif
 

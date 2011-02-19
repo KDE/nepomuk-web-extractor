@@ -22,6 +22,7 @@
 #include "categoryeditor.h"
 #include "queryeditor.h"
 #include "pluginmodel.h"
+#include "datapppool.h"
 #include "categoriespool.h"
 #include <KComboBox>
 #include <KPushButton>
@@ -174,11 +175,13 @@ void CategoryEditor::buildAddPluginMenu()
 
     m_addPluginMenu->clear();
 
-    KService::List services = Nepomuk::CategoriesPool::self()->availablePlugins();
-    foreach (const KService::Ptr& service, services) {
-        kDebug() << "read datapp" << service->name();
-        QAction* a = m_addPluginMenu->addAction(service->name());
-        a->setData(QVariant::fromValue(service));
+    QStringList idList = Nepomuk::DataPPPool::validDataPP();
+    foreach (const QString & id, idList) {
+        kDebug() << "read datapp" << id;
+        QAction* a = m_addPluginMenu->addAction(
+                Nepomuk::DataPPPool::displayNameById(id)
+                );
+        a->setData(QVariant::fromValue(id));
         connect(a, SIGNAL(triggered()),
                 this, SLOT(slotAddPluginActionTriggered()));
     }
@@ -187,8 +190,8 @@ void CategoryEditor::buildAddPluginMenu()
 void CategoryEditor::slotAddPluginActionTriggered()
 {
     QAction* a = qobject_cast<QAction*>(sender());
-    KService::Ptr service = a->data().value<KService::Ptr>();
-    DataPPDescr datapp(service);
+    QString id = a->data().value<QString>();
+    DataPPDescr datapp(id);
     m_pluginModel->addPlugin(datapp);
 }
 

@@ -23,6 +23,8 @@
 #include "decisioncreator_p.h"
 #include "changelogfiltermodel.h"
 
+#include "identificationset.h"
+
 namespace NW = Nepomuk::WebExtractor;
 namespace NS = Nepomuk::Sync;
 

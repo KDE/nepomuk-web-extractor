@@ -75,7 +75,7 @@ namespace Nepomuk
                  * After executing this function  will mark finished Executive as
                  * examined for this resource
                  */
-                //void markExaminedExecutive() const;
+                //void markExaminedDataPP() const;
             public:
                 enum AnalyzingError {
                     /*! \brief No error
@@ -96,7 +96,7 @@ namespace Nepomuk
 
                     /*! No unexamined Executive
                      */
-                    NoUnexaminedExecutive,
+                    NoUnexaminedDataPP,
 
                     /*! Unknown resource.
                      * This is usually a bug in system
@@ -224,17 +224,17 @@ namespace Nepomuk
                  * Be aware that calling this function while given resource is being
                  * analyzed may return obsolete results
                  */
-                //static QMap<QString,QString > examinedExecutiveInfo(const Nepomuk::Resource & res);
-                //static void setExaminedExecutiveInfo( Nepomuk::Resource & res, const QMap< QString, QString > & info);
+                //static QMap<QString,QString > examinedDataPPInfo(const Nepomuk::Resource & res);
+                //static void setExaminedDataPPInfo( Nepomuk::Resource & res, const QMap< QString, QString > & info);
                 /*! \brief Mark given Executive ( name, version) as finished for given resource
                  * Resource must exists
                  */
-                //static void setExaminedExecutiveInfo( Nepomuk::Resource & res, const  QString & name,const QString & info);
+                //static void setExaminedDataPPInfo( Nepomuk::Resource & res, const  QString & name,const QString & info);
 
                 /*! \brief Clear obsolete Executive info for given resource
                  */
-                //static void clearObsoleteExaminedExecutiveInfo( Nepomuk::Resource & res, int expirationInterval = 0);
-                //static void clearExaminedExecutiveInfo( Nepomuk::Resource & res );
+                //static void clearObsoleteExaminedDataPPInfo( Nepomuk::Resource & res, int expirationInterval = 0);
+                //static void clearExaminedDataPPInfo( Nepomuk::Resource & res );
 
             Q_SIGNALS:
                 /*! \brief This signal is emmited when analyzing is finished
