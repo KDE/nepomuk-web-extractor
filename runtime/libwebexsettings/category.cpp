@@ -276,6 +276,14 @@ void Category::save(KConfigGroup& catGroup) const
     catGroup.writeEntry("a_crit", aCrit());
     catGroup.writeEntry("plugin_selection_type", pluginSelectionTypeToString(d->m_pluginSelectionType));
     catGroup.writeEntry("plugin_selection_step", pluginSelectionStep());
+    // Save all DataPP records
+    foreach(const DataPPDescr & dpd, d->m_plugins)
+    {
+        KConfigGroup group = catGroup.group(dpd.identifier());
+        dpd.save(group);
+        group.sync();
+
+    }
 }
 
 void Category::load(const KConfigGroup& catGroup)

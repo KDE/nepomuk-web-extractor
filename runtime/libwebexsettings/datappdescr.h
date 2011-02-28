@@ -53,12 +53,6 @@ public:
      */
     //Nepomuk::WebExtractorPlugin* createPlugin() const;
 
-    /**
-     * A unique ID for the datapp. This is a random string which is
-     * automatically generated for local datapps.
-     * Plugin developers would come up with their own ids.
-     */
-    //QString identifier() const;
 
     double rank() const;
     double coff() const;
