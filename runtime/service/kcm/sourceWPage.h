@@ -17,20 +17,36 @@
  */
 
 
-#ifndef _we_settings_config_h_
-#define _we_settings_config_h_
+#ifndef SOURCE_WIZARD_PAGE_H
+#define SOURCE_WIZARD_PAGE_H
 
-#define CATEGORY_CONFIG_DIR "webextractor/categories/"
-#define CATEGORY_CONFIG_FILE "webextractor/categoriesrc"
-#define PLUGIN_CONFIG_DIR "webextractor/plugins/"
-#define PLUGIN_CONFIG_FILE "webextractor/pluginsrc"
-#define PLUGIN_MAX_NAME_LENGTH 20
+#include <QWizardPage>
 
-#define CATEGORY_CONFIG_GROUP "category"
-#define CATEGORY_PLUGINS_CONFIG_GROUP "plugins"
+#include "ui_sourceWPage.h"
 
-#define WE_PLUGIN_NAME_KEY "X-WebExtractor-Name"
-#define WE_PLUGIN_SERVICE_TYPE "Nepomuk/WebExtractorPlugin"
+class QListWidgetItem;
 
-#define WE_USER_CONFIG_GROUP "user_settings"
+namespace Nepomuk {
+    class WebExtractorPluginKCM;
+}
+
+class SourceWPage : public QWizardPage, private Ui_sourceWPage
+{
+    Q_OBJECT;
+
+    public:
+        SourceWPage(QWidget *parent = 0 );
+        ~SourceWPage() {;}
+        void initializePage ();
+        bool isComplete() const;
+        QString source() const;
+        Q_PROPERTY( QString source READ source WRITE setSource )
+    private Q_SLOTS:
+        void onSelectedPluginChanged(QListWidgetItem * current, QListWidgetItem * previous);
+    private:
+        void setSource( const QString &);
+        QString m_source;
+};
+
 #endif
+

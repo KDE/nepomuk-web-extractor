@@ -266,7 +266,7 @@ bool Category::operator!=(const Category &other) const
 void Category::save(KConfigGroup& catGroup) const
 {
     // save basic settings
-    catGroup.writeEntry("id", identifer());
+    catGroup.writeEntry("id", identifier());
     catGroup.writeEntry("name", name());
     catGroup.writeEntry("query", query().toString());
     catGroup.writeEntry("query_desc", queryDescription());
@@ -323,7 +323,7 @@ void Category::addPlugin(const DataPPDescr& plugin)
     emit changed(this);
 }
 
-QString Category::identifer() const
+QString Category::identifier() const
 {
     if(d->m_id.isEmpty())
         d->m_id = KRandom::randomString(10);

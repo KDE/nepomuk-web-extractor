@@ -23,6 +23,7 @@
 #include "categoriespool.h"
 
 #include <KGlobalSettings>
+#include <KDebug>
 
 CategoriesModel::CategoriesModel(QObject *parent) :
     QAbstractListModel(parent)

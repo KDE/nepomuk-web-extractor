@@ -66,6 +66,7 @@ namespace Nepomuk
 
             enum Roles {
                 /*! \brief Boolean role. Store type of this item - DataPP or Category
+                 * True is DataPP, False is Category
                  */
                 TypeRole = Qt::UserRole + 1,
                 /*! \brief Store source plugin for DataPP or NULL string for category
@@ -112,7 +113,7 @@ namespace Nepomuk
             QStringList  mimeTypes() const ;
         Q_SIGNALS:
             void dataPPChanged();
-        private Q_SLOTS:
+        public Q_SLOTS:
             void update();
         private:
             DataPPPool(QObject * parent = 0);
@@ -141,7 +142,7 @@ namespace Nepomuk
 
             static DataPPPool * m_self;
     };
-    QDebug operator<<(QDebug dbg,  const DataPPPool & cat);
+    QDebug WEBEXSETTINGS_EXPORT operator<<(QDebug dbg,  const DataPPPool & cat);
 }
 
 #endif

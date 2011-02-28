@@ -20,11 +20,11 @@
 #define NEPOMUK_DATAPP_H
 
 
-#include "datappconfigbase.h"
+#include "webextractor_kcm.h"
+#include "webexsettings_export.h"
 #include <QReadWriteLock>
 #include <QSharedPointer>
-
-class KConfigBase;
+#include <KConfigGroup>
 
 namespace Nepomuk
 {
@@ -36,11 +36,12 @@ namespace Nepomuk
 
     class WebExtractorPlugin;
     class WebExtractorPluginKCM;
+    class DataPPPool;
 
     /*!\brief  This class represent the config object for Executive
      * It inherits from KConfigBase
      */
-    class DataPP : public DataPPConfigBase
+    class WEBEXSETTINGS_EXPORT DataPP 
     {
         public:
             //typedef KSharedConfig<DataPPBase> Ptr;
@@ -48,7 +49,7 @@ namespace Nepomuk
             DataPP(const QString & id);
             /*! \brief Return config file for this Executive
             */
-            KSharedConfigPtr config();
+            KConfigGroup config();
 
             /*! \brief Returns the config object with use settings
              * All settings of the Executive can be devided into 2 groups - the system Executive
@@ -79,32 +80,80 @@ namespace Nepomuk
 
             /*! \brief Return KCM for the Executive
              * Return 0 if there is no KCM or DataPP is invalid. 
-             * The KCM is unique for plugin and thus shared across several Executive.
+             * The default KCM is unique for plugin and thus shared across 
+             * several Executive.
              * The returned KCM will be automatically switched to this DataPP.
              * If it was used somewhere else you are responsible for applying/discarding
-             * changes of the previous Executive before calling this function. If you don't 
+             * changes of the previous Executive 
+             * before calling this function. If you don't 
              * save changes, you loose them.
+             * If you pass forceNew = true, then new instance of the KCM will
+             * be created. It will not be cached for further use. 
              */
-            WebExtractorPluginKCM * kcm();
+            WebExtractorPluginKCM::Ptr kcm(bool forceNew = false);
 
             /*! \brief Return source plugin name
              */
-            //QString source() const;
+            QString source() const;
+            void setSource( const QString & );
+
+            /*! \brief  Return display name of the DataPP
+             */
+            QString displayName() const;
+            void setDisplayName(const QString &);
+
+            /*! \brief  Return display name of the DataPP
+             */
+            QString description() const;
+            void setDescription(const QString &);
+
+            /*! \brief  Return display name of the DataPP
+             */
+            QStringList categories() const;
+            void setCategories(const QStringList &);
+
 
             /*! \brief Load plugin, create datapp and return it
              */
             static WebExtractor::Executive * executive(const QString & id);
 
-            //static int dataPPCount();
+            static DataPP* newDataPP();
+            static void removeDataPP(const QString id);
+
+            /*
+            static QString path(const QString & id);
+            static QString path();
+            */
+
+            void sync();
+            void remove();
+
+
+            friend class DataPPPool;
         private:
-            QString m_id;
+            class Private;
+            Private * const d;
             //QString m_displayName;
             // FIXME Wrap into method
-            static QString path;
+            static QString m_path;
 
             static QReadWriteLock & m_lock();
 
             static QHash< QString, Nepomuk::WebExtractor::Executive*> & m_executiveHash();
+
+            //static QString filenameToId(const QString &);
+
+            static KConfig* mainConfig();
+
+            // This function add given string to the list of 'locked' id
+            // These ids can not be returned as new id for DataPP
+            /*
+            static void lockId(const QString &);
+            static void unlockId(const QString &);
+            static bool isLocked(const QString &);
+            static QSet<QString> & lockDb();
+            */
+
     };
 
 }

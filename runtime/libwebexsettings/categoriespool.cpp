@@ -92,7 +92,7 @@ bool Nepomuk::CategoriesPool::addCategory(Category *cat)
     if(cat->isValid()) {
         connect(cat, SIGNAL(changed(Category*)),
                 this, SLOT(_k_categoryChanged(Category*)));
-        d->m_categories[cat->identifer()] = cat;
+        d->m_categories[cat->identifier()] = cat;
         emit categoriesChanged();
         return true;
     }
@@ -126,29 +126,26 @@ void Nepomuk::CategoriesPool::reloadCategories()
 
     // load the categories
     // ==============================
-    kDebug() << "Looking at: " << CATEGORY_CONFIG_DIR;
+    kDebug() << "Looking in: " << CATEGORY_CONFIG_FILE;
     // we are using the relative paths to allow local settings overriding the global ones
-    QStringList categoryFiles;
-    KGlobal::dirs()->findAllResources("config", CATEGORY_CONFIG_DIR"/*.cat", KStandardDirs::NoDuplicates, categoryFiles);
-    if ( categoryFiles.isEmpty() ) {
+    QStringList categoryList;
+    KConfig catconfig(CATEGORY_CONFIG_FILE, KConfig::SimpleConfig);
+    //KGlobal::dirs()->findAllResources("config", CATEGORY_CONFIG_DIR"/*.cat", KStandardDirs::NoDuplicates, categoryFiles);
+    categoryList = catconfig.groupList();
+    if ( categoryList.isEmpty() ) {
         kDebug() << "No category detected";
     }
-    Q_FOREACH(const QString& relativePath, categoryFiles) {
-        const QString catConfigFile = KStandardDirs::locate("config", relativePath);
-        if(QFile::exists(catConfigFile)) {
-            KSharedConfig::Ptr config = KSharedConfig::openConfig(catConfigFile);
-            // TODO: a local installation may be read-write, too
-            Category* cat = new Category(config->accessMode() == KConfig::ReadOnly, this);
-            cat->load(config->group("Category"));
+    Q_FOREACH(const QString& catname, categoryList) {
+            Category* cat = new Category(catconfig.accessMode() == KConfig::ReadOnly, this);
+            cat->load(catconfig.group(catname));
             if(cat->isValid()) {
-                kDebug() << cat->identifer() << "read only?" << cat->isGlobal();
+                kDebug() << cat->identifier() << "read only?" << cat->isGlobal();
                 addCategory(cat);
             }
             else {
                 delete cat;
-                kDebug() << "Invalid category at" << catConfigFile;
+                kDebug() << "Invalid category at" << catname;
             }
-        }
     }
 
 #if 0
@@ -178,6 +175,13 @@ void Nepomuk::CategoriesPool::reloadCategories()
 
 void Nepomuk::CategoriesPool::saveCategories()
 {
+    KConfig catconfig(CATEGORY_CONFIG_FILE, KConfig::SimpleConfig);
+    Q_FOREACH(Category* cat, d->m_categories) 
+    {
+        KConfigGroup catGroup = catconfig.group(cat->identifier());
+        cat->save(catGroup);
+    }
+#if 0
     // 1. delete all locally existing categories and plugins
     QDir localCatDir = KStandardDirs::locateLocal("config", QLatin1String(CATEGORY_CONFIG_DIR));
     Q_FOREACH(const QString& oldCatFile, localCatDir.entryList(QStringList(QLatin1String("*.cat")), QDir::Files)) {
@@ -189,13 +193,13 @@ void Nepomuk::CategoriesPool::saveCategories()
 
     // 2. save all categories in the pool
     Q_FOREACH(Category* cat, d->m_categories) {
-        KSharedConfig::Ptr config = KSharedConfig::openConfig(QString::fromLatin1(CATEGORY_CONFIG_DIR"%1.cat").arg(cat->identifer()));
+        KSharedConfig::Ptr config = KSharedConfig::openConfig(QString::fromLatin1(CATEGORY_CONFIG_DIR"%1.cat").arg(cat->identifier()));
         KConfigGroup catGroup = config->group("Category");
         cat->save(catGroup);
 
         // 3. Save all the DataPPs
         Q_FOREACH(const DataPPDescr& datapp, cat->plugins()) {
-            const QString datappName = cat->identifer() + QLatin1String("_") + datapp.identifier();
+            const QString datappName = cat->identifier() + QLatin1String("_") + datapp.identifier();
             KSharedConfig::Ptr config = KSharedConfig::openConfig(QString::fromLatin1(PLUGIN_CONFIG_DIR"%1.datapp").arg(datappName));
             KConfigGroup datappGroup = config->group("DataPP");
             datapp.save(datappGroup);
@@ -203,6 +207,7 @@ void Nepomuk::CategoriesPool::saveCategories()
             // TODO: load the plugin-specific configuration and provide API to change it
         }
     }
+#endif
 }
 
 //bool Nepomuk::CategoriesPool::removeCategory(const QString &name)

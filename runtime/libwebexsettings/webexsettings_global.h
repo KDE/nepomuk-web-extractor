@@ -20,34 +20,36 @@
 #ifndef __webexsettings_global_h_
 #define __webexsettings_global_h_
 
+#include "webexsettings_export.h"
 #include "webextractor_plugin.h"
 #include "webextractor_kcm.h"
-#include <QHash>
+#include <QtCore/QHash>
+#include <KService>
 
 namespace Nepomuk {
-    class GlobalSettings
+    class WEBEXSETTINGS_EXPORT GlobalSettings
     {
 	public:
 	    static int pluginCount();
 	// FIXME Make all members private and open them to some config classes:
-	// DppExecutiveConfig , may be category config
+	// DataPP , may be category config
 	public:
 	    /*! \brief Return plugin for given DppExecutive
 	     */
 	    static WebExtractorPlugin * plugin(const QString & name );
 	    /*! \brief Return KCM for given plugin
-	     * \param pluginName It is name of the plugin. <b>Not name of the DppExecutive </b>
+	     * \param pluginName It is name of the plugin. <b>Not name of the Executive </b>
 	     */
-	    static WebExtractorPluginKCM * kcm( const QString & pluginName );
+	    static WebExtractorPluginKCM::Ptr kcm( const QString & pluginName, bool forceNew = false );
 	    // Temporaly desabled as unused
-	    //static KServicePtr pluginService( const QString & name );
 	    static QString pluginServiceType();
 	    static QString pluginQueryByName(const QString & name);
 	    static QString kcmQueryByName(const QString & name);
+        static KService::List availablePlugins();
 	private:
 	    static QString pluginQueryTemplate();
 	    static QHash< QString, WebExtractorPlugin*> & m_plugins();
-	    static QHash< QString, WebExtractorPluginKCM *>& m_kcms();
+	    static QHash< QString, WebExtractorPluginKCM::Ptr>& m_kcms();
 		
 
     };

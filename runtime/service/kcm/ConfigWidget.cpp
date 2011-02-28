@@ -21,11 +21,13 @@
 #include "ConfigWidget.h"
 #include "categorieswidget.h"
 #include "categoriespool.h"
+#include "datapppage.h"
 
 ConfigWidget::ConfigWidget(Nepomuk::WebExtractorConfig* cfg,QWidget *parent)
         : KPageWidget(parent),
           m_generalPage(new GeneralPage(cfg,this)),
-          m_categoriesPage(new CategoriesWidget(this))
+          m_categoriesPage(new CategoriesWidget(this)),
+          m_datappPage(new DataPPPage(this) )
 {
     //layout()->setMargin(0);
 
@@ -33,12 +35,16 @@ ConfigWidget::ConfigWidget(Nepomuk::WebExtractorConfig* cfg,QWidget *parent)
     
     KPageWidgetItem *general = addPage(m_generalPage, i18n("General Settings"));
     KPageWidgetItem *categories = addPage(m_categoriesPage, i18n("Categories Settings"));
+    KPageWidgetItem *datapp = addPage(m_datappPage, i18n("Plugin Settings"));
     general->setHeader("");
     general->setIcon(KIcon("configure"));
     categories->setHeader("");
     categories->setIcon(KIcon("configure"));
+    datapp->setHeader("");
+    datapp->setIcon(KIcon("configure"));
 
     connect(m_generalPage, SIGNAL(changed(bool)), this, SIGNAL(changed(bool)));
+    connect(m_datappPage, SIGNAL(changed(bool)), this, SIGNAL(changed(bool)));
     connect(Nepomuk::CategoriesPool::self(), SIGNAL(categoriesChanged()), this, SLOT(setChanged()));
 }
 
@@ -49,17 +55,20 @@ ConfigWidget::~ConfigWidget()
 void ConfigWidget::load()
 {
     m_generalPage->load();
+    m_datappPage->load();
 }
 
 void ConfigWidget::save()
 {
     m_generalPage->save();
+    m_datappPage->save();
     Nepomuk::CategoriesPool::self()->saveCategories();
 }
 
 void ConfigWidget::defaults()
 {
     m_generalPage->defaults();
+    m_datappPage->defaults();
     Nepomuk::CategoriesPool::self()->reloadCategories();
 }
 

@@ -19,33 +19,35 @@
 #ifndef _WEBEXTRCT_PLUGIN_KCM
 #define _WEBEXTRCT_PLUGIN_KCM
 #include <kdemacros.h>
-//#include "dppexecutive.h"
 #include <KConfigGroup>
+#include <QtCore/QSharedPointer>
 #include <KCModule>
 #include <QtCore/QObject>
+
+#include "webexsettings_export.h"
 
 namespace Nepomuk
 {
     namespace WebExtractor {
-	class DppExecutive;
+        class Executive;
     }
-    class DppExecutiveConfig;
 
     /*! \brief This class is an interface for KCM for any webextractor plugin
      * Because each plugin can has more than one instance, the very important 
      * method is setCurrentDppExecutive()
      */
-    class KDE_EXPORT WebExtractorPluginKCM : public KCModule
+    class WEBEXSETTINGS_EXPORT WebExtractorPluginKCM : public KCModule
     {
             Q_OBJECT;
         public:
+            typedef QSharedPointer<WebExtractorPluginKCM> Ptr;
             WebExtractorPluginKCM(const KComponentData & data, QWidget *, const QVariantList &args);
-	    void setCurrentDataPP( const KConfigGroup  & config );
-	    KConfigGroup& currentConfig() const;
+            void setCurrentDataPP( const KConfigGroup  & config );
+            KConfigGroup& currentConfig() const;
             virtual ~WebExtractorPluginKCM() ;
-	private:
-	    class Private;
-	    Private * d;
+        private:
+            class Private;
+            Private * d;
     };
 }
 #endif

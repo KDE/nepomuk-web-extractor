@@ -10,6 +10,8 @@
     </entry>
     <entry name="displayName" type="String">
     </entry>
+    <entry name="description" type="String">
+    </entry>
     <entry name="categories" type="StringList">
     </entry>
 </group>

@@ -18,6 +18,7 @@
 
 #include <KStandardGuiItem>
 #include <KMessageBox>
+#include <KDebug>
 
 #include "datapp.h"
 #include "settingsPage.h"
@@ -31,11 +32,13 @@ using namespace Nepomuk;
 
 SettingsPage::SettingsPage(QWidget * parent):
     QWidget(parent),
-    m_currentKcm(0),
     m_kcmChanged(false)
 {
     this->setupUi(this);
     this->dataPPView->setModel(Nepomuk::DataPPPool::self());
+    connect(dataPPView, SIGNAL(clicked(const QModelIndex &)),
+            this,SLOT(dataPPClicked(QModelIndex))
+           );
 
     /* === Set properties of the DataPP Settings tab === */
     this->kcmDialogButtonBox->addButton(KStandardGuiItem::help(),QDialogButtonBox::HelpRole);
@@ -68,9 +71,9 @@ void SettingsPage::dataPPClicked(QModelIndex index)
 {
     kDebug() << "Enter";
 
-    if(!index.data(DataPPPool::DataPPRole).toBool()) {
-	// Do nothing and do not switch
-	kDebug() << "Do nothing";
+    if(!index.data(DataPPPool::TypeRole).toBool()) {
+        // Do nothing and do not switch
+        kDebug() << "Do nothing";
         return;
     }
 
@@ -92,12 +95,12 @@ void SettingsPage::dataPPClicked(QModelIndex index)
 
        }
        // Disconnect signals
-       disconnect(m_currentKcm,SIGNAL(changed(bool)),this,SLOT(dataPPSettingsChanged(bool))); 
+       disconnect(m_currentKcm.data(),SIGNAL(changed(bool)),this,SLOT(dataPPSettingsChanged(bool))); 
        // Delete widget from the model
 	Q_ASSERT(this->kcmScrollAreaWidgetContents->layout());
-	this->kcmScrollAreaWidgetContents->layout()->removeWidget(m_currentKcm);
+	this->kcmScrollAreaWidgetContents->layout()->removeWidget(m_currentKcm.data());
 
-       m_currentKcm = 0;
+       m_currentKcm = WebExtractorPluginKCM::Ptr(0);
        
     }
 
@@ -113,13 +116,13 @@ void SettingsPage::dataPPClicked(QModelIndex index)
 	/* Get KCM and display it */
 	DataPP * dppcfg = new DataPP( index.data(DataPPPool::IdRole).toString() );
 	//m_currentDataPP = dppcfg;
-	WebExtractorPluginKCM * kcm = dppcfg->kcm();
+    WebExtractorPluginKCM::Ptr kcm = dppcfg->kcm();
 	this->m_currentKcm = kcm;
 	if ( kcm ) {
 	    this->noKcmLabel->setHidden(true);
 	    Q_ASSERT(this->kcmScrollAreaWidgetContents->layout());
-	    this->kcmScrollAreaWidgetContents->layout()->addWidget(kcm);
-	    connect(kcm, SIGNAL(changed(bool)), this, SLOT(dataPPSettingsChanged(bool)));
+	    this->kcmScrollAreaWidgetContents->layout()->addWidget(kcm.data());
+	    connect(kcm.data(), SIGNAL(changed(bool)), this, SLOT(dataPPSettingsChanged(bool)));
 	}
 	else {
 	    this->noKcmLabel->setHidden(false);

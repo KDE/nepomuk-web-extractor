@@ -16,21 +16,26 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include "datappwizard.h"
+#include "sourceWPage.h"
+#include "setupWPage.h"
+#include "datapp.h"
 
-#ifndef _we_settings_config_h_
-#define _we_settings_config_h_
+DataPPWizard::DataPPWizard(QWidget * parent):
+    QWizard(parent),
+    m_result(Nepomuk::DataPP::newDataPP())
+{
+    sourceWPageObject = new SourceWPage();
+    sourceWPageId = addPage(sourceWPageObject);
+    setupWPageId = addPage(new SetupWPage());
+}
 
-#define CATEGORY_CONFIG_DIR "webextractor/categories/"
-#define CATEGORY_CONFIG_FILE "webextractor/categoriesrc"
-#define PLUGIN_CONFIG_DIR "webextractor/plugins/"
-#define PLUGIN_CONFIG_FILE "webextractor/pluginsrc"
-#define PLUGIN_MAX_NAME_LENGTH 20
+Nepomuk::DataPP * DataPPWizard::result() const
+{
+    return m_result;
+}
 
-#define CATEGORY_CONFIG_GROUP "category"
-#define CATEGORY_PLUGINS_CONFIG_GROUP "plugins"
-
-#define WE_PLUGIN_NAME_KEY "X-WebExtractor-Name"
-#define WE_PLUGIN_SERVICE_TYPE "Nepomuk/WebExtractorPlugin"
-
-#define WE_USER_CONFIG_GROUP "user_settings"
-#endif
+DataPPWizard::~DataPPWizard()
+{
+    delete m_result;
+}

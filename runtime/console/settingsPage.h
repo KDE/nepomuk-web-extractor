@@ -20,9 +20,7 @@
 #define __webexgui_console_settings_page_h_
 
 #include "ui_settingsPage.h"
-namespace Nepomuk {
-        class WebExtractorPluginKCM;
-}
+#include "webextractor_kcm.h"
 
 class SettingsPage : public QWidget, public Ui_settingsPage
 {
@@ -38,7 +36,7 @@ class SettingsPage : public QWidget, public Ui_settingsPage
 
     private:
         /* KCM subsection */
-        Nepomuk::WebExtractorPluginKCM * m_currentKcm;
+        Nepomuk::WebExtractorPluginKCM::Ptr m_currentKcm;
         bool m_kcmChanged;
         QAbstractButton * m_kcmApplyButton;
         QAbstractButton * m_kcmResetButton;

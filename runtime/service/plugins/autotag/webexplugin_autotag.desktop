@@ -3,7 +3,6 @@
  X-KDE-ServiceTypes=Nepomuk/WebExtractorPlugin
  X-KDE-Library=webexplugin_autotag
  X-WebExtractor-Name=autotag
- Name=Put name here
- Comment=Put comment here
-
+ Name=Autotag 
+ Comment=Tagging everything based on the regular expressions
 

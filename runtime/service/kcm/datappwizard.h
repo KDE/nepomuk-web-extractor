@@ -17,20 +17,34 @@
  */
 
 
-#ifndef _we_settings_config_h_
-#define _we_settings_config_h_
+#ifndef DATAPPWIZARD_H
+#define DATAPPWIZARD_H
 
-#define CATEGORY_CONFIG_DIR "webextractor/categories/"
-#define CATEGORY_CONFIG_FILE "webextractor/categoriesrc"
-#define PLUGIN_CONFIG_DIR "webextractor/plugins/"
-#define PLUGIN_CONFIG_FILE "webextractor/pluginsrc"
-#define PLUGIN_MAX_NAME_LENGTH 20
+#include <QWizard>
+#include "datapp.h"
 
-#define CATEGORY_CONFIG_GROUP "category"
-#define CATEGORY_PLUGINS_CONFIG_GROUP "plugins"
 
-#define WE_PLUGIN_NAME_KEY "X-WebExtractor-Name"
-#define WE_PLUGIN_SERVICE_TYPE "Nepomuk/WebExtractorPlugin"
 
-#define WE_USER_CONFIG_GROUP "user_settings"
+class SourceWPage;
+class SetupWPage;
+
+class DataPPWizard : public QWizard
+{
+    Q_OBJECT;
+
+    public:
+        DataPPWizard(QWidget *parent = 0 );
+        ~DataPPWizard();
+         Nepomuk::DataPP * result() const;
+        friend class SourceWPage;
+        friend class SetupWPage;
+    private:
+        int sourceWPageId;
+        int setupWPageId;
+        SourceWPage * sourceWPageObject;
+        Nepomuk::DataPP * m_result;
+        /* KCM subsection */
+};
+
 #endif
+

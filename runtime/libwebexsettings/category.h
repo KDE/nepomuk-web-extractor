@@ -22,6 +22,8 @@
 #ifndef CATEGORY_H
 #define CATEGORY_H
 
+#include "webexsettings_export.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QList>
 #include <QtCore/QVariant>
@@ -37,7 +39,7 @@ namespace Nepomuk {
 }
 class KConfigGroup;
 
-class Category : public QObject
+class WEBEXSETTINGS_EXPORT Category : public QObject
 {
     Q_OBJECT
 
@@ -58,7 +60,7 @@ public:
      * to add their plugins to a category.
      * Local categories have random ids.
      */
-    QString identifer() const;
+    QString identifier() const;
 
     bool enabled() const;
     void setEnabled(bool enabled);

@@ -26,6 +26,7 @@
 #include <KServiceTypeTrader>
 #include <KGlobal>
 #include <QtDebug>
+#include <KDebug>
 #include <QQueue>
 #include <kstandarddirs.h>
 
@@ -245,31 +246,17 @@ Nepomuk::DataPPPool::DataPPPool(QObject * parent):
 
 void Nepomuk::DataPPPool::update()
 {
-    /*
-    KService::List services;
-    KServiceTypeTrader* trader = KServiceTypeTrader::self();
+    beginResetModel();
 
-    services = trader->query("WebExtractor/DataPP");
-    foreach (KService::Ptr service, services) {
-        kDebug() << "read datapp" << service->name();
-    }
-    */
-    /*
-    QDir myDir(CONFIG_DIR);
-    kDebug() << "Open config dir: "<<CONFIG_DIR;
-    QStringList filters;
-    filters.push_back(QString("*rc"));
-    QStringList list = myDir.entryList(filters, QDir::Files);
-    */
     delete m_categoryPlugins;
+    m_validDataPP.clear();
+    m_availableDataPP.clear();
+    m_dataPPSources.clear();
+    m_displayNames.clear();
+    m_dataPPHash.clear();
     m_categoryPlugins = new TreeItem("DataPP");
-    QStringList list = KGlobal::dirs()->findAllResources("config", PLUGIN_CONFIG_DIR"/*.datapp");
-    foreach(const QString & plg, list) {
-        QFileInfo info(plg);
-        QString filename = info.fileName();
-        QString name = filename;
-
-        name.remove(name.size() - 6, 6);
+    QStringList list = DataPP::mainConfig()->groupList();
+    foreach(const QString & name, list) {
         if(!name.isEmpty()) {
             // Put name of the plugin into the list of all plugins
             m_availableDataPP.push_back(name);
@@ -302,12 +289,15 @@ void Nepomuk::DataPPPool::update()
         m_dataPPSources[name] = dppcfg->source();
         // Add display name source to the list of names
         m_displayNames[name] = dppcfg->displayName();
+
+        kDebug() << "Detect DataPP. ID: " << name << " Display Name: " << dppcfg->displayName();
         // Remove config object
         delete dppcfg;
 
     }
 
-    //m_init = true;
+    endResetModel();
+
 }
 
 QStringList Nepomuk::DataPPPool::availableDataPP()

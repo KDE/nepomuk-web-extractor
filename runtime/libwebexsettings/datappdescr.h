@@ -20,6 +20,7 @@
 #ifndef __datappdescr_h_
 #define __datappdescr_h_
 
+#include "webexsettings_export.h"
 #include <QtCore/QString>
 #include <QtCore/QSharedDataPointer>
 
@@ -33,7 +34,7 @@ class WebExtractorPlugin;
 class KConfigGroup;
 class Category;
 
-class DataPPDescr
+class WEBEXSETTINGS_EXPORT DataPPDescr
 {
 public:
     DataPPDescr(const QString & id);

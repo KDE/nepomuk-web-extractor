@@ -30,6 +30,7 @@
 //#include "CapabilitiesPage.h"
 
 class CategoriesWidget;
+class DataPPPage;
 
 class ConfigWidget : public KPageWidget
 {
@@ -51,6 +52,7 @@ Q_SIGNALS:
 private:
     GeneralPage * m_generalPage;
     CategoriesWidget * m_categoriesPage;
+    DataPPPage * m_datappPage; 
 };
 
 #endif

@@ -19,6 +19,7 @@
 #ifndef _webexsettings_categories_h_
 #define _webexsettings_categories_h_
 
+#include "webexsettings_export.h"
 #include "datapp.h"
 #include "category.h"
 #include <QtCore/QStringList>
@@ -36,7 +37,7 @@ namespace Nepomuk {
      * CategoriesPool contains all information about all existing categories, both 
      * system wide and user installed.
      */
-    class CategoriesPool: public QObject
+    class WEBEXSETTINGS_EXPORT CategoriesPool: public QObject
     {
 	Q_OBJECT
 

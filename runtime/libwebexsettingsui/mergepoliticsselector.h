@@ -18,6 +18,7 @@
 
 
 #include <QComboBox>
+#include "webexsettings_global.h"
 #include <webextractor/global.h>
 
 class MergePoliticsSelector: public QComboBox

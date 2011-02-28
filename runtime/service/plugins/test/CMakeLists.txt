@@ -66,7 +66,7 @@ install(
 
 install(
   FILES webexplugin_test.desktop
-  DESTINATION ${SERVICES_INSTALL_DIR}
+  DESTINATION ${SERVICES_INSTALL_DIR}/webextractor
   )
 
 

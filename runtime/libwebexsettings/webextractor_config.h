@@ -19,6 +19,7 @@
 #ifndef _NEPOMUK_WEBEXTRCT_CONFIG_H_
 #define _NEPOMUK_WEBEXTRCT_CONFIG_H_
 
+#include "webexsettings_export.h"
 #include "webexconfigbase.h"
 #include "webextractor_plugin.h"
 #include <QtCore/QHash>
@@ -28,7 +29,7 @@
 
 namespace Nepomuk
 {
-    class WebExtractorConfig : public WebExConfigBase
+    class WEBEXSETTINGS_EXPORT WebExtractorConfig : public WebExConfigBase
     {
             Q_OBJECT;
         public:
@@ -43,7 +44,7 @@ namespace Nepomuk
             friend QDebug operator<<(QDebug dbg,  const WebExtractorConfig & cat);
 
     };
-    QDebug operator<<(QDebug dbg,  const WebExtractorConfig & cat);
+    QDebug WEBEXSETTINGS_EXPORT operator<<(QDebug dbg,  const WebExtractorConfig & cat);
 
 }
 #endif

@@ -17,20 +17,31 @@
  */
 
 
-#ifndef _we_settings_config_h_
-#define _we_settings_config_h_
+#ifndef SETUP_WIZARD_PAGE_H
+#define SETUP_WIZARD_PAGE_H
 
-#define CATEGORY_CONFIG_DIR "webextractor/categories/"
-#define CATEGORY_CONFIG_FILE "webextractor/categoriesrc"
-#define PLUGIN_CONFIG_DIR "webextractor/plugins/"
-#define PLUGIN_CONFIG_FILE "webextractor/pluginsrc"
-#define PLUGIN_MAX_NAME_LENGTH 20
+#include <QWizardPage>
 
-#define CATEGORY_CONFIG_GROUP "category"
-#define CATEGORY_PLUGINS_CONFIG_GROUP "plugins"
+#include "ui_setupWPage.h"
 
-#define WE_PLUGIN_NAME_KEY "X-WebExtractor-Name"
-#define WE_PLUGIN_SERVICE_TYPE "Nepomuk/WebExtractorPlugin"
+#include "webextractor_kcm.h"
 
-#define WE_USER_CONFIG_GROUP "user_settings"
+class SetupWPage : public QWizardPage, private Ui_setupWPage
+{
+    Q_OBJECT;
+
+    public:
+        SetupWPage(QWidget *parent = 0 );
+        ~SetupWPage();
+        void initializePage();
+        void cleanupPage();
+        bool isComplete() const;
+
+    private:
+        /* KCM subsection */
+        Nepomuk::WebExtractorPluginKCM::Ptr m_currentKcm;
+        bool m_kcmChanged;
+};
+
 #endif
+

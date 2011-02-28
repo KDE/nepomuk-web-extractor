@@ -31,7 +31,7 @@
 #include "resourceanalyzerfactory.h"
 #include "resourceservicedata.h"
 #include "decisionapplicationrequest.h"
-#include "global.h"
+#include "webexsettings_global.h"
 #include "debugexecutive.h"
 #include <kdebug.h>
 #include <QUrl>

@@ -21,65 +21,174 @@
 #include "webextractor_kcm.h"
 #include "datapp.h"
 #include "settings_config.h"
-#include "global.h"
+#include "webexsettings_global.h"
 #include <QReadLocker>
+#include <QTemporaryFile>
+#include <QFileInfo>
 #include <QWriteLocker>
 #include <KConfigBase>
+#include <KRandom>
+#include <limits.h>
 
 using namespace Nepomuk;
 
-/*
-DataPP::DataPP(  KSharedConfig::Ptr config  )
-  : DataPPConfigBase( config )
+
+class DataPP::Private
 {
-}
-*/
+    public:
+        QString id;
+        //bool idLocked;
+        KConfigGroup config;
+};
 
-
-DataPP::DataPP(const QString & id)
-    : DataPPConfigBase(KSharedConfig::openConfig(path.arg(id))),
-      m_id(id)
+DataPP* DataPP::newDataPP()
 {
+    int i = 0;
+    QString newId;
+    while( ++i < INT_MAX)
+    {
+        newId = KRandom::randomString(PLUGIN_MAX_NAME_LENGTH);
+        if (!mainConfig()->hasGroup(newId) /*&& !isLocked(newId)*/)
+            break;
+    }
+    //lockId(newId);
+    DataPP * answer =  new DataPP(newId);
+    //answer->idLocked = true;
+    return answer;
 }
 
-KSharedConfigPtr DataPP::config()
+void DataPP::removeDataPP(const QString id)
+{
+    mainConfig()->deleteGroup(id);
+}
+
+DataPP::DataPP(const QString & id):
+    d(new Private())
+{
+    d->id = id;
+#if 0
+    if (mainConfig()->hasGroup(id) ) { 
+        // THis is config for existing DataPP
+        d->idLocked = false;
+    }
+    else {
+        // This is config for new DataPP. It is not written
+        // to config untill synced
+        d->idLocked = true;
+        lockId(id);
+    }
+#endif
+    d->config = mainConfig()->group(id);
+}
+
+KConfigGroup DataPP::config()
 {
     // TODO what about storing a weak pointer to avoid
     // reopenning of config on each call ?
-    return KSharedConfig::openConfig(path.arg(m_id));
+    return d->config; 
 }
 
 KConfigGroup DataPP::userConfig()
 {
-    return DataPPConfigBase::config()->group(WE_USER_CONFIG_GROUP);
+    return d->config.group(WE_USER_CONFIG_GROUP);
 }
 
 DataPP::~DataPP()
 {
+    delete d;
 }
+
+QString DataPP::source() const
+{
+    return d->config.readEntry("source","");
+}
+
+void DataPP::setSource( const QString & value )
+{
+    d->config.writeEntry("source",value);
+}
+
+QString DataPP::displayName() const
+{
+    return d->config.readEntry("displayName","");
+}
+
+void DataPP::setDisplayName(const QString & value)
+{
+    d->config.writeEntry("displayName",value);
+}
+
+QString DataPP::description() const
+{
+    return d->config.readEntry("description","");
+}
+
+void DataPP::setDescription(const QString & value)
+{
+    d->config.writeEntry("description",value);
+}
+
+QStringList DataPP::categories() const
+{
+    return d->config.readEntry("categories",QStringList());
+}
+
+void DataPP::setCategories(const QStringList & value)
+{
+    d->config.writeEntry("categories",value);
+}
+
 
 bool DataPP::isValid() const
 {
-    return DataPPConfigBase::source().size();
+    return source().size();
+}
+
+void DataPP::sync()
+{
+    d->config.sync();
+    // Now we can unlock our id
+#if 0
+    if (d->idLocked) {
+        unlockId(d->id);
+    }
+#endif
+}
+
+void DataPP::remove()
+{
+    mainConfig()->deleteGroup(d->id);
 }
 
 WebExtractorPlugin * DataPP::plugin()
 {
-    return GlobalSettings::plugin(DataPPConfigBase::source());
+    if (!isValid())
+        return 0;
+
+    return GlobalSettings::plugin(source());
 }
 
-WebExtractorPluginKCM * DataPP::kcm()
+WebExtractorPluginKCM::Ptr DataPP::kcm(bool forceNew )
 {
-    WebExtractorPluginKCM * answer = GlobalSettings::kcm(DataPPConfigBase::source());
+    if (!isValid())
+        return WebExtractorPluginKCM::Ptr();
+
+    WebExtractorPluginKCM::Ptr answer = GlobalSettings::kcm(
+            source(),
+            forceNew
+            );
     if ( answer )
-	answer->setCurrentDataPP(this->userConfig());
+        answer->setCurrentDataPP(this->userConfig());
     return answer;
 }
 
 WebExtractor::Executive * DataPP::executive()
 {
+    if (!isValid())
+        return 0;
+
     QReadLocker rl(&m_lock());
-    QHash< QString, Nepomuk::WebExtractor::Executive*>::iterator it = m_executiveHash().find(m_id);
+    QHash< QString, Nepomuk::WebExtractor::Executive*>::iterator it = m_executiveHash().find(d->id);
 
     if(it == m_executiveHash().end()) {
         rl.unlock();
@@ -88,7 +197,7 @@ WebExtractor::Executive * DataPP::executive()
             WebExtractor::Executive * ex = plg->getExecutive(userConfig());
             // Insert even if dpp == 0.
             QWriteLocker wl(&m_lock());
-            m_executiveHash().insert(m_id, ex);
+            m_executiveHash().insert(d->id, ex);
 
             // Return now to avoid unnecessary searching
             return ex;
@@ -127,12 +236,55 @@ WebExtractor::Executive * DataPP::executive(const QString & name)
     return *it;
 }
 
-#if 0
-int DataPP::dataPPCount()
+/*
+QString DataPP::path(const QString & id)
+{
+    return m_path.arg(id);
+}
+
+QString DataPP::path()
+{
+    static QString answer(PLUGIN_CONFIG_DIR);
+    return answer;
+}
+*/
+
+/*
+QString DataPP::filenameToId(const QString & fileName)
+{
+    QString answer = fileName;
+    return answer.remove(answer.size() - 7,7);
+}
+*/
+
+KConfig* DataPP::mainConfig()
+{
+    static KConfig * _mc = new KConfig(PLUGIN_CONFIG_FILE, KConfig::SimpleConfig);
+    return _mc;
+}
+/*
+
+void DataPP::lockId(const QString & id)
+{
+    lockDb.insert(id);
+}
+
+void DataPP::unlockId(const QString & id)
+{
+    lockDb.remove(id);
+}
+
+bool DataPP::isLocked(const QString & id)
 {
     QReadLocker rl(&m_lock());
-    return m_executiveHash().size();
+    return lockDb.contains(id);
 }
-#endif
 
-QString Nepomuk::DataPP::path = QString(PLUGIN_CONFIG_DIR"%1"".datapp");
+QSet<QString> & DataPP::lockDb()
+{
+    static QSet<QString> _db;
+    return _db;
+}
+*/
+
+QString Nepomuk::DataPP::m_path = QString(PLUGIN_CONFIG_DIR"%1"".datapp");

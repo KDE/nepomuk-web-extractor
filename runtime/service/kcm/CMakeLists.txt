@@ -18,8 +18,12 @@ set( webexkcm_SRCS
     #pluginselector.cpp
     categorieswidget.cpp
     categoryeditor.cpp
+    datapppage.cpp
     queryeditor.cpp
     pluginmodel.cpp
+    setupWPage.cpp
+    sourceWPage.cpp
+    datappwizard.cpp
     )
 
 kde4_add_ui_files(webexkcm_SRCS 
@@ -27,6 +31,9 @@ kde4_add_ui_files(webexkcm_SRCS
     categoryeditor.ui
     generalPage.ui
     categoriesPage.ui
+    datappPage.ui
+    sourceWPage.ui
+    setupWPage.ui
     pluginSelector.ui
     pluginDelegate.ui
     )
