@@ -10,41 +10,8 @@
     <height>389</height>
    </rect>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="2">
-    <widget class="QLabel" name="sourceNameLabel">
-     <property name="text">
-      <string>No source</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="QScrollArea" name="kcmScrollArea">
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="kcmScrollAreaWidgetContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>273</width>
-        <height>314</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_11">
-       <item>
-        <widget class="QLabel" name="noKcmLabel">
-         <property name="text">
-          <string>There is no KCM available for this DataPP</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item row="2" column="1">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <widget class="KDialogButtonBox" name="kcmDialogButtonBox">
      <property name="minimumSize">
       <size>
@@ -53,9 +20,6 @@
       </size>
      </property>
     </widget>
-   </item>
-   <item row="0" column="0" rowspan="2">
-    <widget class="QTreeView" name="dataPPView"/>
    </item>
   </layout>
  </widget>

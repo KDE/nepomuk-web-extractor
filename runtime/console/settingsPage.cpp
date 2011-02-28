@@ -19,6 +19,7 @@
 #include <KStandardGuiItem>
 #include <KMessageBox>
 #include <KDebug>
+#include <KCModuleProxy>
 
 #include "datapp.h"
 #include "settingsPage.h"
@@ -35,103 +36,33 @@ SettingsPage::SettingsPage(QWidget * parent):
     m_kcmChanged(false)
 {
     this->setupUi(this);
-    this->dataPPView->setModel(Nepomuk::DataPPPool::self());
-    connect(dataPPView, SIGNAL(clicked(const QModelIndex &)),
-            this,SLOT(dataPPClicked(QModelIndex))
+    m_proxy = new KCModuleProxy("webextractorconfig");
+    this->verticalLayout->insertWidget(0,m_proxy);
+    connect(m_proxy,SIGNAL(changed(bool)),
+            this,SLOT(dataPPSettingsChanged(bool))
            );
-
-    /* === Set properties of the DataPP Settings tab === */
     this->kcmDialogButtonBox->addButton(KStandardGuiItem::help(),QDialogButtonBox::HelpRole);
     this->kcmDialogButtonBox->addButton(KStandardGuiItem::defaults(),QDialogButtonBox::ResetRole, this, SLOT(defaultSettings()));
     this->kcmDialogButtonBox->addButton(KStandardGuiItem::reset(),QDialogButtonBox::ResetRole, this, SLOT(resetSettings()));
     this->kcmDialogButtonBox->addButton(KStandardGuiItem::apply(),QDialogButtonBox::ApplyRole, this, SLOT(applySettings()));
 
-
 }
 
 void SettingsPage::applySettings()
 {
-    if ( m_currentKcm )
-    m_currentKcm->save();
+    m_proxy->save();
 }
 
 void SettingsPage::resetSettings()
 {
-    if ( m_currentKcm )
-    m_currentKcm->load();
+    m_proxy->load();
 }
 
 void SettingsPage::defaultSettings()
 {
-    if ( m_currentKcm )
-    m_currentKcm->defaults();
+    m_proxy->defaults();
 }
 
-void SettingsPage::dataPPClicked(QModelIndex index)
-{
-    kDebug() << "Enter";
-
-    if(!index.data(DataPPPool::TypeRole).toBool()) {
-        // Do nothing and do not switch
-        kDebug() << "Do nothing";
-        return;
-    }
-
-    /* Get previous KCM. Ask for saving if necessary */
-    if (m_currentKcm) { // If there is previous kcm
-       if ( m_kcmChanged ) { // If there were changes
-	   // Show save/discard changes
-	    int result = KMessageBox::warningYesNoCancel(this, i18n("The current DataPP has not been saved.\n"
-			 "Do you want to save it?"), i18n("Save Profile"));
-
-	    if (result == KMessageBox::Yes) {
-		applySettings();
-	    } else if (result == KMessageBox::No) {
-		// Do nothing
-	    } else if (result == KMessageBox::Cancel) {
-		// Do nothing and simply return
-		return;
-	    }
-
-       }
-       // Disconnect signals
-       disconnect(m_currentKcm.data(),SIGNAL(changed(bool)),this,SLOT(dataPPSettingsChanged(bool))); 
-       // Delete widget from the model
-	Q_ASSERT(this->kcmScrollAreaWidgetContents->layout());
-	this->kcmScrollAreaWidgetContents->layout()->removeWidget(m_currentKcm.data());
-
-       m_currentKcm = WebExtractorPluginKCM::Ptr(0);
-       
-    }
-
-    QString dataPPSource = index.data(DataPPPool::SourceRole).toString();
-    if(dataPPSource.isEmpty()) {
-        this->sourceNameLabel->setText("Invalid DataPP: Source not set");
-	this->noKcmLabel->setHidden(true);
-        return;
-    } else {
-	/* Get source and display it */
-        this->sourceNameLabel->setText("Source: " + dataPPSource);
-
-	/* Get KCM and display it */
-	DataPP * dppcfg = new DataPP( index.data(DataPPPool::IdRole).toString() );
-	//m_currentDataPP = dppcfg;
-    WebExtractorPluginKCM::Ptr kcm = dppcfg->kcm();
-	this->m_currentKcm = kcm;
-	if ( kcm ) {
-	    this->noKcmLabel->setHidden(true);
-	    Q_ASSERT(this->kcmScrollAreaWidgetContents->layout());
-	    this->kcmScrollAreaWidgetContents->layout()->addWidget(kcm.data());
-	    connect(kcm.data(), SIGNAL(changed(bool)), this, SLOT(dataPPSettingsChanged(bool)));
-	}
-	else {
-	    this->noKcmLabel->setHidden(false);
-	}
-
-        return;
-    }
-
-}
 
 void SettingsPage::dataPPSettingsChanged(bool state)
 {

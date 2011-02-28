@@ -22,6 +22,8 @@
 #include "ui_settingsPage.h"
 #include "webextractor_kcm.h"
 
+class KCModuleProxy;
+
 class SettingsPage : public QWidget, public Ui_settingsPage
 {
     Q_OBJECT;
@@ -31,13 +33,11 @@ class SettingsPage : public QWidget, public Ui_settingsPage
         void applySettings();
         void resetSettings();
         void defaultSettings();
-        void dataPPClicked(QModelIndex);
         void dataPPSettingsChanged(bool);
 
     private:
-        /* KCM subsection */
-        Nepomuk::WebExtractorPluginKCM::Ptr m_currentKcm;
         bool m_kcmChanged;
+        KCModuleProxy * m_proxy;
         QAbstractButton * m_kcmApplyButton;
         QAbstractButton * m_kcmResetButton;
         QAbstractButton * m_kcmDefaultButton;
