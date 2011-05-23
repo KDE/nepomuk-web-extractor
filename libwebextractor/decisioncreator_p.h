@@ -24,11 +24,10 @@
 #include <QList>
 #include <QHash>
 #include <QSharedPointer>
-#include <nepomuk/changelog.h>
-#include <nepomuk/identificationrequest.h>
 
 #include "propertiesgroupcreator.h"
 #include "decision.h"
+
 namespace Soprano
 {
     class Model;

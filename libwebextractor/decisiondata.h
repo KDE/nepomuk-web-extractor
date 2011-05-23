@@ -24,7 +24,8 @@
 #include <QString>
 #include <QHash>
 #include <QTime>
-#include <nepomuk/identificationset.h>
+
+//#include "identificationset.h"
 
 #include "propertiesgroup.h"
 

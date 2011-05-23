@@ -23,8 +23,9 @@
 #include "changelogrecord.h"
 #include "syncfile.h"
 #include "identificationset.h"
-#include <nepomuk/nie.h>
-#include <nepomuk/nfo.h>
+#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NFO>
+#include <Soprano/Vocabulary/NAO>
 #include "backupsync.h"
 
 #include <QtCore/QDir>
@@ -67,20 +68,20 @@ Nepomuk::Sync::ResourceHash Nepomuk::Sync::IdentificationRequest::Private::conve
         QUrl uri = st.subject().uri();
         stHash.insert( uri, st );
     }
-
+    
     //
     // Convert them into a better format --> ResourceStruct
     // and translate the home url
     //
     const QList<QUrl> & uniqueUris = stHash.uniqueKeys();
-
+    
     ResourceHash resources;
     resources.reserve( uniqueUris.size() );
-
+    
     foreach( const QUrl & resUri, uniqueUris ) {
         SimpleResource res;
         res.setUri( resUri );
-
+        
         QList<Soprano::Statement> statements = stHash.values( resUri );
         foreach( const Soprano::Statement & st, statements ) {
             QUrl pred = st.predicate().uri();
@@ -89,16 +90,16 @@ Nepomuk::Sync::ResourceHash Nepomuk::Sync::IdentificationRequest::Private::conve
             if( !res.contains( pred, obj ) )
                 res.insert( pred, obj );
         }
-
+        
         resources.insert( res.uri(), res );
     }
-
+    
     return resources;
 }
 
 
 namespace {
-
+    
     //TODO: Use Nepomuk::Type::Property
     bool isIdentifyingProperty( QUrl prop, Soprano::Model * model ) {
         QString query = QString::fromLatin1( "ask { %1 %2 %3 }" )
@@ -115,29 +116,29 @@ void Nepomuk::Sync::IdentificationRequest::Private::loadChangeLogHash()
     // This function should only be called once, as it is quite an expensive affair
     if( !m_changeLogHash.isEmpty() )
         return;
-
+    
     QList<ChangeLogRecord> records = m_masterChangeLog.toList();
-
+    
     // Convert to set to remove duplicate statements
     QSet<Soprano::Statement> statementSet;
     foreach( const ChangeLogRecord & r, records ) {
         statementSet.insert( r.st() );
     }
-
+    
     //
     // Convert to list and remove all non-identifying properties
     //
     QList<Soprano::Statement> list = statementSet.toList();
-
+    
     QMutableListIterator<Soprano::Statement> it( list );
     while( it.hasNext() ) {
         const Soprano::Statement & st = it.next();
-
+        
         if( !isIdentifyingProperty( st.predicate().uri(), m_model ) ) {
             it.remove();
         }
     }
-
+    
     m_changeLogHash = convertToResourceHash( list );
 }
 
@@ -147,16 +148,16 @@ bool Nepomuk::Sync::IdentificationRequest::Private::identify( const QUrl& uri )
 {
     if( simpleIdentify( uri ) )
         return true;
-
+    
     if( existsIdentify( uri ) )
         return true;
-
+    
     if( changeLogIdentify( uri ) )
         return true;
-
+    
     if( addIdentify( uri ) )
         return true;
-
+    
     return false;
 }
 
@@ -169,18 +170,18 @@ namespace {
     //
     QUrl translateHomeUri( const QUrl & uri ) {
         QString uriString = uri.toString();
-
+        
         QRegExp regEx("^file://(/home/[^/]*)(/.*)$");
         if( regEx.exactMatch( uriString ) ) {
             QString newUriString = "file://" + QDir::homePath() + regEx.cap(2);
-
+            
             uriString.replace( regEx, newUriString );
             return QUrl( newUriString );
         }
         return uri;
     }
 
-
+    
     QString toSparql( const QUrl & prop, Soprano::Node obj ) {
         // Translate the home url
         if( obj.isResource() && obj.uri().scheme() == QLatin1String("file") )
@@ -197,12 +198,12 @@ QString Nepomuk::Sync::IdentificationRequest::Private::constructIdentificationQu
 {
     const QString prefix = "select ?r count(?r) as ?cnt where { ";
     const QString postfix = " } ORDER BY DESC(?cnt) LIMIT 1";
-
+    
     QString query = prefix;
-
+    
     QList<QUrl> properties = res.uniqueKeys();
     foreach( const QUrl & propUri, properties ) {
-
+        
         QList<Soprano::Node> objList = res.values( propUri );
         foreach( const Soprano::Node& n, objList ) {
             QString q;
@@ -212,21 +213,21 @@ QString Nepomuk::Sync::IdentificationRequest::Private::constructIdentificationQu
                 if( !queryIdentify( uri ) ) {
                     continue;
                 }
-
+                
                 Soprano::Node node( m_hash.value( uri ) );
                 q += toSparql( propUri, node );
             }
             else {
                 q += toSparql( propUri, n );
             }
-
+            
             if( propUri == Soprano::Vocabulary::RDF::type() )
                 query += " { " + q + " } ";
             else
                 query += " OPTIONAL { " + q + " } ";
         }
     }
-
+    
     query += postfix;
     return query;
 }
@@ -279,7 +280,7 @@ QUrl Nepomuk::Sync::IdentificationRequest::Private::findMatch(const Nepomuk::Syn
     foreach( const QUrl & propUri, properties ) {
 
         Soprano::Statement statement( Soprano::Node(), propUri, Soprano::Node(), Soprano::Node() );
-
+        
         QList<Soprano::Node> objList = simpleRes.values( propUri );
         foreach( const Soprano::Node& n, objList ) {
             if( n.isResource() && n.uri().scheme() == QLatin1String("nepomuk") ) {
@@ -289,7 +290,7 @@ QUrl Nepomuk::Sync::IdentificationRequest::Private::findMatch(const Nepomuk::Syn
             }
 
             statement.setObject( n );
-
+            
             Soprano::NodeIterator iter = m_model->listStatements( statement ).iterateSubjects();
             while( iter.next() ) {
                 QHash< QUrl, int >::iterator it = resourceCount.find( iter.current().uri() );
@@ -303,7 +304,7 @@ QUrl Nepomuk::Sync::IdentificationRequest::Private::findMatch(const Nepomuk::Syn
 
     if( resourceCount.isEmpty() )
         return QUrl();
-
+    
     //
     // Find the resource with the max count
     //
@@ -320,7 +321,7 @@ QUrl Nepomuk::Sync::IdentificationRequest::Private::findMatch(const Nepomuk::Syn
     if( score < m_minScore ) {
         return QUrl();
     }
-
+    
     //
     // Check for resources which have the same score as maxIter
     //
@@ -340,7 +341,7 @@ QUrl Nepomuk::Sync::IdentificationRequest::Private::findMatch(const Nepomuk::Syn
         emit q->duplicateMatch( simpleRes.uri(), duplicates, score );
         return QUrl();
     }
-
+    
     return maxIter.key();
 }
 
@@ -349,15 +350,15 @@ bool Nepomuk::Sync::IdentificationRequest::Private::simpleIdentify(const QUrl& o
 {
     if( m_hash.contains( oldUri ) )
         return true;
-
+    
     const SimpleResource & res = m_resourceHash[ oldUri ];
     QUrl resourceUri = findMatch( res );
-
+    
     if( resourceUri.isEmpty() )
         return false;
-
+    
     m_hash[ oldUri ] = resourceUri;
-
+    
     kDebug() << oldUri << " ---> " << resourceUri;
     outputDebugInfo( oldUri );
     return true;
@@ -379,7 +380,7 @@ QUrl Nepomuk::Sync::IdentificationRequest::Private::createNewResource(const Sync
             return QUrl();
         }
     }
-
+    
     const QList<QUrl> & keys = simpleRes.uniqueKeys();
     foreach( const QUrl & prop, keys ) {
         //kDebug() << "Prop " << prop;
@@ -395,28 +396,28 @@ bool Nepomuk::Sync::IdentificationRequest::Private::existsIdentify( const QUrl& 
 {
     if( m_hash.contains( oldUri ) )
         return true;
-
+    
     const Sync::SimpleResource & res = m_resourceHash[ oldUri ];
-
+    
     const QUrl & nieProp = Nepomuk::Vocabulary::NIE::url();
     QList<Soprano::Node> nieUrls = res.values( nieProp );
-
+    
     foreach( const Soprano::Node& nieUrl, nieUrls ) {
         if( QFile::exists( nieUrl.uri().toLocalFile() ) ) {
             //It exists. Create a new resource.
-
+            
             QUrl newUri = createNewResource( res );
             if( newUri.isEmpty() ) {
                 return false;
             }
             m_hash[ oldUri ] = newUri;
-
+            
             kDebug() << oldUri << " ---> " << newUri;
             outputDebugInfo( oldUri );
             return true;
         }
     }
-
+    
     return false;
 }
 
@@ -425,11 +426,11 @@ bool Nepomuk::Sync::IdentificationRequest::Private::addIdentify(const QUrl& oldU
 {
     if( m_hash.contains( oldUri ) )
         return true;
-
+    
     const Sync::SimpleResource & res = m_resourceHash[ oldUri ];
     if( res.isFileDataObject() )
         return false;
-
+    
     // Not a FileDataObject, just add it for now
     QUrl newUri = createNewResource( res );
     if( newUri.isEmpty() ) {
@@ -447,7 +448,7 @@ bool Nepomuk::Sync::IdentificationRequest::Private::changeLogIdentify( const QUr
 {
     if( m_hash.contains( oldUri ) )
         return true;
-
+    
     loadChangeLogHash();
 
     const Sync::SimpleResource & res = m_changeLogHash[ oldUri ];
@@ -464,7 +465,7 @@ bool Nepomuk::Sync::IdentificationRequest::Private::changeLogIdentify( const QUr
 }
 
 namespace {
-
+    
     QString humanReadsable( const QUrl & url ) {
         QString str = url.toString();
         if( str.contains("semanticdesktop") || str.contains("http://www.w3.org/") ) {
@@ -476,7 +477,7 @@ namespace {
             }
         }
         return str;
-    }
+    }    
 }
 
 void Nepomuk::Sync::IdentificationRequest::Private::outputDebugInfo(const QUrl& uri) const
@@ -484,12 +485,12 @@ void Nepomuk::Sync::IdentificationRequest::Private::outputDebugInfo(const QUrl& 
     Q_UNUSED( uri );
     /*
     const Sync::SimpleResource & res = m_resourceHash.value( uri );
-
+    
     kDebug() << res.uri;
     const QList<QUrl> properties = res.propHash.uniqueKeys();
     foreach( const QUrl & prop, properties ) {
         kDebug() << humanReadsable( prop );
-
+        
         QList< Soprano::Node > objects = res.propHash.values( prop );
         foreach( const Soprano::Node & n, objects ) {
             if( n.isResource() )

@@ -28,6 +28,8 @@
 
 #include <Nepomuk/ResourceManager>
 
+#include "nepomuksync_export.h"
+
 namespace Soprano {
     class Statement;
     class Model;
@@ -51,7 +53,7 @@ namespace Nepomuk {
          *
          * \author Vishesh Handa <handa.vish@gmail.com>
          */
-        class MergeRequest : public QObject
+        class NEPOMUKSYNC_EXPORT MergeRequest : public QObject
         {
             Q_OBJECT
         public :

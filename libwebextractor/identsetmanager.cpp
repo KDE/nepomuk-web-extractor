@@ -21,6 +21,8 @@
 // This is for qHash(QUrl)
 #include <Soprano/Node>
 
+#include "identificationset.h"
+
 namespace NW = Nepomuk::WebExtractor;
 namespace NS = Nepomuk::Sync;
 

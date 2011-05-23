@@ -25,6 +25,8 @@
 #include <QtCore/QHash>
 #include <QtCore/QSharedDataPointer>
 
+#include "nepomuksync_export.h"
+
 namespace Soprano {
     class Node;
     class Statement;
@@ -36,9 +38,9 @@ namespace Nepomuk {
         /**
         * It represents a resource will all its properties.
         * uri -> Resource uri
-        *
+        * 
         */
-        class SimpleResource : public QMultiHash<QUrl, Soprano::Node>
+        class NEPOMUKSYNC_EXPORT SimpleResource : public QMultiHash<QUrl, Soprano::Node>
         {
         public :
             SimpleResource();
@@ -55,9 +57,9 @@ namespace Nepomuk {
             void setUri( const QUrl & newUri );
 
             SimpleResource& operator=( const SimpleResource & rhs );
-
+            
             QList<Soprano::Node> property( const QUrl & url ) const;
-
+            
         private:
             class Private;
             QSharedDataPointer<Private> d;

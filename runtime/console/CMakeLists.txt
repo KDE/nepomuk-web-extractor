@@ -39,6 +39,7 @@ include_directories(
   ${CMAKE_CURRENT_BINARY_DIR}
   ${KDE4_INCLUDES}
   ${LIBWEBEXTRACTOR_INCLUDE_DIRS}
+  ../../gui/libwebextractorui
   )
 
 

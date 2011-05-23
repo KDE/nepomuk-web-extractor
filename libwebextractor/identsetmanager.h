@@ -19,12 +19,16 @@
 #ifndef _NEPOMUK_WEBEXTRCT_IDENTSET_MANAGER_H_
 #define _NEPOMUK_WEBEXTRCT_IDENTSET_MANAGER_H_
 
-#include <nepomuk/identificationset.h>
 #include <QSharedPointer>
 
+#include <Nepomuk/ResourceManager>
 
 namespace Nepomuk
 {
+    namespace Sync {
+        class IdentificationSet;
+    }
+    
     namespace WebExtractor
     {
         /*! \brief This class manages IdentificationSets

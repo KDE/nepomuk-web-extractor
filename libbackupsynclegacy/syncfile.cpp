@@ -159,12 +159,12 @@ Nepomuk::Sync::IdentificationSet& Nepomuk::Sync::SyncFile::identificationSet()
     return d->m_identificationSet;
 }
 
-Nepomuk::Sync::ChangeLog Nepomuk::Sync::SyncFile::changeLog() const
+const Nepomuk::Sync::ChangeLog& Nepomuk::Sync::SyncFile::changeLog() const
 {
     return d->m_changeLog;
 }
 
-Nepomuk::Sync::IdentificationSet Nepomuk::Sync::SyncFile::identificationSet() const
+const Nepomuk::Sync::IdentificationSet& Nepomuk::Sync::SyncFile::identificationSet() const
 {
     return d->m_identificationSet;
 }

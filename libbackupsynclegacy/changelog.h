@@ -24,6 +24,8 @@
 #include <QtCore/QUrl>
 #include <QtCore/QTextStream>
 
+#include "nepomuksync_export.h"
+
 namespace Soprano {
     class Model;
     class Statement;
@@ -47,7 +49,7 @@ namespace Nepomuk {
          *
          * \author Vishesh Handa <handa.vish@gmail.com>
          */
-        class ChangeLog
+        class NEPOMUKSYNC_EXPORT ChangeLog
         {
         public :
             ChangeLog();
@@ -126,13 +128,10 @@ namespace Nepomuk {
              * Return uri of all objects and subjects in changelog
              */
             QSet<QUrl> resources() const;
-
             /**
              * Return uri of all subjects in changelog
              */
             QSet<QUrl> subjects() const;
-
-	    bool hasSubject( const QUrl & ) const;
 
             // trueg: do we really only have resource objects here? No literals at all?
             /**
@@ -147,8 +146,8 @@ namespace Nepomuk {
             Private * d;
         };
 
-        QTextStream& operator<<( QTextStream & ts, const ChangeLog & log );
-        QDebug operator<<( QDebug debug, const ChangeLog & log );
+        NEPOMUKSYNC_EXPORT QTextStream& operator<<( QTextStream & ts, const ChangeLog & log );
+        NEPOMUKSYNC_EXPORT QDebug operator<<( QDebug debug, const ChangeLog & log );
     }
 }
 

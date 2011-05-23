@@ -20,8 +20,6 @@
 #include "mergerequest.h"
 #include "changelog.h"
 #include "changelogrecord.h"
-#include <nepomuk/nie.h>
-#include <nepomuk/nfo.h>
 #include "backupsync.h"
 #include "identificationrequest.h"
 #include "graphwrapper_p.h"
@@ -36,6 +34,8 @@
 #include <Soprano/Vocabulary/NAO>
 #include <Soprano/Vocabulary/NRL>
 #include <Soprano/Vocabulary/RDF>
+#include <Nepomuk/Vocabulary/NIE>
+#include <Nepomuk/Vocabulary/NFO>
 #include <Soprano/Statement>
 #include <Soprano/Model>
 #include <Soprano/QueryResultIterator>

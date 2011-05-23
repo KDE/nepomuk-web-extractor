@@ -257,16 +257,6 @@ QSet<QUrl> Nepomuk::Sync::ChangeLog::objects() const
     return uniqueUris;
 }
 
-bool Nepomuk::Sync::ChangeLog::hasSubject( const QUrl & url ) const
-{
-    foreach(const ChangeLogRecord & r, d->m_records) {
-        if ( url == r.subject().uri() )
-	    return true;
-    }
-    return false;
-
-}
-
 Nepomuk::Sync::ChangeLog& Nepomuk::Sync::ChangeLog::operator<<(const Nepomuk::Sync::ChangeLogRecord& record)
 {
     add( record );

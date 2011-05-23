@@ -27,8 +27,6 @@
 #include <QSharedPointer>
 
 #include <Nepomuk/Resource>
-#include <nepomuk/changelog.h>
-#include <nepomuk/identificationrequest.h>
 
 #include "propertiesgroupcreator.h"
 #include "decision.h"
@@ -45,6 +43,10 @@ namespace Nepomuk
 {
     class ResourceManager;
 
+    namespace Sync {
+        class ChangeLog;
+    }
+    
     namespace WebExtractor
     {
         class DecisionFactory;

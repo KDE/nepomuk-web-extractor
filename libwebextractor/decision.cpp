@@ -25,6 +25,7 @@
 #include <QTime>
 
 #include "changelog.h"
+#include "identificationset.h"
 
 #include "decision.h"
 #include "decisionapplicationrequest.h"

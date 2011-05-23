@@ -31,23 +31,6 @@ include_directories(
   ${backupsynclegacy_SOURCE_DIR}
   )
 
-set(backupsynclegacy_SRC
-    ${backupsynclegacy_SOURCE_DIR}/changelog.cpp
-    ${backupsynclegacy_SOURCE_DIR}/changelogrecord.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationrequest.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationrequest_p.cpp
-    ${backupsynclegacy_SOURCE_DIR}/identificationset.cpp
-    ${backupsynclegacy_SOURCE_DIR}/mergerequest.cpp
-    ${backupsynclegacy_SOURCE_DIR}/syncfile.cpp
-    ${backupsynclegacy_SOURCE_DIR}/simpleresource.cpp
-    ${backupsynclegacy_SOURCE_DIR}/graphwrapper.cpp
-)
-soprano_add_ontology(backupsynclegacy_SRC
-  ${backupsynclegacy_SOURCE_DIR}/identification.trig
-  "backupsync"
-  "Nepomuk::Vocabulary"
-  "trig")
-
 add_definitions(-DMAKE_WEBEXTRACTOR_LIB)
 set( webextractor_SRCS 
     resourceanalyzerfactory.cpp
@@ -174,6 +157,7 @@ target_link_libraries( webextractor
   ${QT_QTNETWORK_LIBRARY}
   ${QT_QTCORE_LIBRARY}
   ontologyloader
+  nepomuksynclegacy
   )
 
 install(TARGETS webextractor

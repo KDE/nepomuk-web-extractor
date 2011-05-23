@@ -473,7 +473,7 @@ every iteration</string>
   <customwidget>
    <class>DecisionWidget</class>
    <extends>QWidget</extends>
-   <header>webextractor/decisionwidget.h</header>
+   <header>decisionwidget.h</header>
   </customwidget>
   <customwidget>
    <class>KDoubleNumInput</class>
@@ -504,7 +504,7 @@ every iteration</string>
   <customwidget>
    <class>DecisionCollectionWidget</class>
    <extends>QListWidget</extends>
-   <header location="global">webextractor/decisioncollectionwidget.h</header>
+   <header location="global">decisioncollectionwidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

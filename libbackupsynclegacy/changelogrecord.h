@@ -27,6 +27,8 @@
 #include <Soprano/Statement>
 #include <Soprano/Model>
 
+#include "nepomuksync_export.h"
+
 namespace Soprano {
     class Parser;
     class Serializer;
@@ -49,7 +51,7 @@ namespace Nepomuk {
         *
         * \author Vishesh Handa <handa.vish@gmail.com>
         */
-        class ChangeLogRecord
+        class NEPOMUKSYNC_EXPORT ChangeLogRecord
         {
         public :
             ChangeLogRecord();
@@ -118,7 +120,7 @@ namespace Nepomuk {
             QSharedDataPointer<Private> d;
         };
 
-        QTextStream & operator<<( QTextStream & ts, const ChangeLogRecord & record );
+        NEPOMUKSYNC_EXPORT QTextStream & operator<<( QTextStream & ts, const ChangeLogRecord & record );
     }
 }
 #endif // CHANGELOGRECORD_H
