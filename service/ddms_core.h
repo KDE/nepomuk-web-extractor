@@ -23,13 +23,13 @@
 #include <QUrl>
 #include <QSharedPointer>
 
+
 namespace Nepomuk {
-    class Decision;
+    typedef QString Decision;
     class DecisionStorage
     {
 	public:
 	    typedef int ID;
-	    enum Error {SystemError = -1, NoError = 0, NoSuchDecision = 1, DatabaseError };
 	    /*! \brief Create new DecisionStorage
 	     */
 	    DecisionStorage(const QSqlDatabase & database, const QString & pathFolder);
@@ -40,9 +40,13 @@ namespace Nepomuk {
 	    bool isValid() const;
 	    
 	    /*! \brief Add decision to the index
-	     * \return ID of the added decision, or -1 if failed
+	     * \param decision Decision to add
+	     * \param uri List of uri Decision  connected to
+	     * \param id If id != NULL, then id of the Decision is written here or -1 
+	     * if failed
+	     * \return error code ( NoError is succeed )
 	     */
-	    Error  addDecision( const Decision & );
+	    int  addDecision( const Decision & decision, const QList<QString> & uri, int * id );
 
 	    /*! \brief Return list of ID of the decisions, related to the resource
 	     */
@@ -51,7 +55,7 @@ namespace Nepomuk {
 	    /*! \brief Remove decision with specified ID
 	     * Nothing happens if there is no such Decision
 	     */
-	    Error removeDecision(ID id);
+	    int removeDecision(ID id);
 	private:
 	   class Private;
 	   QSharedPointer<Private> d;
@@ -59,3 +63,4 @@ namespace Nepomuk {
 }
 
 #endif 
+// vim:sw=4 ts=8 expandtab

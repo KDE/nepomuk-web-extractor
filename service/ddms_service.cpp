@@ -24,19 +24,25 @@
 
 
 Nepomuk::DecisionManagementService::DecisionManagementService(
-	QObject * parent,
-	const QList<QVariant> & args ):
+        QObject * parent,
+        const QList<QVariant> & args ):
     Nepomuk::Service(parent,true),
     m_storage(0)
 {
+    qDebug() << "STARTING DDMS";
     (void)new  DecisionManagementAdaptor(this);
+
+    /* Init necessary QT metatypes */
+    IdAndError::registerMetaType();
+    IdList::registerMetaType();
+
     // Get application data directory
     QString dataDir = KStandardDirs::locateLocal("data","nepomuk/ddms/",true);
 
     if (dataDir.isEmpty()) {
-	qCritical() << "Can not locate data directory";
-	setServiceInitialized(false);
-	return;
+        qCritical() << "Can not locate data directory";
+        setServiceInitialized(false);
+        return;
     }
 
     // Prepare sql service
@@ -45,19 +51,20 @@ Nepomuk::DecisionManagementService::DecisionManagementService(
     m_db.open();
 
     if (!m_db.isValid() or m_db.isOpenError() ) {
-	// Fail
-	qCritical() << "Failed to open/create database";
-	setServiceInitialized(false);
-	m_db.close();
-	return;
+        // Fail
+        qCritical() << "Failed to open/create database";
+        setServiceInitialized(false);
+        m_db.close();
+        return;
     }
 
     m_storage = new DecisionStorage(m_db,dataDir);
     if (!m_storage->isValid()) {
-	qCritical() << "Failed to initialize Decision storage";
-	delete m_storage;
-	m_storage = 0;
-	return;
+        qCritical() << "Failed to initialize Decision storage";
+        delete m_storage;
+        m_storage = 0;
+        setServiceInitialized(false);
+        return;
     }
 
     setServiceInitialized(true);
@@ -65,18 +72,43 @@ Nepomuk::DecisionManagementService::DecisionManagementService(
 
 Nepomuk::DecisionManagementService::~DecisionManagementService()
 {
+    
     delete m_storage;
     m_storage = 0;
+    m_db.close();
 }
 
 
-QList<Nepomuk::DecisionManagementService::ID>
+IdList
 Nepomuk::DecisionManagementService::getDecisions(const QString & uri)
 {
+    qDebug() << "CALL: " << __func__; 
     return m_storage->queryDecisions(uri);
 }
 
 int Nepomuk::DecisionManagementService::removeDecision(int id)
 {
+    qDebug() << "CALL: " << __func__; 
     return m_storage->removeDecision(id);
 }
+
+IdAndError Nepomuk::DecisionManagementService::addDecision( 
+        const QString & decision, const QList<QString> & uri)
+{
+    qDebug() << "CALL: " << __func__; 
+    int id = -1;
+    int error =  m_storage->addDecision(decision,uri,&id);
+    IdAndError result;
+    result.first = id;
+    result.second = error;
+    if ( error != Error::NoError ) 
+       qDebug() << "Error while adding Decision. code: " << error;
+    else 
+       qDebug() << "Add decision. ID: " << id;
+
+    return result;
+}
+#include <kpluginfactory.h>
+#include <kpluginloader.h>
+NEPOMUK_EXPORT_SERVICE(Nepomuk::DecisionManagementService, "decisionmanagementservice");
+// vim:sw=4 ts=8 expandtab

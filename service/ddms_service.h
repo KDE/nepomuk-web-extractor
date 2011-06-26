@@ -21,8 +21,10 @@
 
 #include <Nepomuk/Service>
 #include <QString>
+#include <QList>
 
 #include "ddms_core.h"
+#include "protocol_types.h"
 
 namespace Nepomuk {
 
@@ -39,9 +41,14 @@ namespace Nepomuk {
 
         public Q_SLOTS:
             //void reconfigure();
-            QList<ID> getDecisions(const QString & uri);
+            IdList getDecisions(const QString & uri);
             //int applyDecision(ID id);
             int removeDecision(int id);
+	    /*! \brief Add decision and return it's ID
+	     * \param uri List of resources uri this Decision connected to
+	     * \param decision Decision to add
+	     */
+	    IdAndError addDecision( const QString & decision, const QList<QString> & uri);
 	private:
 	    DecisionStorage * m_storage;
 	    QSqlDatabase m_db;
@@ -51,3 +58,4 @@ namespace Nepomuk {
 
 #endif
 
+// vim:sw=4 ts=8 expandtab
