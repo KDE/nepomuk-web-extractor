@@ -22,6 +22,8 @@
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingCall>
 #include <QList>
+#include "decision_proxy.h"
+
 
 namespace Nepomuk {
     class DecisionManagementClient;
@@ -30,7 +32,7 @@ namespace Nepomuk {
         Q_OBJECT;
 
         protected:
-            IdProxy( const QDBusPendingCall & call, QObject * parent = 0 );
+            IdProxy(DecisionManagementClient * client, const QDBusPendingCall & call, QObject * parent = 0 );
             friend class DecisionManagementClient;
         protected Q_SLOTS:
             void onFinish( QDBusPendingCallWatcher * watcher );
@@ -40,17 +42,20 @@ namespace Nepomuk {
         public:
            int id() const { return m_id; }
            int error() const { return m_error; }
+           DecisionProxy toDecisionProxy() const;
            QDBusError dbusError() const { return this->QDBusPendingCall::error(); }
+
         private:
            int m_id;
            int m_error;
+           DecisionManagementClient * m_client;
     };
 
     class IdListProxy : public QDBusPendingCallWatcher
     {
         Q_OBJECT;
         protected:
-            IdListProxy( const QDBusPendingCall & call, QObject * parent = 0 );
+            IdListProxy(DecisionManagementClient * client, const QDBusPendingCall & call, QObject * parent = 0 );
             friend class DecisionManagementClient;
         protected Q_SLOTS:
             void onFinish( QDBusPendingCallWatcher * watcher );
@@ -59,9 +64,11 @@ namespace Nepomuk {
            void failed(IdListProxy*);
         public:
            QList<int> ids() const { return m_result; }
+           QList<DecisionProxy> toDecisionProxies()const;
 
         private:
            QList<int> m_result;
+           DecisionManagementClient * m_client;
     };
      
 }

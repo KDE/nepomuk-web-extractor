@@ -18,14 +18,19 @@
 
 #include "respond_proxies.h"
 #include "protocol_types.h"
+#include "client.h"
+
 #include <QDBusPendingReply>
+
 using namespace Nepomuk;
 
-IdProxy::IdProxy( const QDBusPendingCall & call, QObject * parent ):
+IdProxy::IdProxy(DecisionManagementClient * client, const QDBusPendingCall & call, QObject * parent ):
 	QDBusPendingCallWatcher(call,parent),
 	m_id(-1),
-	m_error(2)
+	m_error(2),
+        m_client(client)
 {
+    Q_ASSERT(m_client);
     connect(
 	    this, SIGNAL(finished(QDBusPendingCallWatcher *)),
 	    this,SLOT(onFinish(QDBusPendingCallWatcher * ))
@@ -44,9 +49,21 @@ void IdProxy::onFinish( QDBusPendingCallWatcher * watcher )
     }
 }
 
-IdListProxy::IdListProxy( const QDBusPendingCall & call, QObject * parent ):
-	QDBusPendingCallWatcher(call,parent)
+DecisionProxy IdProxy::toDecisionProxy() const
 {
+    if (!isFinished())
+        return DecisionProxy();
+    else if ( m_error != Error::NoError )
+       return DecisionProxy();
+    else  
+        return DecisionProxy(m_client,m_id);
+}
+
+IdListProxy::IdListProxy(DecisionManagementClient * client, const QDBusPendingCall & call, QObject * parent ):
+	QDBusPendingCallWatcher(call,parent),
+        m_client(client)
+{
+    Q_ASSERT(m_client);
     connect(
 	    this, SIGNAL(finished(QDBusPendingCallWatcher *)),
 	    this,SLOT(onFinish(QDBusPendingCallWatcher * ))
@@ -63,4 +80,20 @@ void IdListProxy::onFinish( QDBusPendingCallWatcher * watcher )
 	m_result = reply.value(); 
 	emit finished(this,m_result);
     }
+}
+
+QList<DecisionProxy>
+IdListProxy::toDecisionProxies() const
+{
+    QList<DecisionProxy> answer;
+    if (!isFinished())
+        return answer;
+    else {
+        foreach( int id, m_result )
+        {
+            answer << DecisionProxy(m_client,id);
+        }
+    }
+
+    return answer;
 }

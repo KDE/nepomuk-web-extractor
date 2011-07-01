@@ -49,6 +49,10 @@ namespace Nepomuk {
 	     * \param decision Decision to add
 	     */
 	    IdAndError addDecision( const QString & decision, const QList<QString> & uri);
+
+            bool existsDecision(int id);
+
+            MetadataAndError decisionMetadata(int id);
 	private:
 	    DecisionStorage * m_storage;
 	    QSqlDatabase m_db;

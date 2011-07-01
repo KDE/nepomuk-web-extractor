@@ -33,3 +33,37 @@ const QDBusArgument &operator>>( const QDBusArgument &argument, IdAndError &myst
     argument.endStructure();
     return argument;
 }
+
+
+QDBusArgument &operator<<(QDBusArgument &argument, const DecisionMetadata &mystruct)
+{
+    argument.beginStructure();
+    argument << mystruct.description ;
+    argument.endStructure();
+    return argument;
+}
+
+const QDBusArgument &operator>>( const QDBusArgument &argument, DecisionMetadata &mystruct)
+{
+    argument.beginStructure();
+    argument >> mystruct.description;
+    argument.endStructure();
+    return argument;
+}
+
+QDBusArgument &operator<<(QDBusArgument &argument, const MetadataAndError &mystruct)
+{
+    argument.beginStructure();
+    argument << mystruct.error << mystruct.metadata;
+    argument.endStructure();
+    return argument;
+}
+
+const QDBusArgument &operator>>( const QDBusArgument &argument, MetadataAndError &mystruct)
+{
+    argument.beginStructure();
+    argument >> mystruct.error >> mystruct.metadata;
+    argument.endStructure();
+    return argument;
+}
+

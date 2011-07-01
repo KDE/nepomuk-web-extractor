@@ -29,15 +29,17 @@ Nepomuk::DecisionManagementService::DecisionManagementService(
     Nepomuk::Service(parent,true),
     m_storage(0)
 {
-    qDebug() << "STARTING DDMS";
     (void)new  DecisionManagementAdaptor(this);
 
     /* Init necessary QT metatypes */
     IdAndError::registerMetaType();
     IdList::registerMetaType();
+    DecisionMetadata::registerMetaType();
+    MetadataAndError::registerMetaType();
 
     // Get application data directory
     QString dataDir = KStandardDirs::locateLocal("data","nepomuk/ddms/",true);
+    qDebug() << "Data directory: " << dataDir;
 
     if (dataDir.isEmpty()) {
         qCritical() << "Can not locate data directory";
@@ -108,6 +110,24 @@ IdAndError Nepomuk::DecisionManagementService::addDecision(
 
     return result;
 }
+
+bool Nepomuk::DecisionManagementService::existsDecision(int id)
+{
+    return m_storage->existsDecision(id);
+}
+
+MetadataAndError Nepomuk::DecisionManagementService::decisionMetadata(int  id)
+{
+    int error;
+    DecisionMetadata md = m_storage->decisionMetadata(id,error);
+    MetadataAndError answer;
+    answer.error = error;
+    answer.metadata = md;
+    return answer;
+}
+
+
+
 #include <kpluginfactory.h>
 #include <kpluginloader.h>
 NEPOMUK_EXPORT_SERVICE(Nepomuk::DecisionManagementService, "decisionmanagementservice");

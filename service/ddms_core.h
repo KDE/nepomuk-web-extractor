@@ -23,6 +23,8 @@
 #include <QUrl>
 #include <QSharedPointer>
 
+#include "protocol_types.h" 
+
 
 namespace Nepomuk {
     typedef QString Decision;
@@ -56,6 +58,10 @@ namespace Nepomuk {
 	     * Nothing happens if there is no such Decision
 	     */
 	    int removeDecision(ID id);
+
+            bool existsDecision( int id);
+
+            DecisionMetadata decisionMetadata(int id, int  & error);
 	private:
 	   class Private;
 	   QSharedPointer<Private> d;

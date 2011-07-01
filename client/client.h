@@ -21,12 +21,15 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QString>
+#include <QtCore/QSharedPointer>
 #include <QDBusConnection>
 #include <QDBusPendingCallWatcher>
 
 namespace Nepomuk {
     class IdProxy;
     class IdListProxy;
+    class DecisionProxy;
+    class DecisionProxyData;
     
     class DecisionManagementClient : public QObject
     {
@@ -38,13 +41,13 @@ namespace Nepomuk {
             DecisionManagementClient( const DecisionManagementClient & );
             void operator=( const DecisionManagementClient & );
 
-            DecisionManagementClient * instance();
+            static DecisionManagementClient * instance();
             /*! \brief Request list of Decisions matching given uri
              *
              * This function return a IdListProxy object - this objects
              * inherits 
              */
-            IdListProxy * getDecisions( const QString &  uri);
+            IdListProxy * getDecisions( const QUrl &  uri);
 
             IdProxy * addDecision(const QString &decision, const QStringList &uriList );
             QDBusPendingCallWatcher * removeDecision(int id);
@@ -55,7 +58,12 @@ namespace Nepomuk {
              * \see QDBusAbstractInterface
              */
             bool isValid() const;
+
+            bool existsDecision(int id) const;
         private:
+            friend class DecisionProxy;
+
+            QSharedPointer<DecisionProxyData> getDecisionData(int id, bool checkExist);
             class Private;
             Private * d;
     };

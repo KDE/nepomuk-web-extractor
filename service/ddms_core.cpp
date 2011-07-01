@@ -326,6 +326,15 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
     QSqlQuery resTableExists(db);
     QSqlQuery createIdTable(db);
     QSqlQuery createResTable(db);
+    QSqlQuery enableForeighKeys(db);
+    // Enable keys anyway
+    enableForeighKeys.prepare("PRAGMA foreign_keys = ON");
+    enableForeighKeys.exec();
+    if (!enableForeighKeys.isActive()) {
+        qDebug() << "Can't enable foreign keys in database";
+        return false;
+    }
+
     // Check whether id table already exists
     idTableExists.prepare(
             "SELECT name FROM sqlite_master WHERE type='table' AND \
@@ -379,7 +388,7 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
     }
     else {
         // Create table
-        createResTable.prepare("CREATE TABLE "RES_TABLE_NAME"( id INTEGER, resource TEXT)");
+        createResTable.prepare("CREATE TABLE "RES_TABLE_NAME"( id INTEGER, resource TEXT,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFFERED)");
         createResTable.exec();
         if (!createResTable.isActive()) {
             qDebug() << "Can't create ID table. Error: " << 
@@ -508,6 +517,55 @@ QList<int> Nepomuk::DecisionStorage::queryDecisions(const QUrl & resource)
     {
         answer << selectQuery.value(0).toInt();
     }
+    return answer;
+}
+
+
+bool Nepomuk::DecisionStorage::existsDecision( int id)
+{
+    bool answer = false;
+    if ( id < 0 )
+        return false;
+    QSqlQuery checkQuery(d->db);
+    checkQuery.prepare("SELECT * FROM "ID_TABLE_NAME" WHERE id = :id LIMIT 1");
+    checkQuery.bindValue(":id",id);
+    checkQuery.exec();
+    if (!checkQuery.isActive()) {
+        qDebug() << "Can't query database for existance of id. SQL: " << checkQuery.lastError().text();
+        return false;
+    }
+    if ( checkQuery.next() ) {
+        answer =  true;
+    }
+    checkQuery.finish();
+
+    return answer;
+}
+
+DecisionMetadata Nepomuk::DecisionStorage::decisionMetadata(int  id, int & error)
+{
+    DecisionMetadata answer;
+    // Check that id is in index
+    bool exists = this->existsDecision(id);
+    if (!exists) {
+        error = Error::NoSuchDecision;
+        return answer;
+    }
+
+    // Look for the file
+    QFile file(d->pathFolder + QString::number(id));
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text) ) {
+        qDebug() << "Can't open file for " << id << "for reading.";
+        // Remove it from index
+
+        // report an error
+        error = Error::NoSuchDecision;
+        return answer;
+    }
+
+    // Now read metadata from the file
+    answer.description = "Fake description of the Decision";
+
     return answer;
 }
 

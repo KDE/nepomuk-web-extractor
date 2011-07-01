@@ -19,7 +19,10 @@
 
 #include "client.h"
 #include "respond_proxies.h"
+#include "decision_proxy.h"
+#include "decision_proxy_data.h"
 #include "decisionmanagementserviceproxy.h"
+
 #include <QDBusPendingCallWatcher>
 
 using namespace Nepomuk;
@@ -28,6 +31,7 @@ class Nepomuk::DecisionManagementClient::Private
 {
     public:
 	OrgKdeNepomukDecisionManagementInterface * interface;
+        QMap<int, QSharedPointer<DecisionProxyData> > decisionsData;
 	Private():
 	    interface(0)
 	{;}
@@ -43,6 +47,11 @@ Nepomuk::DecisionManagementClient::DecisionManagementClient(
     d->interface = new OrgKdeNepomukDecisionManagementInterface(
 	    service,path,connection
 	    );
+    /* Init necessary QT metatypes */
+    IdAndError::registerMetaType();
+    IdList::registerMetaType();
+    DecisionMetadata::registerMetaType();
+    MetadataAndError::registerMetaType();
 }
 
 Nepomuk::DecisionManagementClient::~DecisionManagementClient()
@@ -66,21 +75,24 @@ Nepomuk::DecisionManagementClient::instance()
 	    );
     return self;
 }
+
 IdProxy *
 Nepomuk::DecisionManagementClient::addDecision(const QString &decision, const QStringList &uriList )
 {
     return new IdProxy(
+	    this,
 	    d->interface->addDecision(decision,uriList),
-	    this
+            this
 	    );
 }
 
 IdListProxy * 
-Nepomuk::DecisionManagementClient::getDecisions(const QString &uri)
+Nepomuk::DecisionManagementClient::getDecisions(const QUrl &uri)
 {
     return new IdListProxy( 
-	    d->interface->getDecisions(uri),
-	    this
+	    this,
+	    d->interface->getDecisions(uri.toString()),
+            this
 	    );
 }
 
@@ -89,7 +101,40 @@ Nepomuk::DecisionManagementClient::removeDecision(int id)
 {
     return new QDBusPendingCallWatcher(
 	    d->interface->removeDecision(id),
-	    this
+            this
 	    );
 }
+
+bool Nepomuk::DecisionManagementClient::existsDecision(int id) const
+{
+    QDBusPendingReply<bool> reply =  d->interface->existsDecision(id); 
+    if ( reply.isError() )
+        return false;
+    else 
+        return reply.value();
+}
+
+QSharedPointer<DecisionProxyData> 
+Nepomuk::DecisionManagementClient::getDecisionData(int id, bool checkExist)
+{
+    QMap<int,QSharedPointer<DecisionProxyData> >::const_iterator fit = 
+        d->decisionsData.find(id);
+
+    if ( fit == d->decisionsData.end() ) {
+        // Generate new DecisionProxyData
+        QSharedPointer<DecisionProxyData> ptr(
+                new DecisionProxyData(this,id,checkExist)
+                );
+        if ( !checkExist ) { // Then we assume that decision do exists
+            ptr->valid = true;
+        }
+        d->decisionsData[id] = ptr;
+        return ptr;
+    }
+    else {
+        return fit.value();
+    }
+
+}
+
 // vim:sw=4 ts=8 expandtab
