@@ -89,6 +89,7 @@ set (WEBEXTRACTOR_HEADERS
     decisions/propertiesgroup.h
     decisions/propertiesgroupcreator.h
     decisions/identsetmanager.h
+    decisions/applyerror.h
     # Main part
     executive.h
     executivereply.h

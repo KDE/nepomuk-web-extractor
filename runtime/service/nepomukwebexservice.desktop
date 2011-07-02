@@ -5,6 +5,6 @@
  X-KDE-Nepomuk-autostart=true
  X-KDE-Nepomuk-start-on-demand=false
  # Dependencies default to 'nepomukstorage'
- Name =Web Extractor Nepomuk Service
+ Name=Web Extractor Nepomuk Service
  Comment=A Nepomuk service that does fancy things
 

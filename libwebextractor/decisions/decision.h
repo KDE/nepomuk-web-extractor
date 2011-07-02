@@ -111,7 +111,7 @@ namespace Nepomuk {
 
         /*! \brief Return set of the target resources
          */
-                QSet<QUrl> targetResources() const;
+        QSet<QUrl> targetResources() const;
 
         const QHash< QUrl, Nepomuk::Sync::IdentificationSet> & identificationSets() const;
 
@@ -123,19 +123,19 @@ namespace Nepomuk {
 
         /* ==== Application section ==== */
 
-                /*! \brief Return application request, that will perform identification for Decision
-                 * \param targetModel you cah specify the model for applying changes. If 
-         * set to NULL then ResourceManager::instance()->mainModel() will be used.
-                 * \return New IdentificationRequest. The user is responsible for deleting
-                 * this object. If Decision is invalid, then 0 will be returned
-                 */
-                DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = 0) const;
-                /*! \brief Apply Decision
-                 * Write all statements back to model
+        /*! \brief Return application request, that will perform identification for Decision
+         * \param targetModel you cah specify the model for applying changes. If 
+ * set to NULL then ResourceManager::instance()->mainModel() will be used.
+         * \return New IdentificationRequest. The user is responsible for deleting
+         * this object. If Decision is invalid, then 0 will be returned
+         */
+        DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = 0) const;
+        /*! \brief Apply Decision
+         * Write all statements back to model
          * \param targetModel you cah specify the model for applying changes. If
          * set to NULL then ResourceManager::instance()->mainModel() will be used
-                 */
-                bool apply(Soprano::Model * targetModel = 0) const;
+         */
+        bool apply(Soprano::Model * targetModel = 0) const;
 
         /* ==== Editing section ==== */
         public:

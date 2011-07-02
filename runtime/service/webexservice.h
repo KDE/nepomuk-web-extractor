@@ -30,27 +30,27 @@ namespace Nepomuk{
     class WebExtractorService : public Nepomuk::Service {
         //private
         Q_OBJECT;
-	Q_CLASSINFO("D-Bus Interface", "org.kde.nepomuk.WebExtractorService");
+        Q_CLASSINFO("D-Bus Interface", "org.kde.nepomuk.WebExtractorService");
 
         public:
             WebExtractorService(QObject * parent, const QList<QVariant> &);
-	    ~WebExtractorService();
+            ~WebExtractorService();
 
-	private Q_SLOTS:
-	    void finishInitialization();
-	    // Debug purpos only
-	    void __stop();
+        private Q_SLOTS:
+            void finishInitialization();
+            // Debug purpos only
+            void __stop();
 
-	public Q_SLOTS:
-	    bool isIdle() const;
-	    void setSuspended( bool );
-	    bool isSuspended() const;
-	    void reconfigure();
+        public Q_SLOTS:
+            bool isIdle() const;
+            void setSuspended( bool );
+            bool isSuspended() const;
+            void reconfigure();
 
 
-	private:
-	    Nepomuk::WebExtractorScheduler* m_extractScheduler;
-	    Nepomuk::WebExtractorSettings * m_conf;
+        private:
+            Nepomuk::WebExtractorScheduler* m_extractScheduler;
+            Nepomuk::WebExtractorSettings * m_conf;
 
     };
 
