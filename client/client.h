@@ -19,6 +19,8 @@
 #ifndef NEPOMUK_DDMS_CLIENT_H
 #define NEPOMUK_DDMS_CLIENT_H
 
+#include "ddms_client_export.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QSharedPointer>
@@ -31,7 +33,7 @@ namespace Nepomuk {
     class DecisionProxy;
     class DecisionProxyData;
     
-    class DecisionManagementClient : public QObject
+    class DDMS_CLIENT_EXPORT DecisionManagementClient : public QObject
     {
         Q_OBJECT;
         public:
@@ -62,8 +64,10 @@ namespace Nepomuk {
             bool existsDecision(int id) const;
         private:
             friend class DecisionProxy;
+            friend class DecisionProxyData;
 
             QSharedPointer<DecisionProxyData> getDecisionData(int id, bool checkExist);
+            DecisionMetadata getDecisionMetadata(int id, int & error);
             class Private;
             Private * d;
     };

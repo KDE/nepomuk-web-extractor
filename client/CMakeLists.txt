@@ -1,3 +1,4 @@
+add_definitions(-DMAKE_DDMS_CLIENT_LIB)
 set( ddms_client_SRCS
     client.cpp
     respond_proxies.cpp
@@ -34,3 +35,4 @@ install(FILES
 	${WEBEXTRACTOR_HEADERS}
 	DESTINATION ${INCLUDE_INSTALL_DIR}/ddms
 	)
+remove_definitions(-DMAKE_DDMS_CLIENT_LIB)

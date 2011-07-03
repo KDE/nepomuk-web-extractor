@@ -189,8 +189,8 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resou
         goto FAIL;
 
     // Stage 3 - create file in the specified folder
-    filename = QString::number(id);
-    file.setFileName(pathFolder + '/' + filename );
+    filename = pathFolder + '/' + QString::number(id);
+    file.setFileName(filename );
     file.open(QIODevice::WriteOnly);
     file.close();
 
@@ -502,13 +502,15 @@ Nepomuk::DecisionStorage::removeDecision(ID id)
 
 QList<int> Nepomuk::DecisionStorage::queryDecisions(const QUrl & resource)
 {
-    QSqlQuery selectQuery(
-            QString("SELECT id FROM "RES_TABLE_NAME" WHERE resource = ") + resource.toString(),
-            d->db
-            );
+    QSqlQuery selectQuery(d->db);
+    QString queryString  = 
+            QString("SELECT id FROM "RES_TABLE_NAME" WHERE resource = \"%1\"").arg(resource.toString());
+    //qDebug() << "Query string: " << queryString;
+
+    selectQuery.prepare(queryString);
     selectQuery.exec();
     if (!selectQuery.isActive() ) {
-        qWarning() << "Can not execute SELECT query to database";
+        qWarning() << "Can not execute SELECT query to database. (" << selectQuery.lastError().text() << ").";
         return QList<int>();
     }
 
@@ -564,7 +566,7 @@ DecisionMetadata Nepomuk::DecisionStorage::decisionMetadata(int  id, int & error
     }
 
     // Now read metadata from the file
-    answer.description = "Fake description of the Decision";
+    answer.description = "Fake description of the Decision " + QString::number(id);
 
     return answer;
 }

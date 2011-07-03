@@ -31,13 +31,14 @@ MainWindow::MainWindow(
     m_client(0),
     m_model(0)
 {
+    this->setupUi(this);
     Q_ASSERT(client);
 
     this->m_client = client;
     this->m_model = new Nepomuk::DecisionModel(m_client);
     QDeclarativeContext * ctx = this->mainView->rootContext();
     ctx->setContextProperty("MainModel",m_model);
-    mainView->setSource(QUrl("qrc:/qml/list.qml"));
+    mainView->setSource(QUrl("qrc:/qml/list/list.qml"));
 
     connect(this->kurlrequester,SIGNAL(urlSelected(const KUrl & )),
             this, SLOT(onUrlSelected(const KUrl &))

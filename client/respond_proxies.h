@@ -19,15 +19,17 @@
 #ifndef NEPOMUK_DDMS_RESULT_PROXIES
 #define NEPOMUK_DDMS_RESULT_PROXIES
 
+#include "ddms_client_export.h"
+#include "decision_proxy.h"
+
 #include <QDBusPendingCallWatcher>
 #include <QDBusPendingCall>
 #include <QList>
-#include "decision_proxy.h"
 
 
 namespace Nepomuk {
     class DecisionManagementClient;
-    class IdProxy : public QDBusPendingCallWatcher
+    class DDMS_CLIENT_EXPORT IdProxy : public QDBusPendingCallWatcher
     {
         Q_OBJECT;
 
@@ -51,7 +53,7 @@ namespace Nepomuk {
            DecisionManagementClient * m_client;
     };
 
-    class IdListProxy : public QDBusPendingCallWatcher
+    class DDMS_CLIENT_EXPORT IdListProxy : public QDBusPendingCallWatcher
     {
         Q_OBJECT;
         protected:

@@ -16,29 +16,21 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef DECISION_MANAGER_MAINWINDOW_H
-#define DECISION_MANAGER_MAINWINDOW_H
+#ifndef NEPOMUK_DDMS_CLIENT_EXPORT
+#define NEPOMUK_DDMS_CLIENT_EXPORT_
 
-#include "ui_mainWindow.h"
+/* needed for KDE_EXPORT and KDE_IMPORT macros */
+#include <kdemacros.h>
 
-#include <KXmlGuiWindow>
+#ifndef DDMS_CLIENT_EXPORT
+# if defined(MAKE_DDMS_CLIENT_LIB)
+   /* We are building this library */
+#  define DDMS_CLIENT_EXPORT KDE_EXPORT
+# else
+   /* We are using this library */
+#  define DDMS_CLIENT_EXPORT KDE_IMPORT
+# endif
+#endif
 
-namespace Nepomuk {
-    class DecisionManagementClient;
-    class DecisionModel;
-}
-
-class MainWindow : public KXmlGuiWindow, public Ui_MainWindow
-{
-    Q_OBJECT;
-    public:
-        MainWindow(Nepomuk::DecisionManagementClient * client, QWidget * parent = 0);
-    private:
-        Nepomuk::DecisionManagementClient * m_client;
-        Nepomuk::DecisionModel * m_model;
-
-    private Q_SLOTS:
-        void onUrlSelected( const KUrl & );
-};
 
 #endif

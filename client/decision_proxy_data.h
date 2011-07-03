@@ -20,6 +20,8 @@
 #define NEPOMUK_DDMS_DECISION_PROXY_DATA_H
 
 #include <QtCore/QString>
+#include <QtCore/QUrl>
+#include <QtCore/QList>
 
 namespace Nepomuk {
     class DecisionManagementClient;
@@ -32,6 +34,7 @@ namespace Nepomuk {
             ~DecisionProxyData();
 
             QString description;
+            QList<QUrl> uriList;
             bool valid;
         private:
             bool m_metadataLoaded;

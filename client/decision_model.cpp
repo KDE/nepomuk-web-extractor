@@ -79,11 +79,13 @@ void DecisionModel::setUri(const QUrl & uri )
     d->decisions.clear();
     endResetModel();
 
+    qDebug() << "Uri: " << uri;
+
     IdListProxy * ilp = d->client->getDecisions(uri);
     connect(ilp, SIGNAL(finished(IdListProxy *,QList<int>)),
             this, SLOT(onLoaded(IdListProxy *,QList<int>))
                 );
-    connect(ilp, SIGNAL(failed(IdListProxy *,QList<int>)),
+    connect(ilp, SIGNAL(failed(IdListProxy *)),
             this,SLOT(onFailed(IdListProxy *))
            );
 
@@ -118,6 +120,8 @@ void DecisionModel::onLoaded(IdListProxy *p, QList<int> idList)
         d->decisions << DecisionProxy(d->client,id);
     }
     endInsertRows();
+
+    qDebug() << "Items recieved: " << d->decisions.size();
 
     p->deleteLater();
 
