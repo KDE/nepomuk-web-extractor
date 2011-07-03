@@ -27,7 +27,9 @@
 
 
 namespace Nepomuk {
-    typedef QString Decision;
+    namespace Decision {
+        class Decision;
+    }
     class DecisionStorage
     {
 	public:
@@ -48,7 +50,7 @@ namespace Nepomuk {
 	     * if failed
 	     * \return error code ( NoError is succeed )
 	     */
-	    int  addDecision( const Decision & decision, const QList<QString> & uri, int * id );
+	    int  addDecision( const Decision::Decision & decision, const QList<QString> & uri, int * id );
 
 	    /*! \brief Return list of ID of the decisions, related to the resource
 	     */
@@ -61,7 +63,7 @@ namespace Nepomuk {
 
             bool existsDecision( int id);
 
-            DecisionMetadata decisionMetadata(int id, int  & error);
+            Decision::DecisionMetadata decisionMetadata(int id, int  & error);
 	private:
 	   class Private;
 	   QSharedPointer<Private> d;

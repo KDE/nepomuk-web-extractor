@@ -195,10 +195,11 @@ namespace Nepomuk {
 
                 /* ===== Storage section ======= */
 
+            public:
                 static Decision load( QIODevice * device );
                 static Decision load( QDataStream & stream );
-                void save(QIODevice * device);
-                void save(QDataStream & stream);
+                void save(QIODevice * device) const;
+                void save(QDataStream & stream) const;
 
 
             private:

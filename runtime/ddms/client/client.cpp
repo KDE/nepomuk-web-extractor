@@ -24,6 +24,8 @@
 #include "decisionmanagementserviceproxy.h"
 
 #include <QDBusPendingCallWatcher>
+#include <decision/decision.h>
+#include <decision/decisionmetadata.h>
 
 using namespace Nepomuk;
 
@@ -50,7 +52,7 @@ Nepomuk::DecisionManagementClient::DecisionManagementClient(
     /* Init necessary QT metatypes */
     IdAndError::registerMetaType();
     IdList::registerMetaType();
-    DecisionMetadata::registerMetaType();
+    Decision::DecisionMetadata::registerMetaType();
     MetadataAndError::registerMetaType();
 }
 
@@ -77,11 +79,14 @@ Nepomuk::DecisionManagementClient::instance()
 }
 
 IdProxy *
-Nepomuk::DecisionManagementClient::addDecision(const QString &decision, const QStringList &uriList )
+Nepomuk::DecisionManagementClient::addDecision(const Decision::Decision &decision, const QStringList &uriList )
 {
+    QByteArray result;
+    QDataStream dstream(&result, QIODevice::WriteOnly );
+    decision.save(dstream);
     return new IdProxy(
 	    this,
-	    d->interface->addDecision(decision,uriList),
+	    d->interface->addDecision(result,uriList),
             this
 	    );
 }

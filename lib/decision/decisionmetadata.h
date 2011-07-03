@@ -30,6 +30,9 @@ namespace Nepomuk {
         class DECISION_EXPORT DecisionMetadata
         {
             public:
+                DecisionMetadata():
+                    rank(0)
+                {;}
                 QString description;
                 double rank;
                 // hash name:version of authors datapp

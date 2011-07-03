@@ -18,6 +18,8 @@
 
 #include "ddms_core.h"
 #include "protocol_types.h"
+#include <decision/decision.h>
+#include <decision/decisionmetadata.h>
 
 #include <QList>
 #include <QVariant>
@@ -32,12 +34,32 @@
 
 #define ID_TABLE_NAME "id"
 #define RES_TABLE_NAME "resources"
+#define META_TABLE_NAME "metadata" 
+#define AUTHOR_TABLE_NAME "authors" 
 #define ID_COLUMN_NAME "id"
 #define RES_COLUMN_NAME "resource"
 
 #define TABLE_INFO_COLUMN_NAME 1
 #define TABLE_INFO_COLUMN_TYPE 2
 
+using namespace Nepomuk;
+using namespace Nepomuk::Decision;
+
+/* ======= Table definitions =========
+ * Table: id
+ * ( id : int )
+ *
+ * Table : resources
+ * (id : int, resource: string )
+ *
+ * Table : metadata
+ * (id : int, rank : double, description : string )
+ *
+ * Table : authors
+ * ( id : int, name : string, version : int )
+ * name - author name
+ * version - author version
+ */
 class Nepomuk::DecisionStorage::Private 
 {
     public:
@@ -50,7 +72,7 @@ class Nepomuk::DecisionStorage::Private
          * On fail, return NULL string
          * \return Filename or empty string, if failed
          */
-        QString requestFileName(const QList<QString> & resources, int * id = 0);
+        QString requestFileName(const QList<QString> & resources, const DecisionMetadata & metadata, int * id = 0);
         
         /*! \brief Prepare database for usage
          * Create necessary tables.
@@ -62,8 +84,12 @@ class Nepomuk::DecisionStorage::Private
         bool removeFromFolder(int);
         bool checkIdTable();
         bool checkResTable();
+        bool checkMetaTable();
+        bool checkAuthorsTable();
         static QString insertIdQueryString;
         static QString insertResUrlQueryString;
+        static QString insertMetaQueryString;
+        static QString insertAuthorQueryString;
         //static QString;
 };
 
@@ -72,6 +98,12 @@ QString("INSERT INTO "ID_TABLE_NAME" VALUES (NULL)");
 
 QString Nepomuk::DecisionStorage::Private::insertResUrlQueryString = 
 QString("INSERT INTO "RES_TABLE_NAME" VALUES (:id, :res)");
+
+QString Nepomuk::DecisionStorage::Private::insertMetaQueryString = 
+QString("INSERT INTO "META_TABLE_NAME" VALUES (:id, :rank, :description)");
+
+QString Nepomuk::DecisionStorage::Private::insertAuthorQueryString = 
+QString("INSERT INTO "AUTHOR_TABLE_NAME" VALUES (:id, :name, :version)");
 
 Nepomuk::DecisionStorage::DecisionStorage(
         const QSqlDatabase & database, 
@@ -99,7 +131,7 @@ Nepomuk::DecisionStorage::DecisionStorage(
 }
 
 QString 
-Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resources, int * idAnswer)
+Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resources, const DecisionMetadata & metadata, int * idAnswer)
 {
     Q_ASSERT(valid);
     qDebug() << "CALL: " << __func__;
@@ -112,6 +144,8 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resou
 
     // Because labels are used, all variables must be declared
     // in the begining
+    QSqlQuery insertAuthorQuery(db);
+    QSqlQuery insertMetadataQuery(db);
     QSqlQuery insertResUrlQuery(db);
     QSqlQuery getIdQuery(db);
     QString filename;
@@ -119,6 +153,7 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resou
     bool success = true;
     int id = -1;
     QList<QString>::const_iterator it;
+    QHash<QString,int>::const_iterator author_it;
     QVariant lastId;
 
     // Stage 1 - create unique ID
@@ -132,26 +167,6 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resou
     }
 
     // Get this id
-#if 0
-    getIdQuery.prepare("last_inserted_rowid()");
-    getIdQuery.exec();
-    if(!getIdQuery.isActive()) {
-        qDebug() << "Can't acquire inserted ID" << insertIdQuery.lastError().text();
-        goto FAIL;
-    }
-
-    if ( getIdQuery.next() ) {
-        id = getIdQuery.value(0).toInt();
-    }
-    else {
-        qDebug() << "last_inserted_rowid() reports" << getIdQuery.lastError().text();
-        goto FAIL;
-    }
-    getIdQuery.finish();
-
-    if ( id <= 0 )
-        goto FAIL;
-#endif
     lastId = insertIdQuery.lastInsertId();
     if (!lastId.isValid()) {
         qDebug() << "Can't acquire inserted ID" << insertIdQuery.lastError().text();
@@ -168,7 +183,7 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resou
     //qDebug() << "Accuired ID: " << id;
 
 
-    // Stage 2 - add record to the table
+    // Stage 2.0 - add record to the resources table
     success = true;
     for( it = resources.begin(); it != resources.end(); ++it )
     {
@@ -182,11 +197,47 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resou
             success = false;
             break;
         }
+        insertResUrlQuery.finish();
     }
     insertResUrlQuery.finish();
 
     if (!success)
         goto FAIL;
+
+    // Stage 2.1 - add record to metadata table
+    insertMetadataQuery.prepare(insertMetaQueryString);
+    insertMetadataQuery.bindValue(":description",metadata.description);
+    insertMetadataQuery.bindValue(":rank",metadata.rank);
+    insertMetadataQuery.exec();
+    if (!insertMetadataQuery.isActive()) {
+        qDebug() << "Can't insert metadata into table. Error: " << insertMetadataQuery.lastError().text();
+        goto FAIL;
+    }
+    insertMetadataQuery.finish();
+
+    // Stage 2.2 - add record to authors table
+    success = false;
+    for( author_it = metadata.authorsData.begin();
+            author_it != metadata.authorsData.end();
+            ++author_it
+       )
+    {
+        insertAuthorQuery.prepare(insertAuthorQueryString);
+        insertAuthorQuery.bindValue(":id",id);
+        insertAuthorQuery.bindValue(":name",author_it.key());
+        insertAuthorQuery.bindValue(":version",author_it.value());
+        insertAuthorQuery.exec();
+        if (!insertAuthorQuery.isActive()) {
+            qDebug() << "Can't insert author into table. Error: " << insertAuthorQuery.lastError().text();
+
+            success = false;
+            break;
+        }
+        insertAuthorQuery.finish();
+    }
+    insertAuthorQuery.finish();
+
+    
 
     // Stage 3 - create file in the specified folder
     filename = QString::number(id);
@@ -324,21 +375,27 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
 
     QSqlQuery idTableExists(db);
     QSqlQuery resTableExists(db);
+    QSqlQuery tableExists(db);
     QSqlQuery createIdTable(db);
     QSqlQuery createResTable(db);
-    QSqlQuery enableForeighKeys(db);
+    QSqlQuery createMetaTable(db);
+    QSqlQuery createAuthorTable(db);
+
+    QString tableExistsString = "SELECT name FROM sqlite_master WHERE type='table' AND \
+            name= :name";
+
+    QSqlQuery enableForeignKeys(db);
     // Enable keys anyway
-    enableForeighKeys.prepare("PRAGMA foreign_keys = ON");
-    enableForeighKeys.exec();
-    if (!enableForeighKeys.isActive()) {
+    enableForeignKeys.prepare("PRAGMA foreign_keys = ON");
+    enableForeignKeys.exec();
+    if (!enableForeignKeys.isActive()) {
         qDebug() << "Can't enable foreign keys in database";
         return false;
     }
 
     // Check whether id table already exists
-    idTableExists.prepare(
-            "SELECT name FROM sqlite_master WHERE type='table' AND \
-            name='"ID_TABLE_NAME"'");
+    idTableExists.prepare(tableExistsString);
+    idTableExists.bindValue(":name",ID_TABLE_NAME);
 
     idTableExists.exec();
     if (!idTableExists.isActive()) {
@@ -367,10 +424,11 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
             
     }
     idTableExists.finish();
+    createIdTable.finish();
 
-    resTableExists.prepare(
-            "SELECT name FROM sqlite_master WHERE type='table' AND\
-            name='"RES_TABLE_NAME"'");
+    /* ======= Table: resources  ====== */
+    resTableExists.prepare(tableExistsString);
+    resTableExists.bindValue(":name",RES_TABLE_NAME);
 
     resTableExists.exec();
     if (!resTableExists.isActive()) {
@@ -391,16 +449,72 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
         createResTable.prepare("CREATE TABLE "RES_TABLE_NAME"( id INTEGER, resource TEXT,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFFERED)");
         createResTable.exec();
         if (!createResTable.isActive()) {
-            qDebug() << "Can't create ID table. Error: " << 
+            qDebug() << "Can't create resources table. Error: " << 
                 createResTable.lastError().text();
             goto FAIL;
         }
     }
 
-    idTableExists.finish();
     resTableExists.finish();
     createResTable.finish();
-    createIdTable.finish();
+
+    /* ======= Table: metadata ========= */
+    tableExists.prepare(tableExistsString);
+    tableExists.bindValue(":name",META_TABLE_NAME);
+
+    tableExists.exec();
+    if (!tableExists.isActive()) {
+        qDebug() << "Can not execute query to check existance of metadata table. Error: " <<
+            tableExists.lastError().text();
+        goto FAIL;
+    }
+
+    if (tableExists.next()) {
+        // Table exists
+    }
+    else {
+        // Create table
+        createMetaTable.prepare("CREATE TABLE "META_TABLE_NAME"( id INTEGER PRIMARY KEY, rank DOUBLE, description  TEXT,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFFERED)");
+        createMetaTable.exec();
+        if (!createMetaTable.isActive()) {
+            qDebug() << "Can't create metadata table. Error: " << 
+                createMetaTable.lastError().text();
+            goto FAIL;
+        }
+    }
+
+    tableExists.finish();
+    createMetaTable.finish();
+
+
+    /* ======== Table : author */
+    tableExists.prepare(tableExistsString);
+    tableExists.bindValue(":name",AUTHOR_TABLE_NAME);
+
+    tableExists.exec();
+    if (!tableExists.isActive()) {
+        qDebug() << "Can not execute query to check existance of authors table. Error: " <<
+            tableExists.lastError().text();
+        goto FAIL;
+    }
+
+    if (tableExists.next()) {
+        // Table exists
+    }
+    else {
+        // Create table
+        createAuthorTable.prepare("CREATE TABLE "AUTHOR_TABLE_NAME"( id INTEGER, name TEXT, version INTEGER,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFFERED)");
+        createAuthorTable.exec();
+        if (!createAuthorTable.isActive()) {
+            qDebug() << "Can't create authors table. Error: " << 
+                createAuthorTable.lastError().text();
+            goto FAIL;
+        }
+    }
+
+    tableExists.finish();
+    createAuthorTable.finish();
+
 
     if (!db.commit() ) {
         qCritical() << "Can not prepare database: transaction commit fails.\n" << db.lastError().text();
@@ -413,8 +527,11 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
 FAIL:
     idTableExists.finish();
     resTableExists.finish();
+    tableExists.finish();
     createResTable.finish();
     createIdTable.finish();
+    createMetaTable.finish();
+    createAuthorTable.finish();
     db.rollback();
     return false;
 }
@@ -454,7 +571,7 @@ bool Nepomuk::DecisionStorage::Private::removeFromFolder(ID id)
     return file.remove();
 }
 
-int Nepomuk::DecisionStorage::addDecision( const Decision & decision,
+int Nepomuk::DecisionStorage::addDecision( const Decision::Decision & decision,
         const QList<QString> & uri,
         int * id)
 {
@@ -462,7 +579,7 @@ int Nepomuk::DecisionStorage::addDecision( const Decision & decision,
         return Error::SystemError ;
 
     // Stage 1 - accquire filename
-    QString filename = d->requestFileName(uri,id);
+    QString filename = d->requestFileName(uri,decision.metadata(),id);
     
    if ( filename.isEmpty() ) {
       // Error
@@ -563,8 +680,35 @@ DecisionMetadata Nepomuk::DecisionStorage::decisionMetadata(int  id, int & error
         return answer;
     }
 
-    // Now read metadata from the file
-    answer.description = "Fake description of the Decision";
+    // Now read metadata from the index
+    QSqlQuery readMetaQuery(d->db);
+    readMetaQuery.prepare(
+            QString("SELECT (rank,description) FROM "META_TABLE_NAME" WHERE id = %1").arg(id));
+    readMetaQuery.exec();
+    if (!readMetaQuery.isActive() ) {
+        qDebug() << "Can't execute select metadata query. Error is " <<
+            readMetaQuery.lastError().text();
+    }
+    if ( readMetaQuery.next() ) {
+        answer.description = readMetaQuery.value(1).toString();
+        answer.rank = readMetaQuery.value(0).toDouble();
+    }
+
+    QSqlQuery readAuthorsQuery(d->db);
+    readAuthorsQuery.prepare(
+        QString("SELECT (author,version) FROM "AUTHOR_TABLE_NAME" WHERE id = %1").arg(id)
+        );
+    readAuthorsQuery.exec();
+    if (!readAuthorsQuery.isActive() ) {
+        qDebug() << "Can't execute selet  authors query. Error is " <<
+            readAuthorsQuery.lastError().text();
+    }
+    while(readAuthorsQuery.next()) 
+    {
+        QString name = readAuthorsQuery.value(0).toString();
+        int version = readAuthorsQuery.value(1).toInt();
+        answer.authorsData[name] = version;
+    }
 
     return answer;
 }

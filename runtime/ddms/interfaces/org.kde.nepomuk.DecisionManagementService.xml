@@ -6,7 +6,7 @@
       <arg name="id" type="i" direction="in"/>
     </method>
     <method name="addDecision">
-	<arg name="decision" type="s" direction="in" />
+	<arg name="decision" type="ay" direction="in" />
 	<arg name="uriList" type="as" direction="in" />
 	<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="IdAndError"/>
 	<arg type="(ii)" direction="out" />

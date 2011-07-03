@@ -19,9 +19,10 @@
 #include "ddms_service.h"
 #include "decisionmanagementserviceadaptor.h"
 
+
 #include <KStandardDirs>
 #include <QSqlDatabase>
-
+#include <decision/decision.h>
 
 Nepomuk::DecisionManagementService::DecisionManagementService(
         QObject * parent,
@@ -34,7 +35,7 @@ Nepomuk::DecisionManagementService::DecisionManagementService(
     /* Init necessary QT metatypes */
     IdAndError::registerMetaType();
     IdList::registerMetaType();
-    DecisionMetadata::registerMetaType();
+    Decision::DecisionMetadata::registerMetaType();
     MetadataAndError::registerMetaType();
 
     // Get application data directory
@@ -95,11 +96,15 @@ int Nepomuk::DecisionManagementService::removeDecision(int id)
 }
 
 IdAndError Nepomuk::DecisionManagementService::addDecision( 
-        const QString & decision, const QList<QString> & uri)
+        const QByteArray & decision, const QList<QString> & uri)
 {
+    // Load decision from byte array
+    QDataStream dstream(decision);
+    Decision::Decision dec = Decision::Decision::load(dstream);
+
     qDebug() << "CALL: " << __func__; 
     int id = -1;
-    int error =  m_storage->addDecision(decision,uri,&id);
+    int error =  m_storage->addDecision(dec,uri,&id);
     IdAndError result;
     result.first = id;
     result.second = error;
@@ -119,7 +124,7 @@ bool Nepomuk::DecisionManagementService::existsDecision(int id)
 MetadataAndError Nepomuk::DecisionManagementService::decisionMetadata(int  id)
 {
     int error;
-    DecisionMetadata md = m_storage->decisionMetadata(id,error);
+    Decision::DecisionMetadata md = m_storage->decisionMetadata(id,error);
     MetadataAndError answer;
     answer.error = error;
     answer.metadata = md;

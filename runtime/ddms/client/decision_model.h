@@ -19,6 +19,8 @@
 #ifndef NEPOMUK_DECISION_PROXY_MODEL_H
 #define NEPOMUK_DECISION_PROXY_MODEL_H
 
+#include "ddms_client_export.h"
+
 #include <QtCore/QAbstractListModel>
 #include <QtCore/QVariant>
 #include <QtCore/QSharedDataPointer>
@@ -26,7 +28,7 @@
 namespace Nepomuk {
     class IdListProxy;
     class DecisionManagementClient;
-    class DecisionModel  : public QAbstractListModel
+    class DDMS_CLIENT_EXPORT DecisionModel  : public QAbstractListModel
     {
         public:
             enum Roles { Description, Proxy };

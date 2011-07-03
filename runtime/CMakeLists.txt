@@ -16,5 +16,6 @@ include_directories(
     ${nepomuk_webextractor_BINARY_DIR}
     )
 
+add_subdirectory(ddms)
 add_subdirectory(webextractor)
 add_subdirectory(graphviz)

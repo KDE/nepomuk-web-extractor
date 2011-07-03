@@ -19,15 +19,18 @@
 #ifndef NEPOMUK_DDMS_DECISION_PROXY_H
 #define NEPOMUK_DDMS_DECISION_PROXY_H
 
+#include "ddms_client_export.h"
+
 #include <QtCore/QSharedPointer>
 #include <QtCore/QString>
 #include <QtCore/QMetaType>
 
 
+
 namespace Nepomuk {
     class DecisionManagementClient;
     class DecisionProxyData;
-    class DecisionProxy
+    class DDMS_CLIENT_EXPORT DecisionProxy
     {
         public:
             DecisionProxy(DecisionManagementClient * client, int id);

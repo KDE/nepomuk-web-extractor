@@ -9,6 +9,7 @@ add_library( ddms_common SHARED
 
 target_link_libraries( ddms_common
     ${QT_QTDBUS_LIBRARY}
+    nepomuk_decision
     )
 
 install(TARGETS ddms_common

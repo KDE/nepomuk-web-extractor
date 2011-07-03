@@ -22,11 +22,15 @@
 #include <Nepomuk/Service>
 #include <QString>
 #include <QList>
+#include <QByteArray>
 
 #include "ddms_core.h"
 #include "protocol_types.h"
 
 namespace Nepomuk {
+    namespace Decision {
+        class Decision;
+    }
 
     class DecisionManagementService : public Nepomuk::Service 
     {
@@ -48,7 +52,7 @@ namespace Nepomuk {
 	     * \param uri List of resources uri this Decision connected to
 	     * \param decision Decision to add
 	     */
-	    IdAndError addDecision( const QString & decision, const QList<QString> & uri);
+	    IdAndError addDecision( const QByteArray & decision, const QList<QString> & uri);
 
             bool existsDecision(int id);
 

@@ -19,9 +19,12 @@
 #ifndef NEPOMUK_DDMS_CLIENT_H
 #define NEPOMUK_DDMS_CLIENT_H
 
+#include "ddms_client_export.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QString>
 #include <QtCore/QSharedPointer>
+#include <QtCore/QByteArray>
 #include <QDBusConnection>
 #include <QDBusPendingCallWatcher>
 
@@ -30,8 +33,12 @@ namespace Nepomuk {
     class IdListProxy;
     class DecisionProxy;
     class DecisionProxyData;
+
+    namespace Decision {
+        class Decision;
+    }
     
-    class DecisionManagementClient : public QObject
+    class DDMS_CLIENT_EXPORT DecisionManagementClient : public QObject
     {
         Q_OBJECT;
         public:
@@ -49,7 +56,7 @@ namespace Nepomuk {
              */
             IdListProxy * getDecisions( const QUrl &  uri);
 
-            IdProxy * addDecision(const QString &decision, const QStringList &uriList );
+            IdProxy * addDecision(const Decision::Decision &decision, const QStringList &uriList );
             QDBusPendingCallWatcher * removeDecision(int id);
             /*! \brief Return true if object creation was successfull
              *

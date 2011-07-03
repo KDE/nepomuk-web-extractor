@@ -25,6 +25,7 @@
 #include <QList>
 #include <QMetaType>
 #include <QDBusMetaType>
+#include <decision/decisionmetadata.h>
 
 class DDMS_COMMON_EXPORT IdAndError : public QPair<int,int>
 {
@@ -73,30 +74,12 @@ class DDMS_COMMON_EXPORT IdList : public QList<int>
 };
 Q_DECLARE_METATYPE(IdList)
 
-class DDMS_COMMON_EXPORT DecisionMetadata
-{
-    public:
-        QString description;
-        static void registerMetaType()
-        {
-            static bool registred = false;
-            if (!registred) {
-                registred = true;
-                qRegisterMetaType<DecisionMetadata>("DecisionMetadata");
-
-                qDBusRegisterMetaType<DecisionMetadata>();
-            }
-        }
-};
-Q_DECLARE_METATYPE(DecisionMetadata)
-DDMS_COMMON_EXPORT QDBusArgument &operator<<(QDBusArgument &argument, const DecisionMetadata &mystruct);
-DDMS_COMMON_EXPORT const QDBusArgument &operator>>( const QDBusArgument &argument, DecisionMetadata &mystruct);
 
 class DDMS_COMMON_EXPORT MetadataAndError
 {
     public:
         int error;
-        DecisionMetadata metadata;
+        Nepomuk::Decision::DecisionMetadata metadata;
         static void registerMetaType()
         {
             static bool registred = false;

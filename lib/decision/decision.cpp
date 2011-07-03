@@ -321,19 +321,19 @@ QString ND::Decision::description() const
 
 /* ==== Storage section ==== */
 
-void ND::Decision::save( QIODevice * device )
+void ND::Decision::save( QIODevice * device ) const
 {
     QDataStream stream(device);
     this->save(stream);
 }
 
-ND::Decision ND::Decision::load( QIODevice * device )
+ND::Decision ND::Decision::load( QIODevice * device ) 
 {
     QDataStream stream(device);
     return load(stream);
 }
 
-void ND::Decision::save( QDataStream & stream)
+void ND::Decision::save( QDataStream & stream)const
 {
     /*
     stream << rank << description << resourceProxyMap <<
