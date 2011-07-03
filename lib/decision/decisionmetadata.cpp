@@ -24,7 +24,7 @@ using namespace Nepomuk::Decision;
 QDBusArgument &operator<<(QDBusArgument &argument, const DecisionMetadata &mystruct)
 {
     argument.beginStructure();
-    argument << mystruct.description ;
+    argument << mystruct.description << mystruct.rank << mystruct.authorsData;
     argument.endStructure();
     return argument;
 }
@@ -32,7 +32,7 @@ QDBusArgument &operator<<(QDBusArgument &argument, const DecisionMetadata &mystr
 const QDBusArgument &operator>>( const QDBusArgument &argument, DecisionMetadata &mystruct)
 {
     argument.beginStructure();
-    argument >> mystruct.description;
+    argument >> mystruct.description >> mystruct.rank >> mystruct.authorsData;
     argument.endStructure();
     return argument;
 }

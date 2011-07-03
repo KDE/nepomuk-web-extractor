@@ -251,6 +251,16 @@ NS::ChangeLog ND::Decision::log() const
     return d->cachedLog;
 }
 
+ND::DecisionMetadata ND::Decision::metadata() const
+{
+    DecisionMetadata answer;
+    answer.description = d->description;
+    answer.rank = d->rank;
+    answer.authorsData = d->authorsData;
+
+    return answer;
+}
+
 ND::DecisionApplicationRequest * ND::Decision::applicationRequest(Soprano::Model * targetModel) const
 {
     if( !targetModel)

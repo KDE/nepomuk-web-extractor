@@ -29,6 +29,7 @@
 #include <QSharedDataPointer>
 
 #include "propertiesgroup.h"
+#include "decisionmetadata.h"
 
 
 class QIODevice;
@@ -123,6 +124,16 @@ namespace Nepomuk {
                  * and return it
                  */
                 Nepomuk::Sync::ChangeLog log() const;
+
+                /*! This method will return Decision's metadata.
+                 * It will accumulate all information about decision - 
+                 * description, authors etc into one object and return it.
+                 * This object is suitable for transfering via DBus if you
+                 * don't want to trnasfer whole Decision. For example, GUI
+                 * applications usually don't need Decision - DecisionMetadata
+                 * is enough to display everything properly
+                 */
+                DecisionMetadata metadata() const;
 
                 /* ==== Application section ==== */
 

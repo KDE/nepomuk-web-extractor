@@ -31,6 +31,9 @@ namespace Nepomuk {
         {
             public:
                 QString description;
+                double rank;
+                // hash name:version of authors datapp
+                QHash<QString, int>  authorsData;
                 static void registerMetaType()
                 {
                     static bool registred = false;
