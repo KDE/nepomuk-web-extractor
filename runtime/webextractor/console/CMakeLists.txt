@@ -1,4 +1,4 @@
-project(nepomukgraphviz)
+project(webextractor_console)
 
 cmake_minimum_required(VERSION 2.6)
 
@@ -30,36 +30,52 @@ include_directories(
   ${libwebexsettings_SOURCE_DIR}
   #libwebexsettingsui path
   ${libwebexsettingsui_BINARY_DIR}
-  ${libwebexsettingsui_SORUCE_DIR}
+  ${libwebexsettingsui_SOURCE_DIR}
   ${NEPOMUK_INCLUDE_DIR}
   ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${CMAKE_CURRENT_BINARY_DIR}
   ${KDE4_INCLUDES}
   ${LIBWEBEXTRACTOR_INCLUDE_DIRS}
+  ${LIBWEBEXTRACTORUI_INCLUDE_DIRS}
   )
 
 
 link_directories(${LIBWEBEXTRACTOR_LIBRARY_DIRS})
 
-set( nepomuk_graphviz_SRCS
+set ( webexconsole_SRCS
+    console.cpp
     main.cpp
-    graphvizmainwindow.cpp
+    modeltest.cpp
+    examinedwidget.cpp
+    infoPage.cpp
+    launchPage.cpp
+    settingsPage.cpp
     )
 
-kde4_add_ui_files(nepomuk_graphviz_SRCS 
-    mainWindow.ui
-    )
-kde4_add_executable( nepomuk_graphviz ${nepomuk_graphviz_SRCS} )
+kde4_add_ui_files(webexconsole_SRCS
+   mainWindow.ui
+   launchPage.ui
+   settingsPage.ui
+   infoPage.ui
+  ) 
+kde4_add_executable( webexconsole ${webexconsole_SRCS} )
 
-target_link_libraries( nepomuk_graphviz 
+target_link_libraries( webexconsole 
+    webexsettings
+    webexsettingsui
+    webextractor
+    nepomuk_decisionui
+    nepomuk_decision
     ${LIBWEBEXTRACTOR_LIBRARIES}
     ${NEPOMUK_LIBRARIES}
-    ${NEPOMUK_QUERY_LIBRARIES}
     ${KDE4_NEPOMUK_LIBS}
+    ${NEPOMUK_QUERY_LIBRARIES}
     ${KDE4_KDECORE_LIBS}
     ${KDE4_KDEUI_LIBRARY}
-    ${KDE4_KIO_LIBRARY}
+    ${KDE4_KUTILS_LIBRARY}
     nepomukutils
-    nepomukgraph
+    nepomuksynclegacy
     )
-install( TARGETS nepomuk_graphviz ${INSTALL_TARGETS_DEFAULT_ARGS} )
+
+install( TARGETS webexconsole ${INSTALL_TARGETS_DEFAULT_ARGS} )
+install(FILES webexconsole.desktop DESTINATION ${SERVICES_INSTALL_DIR} )
