@@ -1,0 +1,11 @@
+[Desktop Entry]
+ Type=Service
+ X-KDE-ServiceTypes=NepomukService
+ X-KDE-Library=nepomukddmservice
+ X-KDE-Nepomuk-autostart=true
+ X-KDE-Nepomuk-start-on-demand=false
+ # Dependencies default to 'nepomukstorage'
+ Name=Nepomuk Delayed Data Management Service
+ Comment=A Nepomuk service that delays applying changes to Nepomuk and allow users to browse/drop/apply them
+
+

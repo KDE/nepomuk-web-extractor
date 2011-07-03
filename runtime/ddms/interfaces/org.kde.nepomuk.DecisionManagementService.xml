@@ -1,0 +1,33 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.kde.nepomuk.DecisionManagement">
+    <method name="removeDecision">
+      <arg type="i" direction="out"/>
+      <arg name="id" type="i" direction="in"/>
+    </method>
+    <method name="addDecision">
+	<arg name="decision" type="s" direction="in" />
+	<arg name="uriList" type="as" direction="in" />
+	<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="IdAndError"/>
+	<arg type="(ii)" direction="out" />
+    </method>
+    <!--
+    <method name="addDecision">
+	<arg name="decision" type="s" direction="in" />
+	<arg name="uriList" type="as" direction="in" />
+	<arg type="i" direction="out" />
+	<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="int"/>
+	<arg type="i" direction="out" />
+    </method>
+    -->
+    <method name="getDecisions">
+	<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="IdList"/>
+	<arg name="uri" type="s" direction="in" />
+	<arg type="ai" direction="out" />
+    </method>
+    <method name="existsDecision">
+	<arg name="id" type="i" direction="in" />
+	<arg type="b" direction="out" />
+    </method>
+  </interface>
+</node>
