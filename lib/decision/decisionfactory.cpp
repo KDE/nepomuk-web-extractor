@@ -103,7 +103,7 @@ void Nepomuk::Decision::DecisionFactory::setThreshold(double threshold)
 
 Nepomuk::Decision::DecisionCreator Nepomuk::Decision::DecisionFactory::newDecision(const DecisionAuthor * parent) const
 {
-    DecisionCreator dc(parent, d->decisionsModel, d->identsetManager);
+    DecisionCreator dc(parent);
     Q_ASSERT(dc.isValid());
     return dc;
 }

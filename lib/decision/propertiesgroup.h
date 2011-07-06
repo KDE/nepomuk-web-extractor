@@ -24,6 +24,10 @@
 #include <QString>
 #include "decision_export.h"
 
+#include <nepomuk/simpleresourcegraph.h>
+
+
+class QDataStream;
 
 namespace Soprano
 {
@@ -33,12 +37,6 @@ namespace Soprano
 
 namespace Nepomuk
 {
-    class ResourceManager;
-
-    namespace Sync
-    {
-        class ChangeLog;
-    }
     namespace Decision {
 	class DECISION_EXPORT PropertiesGroup
 	{
@@ -46,7 +44,7 @@ namespace Nepomuk
 		typedef QSharedPointer<PropertiesGroup> Ptr;
 
 		PropertiesGroup();
-		PropertiesGroup(const Nepomuk::Sync::ChangeLog & log,const QString & description, double rank = 0.5 );
+		PropertiesGroup(const Nepomuk::SimpleResourceGraph & changes,const QString & description, double rank = 0.5 );
 		~PropertiesGroup();
 		PropertiesGroup(const PropertiesGroup &);
 
@@ -55,9 +53,6 @@ namespace Nepomuk
 		QString description() const;
 		double rank() const;
 
-                /*! \brief This function will return the log of all chanegs
-                 */
-                Sync::ChangeLog log() const;
 		bool isValid() const;
 
 		/*! \brief Return true if log is empty
@@ -67,8 +62,15 @@ namespace Nepomuk
 		/* ==== Editing section ==== */
 		void setRank(double rank);
 		void setDescription( const QString & description );
-		void setLog( const Nepomuk::Sync::ChangeLog & log);
+		void setChanges( const Nepomuk::SimpleResourceGraph & changes);
+                friend QDataStream & operator<<(QDataStream &, const Nepomuk::Decision::PropertiesGroup & );
+                friend QDataStream & operator>>(QDataStream &, Nepomuk::Decision::PropertiesGroup & );
 	    private:
+                /*! \brief This function will return the log of all chanegs
+                 * \note Disabled as API is unstable
+                 */
+                SimpleResourceGraph changes() const;
+                friend class Decision;
 		/* This functions are used for editing and are accessible only
 		 * by several classes
 		 */
@@ -77,7 +79,10 @@ namespace Nepomuk
 		class Private;
 		QSharedDataPointer<Private> d;
 	};
+        DECISION_EXPORT QDataStream & operator<<(QDataStream &, const Nepomuk::Decision::PropertiesGroup & );
+        DECISION_EXPORT QDataStream & operator>>(QDataStream &, Nepomuk::Decision::PropertiesGroup & );
     }
 }
+
 
 #endif

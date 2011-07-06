@@ -37,24 +37,13 @@ namespace NS = Nepomuk::Sync;
 
 
 ND::DecisionCreator::DecisionCreator(
-    const DecisionAuthor * parent,
-    Soprano::Model * decisionsModel,
-    IdentificationSetManager * identsetManager
+    const DecisionAuthor * parent
 ):
-    d(new ND::DecisionCreatorInternals(parent, decisionsModel, identsetManager))
+    d(new ND::DecisionCreatorInternals(parent))
 {
     // Add default group
     PropertiesGroupCreator defGroup = newGroup();
     Q_ASSERT(defGroup.isValid());
-    // Init manager and model. They will use this default group
-    // We need first to init manager. This will init model too
-    d->manager = defGroup.manager();
-    Q_ASSERT(d->manager);
-
-    // set model
-    d->filterModel = defGroup.filterModel();
-    Q_ASSERT(d->filterModel);
-
 }
 
 ND::DecisionCreator::DecisionCreator(
@@ -122,23 +111,6 @@ double ND::DecisionCreator::rank() const
     return d->m_data.rank();
 }
 
-/*
-QUrl ND::DecisionCreator::uri() const
-{
-    return d->contextUrl;
-}
-*/
-
-Nepomuk::ResourceManager * ND::DecisionCreator::manager() const
-{
-    return d->manager;
-}
-
-
-Soprano::Model * ND::DecisionCreator::model() const
-{
-    return d->filterModel;
-}
 
 QString ND::DecisionCreator::description() const
 {
@@ -174,121 +146,7 @@ ND::PropertiesGroupCreator ND::DecisionCreator::newGroup()
     return d->newGroup(d.toWeakRef());
 }
 
-/*
-QList<QUrl> ND::DecisionCreator::groupsUrls() const
+void ND::DecisionCreator::setChanges( const SimpleResourceGraph & graph)
 {
-    QList<QUrl> answer;
-    foreach( const PropertiesGroup & grp, d->data)
-    {
-    answer << grp.uri();
-    }
-    return answer;
+    defaultGroup().setChanges(graph);
 }
-*/
-
-/*
-void ND::DecisionCreator::setCurrentGroup( const PropertiesGroup & group)
-{
-    d->setCurrentGroup(group);
-}
-*/
-
-/*
-void ND::DecisionCreator::resetCurrentGroup()
-{
-    d->resetCurrentGroup();
-}
-*/
-
-QUrl ND::DecisionCreator::proxyUrl(const Nepomuk::Resource & res)
-{
-    return d->proxyUrl(res);
-}
-
-Nepomuk::Resource ND::DecisionCreator::proxyResource(const Nepomuk::Resource & res)
-{
-    // Call proxyUrl
-    QUrl answer = proxyUrl(res);
-    // Create resoruce and return it.
-    return Nepomuk::Resource(answer, QUrl(), d->manager);
-}
-
-QHash<QUrl, QUrl> ND::DecisionCreator::proxies() const
-{
-    return d->resourceProxyMap;
-
-}
-
-/*
-void ND::DecisionCreator::addStatement(const Soprano::Statement & statement, double rank)
-{
-    PropertiesGroup grp;
-    grp << statement;
-    grp.setRank(rank);
-    addGroup(grp);
-}
-*/
-/*
-void ND::DecisionCreator::addGroup( const PropertiesGroup & grp)
-{
-    //rank = Private::truncateRank(rank);
-
-    // Check that none of this statemnt's exist in model.
-    // Those that's exist - ignore
-
-    // Add statements
-    //d->data.insert(rank,statements);
-    d->data << grp;
-
-    // Increase hash
-    d->hash ^= qHash(grp);
-}
-*/
-
-/*
-void ND::DecisionCreator::freeze()
-{
-    this->d->setFreeze(true);
-}
-
-bool ND::DecisionCreator::isFreezed() const
-{
-    return this->d->isFreezed();
-}
-*/
-
-#if 0
-void ND::DecisionCreator::addToUserDiscretion()
-{
-    /*
-    kDebug() << "Write DecisionCreator to user discretion list";
-    foreach ( const PropertiesGroup  &  lst, d->data )
-    {
-    foreach( const Soprano::Statement  & st, lst.data() )
-    {
-        kDebug() << st;
-    }
-    }
-    */
-}
-
-#endif
-
-QList<QUrl> ND::DecisionCreator::mainResources() const
-{
-    return d->resourceProxyMap.values();
-}
-
-/*
-void ND::DecisionCreator::addAuthor(const Executive * author)
-{
-    d->authorsData.insert(author);
-}
-*/
-
-/*
-unsigned int ND::qHash(const Nepomuk::Decision::DecisionCreator & des)
-{
-    return des.d->hash;
-}
-*/

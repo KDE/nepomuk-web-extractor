@@ -570,7 +570,7 @@ bool NW::ResourceAnalyzer::apply()
     // Process data
     if(d->m_decisions.hasAutoApplicable()) {
         if(!d->m_decisions.best().apply(
-                    d->m_res.manager()->mainModel()
+                    //d->m_res.manager()->mainModel()
                 ))
             return false;
     } else {

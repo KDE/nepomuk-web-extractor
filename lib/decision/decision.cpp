@@ -23,13 +23,14 @@
 #include <QHash>
 #include <QUrl>
 #include <QTime>
+#include <KJob>
 
-#include "changelog.h"
-#include "identificationset.h"
 
 #include "decision.h"
-#include "decisionapplicationrequest.h"
 #include "global.h"
+
+#include <nepomuk/datamanagement.h>
+
 
 namespace ND = Nepomuk::Decision;
 namespace NS = Nepomuk::Sync;
@@ -48,32 +49,6 @@ class ND::Decision::Private : public QSharedData
 	// The human-readable description of the Decision
 	QString description;
 
-	// There are 2 parts that are necessary for identification.
-	// 1) The identification sets for all target resources
-	// 2) The identification sets for all resources that are involved
-	// into changelog except target ones
-	// The first identification sets of the  are taken from the
-	// original model. Because of this  the key in the resourceProxyISMap
-	// is the url of the resource in the original model
-	// The second identification sets are taken from the decisions model.
-	// Because of this statements in auxiliaryIdentificationSet use
-	// the uri from the decisions model.
-	// We need to store the decisions model uri <-> original model uri
-	// to correctly identify both target resources and changelog resources
-	
-	// key is SOURCE url ( as in resourceProxyISMap ), value is 
-	// PROXY url ( as in auxiliaryIdentificationSet )
-	QHash< QUrl, QUrl > resourceProxyMap;
-
-	// This is our storage for all IdentificationSets for all our
-	// proxied resources. The key is the PROXY url, not the source one 
-	QHash< QUrl, NS::IdentificationSet > resourceProxyISMap;
-
-	// This is set for all other resources involved 
-	// into changes.
-	// othersIdentificationSet + all sets from resourceProxyISMap
-	// well result in identificationSet of whole Decision change log
-	NS::IdentificationSet auxiliaryIdentificationSet;
 
 	// time stamp. The time when the creation of this decision started
 	QTime timeStamp;
@@ -81,7 +56,9 @@ class ND::Decision::Private : public QSharedData
 	// hash name:version of authors datapp
 	QHash<QString, int>  authorsData;
 
-	mutable NS::ChangeLog cachedLog;
+        QSet<QUrl> targetResources;
+
+	//mutable NS::ChangeLog cachedLog;
 
 	mutable bool cachedValidness;
 	mutable bool cachedEmptyness;
@@ -164,63 +141,7 @@ bool ND::Decision::isValid() const
 {
     if (isDirty()) {
 	kDebug() << "State is dirty. Rechecking";
-
-	const_cast<ND::Decision*>(this)->d.detach();
-	if ( !d->groups.size() ) {
-	    kDebug() << "Decision doesn't hold any part";
-	    d->cachedValidness = false;
-	}
-	else {
-	    // This variable hold true if in all groups all resources has 
-	    // any record in idetification set
-	    bool allGroupsAreGood = true;
-	    // This is target resoruces expressed in PROXY url terms.
-	    QSet<QUrl> tR = targetResources();
-
-	    if (!isEmpty() ) {
-		// Check that every non-target resources has an record in
-		// identification set
-		foreach( const PropertiesGroup & grp, d->groups )
-		{
-		    // check resources of every group
-		    foreach( const QUrl & url, grp.log().resources() )
-		    {
-			// If target resource doesn't have an identification set,
-			// then we have a big big problem
-			
-			if ( !tR.contains(url) ) { 
-			    // It is not a target resource.
-			    // May be it is a auxiliary resources ?
-			    if ( !d->auxiliaryIdentificationSet.contains(url) )   {
-				kDebug() << 
-				    "Decision hold some invalid part.\
-				    Identification set is uncomplete.\
-				    Resource: " << url << "is nor target resource\
-				    neither auxiliary resource"
-				    ;
-				allGroupsAreGood = false;
-				break;
-			    }
-			}
-
-		    }
-		    if (!allGroupsAreGood)
-			break;
-		}
-	    }
-
-	    if ( allGroupsAreGood) {
-		d->cachedValidness = true;
-	    }
-	    else {
-		d->cachedValidness = false;
-	    }
-
-	    // TODO Add check that all non-main resources 
-	    // contains records in the auxilaryIdentificationSet
-	    // They should conatin at least record with rdf::type
-	}
-
+        d->cachedValidness = true;
 	markCleanValidness();
     }
 
@@ -228,11 +149,7 @@ bool ND::Decision::isValid() const
 }
 
 
-const QHash< QUrl, NS::IdentificationSet> & ND::Decision::identificationSets() const
-{
-    return d->resourceProxyISMap; 
-}
-
+#if 0
 NS::ChangeLog ND::Decision::log() const
 {
     if ( isDirtyLog() ) {
@@ -250,6 +167,7 @@ NS::ChangeLog ND::Decision::log() const
     }
     return d->cachedLog;
 }
+#endif
 
 ND::DecisionMetadata ND::Decision::metadata() const
 {
@@ -261,6 +179,7 @@ ND::DecisionMetadata ND::Decision::metadata() const
     return answer;
 }
 
+#if 0
 ND::DecisionApplicationRequest * ND::Decision::applicationRequest(Soprano::Model * targetModel) const
 {
     if( !targetModel)
@@ -289,7 +208,30 @@ bool ND::Decision::apply(Soprano::Model * targetModel) const
     return answer;
 
 }
+#endif
 
+KJob * ND::Decision::applyJob() const
+{
+    // Unite all changes into one
+    SimpleResourceGraph result_changes;
+    foreach( const PropertiesGroup & pg, this->d->groups)
+    {
+        result_changes.addGraph(pg.changes());
+    }
+    KJob * answer = storeResources(result_changes,Nepomuk::IdentifyNew);
+
+    return answer;
+}
+
+bool ND::Decision::apply() const
+{
+    KJob * job = applyJob();
+    if (!job->exec() ) {
+        qDebug() << "Can't apply Decision";
+        return false;
+    }
+    return true;
+}
 
 double ND::Decision::rank() const
 {
@@ -335,19 +277,19 @@ ND::Decision ND::Decision::load( QIODevice * device )
 
 void ND::Decision::save( QDataStream & stream)const
 {
-    /*
-    stream << rank << description << resourceProxyMap <<
-       resourceProxyISMap << auxilaryIdentificationSet <<
-      timeStamp << authorsData << 
-      groups;
-      */
+    stream << d->rank << d->description << 
+      d->timeStamp << d->authorsData << 
+      d->groups;
 
 }
 
 
 ND::Decision ND::Decision::load( QDataStream & stream )
 {
-    qDebug() << "Not implemented";
+    Decision answer;
+    stream >> answer.d->rank >> answer.d->description >> 
+      answer.d->timeStamp >> answer.d->authorsData >> 
+      answer.d->groups;
     return Decision();
 }
 
@@ -364,7 +306,8 @@ int ND::Decision::addGroup()
 
 }
 
-int  ND::Decision::addGroup(const Nepomuk::Sync::ChangeLog & log, const QString & description, double rank )
+/*
+int  ND::Decision::addGroup(const ??? & log, const QString & description, double rank )
 {
     // Create group
     d->groups.append(  PropertiesGroup(log,description,rank) );
@@ -375,6 +318,7 @@ int  ND::Decision::addGroup(const Nepomuk::Sync::ChangeLog & log, const QString 
     return d->groups.size() - 1;
 
 }
+*/
 
 int  ND::Decision::addGroup(const PropertiesGroup & group)
 {
@@ -392,83 +336,15 @@ void ND::Decision::setDescription( const QString & description)
     d->description = description;
 }
 
-void ND::Decision::setIdentificationSets( const QHash<QUrl,Nepomuk::Sync::IdentificationSet> isets )
-{
-    d->resourceProxyISMap = isets;
-    markDirtySets();
-}
-
-
-/*
-QHash< QUrl, NS::IdentificationSet> & ND::Decision::resourceProxyISMap() 
-{
-    return d->resourceProxyISMap;
-}
-
-QHash< QUrl, NS::IdentificationSet> & ND::Decision::identificationSets()
-{
-    markDirtySets();
-    return d->resourceProxyISMap;
-}
-*/
-
-void ND::Decision::addIdentificationSet(const QUrl & url, const Nepomuk::Sync::IdentificationSet & iset)
-{
-    d->resourceProxyISMap[url] = iset;
-    markDirtySets();
-    return;
-}
-
-void ND::Decision::setAuxiliaryIdentificationSet( const Nepomuk::Sync::IdentificationSet & oset)
-{
-    d->auxiliaryIdentificationSet = oset;
-}
-
-NS::IdentificationSet ND::Decision::auxiliaryIdentificationSet() const
-{
-    return d->auxiliaryIdentificationSet;
-}
 
 QSet<QUrl> ND::Decision::targetResources() const
 {
-    if ( isDirtyTargetResources() ) {
-	// Because we edit mutable member
-	const_cast<ND::Decision*>(this)->d.detach();
-	// Update target resources cache
-	// Target resources are all resocures that contains in
-	// 1) resourceProxyISMap
-	// 2) somewhere in the summary changelog as subjects or objects
-	d->cachedTargetResources.clear();
-	NS::ChangeLog log = this->log();
-	QSet<QUrl> resources = log.resources();
-	for( 
-		QHash<QUrl,NS::IdentificationSet>::const_iterator it = d->resourceProxyISMap.begin();
-		it != d->resourceProxyISMap.end();
-		it++
-	   )
-	{
-	    // Check if there is a proxyResource
-	    QUrl proxyUrl;
+    return d->targetResources;
+}
 
-	    QHash<QUrl,QUrl>::const_iterator  fit = d->resourceProxyMap.find(it.key());
-	    if ( fit == d->resourceProxyMap.end() ) { 
-		// Then proxyUrl is the same as sourceUrl
-		proxyUrl = it.key();
-	    }
-	    else {
-		proxyUrl = fit.value();
-	    }
-
-	    // Resource is it.key()
-	    // check that it contains somewhere in log
-	    if (resources.contains(proxyUrl) ) {
-		d->cachedTargetResources << proxyUrl;
-	    }
-	}
-	markCleanTargetResources();
-    }
-
-    return d->cachedTargetResources;
+void ND::Decision::setTargetResources( const QSet<QUrl> & targetResources)
+{
+    d->targetResources = targetResources;
 }
 
 void ND::Decision::cleanUnused()
@@ -483,37 +359,8 @@ void ND::Decision::cleanUnused()
 	}
     }
 
-    /*
-    // Remove unnecessary records from identification hash
-    QHash<QUrl,NS::IdentificationSet>::iterator hit = d->resourceProxyISMap.begin();
-    QHash<QUrl,NS::IdentificationSet>::iterator hit_end = d->resourceProxyISMap.end();
-    QSet<QUrl> tr = targetResources();
-
-    for( ; hit != hit_end; )
-    {
-	if ( !tr.contains(hit.key()) ) {
-	    // Remove from hash
-	    hit = d->resourceProxyISMap.erase(hit);
-	}
-	else {
-	    hit++;
-	}
-    }
-    Q_ASSERT(tr.size() == d->resourceProxyISMap.size());
-    */
 
 }
-/*
-void ND::Decision::setMainResources(const QSet<QUrl> & resources )
-{
-    d->mainResources = resources;
-}
-
-void ND::Decision::addMainResources( const QUrl & resource)
-{
-    d->mainResources.insert(resource);
-}
-*/
 
 void ND::Decision::setTimeStamp( const QTime & time )
 {
@@ -525,15 +372,6 @@ void ND::Decision::setRank( double rank )
     d->rank = boundRank(rank);
 }
 
-void ND::Decision::setResourceProxyMap( const QHash<QUrl,QUrl> & map )
-{
-    d->resourceProxyMap = map;
-}
-
-QHash<QUrl,QUrl> ND::Decision::resourceProxyMap() const
-{
-    return d->resourceProxyMap;
-}
 
 void ND::Decision::markDirtyLog()
 {

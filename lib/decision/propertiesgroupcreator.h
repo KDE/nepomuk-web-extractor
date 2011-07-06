@@ -69,20 +69,7 @@ namespace Nepomuk
 		/* ==== Methods for adding changes to PG ==== */
 
 
-                /*! Return ResourceManager over main Decisions model.
-                 * All changes that will be done with this ResourceManager will
-                 * be added to this PropertiesGroupCreator
-                 * \return Manager for the PropertiesGroupCreator, 0 if PropertiesGroupCreator is
-                 * invalid. 
-                 */
-                ResourceManager * manager() ;
-                
-		Soprano::Model * model() ;
-
-                /*! \brief Return proxy resource for given one
-                 */
-                Nepomuk::Resource proxyResource(const Nepomuk::Resource &);
-                QUrl proxyUrl(const Nepomuk::Resource &);
+                void setChanges( const SimpleResourceGraph & );
 
 
 		/* ==== Method for manipulating current group ==== */
@@ -105,16 +92,11 @@ namespace Nepomuk
 		QString description() const;
                 void setDescription(const QString &);
 
-                /*! \brief Return url of the group
-                 * This method will return non-empty url only after any statements
-                 * was added to the group.
-                 * If some error occured and group failed to create, then
-                 * empty url will be returned too.
-                 */
 
                 /*! \brief This function will return log of all changes in this PropertiesGroupCreator
+                 * \note Disabled as API is unstable
                  */
-                Sync::ChangeLog log() const;
+                //SimpleResourceGraph changes() const;
 
                 /*! \brief Return rank of the PropertiesGroupCreator
                  * See setRank for detalis
@@ -162,21 +144,6 @@ namespace Nepomuk
 		// the real resources
 		QWeakPointer<DecisionCreatorInternals> internals;	
 
-                // This method should be called from any method that edits data.
-                // When it is called first time, it will create url of the PropertiesGroupCreator
-                // and register it in the decision
-                //void inline registerGroup(const PropertiesGroupCreator &);
-
-                void initFilterModel();
-                void initFilterManager();
-
-                // This function is used for retrieving filter model
-                // It can return 0 if model is not initialized
-                Sync::ChangeLogFilterModel * filterModel() const;
-
-                // This is service method. It set url of the PropertiesGroupCreator. It doesn't
-                // do any checks.
-                //void setUrl( const QUrl & url);
         };
         PropertiesGroupCreator & operator<<(PropertiesGroupCreator &, const Soprano::Statement &);
     }

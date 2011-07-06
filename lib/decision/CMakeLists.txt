@@ -17,7 +17,7 @@ set( decisions_SRCS
     decisioncreator_p.cpp
     decisionfactory.cpp
     decisionlist.cpp
-    decisionapplicationrequest.cpp
+    #decisionapplicationrequest.cpp
     propertiesgroup.cpp
     propertiesgroupcreator.cpp
     propertiesgroupcreator_p.cpp
@@ -28,7 +28,7 @@ set( decisions_HEADERS
     decisionfactory.h
     decision.h
     decisionmetadata.h
-    decisionapplicationrequest.h
+    #decisionapplicationrequest.h
     decisionlist.h
     decisioncreator.h
     propertiesgroup.h
@@ -50,6 +50,7 @@ set ( LIBNEPOMUK_DECISION_DEPENDENCIES
     ${QT_QTCORE_LIBRARY}
     ${QT_QTDBUS_LIBRARY}
     nepomukgraph
+    nepomukdatamanagement
     )
 
 set ( LIBNEPOMUK_DECISION_LIBRARIES 

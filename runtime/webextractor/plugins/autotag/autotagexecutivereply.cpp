@@ -34,7 +34,7 @@
 #include <Soprano/Model>
 #include "nfo.h"
 #include <KDebug>
-#include <QTimer>
+#include <nepomuk/simpleresource.h>
 
 namespace NW = Nepomuk::WebExtractor;
 namespace ND = Nepomuk::Decision;
@@ -67,31 +67,21 @@ Nepomuk::AutotagReply::AutotagReply(AutotagExecutive * parent, const Decision::D
         // Generate Decision and assign tag
         ND::DecisionCreator d = newDecision();
         Q_ASSERT(d.isValid());
-        Q_ASSERT(d.manager());
-        // Generate proxy resource for main resource
-        // After this call Resource with uri proxyResUrl will exist.
-        Nepomuk::Resource proxyRes = d.proxyResource(res);
-        QUrl proxyResUrl = proxyRes.resourceUri();
-	Q_ASSERT(proxyRes.manager() == d.manager());
 
-        // Create tag in this model
-        Nepomuk::Tag t(tagName, d.manager());
-        // The code above is not enough to actually create resource.
-        // We will set the description of the tag and this will do the work
-        t.setDescription("What on the hell this tag for ?");
+        Nepomuk::SimpleResource resChanges(res.resourceUri());
+        Nepomuk::SimpleResource tag;
+        tag.addType(Soprano::Vocabulary::NAO::Tag());
+        tag.addProperty(Soprano::Vocabulary::NAO::description(),QString("What on the hell this tag for?"));
+        resChanges.addProperty(Soprano::Vocabulary::NAO::hasTag(),tag);
 
-	//kDebug() << "Proxy res uri: " << proxyRes.resourceUri();
-        
-	// Doesn't work
-	//proxyRes.addTag(t);
-	d.model()->addStatement(proxyResUrl,Soprano::Vocabulary::NAO::hasTag(),t.resourceUri());
+        d.setChanges(resChanges);
 
 
         // Set rank of the Decision
         d.setRank(0.99);
         // Set description of the Decision
         static QString descriptionTemplate = QString("Assign tag %1 to the resource %2");
-        d.setDescription(descriptionTemplate.arg(tagName, proxyResUrl.toString()));
+        d.setDescription(descriptionTemplate.arg(tagName, res.resourceUri().toString()));
         // Add Decision to the main list
         addDecision(d);
 

@@ -21,6 +21,8 @@
 
 #include "changelog.h"
 #include <QString>
+#include <nepomuk/simpleresource.h>
+#include <nepomuk/simpleresourcegraph.h>
 
 namespace NS = Nepomuk::Sync;
 
@@ -39,20 +41,13 @@ namespace Nepomuk {
 	    public:
 		PropertiesGroupCreatorPrivate();
 		~PropertiesGroupCreatorPrivate();
-		unsigned int hash;
 
 		int rank;
 
 		QString description;
 
-		// This is the model where PropertiesGroupCreator store all data. It is the
-		// decisions model, wrapped into logging filter model
-		Sync::ChangeLogFilterModel * filterModel;
-		// Manager of the filter model
-		ResourceManager * manager;
 
-
-		NS::ChangeLog log;
+		SimpleResourceGraph changes;
 	};
     }
 }

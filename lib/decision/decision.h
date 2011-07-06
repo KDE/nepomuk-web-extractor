@@ -117,13 +117,12 @@ namespace Nepomuk {
                  */
                 QSet<QUrl> targetResources() const;
 
-                const QHash< QUrl, Nepomuk::Sync::IdentificationSet> & identificationSets() const;
-
                 /*! \brief This function will return the global log of the Decision
                  * It will join all logs of all PropertiesGroup in the Decision
                  * and return it
+                 * \note Disabled as part of unstable API
                  */
-                Nepomuk::Sync::ChangeLog log() const;
+                //Nepomuk::Sync::ChangeLog log() const;
 
                 /*! This method will return Decision's metadata.
                  * It will accumulate all information about decision - 
@@ -143,13 +142,15 @@ namespace Nepomuk {
                  * \return New IdentificationRequest. The user is responsible for deleting
                  * this object. If Decision is invalid, then 0 will be returned
                  */
-                DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = 0) const;
+                //DecisionApplicationRequest * applicationRequest(Soprano::Model * targetModel  = 0) const;
                 /*! \brief Apply Decision
                  * Write all statements back to model
                  * \param targetModel you cah specify the model for applying changes. If
                  * set to NULL then ResourceManager::instance()->mainModel() will be used
                  */
-                bool apply(Soprano::Model * targetModel = 0) const;
+                //bool apply(Soprano::Model * targetModel = 0) const;
+                KJob * applyJob() const;
+                bool apply() const;
 
             /* ==== Editing section ==== */
             public:
@@ -161,28 +162,13 @@ namespace Nepomuk {
                  */
                 int  addGroup();
                 int  addGroup(const PropertiesGroup &);
-                int  addGroup(const Nepomuk::Sync::ChangeLog & log, const QString & description, double rank = 0.5 );
+                //int  addGroup(const Nepomuk::Sync::ChangeLog & log, const QString & description, double rank = 0.5 );
                 /*! \brief Set identificationSet for target resources in ChangeLog
                  */
-                void setIdentificationSets( const QHash<QUrl,Nepomuk::Sync::IdentificationSet> isets );
-                //QHash< QUrl, Nepomuk::Sync::IdentificationSet> & identificationSets();
-                void addIdentificationSet(const QUrl &, const Nepomuk::Sync::IdentificationSet & iset);
 
                 void setTimeStamp( const QTime & time );
 
 
-                /*
-                void setMainResources(const QSet<QUrl> & resources );
-                void addMainResources( const QUrl & resource);
-                */
-
-                /*! \brief Set identificationSet for auxilary resources in ChangeLog
-                 */
-                void setAuxiliaryIdentificationSet( const Nepomuk::Sync::IdentificationSet & oset);
-                Nepomuk::Sync::IdentificationSet auxiliaryIdentificationSet() const;
-
-                void setResourceProxyMap( const QHash<QUrl,QUrl> & map );
-                QHash<QUrl,QUrl> resourceProxyMap() const;
 
                 /*! \brief Remove unnecessary elements
                  * This function will remove:
@@ -192,6 +178,8 @@ namespace Nepomuk {
                  * editing </b>
                  */
                 void cleanUnused();
+
+                void setTargetResources( const QSet<QUrl> & targetResources );
 
                 /* ===== Storage section ======= */
 

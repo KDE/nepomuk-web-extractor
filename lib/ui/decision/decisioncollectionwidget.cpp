@@ -21,11 +21,13 @@
 
 #include <QtGlobal>
 
+#include <KJob>
+
 #include "decisioncollectionwidget.h"
 
-namespace NW = Nepomuk::Decision;
+namespace ND = Nepomuk::Decision;
 
-Q_DECLARE_METATYPE(QSharedPointer<NW::DecisionApplicationRequest>);
+Q_DECLARE_METATYPE(QSharedPointer<KJob>);
 
 DecisionCollectionWidget::DecisionCollectionWidget( QWidget * parent):
     QListWidget(parent)
@@ -36,41 +38,42 @@ DecisionCollectionWidget::DecisionCollectionWidget( QWidget * parent):
 	   );
 }
 
-void DecisionCollectionWidget::addDecision( const NW::Decision & d)
+void DecisionCollectionWidget::addDecision( const ND::Decision & d)
 {
     // Create item
     QListWidgetItem * item = new QListWidgetItem();
     // Set data
-    item->setData(DecisionRole,QVariant::fromValue<NW::Decision>(d));
+    item->setData(DecisionRole,QVariant::fromValue<ND::Decision>(d));
     
     // Add item
     this->addItem(item);
 }
 
-void DecisionCollectionWidget::addDecisionList( const NW::DecisionList & list)
+void DecisionCollectionWidget::addDecisionList( const ND::DecisionList & list)
 {
-    foreach( const NW::Decision & d, list)
+    foreach( const ND::Decision & d, list)
     {
 	addDecision(d);
     }
 }
 
-NW::Decision DecisionCollectionWidget::currentDecision() const
+ND::Decision DecisionCollectionWidget::currentDecision() const
 {
     QListWidgetItem * item = currentItem();
-    NW::Decision d;
+    ND::Decision d;
     if ( item )
-        d = item->data(DecisionRole).value<NW::Decision>();
+        d = item->data(DecisionRole).value<ND::Decision>();
     
     return d;
 }
 
-QSharedPointer<NW::DecisionApplicationRequest> DecisionCollectionWidget::currentDecisionApplicationRequest() const
+QSharedPointer<KJob> 
+DecisionCollectionWidget::currentDecisionApplicationRequest() const
 {
     QListWidgetItem * item = currentItem();
-    QSharedPointer<NW::DecisionApplicationRequest> r;
+    QSharedPointer<KJob> r;
     if ( item )
-        r = item->data(DecisionApplicationRole).value<QSharedPointer<NW::DecisionApplicationRequest> >();
+        r = item->data(DecisionApplicationRole).value<QSharedPointer<KJob> >();
     
     return r;
 }
@@ -78,19 +81,19 @@ QSharedPointer<NW::DecisionApplicationRequest> DecisionCollectionWidget::current
 void DecisionCollectionWidget::onCurrentItemChanged(QListWidgetItem * current, QListWidgetItem * previous )
 {
     // Emit necessary signal 
-    NW::Decision cur;
-    NW::Decision prev;
+    ND::Decision cur;
+    ND::Decision prev;
 
-    QSharedPointer<NW::DecisionApplicationRequest> curreq;
-    QSharedPointer<NW::DecisionApplicationRequest> prevreq;
+    QSharedPointer<KJob> curreq;
+    QSharedPointer<KJob> prevreq;
 
     if ( current ) {
-	cur = current->data(DecisionRole).value<NW::Decision>();
-	curreq = current->data(DecisionApplicationRole).value< QSharedPointer<NW::DecisionApplicationRequest> >();
+	cur = current->data(DecisionRole).value<ND::Decision>();
+	curreq = current->data(DecisionApplicationRole).value< QSharedPointer<KJob> >();
     }
     if (previous ) {
-	prev = previous->data(DecisionRole).value<NW::Decision>();
-	prevreq = previous->data(DecisionApplicationRole).value< QSharedPointer< NW::DecisionApplicationRequest> >();
+	prev = previous->data(DecisionRole).value<ND::Decision>();
+	prevreq = previous->data(DecisionApplicationRole).value< QSharedPointer< KJob> >();
     }
 
     emit currentDecisionChanged(cur,prev);
@@ -99,47 +102,60 @@ void DecisionCollectionWidget::onCurrentItemChanged(QListWidgetItem * current, Q
 }
 
 
-NW::Decision DecisionCollectionWidget::decision(int index) const
+ND::Decision DecisionCollectionWidget::decision(int index) const
 {
     if ( index < 0 or index >= this->count() )
-        return NW::Decision();
+        return ND::Decision();
 
     QListWidgetItem * item = this->item(index);
     
-    NW::Decision d = item->data(DecisionRole).value<NW::Decision>();
+    ND::Decision d = item->data(DecisionRole).value<ND::Decision>();
 
     return d;
 }
 
-QSharedPointer<NW::DecisionApplicationRequest> DecisionCollectionWidget::decisionApplicationRequest(int index) const
+QSharedPointer<KJob>
+DecisionCollectionWidget::decisionApplicationRequest(int index) const
 {
     if ( index < 0 or index >= this->count() )
-        return QSharedPointer<NW::DecisionApplicationRequest>();
+        return QSharedPointer<KJob>();
 
     QListWidgetItem * item = this->item(index);
     
-    QSharedPointer<NW::DecisionApplicationRequest> req = item->data(DecisionApplicationRole).value<QSharedPointer<NW::DecisionApplicationRequest> >();
+    QSharedPointer<KJob> req = item->data(DecisionApplicationRole).value<QSharedPointer<KJob> >();
+    if (!req) { // If request doesn't exist
+	// Create one
+	ND::Decision d = item->data(DecisionRole).value<ND::Decision>();
+	req = QSharedPointer<KJob>( 
+		d.applyJob()
+		);
+
+	// Remember it
+	item->setData(DecisionApplicationRole,QVariant::fromValue<QSharedPointer<KJob> >(req));
+    }
     return req;
 }
 
-QSharedPointer<NW::DecisionApplicationRequest> DecisionCollectionWidget::decisionApplicationRequest(int index, Soprano::Model * targetModel)
+/*
+QSharedPointer<ND::DecisionApplicationRequest> DecisionCollectionWidget::decisionApplicationRequest(int index, Soprano::Model * targetModel)
 {
     if ( index < 0 or index >= this->count() )
-        return QSharedPointer<NW::DecisionApplicationRequest>();
+        return QSharedPointer<ND::DecisionApplicationRequest>();
 
     QListWidgetItem * item = this->item(index);
     
-    QSharedPointer<NW::DecisionApplicationRequest> req = item->data(DecisionApplicationRole).value<QSharedPointer<NW::DecisionApplicationRequest> >();
+    QSharedPointer<ND::DecisionApplicationRequest> req = item->data(DecisionApplicationRole).value<QSharedPointer<ND::DecisionApplicationRequest> >();
     if (!req) { // If request doesn't exist
 	// Create one
-	NW::Decision d = item->data(DecisionRole).value<NW::Decision>();
-	req = QSharedPointer<NW::DecisionApplicationRequest>( 
+	ND::Decision d = item->data(DecisionRole).value<ND::Decision>();
+	req = QSharedPointer<ND::DecisionApplicationRequest>( 
 		d.applicationRequest(targetModel)
 		);
 
 	// Remember it
-	item->setData(DecisionApplicationRole,QVariant::fromValue<QSharedPointer<NW::DecisionApplicationRequest> >(req));
+	item->setData(DecisionApplicationRole,QVariant::fromValue<QSharedPointer<ND::DecisionApplicationRequest> >(req));
     }
     return req;
 }
+*/
 

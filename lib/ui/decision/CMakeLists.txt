@@ -17,6 +17,7 @@ set( LIBDECISIONUI_DEPENDENCIES
     ${KDE4_KDECORE_LIBS}
     ${KDE4_KDEUI_LIBRARY}
     nepomuk_decision
+    nepomukdatamanagement
   )
 
 set( LIBDECISIONUI_LIBRARIES

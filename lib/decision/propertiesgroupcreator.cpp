@@ -35,15 +35,9 @@ namespace NS = Nepomuk::Sync;
 ND::PropertiesGroupCreator::PropertiesGroupCreator( QWeakPointer<DecisionCreatorInternals> internals):
    d(new ND::PropertiesGroupCreatorPrivate())
 {
-    //Q_ASSERT(manager);
     Q_ASSERT(!internals.isNull());
-    this->d->hash = 0;
     this->internals = internals;
 
-    // By default filter model will be set to 0. When first time a manager function
-    // will be accessed, this member will be initialized
-    d->filterModel = 0;
-    d->manager = 0;
 
 }
 
@@ -70,40 +64,6 @@ const ND::PropertiesGroupCreator & ND::PropertiesGroupCreator::operator=(const P
     return *this;
 }
 
-QUrl ND::PropertiesGroupCreator::proxyUrl(const Nepomuk::Resource & res)
-{
-    if (!isValid())
-	return QUrl();
-
-    // We need to init model here because call to the internals->proxyUrl()
-    // will iterate over all properties group to add newly created 
-    // proxyUrl to the logging models
-    // If we don't call it, then nothing bad happens and when first time
-    // model()/manager() will be called, the log will be initialized 
-    // and all urls-to-log will be pulled from the internals anyway.
-    // But usually user call proxyUrl when he want to work with Decision
-    // so it looks smart enough to initialize it here.
-    if(!d->filterModel)
-        initFilterModel();
-
-    return internals.toStrongRef()->proxyUrl(res);
-}
-
-Nepomuk::Resource ND::PropertiesGroupCreator::proxyResource(const Nepomuk::Resource & res)
-{
-    if (!isValid())
-	return Nepomuk::Resource();
-
-    // Call proxyUrl. This call is important, becaus
-    // in proxyUrl filterModel will be initialize if
-    // necessary
-    QUrl answer = proxyUrl(res);
-
-    if(!d->manager)
-        initFilterManager();
-    // Create resoruce and return it.
-    return Nepomuk::Resource(answer, QUrl(), d->manager);
-}
 
 double ND::PropertiesGroupCreator::rank() const
 {
@@ -122,30 +82,6 @@ QUrl ND::PropertiesGroupCreator::uri() const
 }
 */
 
-Nepomuk::ResourceManager * ND::PropertiesGroupCreator::manager()
-{
-    if(!isValid())
-        return 0;
-
-    if(!d->manager) {
-        // This is first call. Create  a manager and a filter model
-        initFilterManager();
-    }
-    return d->manager;
-}
-
-Soprano::Model * ND::PropertiesGroupCreator::model()
-{
-    if(!isValid())
-        return 0;
-
-    if(!d->filterModel) {
-        // This is first call. Create  a manager and a filter model
-        initFilterModel();
-    }
-    return d->filterModel;
-}
-
 bool ND::PropertiesGroupCreator::isValid() const
 {
     return !internals.isNull();
@@ -153,7 +89,7 @@ bool ND::PropertiesGroupCreator::isValid() const
 
 bool ND::PropertiesGroupCreator::isEmpty() const
 {
-    return d->log.empty();
+    return d->changes.isEmpty();
 }
 
 QString ND::PropertiesGroupCreator::description() const
@@ -166,68 +102,23 @@ void ND::PropertiesGroupCreator::setDescription(const QString & description)
     d->description = description;
 }
 
-NS::ChangeLog ND::PropertiesGroupCreator::log() const
+void ND::PropertiesGroupCreator::setChanges( const SimpleResourceGraph & graph)
 {
-    return d->log;
+    d->changes = graph;
 }
+
+
+/* Disabled as unstable 
+Nepomuk::SimpleResourceGraph ND::PropertiesGroupCreator::changes() const
+{
+    return d->changes;
+}
+*/
 
 ND::PropertiesGroup ND::PropertiesGroupCreator::data() const
 {
-    return PropertiesGroup(d->log,d->description,d->rank);
+    return PropertiesGroup(d->changes,d->description,d->rank);
 }
-
-#if 0
-void ND::PropertiesGroupCreator::makeCurrent()
-{
-    // Return if we are invalid
-    if(!internals)
-        return;
-
-    //registerGroup();
-
-    internals->setCurrentGroup(*this);
-}
-
-void ND::PropertiesGroupCreator::resetCurrent()
-{
-    if(!internals)
-        return;
-
-    internals->resetCurrentGroup();
-}
-#endif
-
-NS::ChangeLogFilterModel * ND::PropertiesGroupCreator::filterModel() const
-{
-    return d->filterModel;
-}
-
-void ND::PropertiesGroupCreator::initFilterModel()
-{
-    QSharedPointer<DecisionCreatorInternals> internalsStrong = internals.toStrongRef();
-    Q_ASSERT(internals);
-    d->filterModel = new NS::ChangeLogFilterModel(&d->log, internalsStrong->decisionsModel, QSet<QUrl>(), NS::ChangeLogFilterModel::Decline);
-    // Now take current proxy url and add them as targets
-    foreach(const QUrl & proxyUrl, internalsStrong->resourceProxyMap) {
-        d->filterModel->addTarget(proxyUrl);
-    }
-
-}
-
-void ND::PropertiesGroupCreator::initFilterManager()
-{
-    Q_ASSERT(internals);
-    if(!d->filterModel)
-        initFilterModel();
-
-    d->manager = ResourceManager::createManagerForModel(d->filterModel);
-}
-/*
-QUrl ND::PropertiesGroupCreator::mainProxyResourceUrl()
-{
-    return d->mainProxyResourceUrl;
-}
-*/
 
 
 bool ND::PropertiesGroupCreator::operator==(const PropertiesGroupCreator & rhs) const
@@ -253,10 +144,7 @@ bool ND::PropertiesGroupCreator::operator!=(const PropertiesGroupCreator & rhs) 
 ND::PropertiesGroupCreator & ND::operator<<(ND::PropertiesGroupCreator & grp, const Soprano::Statement & st)
 {
 
-    if(!grp.model())
-        return grp;
-
-    grp.model()->addStatement(st);
+    grp.d->changes.addStatement(st);
     return grp;
 }
 

@@ -21,6 +21,8 @@
 #include "propertiesgroup.h"
 #include "global.h"
 
+#include <nepomuk/simpleresourcegraph.h>
+
 
 namespace ND = Nepomuk::Decision;
 namespace NS = Nepomuk::Sync;
@@ -28,14 +30,14 @@ namespace NS = Nepomuk::Sync;
 class ND::PropertiesGroup::Private : public QSharedData
 {
     public:
-	Private();
-	// Rank of the group
-	double rank;
-	// Changelog. All changes are stored there
-	NS::ChangeLog log;
+        Private();
+        // Rank of the group
+        double rank;
+        // Changelog. All changes are stored there
+        SimpleResourceGraph changes;
 
-	// Description of the group
-	QString description;
+        // Description of the group
+        QString description;
 
 
 };
@@ -50,11 +52,11 @@ ND::PropertiesGroup::PropertiesGroup():
     d(new Private())
 {;}
 
-ND::PropertiesGroup::PropertiesGroup(const Nepomuk::Sync::ChangeLog & log, const QString & description, double rank ):
+ND::PropertiesGroup::PropertiesGroup(const SimpleResourceGraph & changes, const QString & description, double rank ):
     d(new Private())
 {
     d->description = description;
-    d->log = log;
+    d->changes = changes;
     d->rank = rank;
 }
 
@@ -93,9 +95,9 @@ void ND::PropertiesGroup::setDescription( const QString & description )
     d->description = description;
 }
 
-void ND::PropertiesGroup::setLog( const Nepomuk::Sync::ChangeLog & log)
+void ND::PropertiesGroup::setChanges( const Nepomuk::SimpleResourceGraph & changes)
 {
-    d->log = log;
+    d->changes = changes;
 }
 
 bool ND::PropertiesGroup::isValid() const
@@ -106,10 +108,22 @@ bool ND::PropertiesGroup::isValid() const
 
 bool ND::PropertiesGroup::isEmpty() const
 {
-    return d->log.empty();
+    return d->changes.isEmpty();
 }
 
-NS::ChangeLog ND::PropertiesGroup::log() const
+Nepomuk::SimpleResourceGraph ND::PropertiesGroup::changes() const
 {
-    return d->log;
+    return d->changes;
+}
+
+QDataStream & ND::operator<<(QDataStream & stream, const ND::PropertiesGroup & pg)
+{
+    stream << pg.d->description << pg.d->rank << pg.d->changes; 
+    return stream;
+}
+
+QDataStream & ND::operator>>(QDataStream & stream, ND::PropertiesGroup & pg )
+{
+    stream >> pg.d->description >> pg.d->rank >> pg.d->changes; 
+    return stream;
 }

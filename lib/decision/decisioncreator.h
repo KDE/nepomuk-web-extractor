@@ -91,41 +91,6 @@ namespace Nepomuk
 		 */
 		PropertiesGroupCreator defaultGroup();
 
-                /*! \brief This method will reset current group( if any)
-                 */
-                //void resetCurrentGroup();
-
-
-                /*! \brief Return proxy resource for given one
-		 * TODO Add checks that given resource is from target model.
-		 * This is necessary to prevent situations when target resource
-		 * will be from decisions model
-                 */
-                Nepomuk::Resource proxyResource(const Nepomuk::Resource &);
-
-                /*! \brief Return url of the proxy resource for given one
-		 * TODO Add checks that given resource is from target model.
-		 * This is necessary to prevent situations when target resource
-		 * will be from decisions model
-		 */
-                QUrl proxyUrl(const Nepomuk::Resource &);
-
-                /*! \brief Return all proxy resources of the DecisionCreator
-                 * The other names for the proxy resource are 'main DecisionCreator resources'
-                 * or 'target DecisionCreator resources'
-                 * \return Hash of all proxy resources of the DecisionCreator. Key is url of
-                 * the resource in the target ( real-world ) model, value is the url
-                 * in the DecisionCreator storage model
-                 */
-                QHash<QUrl, QUrl> proxies() const;
-
-                /*! \brief Return the list of the url of the main DecisionCreator resources
-                 * The result is the same as proxies().values() call. This function
-                 * is provided only for convinience
-                 * \return List of the url of the main DecisionCreator resources in the Decision
-                 * storage model.
-                 */
-                QList<QUrl> mainResources() const;
 
 		/*! \brief Returns true if Decision doesn't conatins any statement
 		 */
@@ -141,31 +106,6 @@ namespace Nepomuk
                 /*! \brief Return information about all Executive that create this DecisionCreator
                  *\return Set of the Executive
                  */
-                //QSet<Executive*>  dataPPInformation() const;
-
-                /*! \brief Return the uri of the DecisionCreator.
-                 * Each DecisionCreator generated during by one ResourceAnalyzer has
-                 * unique uri. This uri is valid only in model where DecisionCreator
-		 * is stored
-                 * \return Url of the DecisionCreator
-                 */
-                //QUrl uri() const;
-                
-		/*! \brief Return the model of the DecisionCreator
-                 * This is the model that Executive should use to create DecisionCreator.
-                 * \note It is not DecisionCreator storage model. Do not try to reach and
-                 * edit DecisionCreator storage model directly.
-                 */
-                Soprano::Model * model() const;
-
-                /*! \brief Return the manager of the DecisionCreator
-                 * This is the ResourceManager that manages the DecisionCreator model.
-                 * The manager()->mainModel() will return exactly the same model,
-                 * as model() call.
-                 * \sa model
-                 * \return ResourceManager of the DecisionCreator model
-                 */
-                Nepomuk::ResourceManager * manager() const;
                 
 		/*! \brief Return description of the DecisionCreator.
                  * It is rich text. The description is for displaying to user.
@@ -182,6 +122,9 @@ namespace Nepomuk
 		 */
 		Decision data() const;
 
+                /* ===== Decision creation section ========= */
+                void setChanges( const SimpleResourceGraph & );
+
 
 
                 friend class DecisionFactory;
@@ -195,9 +138,7 @@ namespace Nepomuk
                  * be stored
                  */
                 DecisionCreator(
-                    const DecisionAuthor * parent,
-                    Soprano::Model * decisionsModel,
-                    IdentificationSetManager * identsetManager
+                    const DecisionAuthor * parent
                 );
                 //void addAuthor(const Executive * author);
                 //unsigned int timeStamp() const;

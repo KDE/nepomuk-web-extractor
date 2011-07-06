@@ -68,11 +68,11 @@ DecisionWidget::~DecisionWidget()
 void DecisionWidget::setDecision(const NW::Decision & decision)
 {
     d->decision = decision;
-    kDebug() << "Log size:" << decision.log().size();
+    //kDebug() << "Log size:" << decision.changes().size();
     kDebug() << "Empty:" << decision.isEmpty();
     kDebug() << "Number of goups:" << decision.groups().size();
 
-    d->logWidget->setLog(decision.log());
+    //d->logWidget->setLog(decision.changes());
     d->ui->descriptionBrowser->setPlainText(decision.description());
 }
 

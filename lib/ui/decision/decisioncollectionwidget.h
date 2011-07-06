@@ -22,10 +22,15 @@
 #include <QListWidget>
 #include <QSharedPointer>
 
+
+
 #include <decision/decision.h>
 #include <decision/decisionapplicationrequest.h>
 
 #include "decisionui_export.h"
+
+class KJob;
+
 
 namespace Soprano {
     class Model;
@@ -46,17 +51,17 @@ class DECISIONUI_EXPORT DecisionCollectionWidget : public QListWidget
         void addDecision( const Nepomuk::Decision::Decision & d);
         void addDecisionList( const Nepomuk::Decision::DecisionList & list);
         Nepomuk::Decision::Decision currentDecision() const;
-        QSharedPointer<Nepomuk::Decision::DecisionApplicationRequest> currentDecisionApplicationRequest() const;
+        QSharedPointer<KJob> currentDecisionApplicationRequest() const;
         using QListWidget::count;
         using QListWidget::row;
         using QListWidget::currentRow;
         using QListWidget::clear;
         Nepomuk::Decision::Decision decision(int index) const;
-        QSharedPointer<Nepomuk::Decision::DecisionApplicationRequest> decisionApplicationRequest(int index) const;
-        QSharedPointer<Nepomuk::Decision::DecisionApplicationRequest> decisionApplicationRequest(int index, Soprano::Model * targetModel) ;
+        QSharedPointer<KJob> decisionApplicationRequest(int index) const;
+        //QSharedPointer<Nepomuk::Decision::DecisionApplicationRequest> decisionApplicationRequest(int index, Soprano::Model * targetModel) ;
     Q_SIGNALS:
         void currentDecisionChanged(Nepomuk::Decision::Decision previous, Nepomuk::Decision::Decision current);
-        void currentDecisionApplicationRequestChanged( QSharedPointer<Nepomuk::Decision::DecisionApplicationRequest> current, QSharedPointer<Nepomuk::Decision::DecisionApplicationRequest> previous);
+        void currentDecisionApplicationRequestChanged( QSharedPointer<KJob> current, QSharedPointer<KJob> previous);
         void currentItemChanged( const QListWidgetItem * current, const QListWidgetItem * previous);
     private Q_SLOTS:
         void onCurrentItemChanged(QListWidgetItem * current, QListWidgetItem * previous);

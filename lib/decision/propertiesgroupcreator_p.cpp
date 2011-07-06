@@ -24,15 +24,10 @@
 namespace ND = Nepomuk::Decision;
 namespace NS = Nepomuk::Sync;
 
-ND::PropertiesGroupCreatorPrivate::PropertiesGroupCreatorPrivate():
-    filterModel(0),
-    manager(0)
+ND::PropertiesGroupCreatorPrivate::PropertiesGroupCreatorPrivate()
 {
 }
 
 ND::PropertiesGroupCreatorPrivate::~PropertiesGroupCreatorPrivate()
 {
-    delete filterModel;
-    if(manager)
-        manager->deleteInstance();
 }

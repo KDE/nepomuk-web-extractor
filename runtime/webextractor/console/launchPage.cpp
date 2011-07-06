@@ -25,6 +25,7 @@
 #include <Nepomuk/Query/Query>
 
 #include <KMessageBox>
+#include <KJob>
 #include <KStandardDirs>
 #include <KTempDir>
 #include "resourceanalyzer.h"
@@ -115,43 +116,12 @@ LaunchPage::~LaunchPage()
     delete workThread;
 }
 
-void LaunchPage::onIdentifyDecision()
-{
-    QSharedPointer<ND::DecisionApplicationRequest> req = this->decisionListWidget->currentDecisionApplicationRequest();
-    if(!req) {
-        req = decisionListWidget->decisionApplicationRequest(decisionListWidget->currentRow(), Nepomuk::ResourceManager::instance()->mainModel());
-        if(!req)  // In case decision was invalid
-            return;
-    }
-
-    Q_ASSERT(req);
-
-    req->identify();
-    updateIdentificationInfo();
-}
-
-void LaunchPage::onIdentifyMain()
-{
-    QSharedPointer<ND::DecisionApplicationRequest> req = this->decisionListWidget->currentDecisionApplicationRequest();
-    if(!req) {
-        req = decisionListWidget->decisionApplicationRequest(decisionListWidget->currentRow(), Nepomuk::ResourceManager::instance()->mainModel());
-        if(!req)  // In case decision was invalid
-            return;
-    }
-
-    Q_ASSERT(req);
-
-    req->identifyTargets();
-    if(!req->isTargetsIdentified())
-        KMessageBox::sorry(this, "Identification of main Decision's resources failed");
-    updateIdentificationInfo();
-}
 
 void LaunchPage::onApplyDecision()
 {
-    QSharedPointer<ND::DecisionApplicationRequest> req = this->decisionListWidget->currentDecisionApplicationRequest();
+    QSharedPointer<KJob> req = this->decisionListWidget->currentDecisionApplicationRequest();
     if(!req) {
-        req = decisionListWidget->decisionApplicationRequest(decisionListWidget->currentRow(), Nepomuk::ResourceManager::instance()->mainModel());
+        req = decisionListWidget->decisionApplicationRequest(decisionListWidget->currentRow());
         if(!req)  // In case decision was invalid
             return;
     }
@@ -159,22 +129,13 @@ void LaunchPage::onApplyDecision()
 
     Q_ASSERT(req);
 
-    /*
-    NS::IdentificationRequest * req = des.identificationRequest();
-
-    identReq->load();
-    identReq->identifyAll();
-
-    if (!identReq->done())
-    return false;
-
-    */
-    if(!req->apply())
+    if(!req->exec())
         KMessageBox::sorry(this, "Applying Decision failed");
 
-    updateIdentificationInfo();
+    //updateIdentificationInfo();
 }
 
+#if 0
 void LaunchPage::updateIdentificationInfo()
 {
     ND::Decision dec = this->decisionListWidget->currentDecision();
@@ -275,6 +236,8 @@ void LaunchPage::updateIdentificationInfo()
     identificationTableWidget->resizeColumnsToContents();
     return;
 }
+#endif
+
 
 void LaunchPage::updateDecisionsInfo()
 {
@@ -671,5 +634,5 @@ void LaunchPage::onCurrentDecisionChanged(const QListWidgetItem * current,const 
 
     this->decisionWidget->setDecision(des);
 
-    updateIdentificationInfo();
+    //updateIdentificationInfo();
 }

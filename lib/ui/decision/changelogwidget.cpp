@@ -18,16 +18,15 @@
 
 #include "changelogwidget.h"
 #include "ui_changeLogForm.h"
-#include "changelog.h"
-#include "changelogrecord.h"
+#include <nepomuk/simpleresourcegraph.h>
+#include <nepomuk/simpleresource.h>
 
-namespace NS = Nepomuk::Sync;
 
 class ChangeLogWidget::Private
 {
     public:
         Ui_changeLogForm * ui;
-        NS::ChangeLog log;
+        Nepomuk::SimpleResourceGraph log;
 };
 
 ChangeLogWidget::ChangeLogWidget(QWidget * parent):
@@ -38,7 +37,7 @@ ChangeLogWidget::ChangeLogWidget(QWidget * parent):
     d->ui->setupUi(this);
 }
 
-ChangeLogWidget::ChangeLogWidget(const NS::ChangeLog & log, QWidget * parent):
+ChangeLogWidget::ChangeLogWidget(const Nepomuk::SimpleResourceGraph & log, QWidget * parent):
     QWidget(parent),
     d(new Private())
 {
@@ -52,14 +51,15 @@ ChangeLogWidget::~ChangeLogWidget()
     delete d->ui;
     delete d;
 }
-void ChangeLogWidget::setLog(const NS::ChangeLog & log)
+void ChangeLogWidget::setLog(const Nepomuk::SimpleResourceGraph & log)
 {
 
     // Fill form
     QString text;
     QTextStream stream(&text);
 
-    foreach(const NS::ChangeLogRecord & rec, log.toList()) {
+    foreach( const Nepomuk::SimpleResource & resource, log.toList() )
+    foreach(const Soprano::Statement & rec, resource.toStatementList()) {
 
         Soprano::Node subject = rec.subject();
         if(subject.isResource())  {
@@ -109,5 +109,5 @@ void ChangeLogWidget::setLog(const NS::ChangeLog & log)
 
 void ChangeLogWidget::clear()
 {
-    setLog(NS::ChangeLog());
+    setLog(Nepomuk::SimpleResourceGraph());
 }

@@ -44,7 +44,6 @@ namespace Nepomuk
     {
 	class DecisionAuthor;
         class DecisionCreator;
-        class IdentificationSetManager;
         class PropertiesGroup;
 	/*! \brief Central class for Decision constructing
 	 * This class contains functionality that is common for editing 
@@ -54,7 +53,7 @@ namespace Nepomuk
         {
             public:
                 DecisionCreatorInternals();
-                DecisionCreatorInternals(const DecisionAuthor * parent,  Soprano::Model * decisionsModel, IdentificationSetManager * identsetManager);
+                DecisionCreatorInternals(const DecisionAuthor * parent);
                 ~DecisionCreatorInternals();
 		// Do we need to store the pointers to the our PropertiesGroup ?
 		// The DecisionCreatorData store all pointers to the corresponding 
@@ -66,33 +65,6 @@ namespace Nepomuk
 		QSet<const DecisionAuthor*>  authorsData;
 
 
-		// Set of the target resources and their identification set
-		// This may is used  for storing pairs < original resource url, it's
-		// copy url> .
-		QHash<QUrl, QUrl> resourceProxyMap;
-
-
-                // Manager of the filter model
-                ResourceManager * manager;
-
-                // This is filtered model. It is used by manager.
-                // The log used in this model is log of current PropertiesGroup
-                // or 0 if there is no current PropertiesGroup
-                Sync::ChangeLogFilterModel * filterModel;
-
-                // This is main DecisionCreators model
-                Soprano::Model * decisionsModel;
-
-                // This is class where all IdentificationSets for all created
-                // proxy resources are stored
-                IdentificationSetManager * identsetManager;
-
-		// This is the pointer to the actual decision data - an
-		// instance of the Decision class
-		//Decision::Ptr data;
-
-                // Current group. Invalid if there is no current group
-                //PropertiesGroup m_currentGroup;
 
 		// Decision object. Decision is a COW object so we can easily return
 		// it.
@@ -112,28 +84,12 @@ namespace Nepomuk
 
 		/* ==== Working with groups ==== */
 		PropertiesGroupCreator newGroup(QWeakPointer<DecisionCreatorInternals> weakRef);
-                //PropertiesGroup setCurrentGroup(const PropertiesGroup &);
-                //PropertiesGroup resetCurrentGroup();
-                //PropertiesGroup currentGroup() const;
                 
 		/* ==== State of the creator ==== */
                 bool isValid() const;
 
-		/* ==== Editing Decision ==== */
 
-                /*! \brief Create new proxy url for the resource
-                 *  This call will create new proxy url for the given resource
-                 *  and update all log filter models
-                 */
-                QUrl proxyUrl(const Nepomuk::Resource &);
 
-	    private:
-		void initContextUrl();
-
-                // This function will add given url as target to the
-                // decision main log model and to the log model of all
-                // currently registered groups
-                void updateModels(const QUrl & target);
         };
     }
 }

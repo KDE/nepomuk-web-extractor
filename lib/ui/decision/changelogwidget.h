@@ -23,9 +23,7 @@
 #include "decisionui_export.h"
 
 namespace Nepomuk {
-    namespace Sync {
-        class ChangeLog;
-    }
+    class SimpleResourceGraph;
 }
 
 class DECISIONUI_EXPORT ChangeLogWidget : public QWidget
@@ -33,9 +31,9 @@ class DECISIONUI_EXPORT ChangeLogWidget : public QWidget
     Q_OBJECT;
     public:
 	ChangeLogWidget(QWidget * parent = 0);
-	ChangeLogWidget(const Nepomuk::Sync::ChangeLog & log, QWidget * parent = 0);
+	ChangeLogWidget(const Nepomuk::SimpleResourceGraph & log, QWidget * parent = 0);
 	~ChangeLogWidget();
-	void setLog( const Nepomuk::Sync::ChangeLog & log);
+	void setLog( const Nepomuk::SimpleResourceGraph & log);
     public Q_SLOTS:
 	void clear();
     private:

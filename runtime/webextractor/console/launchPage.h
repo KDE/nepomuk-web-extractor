@@ -53,10 +53,8 @@ class LaunchPage : public QWidget, public Ui_launchPage
         void startExtracting();
         void extractingFinished();
         void onApplyDecision();
-        void onIdentifyDecision();
-        void onIdentifyMain();
 
-        void updateIdentificationInfo();
+        //void updateIdentificationInfo();
         void updateDecisionsInfo();
         void onCurrentDecisionChanged(const QListWidgetItem *,const QListWidgetItem*);
     private:

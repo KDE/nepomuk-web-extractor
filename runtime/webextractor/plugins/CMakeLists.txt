@@ -6,6 +6,7 @@
 set( LIBWEBEXTRACTOR_LIBRARIES
     webextractor
     nepomuk_decision
+    nepomukdatamanagement
     )
 
 # Debug is disabled because
@@ -14,5 +15,5 @@ set( LIBWEBEXTRACTOR_LIBRARIES
 #add_subdirectory(debug)
 
 add_subdirectory(autotag)
-add_subdirectory(test)
-add_subdirectory(tvdb)
+#add_subdirectory(test)
+#add_subdirectory(tvdb)
