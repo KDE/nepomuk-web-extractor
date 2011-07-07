@@ -35,54 +35,54 @@ using namespace Nepomuk;
 class TreeItem
 {
     public:
-	TreeItem(const QString & name);
-	~TreeItem();
-	// Add datapp only if this datpp doesn't exist
-	TreeItem *  addDataPP(const QString & systemName, const QString & displayName);
-	// Add category only if this category doesn't exist
-	// Return pointer to category
-	TreeItem * addCategory(const QString & name);
-	TreeItem * child(int row);
-	TreeItem * categoryItem(const QString & name);
-	TreeItem * datappItem(const QString & name);
-	QList< TreeItem* > allDataPP() const;
-	QSet< QString > allDataPPNames() const;
-	TreeItem * parent();
-	int childsCount();
-	int row() const;
-	bool isCategory() const;
-	QString displayName() const;
-	QString sysName() const;
-    DataPP * datapp() const;
-	void print(int displacments, QDebug & stream);
+        TreeItem(const QString & name);
+        ~TreeItem();
+        // Add datapp only if this datpp doesn't exist
+        TreeItem *  addDataPP(const QString & systemName, const QString & displayName);
+        // Add category only if this category doesn't exist
+        // Return pointer to category
+        TreeItem * addCategory(const QString & name);
+        TreeItem * child(int row);
+        TreeItem * categoryItem(const QString & name);
+        TreeItem * datappItem(const QString & name);
+        QList< TreeItem* > allDataPP() const;
+        QSet< QString > allDataPPNames() const;
+        TreeItem * parent();
+        int childsCount();
+        int row() const;
+        bool isCategory() const;
+        QString displayName() const;
+        QString sysName() const;
+        DataPP * datapp() const;
+        void print(int displacments, QDebug & stream);
 
     private:
-	// This is the system name. It can be used
-	// for DataPPConfig and so on
-	QString m_sysname;
-	// Name of datapp or name of category.
-	// This is human readable name and it may be used
-	// for displaying
-	QString  m_name;
-	QString source;
-	// This is the pointer to KCM. It is not unique -
-	// another DataPP can have the same pointer
-	// This pointer is load on-demand.
-	// If there is no KCM for plugin, then pointer
-	// is equal to NULL.
-	QSharedPointer<Nepomuk::WebExtractorPluginKCM>  kcm;
-	// If KCM was loaded to the kcm member, then loaded
-	// is equal to true. It is necessary to distinguish between
-	// cases when KCM was not loaded and there is no KCM.
-	bool loaded;
-	QList< TreeItem*> childs;
-	QHash< QString, TreeItem *> m_datapps;
-	QHash< QString, TreeItem *> categories;
+        // This is the system name. It can be used
+        // for DataPPConfig and so on
+        QString m_sysname;
+        // Name of datapp or name of category.
+        // This is human readable name and it may be used
+        // for displaying
+        QString  m_name;
+        QString source;
+        // This is the pointer to KCM. It is not unique -
+        // another DataPP can have the same pointer
+        // This pointer is load on-demand.
+        // If there is no KCM for plugin, then pointer
+        // is equal to NULL.
+        QSharedPointer<Nepomuk::WebExtractorPluginKCM>  kcm;
+        // If KCM was loaded to the kcm member, then loaded
+        // is equal to true. It is necessary to distinguish between
+        // cases when KCM was not loaded and there is no KCM.
+        bool loaded;
+        QList< TreeItem*> childs;
+        QHash< QString, TreeItem *> m_datapps;
+        QHash< QString, TreeItem *> categories;
 
-	bool m_category;
+        bool m_category;
     mutable DataPP * m_datapp;
     
-	TreeItem * parentItem;
+        TreeItem * parentItem;
 
 };
 TreeItem::TreeItem(const QString & name):
@@ -255,6 +255,7 @@ void Nepomuk::DataPPPool::update()
     m_displayNames.clear();
     m_dataPPHash.clear();
     m_categoryPlugins = new TreeItem("DataPP");
+    DataPP::mainConfig()->sync();
     QStringList list = DataPP::mainConfig()->groupList();
     foreach(const QString & name, list) {
         if(!name.isEmpty()) {
@@ -497,7 +498,7 @@ QVariant Nepomuk::DataPPPool::data(const QModelIndex & index, int role) const
         return DataPPPool::sourceById(item->sysName());
     }
     case DataPPPool::IdRole : {
-	  return item->sysName();
+          return item->sysName();
     }
     case DataPPPool::DataPPRole : {
       return QVariant::fromValue(item->datapp());

@@ -58,7 +58,7 @@ class ND::Decision::Private : public QSharedData
 
         QSet<QUrl> targetResources;
 
-	//mutable NS::ChangeLog cachedLog;
+	mutable SimpleResourceGraph cachedChanges;
 
 	mutable bool cachedValidness;
 	mutable bool cachedEmptyness;
@@ -149,25 +149,23 @@ bool ND::Decision::isValid() const
 }
 
 
-#if 0
-NS::ChangeLog ND::Decision::log() const
+Nepomuk::SimpleResourceGraph ND::Decision::changes() const
 {
     if ( isDirtyLog() ) {
 	kDebug() << "Log is dirty. Rebuilding";
 	const_cast<ND::Decision*>(this)->d.detach();
-	NS::ChangeLog answer;
-	// update log
-	foreach( const PropertiesGroup & grp, d->groups )
-	{
-	    answer << grp.log();
-	}
-	d->cachedLog = answer;
+        SimpleResourceGraph result_changes;
+        foreach( const PropertiesGroup & pg, this->d->groups)
+        {
+            result_changes += pg.changes();
+        }
+	d->cachedChanges = result_changes;
 	//Q_ASSERT( (answer.size() > 0)?!isEmpty():true );
 	markCleanLog();
     }
-    return d->cachedLog;
+    return d->cachedChanges;
 }
-#endif
+
 
 ND::DecisionMetadata ND::Decision::metadata() const
 {
@@ -216,7 +214,7 @@ KJob * ND::Decision::applyJob() const
     SimpleResourceGraph result_changes;
     foreach( const PropertiesGroup & pg, this->d->groups)
     {
-        result_changes.addGraph(pg.changes());
+        result_changes += pg.changes();
     }
     KJob * answer = storeResources(result_changes,Nepomuk::IdentifyNew);
 

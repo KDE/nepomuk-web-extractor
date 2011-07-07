@@ -79,8 +79,6 @@ class LaunchPage : public QWidget, public Ui_launchPage
         //QMap< QUrl, Nepomuk::Decision::Decision > m_decisionMap;
         //QHash< QUrl, Nepomuk::Decision::DecisionApplicationRequest* > m_requestsHash;
 
-        KTempDir * m_tmpDir;
-        const Soprano::Backend * m_usedBackend;
 };
 #endif
 

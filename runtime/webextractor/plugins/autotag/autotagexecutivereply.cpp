@@ -68,13 +68,17 @@ Nepomuk::AutotagReply::AutotagReply(AutotagExecutive * parent, const Decision::D
         ND::DecisionCreator d = newDecision();
         Q_ASSERT(d.isValid());
 
+        Nepomuk::SimpleResourceGraph changes;
         Nepomuk::SimpleResource resChanges(res.resourceUri());
         Nepomuk::SimpleResource tag;
         tag.addType(Soprano::Vocabulary::NAO::Tag());
         tag.addProperty(Soprano::Vocabulary::NAO::description(),QString("What on the hell this tag for?"));
         resChanges.addProperty(Soprano::Vocabulary::NAO::hasTag(),tag);
 
-        d.setChanges(resChanges);
+        changes.insert(resChanges);
+        changes.insert(tag);
+
+        d.setChanges(changes);
 
 
         // Set rank of the Decision

@@ -69,7 +69,7 @@ namespace Nepomuk
                  * given storage model for storing statements.
                  * \param settings Settings that were used to create storage model. This is necessary to correctly remove it's data ( If requested)
                  */
-                DecisionFactory(double ucrit, double acrit, Soprano::Model * decisionsModel, bool autoDeleteModelData, Soprano::StorageModel * model, Soprano::BackendSettings  settings = Soprano::BackendSettings());
+                DecisionFactory(double ucrit, double acrit);
                 ~DecisionFactory();
                 DecisionList  newDecisionList() const;
                 void setThreshold(double);

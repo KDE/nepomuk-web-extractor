@@ -72,7 +72,7 @@ void DecisionWidget::setDecision(const NW::Decision & decision)
     kDebug() << "Empty:" << decision.isEmpty();
     kDebug() << "Number of goups:" << decision.groups().size();
 
-    //d->logWidget->setLog(decision.changes());
+    d->logWidget->setLog(decision.changes());
     d->ui->descriptionBrowser->setPlainText(decision.description());
 }
 

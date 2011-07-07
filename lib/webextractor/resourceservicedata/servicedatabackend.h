@@ -121,7 +121,7 @@ namespace Nepomuk
                 virtual Nepomuk::Resource  resource() const ;
                 /*! \brief Return the url of the resources of the ServiceDataBackend.
                          */
-                virtual const QUrl & uri() const ;
+                virtual QUrl uri() const ;
 
                 /*! \brief return names of properties where some usefull debugging information is stored
                  * This function return names of Qt properties. This names are

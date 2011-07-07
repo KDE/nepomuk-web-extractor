@@ -91,13 +91,13 @@ void NW::NepomukServiceDataBackend::setExaminedDataPPInfo(const QString & dataPP
 
 
     // Add necessary properties
-    //kDebug() << "Enter";
-    Soprano::Error::ErrorCode error = model->addStatement(
-                                          uri(),
-                                          NW::Vocabulary::NDCO::extractionFinished(),
-                                          dataPPUrl,
-                                          m_graphNode
-                                      );
+    kDebug() << "Subject: " << uri();
+    kDebug() << "predicate: " << NW::Vocabulary::NDCO::extractionFinished();
+    kDebug() << "object: " << dataPPUrl;
+    kDebug() << "graph: " << m_graphNode;
+    Soprano::Statement st(uri(), NW::Vocabulary::NDCO::extractionFinished(), dataPPUrl, m_graphNode);
+    kDebug() << "Adding statement: " << st;
+    Soprano::Error::ErrorCode error = model->addStatement(st);
 
     if(error != Soprano::Error::ErrorNone) {
         kError() << "Adding statement failed with folowing error: " << Soprano::Error::errorMessage(error);
@@ -408,7 +408,6 @@ QUrl NW::NepomukServiceDataBackend::dataPPResourceUrl(const QString & name, int 
         kDebug() << "Creating new DataPP Resource| name :" << name << " version: " << version << "uri" << res.resourceUri();
         return res.resourceUri();
     }
-
 
 }
 

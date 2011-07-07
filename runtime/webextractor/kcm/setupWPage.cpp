@@ -22,6 +22,7 @@
 
 #include <KDebug>
 
+Q_DECLARE_METATYPE(Nepomuk::WebExtractorPluginKCM::Ptr);
 
 SetupWPage::SetupWPage(QWidget *parent  ):
     QWizardPage(parent)

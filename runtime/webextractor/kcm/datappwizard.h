@@ -36,12 +36,14 @@ class DataPPWizard : public QWizard
         DataPPWizard(QWidget *parent = 0 );
         ~DataPPWizard();
          Nepomuk::DataPP * result() const;
+         Nepomuk::WebExtractorPluginKCM::Ptr kcm() const;
         friend class SourceWPage;
         friend class SetupWPage;
     private:
         int sourceWPageId;
         int setupWPageId;
         SourceWPage * sourceWPageObject;
+        SetupWPage * setupWPageObject;
         Nepomuk::DataPP * m_result;
         /* KCM subsection */
 };

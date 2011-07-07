@@ -18,13 +18,18 @@
  */
 #include "datapppage.h"
 #include "datapppool.h"
+#include "datapp.h"
 #include "datappwizard.h"
 
 #include <KMessageBox>
 
 #include <QtCore/QDir>
 
+
 using namespace Nepomuk;
+
+Q_DECLARE_METATYPE(WebExtractorPluginKCM::Ptr);
+
 
 DataPPPage::DataPPPage(QWidget * parent):
     QWidget(parent),
@@ -105,6 +110,8 @@ bool DataPPPage::isDataPP( const QModelIndex & index)
 void DataPPPage::loadDataPP(const QString  & id)
 {
 
+    //kDebug() << "Load DataPP. Id: " << id;
+
     // Load KCM
     if (m_currentKcm) {
         disconnect(m_currentKcm.data(),SIGNAL(changed(bool)),this,SLOT(dataPPSettingsChanged(bool))); 
@@ -112,12 +119,14 @@ void DataPPPage::loadDataPP(const QString  & id)
     }
     WebExtractorPluginKCM::Ptr kcm = DataPPPool::dataPPById(id)->kcm();
     if ( kcm ) {
-	    this->kcmAreaLayout->insertWidget(1,kcm.data());
-	    connect(kcm.data(), SIGNAL(changed(bool)), this, SLOT(dataPPSettingsChanged(bool)));
+            this->kcmAreaLayout->insertWidget(1,kcm.data());
+            connect(kcm.data(), SIGNAL(changed(bool)), this, SLOT(dataPPSettingsChanged(bool)));
     }
     else {
         // Do nothing
     }
+    m_currentKcm = kcm;
+    m_kcmChanged = false;
     QString source = DataPPPool::sourceById(id);
     this->sourceLabel->setText(source);
 }
@@ -132,20 +141,19 @@ void DataPPPage::saveDataPP()
 bool DataPPPage::switchDataPP(const QString & newId)
 {
     // check changes
-
     if (m_currentKcm && m_kcmChanged) {
-	   // Show save/discard changes
-	    int result = KMessageBox::warningYesNoCancel(this, i18n("The current DataPP has not been saved.\n"
-			 "Do you want to save it?"), i18n("Save DataPP"));
+           // Show save/discard changes
+            int result = KMessageBox::warningYesNoCancel(this, i18n("The current DataPP has not been saved.\n"
+                         "Do you want to save it?"), i18n("Save DataPP"));
 
-	    if (result == KMessageBox::Yes) {
-            m_currentKcm->save();
-	    } else if (result == KMessageBox::No) {
-		// Do nothing
-	    } else if (result == KMessageBox::Cancel) {
-		// Do nothing and simply return
-		return false;
-	    }
+            if (result == KMessageBox::Yes) {
+                m_currentKcm->save();
+            } else if (result == KMessageBox::No) {
+                // Do nothing
+            } else if (result == KMessageBox::Cancel) {
+                // Do nothing and simply return
+                return false;
+            }
     }
 
     // No switch
@@ -183,8 +191,15 @@ void DataPPPage::newDataPP()
     DataPPWizard * w = new DataPPWizard();
     int rv = w->exec();
     if ( rv == QDialog::Accepted ) {
+        // Save common parameters
         w->result()->setDisplayName(w->field("name").toString());
         w->result()->setDescription(w->field("description").toString());
+
+        // Save changes introduced by kcm
+        Nepomuk::WebExtractorPluginKCM::Ptr kcm = w->kcm();
+        if ( kcm ) 
+            kcm->save();
+
         // Commit DataPP;
         w->result()->sync();
         DataPPPool::self()->update();

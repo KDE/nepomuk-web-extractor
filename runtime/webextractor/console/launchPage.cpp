@@ -53,8 +53,7 @@ using namespace NW;
 LaunchPage::LaunchPage(const QString & uri, const QStringList & datapps, bool autostart, QWidget * parent):
     QWidget(parent),
     workThread(0),
-    m_abort(false),
-    m_tmpDir(0)
+    m_abort(false)
 {
     this->setupUi(this);
     // Set properties of the DataPPView
@@ -259,8 +258,6 @@ void LaunchPage::cleanAfterAnalyzing()
     // First remove model data
     delete m_currentAnalyzer;
     m_currentAnalyzer = 0;
-    delete m_tmpDir;
-    m_tmpDir = 0;
     m_abort = false;
 }
 
@@ -398,18 +395,20 @@ void LaunchPage::startExtracting()
     foreach(const QModelIndex & index, selected) {
         // If category then skip
         // FIXME Select all datapp from category if category is selected
-        if(!index.data(DataPPPool::DataPPRole).toBool())
+        if(!index.data(DataPPPool::TypeRole).toBool()) {
+            qDebug() << "Selected DataPP is category. Skipping";
             continue;
+        }
 
 
         QString dataPPId = index.data(DataPPPool::IdRole).toString();
 
         NW::Executive * dpp = DataPP::executive(dataPPId);
         //FIXME Enable proper plugin selection back
-        //kDebug() << "DataPP selection is disabled. DebugDataPP is used instead";
-        //NW::DataPP * dpp = new NW::DebugDataPP();
-        if(!dpp)
+        if(!dpp) {
+            qDebug() << "Canot retrieve Executive for selected DataPP";
             continue;
+        }
 
         hasAny = true;
 
@@ -422,28 +421,6 @@ void LaunchPage::startExtracting()
         KMessageBox::sorry(this, "You forget to select DataPP. Or the DataPP you have selected are all invalid.\n  If you have selected category, then sorry - this feature is not supported yet");
         return;
     }
-
-    // Set backend
-    Soprano::BackendSettings settings;
-    KTempDir * td = 0;
-    if(this->backendComboBox->currentText() == QString("Redland")) {
-        settings << Soprano::BackendOptionStorageMemory;
-        p.setBackendName("redland");
-    } else if(this->backendComboBox->currentText() == QString("Virtuoso")) {
-        td = new KTempDir(KStandardDirs::locateLocal("tmp", "desmodel"));
-        settings << Soprano::BackendSetting(Soprano::BackendOptionStorageDir, td->name());
-        p.setBackendName("virtuoso");
-        // If we use virtuoso backend, then we should clean temporaly created model(s)
-        p.setAutoDeleteModelData(true);
-    } else {
-        kDebug() << "Unknown backend is selected. Use default one.";
-    }
-
-
-    p.setBackendSettings(settings);
-
-    delete m_tmpDir;
-    m_tmpDir = td;
 
 
     kDebug() << " Launch Resource Analyzer with folowing parameters: " << p;

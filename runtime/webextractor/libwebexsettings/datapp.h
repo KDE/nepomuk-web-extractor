@@ -125,6 +125,8 @@ namespace Nepomuk
             static QString path();
             */
 
+            /*! \brief This function will call sync of the underlying config object
+             */
             void sync();
             void remove();
 

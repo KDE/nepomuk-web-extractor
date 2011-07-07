@@ -63,12 +63,6 @@ void ResourceAnalyzerThread::run()
     params.setACrit(m_category->aCrit());
     params.setPluginSelectStep(m_category->pluginSelectionStep());
 
-    KTempDir dbTempDir;
-    Soprano::BackendSettings settings;
-    settings << Soprano::BackendSetting(Soprano::BackendOptionStorageDir, dbTempDir.name());
-    params.setBackendName("virtuoso");
-    params.setBackendSettings(settings);
-
 
     //
     // Create Analyzer

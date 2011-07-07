@@ -36,6 +36,7 @@ class SetupWPage : public QWizardPage, private Ui_setupWPage
         void initializePage();
         void cleanupPage();
         bool isComplete() const;
+        Nepomuk::WebExtractorPluginKCM::Ptr kcm() const { return m_currentKcm; }
 
     private:
         /* KCM subsection */

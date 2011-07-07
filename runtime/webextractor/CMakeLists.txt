@@ -11,5 +11,6 @@ include_directories(
 add_subdirectory(service)
 add_subdirectory(plugins)
 add_subdirectory(console)
+add_subdirectory(kcm)
 add_subdirectory(webexshell)
 

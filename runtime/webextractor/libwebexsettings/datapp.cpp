@@ -60,6 +60,7 @@ DataPP* DataPP::newDataPP()
 void DataPP::removeDataPP(const QString id)
 {
     mainConfig()->deleteGroup(id);
+    mainConfig()->sync();
 }
 
 DataPP::DataPP(const QString & id):
@@ -158,6 +159,7 @@ void DataPP::sync()
 void DataPP::remove()
 {
     mainConfig()->deleteGroup(d->id);
+    mainConfig()->sync();
 }
 
 WebExtractorPlugin * DataPP::plugin()

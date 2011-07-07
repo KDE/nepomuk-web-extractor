@@ -61,24 +61,6 @@ namespace Nepomuk
                  * TODO Delete this method as unnecessary.
                  */
                 void deleteAnalyzer(ResourceAnalyzer * res);
-                /*! \brief Return backend, that will be used for creating models for ResourceAnalyzer.
-                 * Each ResourceAnalyzer is given a model. You can select backend, used for
-                 * it with ExtractParameters( passed to the constructor ). But if your
-                 * settings can not be satisfied, then some fallbacks will be used.
-                 * Use this method to get the real backend that was used to create
-                 * ResourceAnalyzers.
-                 *
-                 * ResourceAnalyzer will not delete model data (
-                 * Backend::deleteModelData). You are responsible for this.
-                 */
-                const Soprano::Backend * backend() const;
-
-                /*! \brief Return backend settings that are used to create new model
-                 * As backend() method, this method return the real settings that are
-                 * used to creaet a new model. They may differ from settings, that you
-                 * have passed in extractParams
-                 */
-                Soprano::BackendSettings backendSettings() const;
             private:
                 class Private;
                 Private * const d;

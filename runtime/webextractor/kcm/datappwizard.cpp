@@ -26,13 +26,19 @@ DataPPWizard::DataPPWizard(QWidget * parent):
     m_result(Nepomuk::DataPP::newDataPP())
 {
     sourceWPageObject = new SourceWPage();
+    setupWPageObject = new SetupWPage();
     sourceWPageId = addPage(sourceWPageObject);
-    setupWPageId = addPage(new SetupWPage());
+    setupWPageId = addPage(setupWPageObject);
 }
 
 Nepomuk::DataPP * DataPPWizard::result() const
 {
     return m_result;
+}
+
+Nepomuk::WebExtractorPluginKCM::Ptr DataPPWizard::kcm() const
+{
+    return setupWPageObject->kcm();
 }
 
 DataPPWizard::~DataPPWizard()

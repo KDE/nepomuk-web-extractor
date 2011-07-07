@@ -33,7 +33,6 @@
 #include "categoriespool.h"
 #include "category.h"
 #include <decision/global.h>
-#include <Soprano/StorageModel>
 // use absolute path to prevent linking with libwebextractor/global.h
 #include "webexsettings_global.h"
 
@@ -44,9 +43,7 @@ namespace ND = Nepomuk::Decision;
 
 
 Nepomuk::WebExtractorSettings::WebExtractorSettings():
-    WebExtractorConfig(),
-    m_globalTempDir(0),
-    m_globalManager(0)
+    WebExtractorConfig()
 {
     update();
 }
@@ -76,27 +73,6 @@ void Nepomuk::WebExtractorSettings::clear()
     }
     m_parameters.clear();
 
-    // Delete global storage model ( if any )
-    if(m_globalManager) {
-        m_globalManager->deleteInstance();
-        Soprano::BackendSettings settings;
-        settings << Soprano::BackendSetting(
-                     Soprano::BackendOptionStorageDir,
-                     m_globalTempDir->name()
-                 );
-        delete m_globalStorageModel;
-        m_globalBackend->deleteModelData(settings);
-        m_globalBackend = 0;
-        m_globalStorageModel = 0;
-        m_globalManager = 0;
-    }
-
-
-    //m_plugins.clear();
-    delete m_globalTempDir;
-    m_globalTempDir = 0;
-
-
 }
 
 void Nepomuk::WebExtractorSettings::update()
@@ -105,41 +81,6 @@ void Nepomuk::WebExtractorSettings::update()
     clear();
 
     // Some preparation
-    int scheme = decisionsModelScheme();
-    bool forceDefault = false;
-    switch(scheme) {
-    case EnumDecisionsModelScheme::User : /* User */
-    case EnumDecisionsModelScheme::Auto : /* User */
-    case EnumDecisionsModelScheme::Redland : { /* Redland */
-        break;
-    }
-    case EnumDecisionsModelScheme::Virtuoso: { /* Virtuoso */
-        // We use one model for all analyzers in all categories
-        const Soprano::Backend * b = Soprano::discoverBackendByName("virtuoso");
-        if(!b) {  // check that this backend is available
-            forceDefault = true;
-            break;
-        }
-        m_globalBackend = b;
-        m_globalTempDir = new KTempDir(KStandardDirs::locateLocal("tmp", "dmodel"));
-        Soprano::BackendSettings globalVirtuosoSettings;
-        globalVirtuosoSettings << Soprano::BackendSetting(
-                                   Soprano::BackendOptionStorageDir,
-                                   m_globalTempDir->name()
-                               );
-        m_globalStorageModel = b->createModel(globalVirtuosoSettings);
-        if(!m_globalStorageModel) {  // check that model is successfuly created
-            forceDefault = true;
-            break;
-        }
-        m_globalManager = Nepomuk::ResourceManager::createManagerForModel(m_globalStorageModel);
-        break;
-    }
-    }
-
-    if(forceDefault) {
-    }
-
     foreach(Category*  cat, Nepomuk::CategoriesPool::self()->categories()) {
         NW::ExtractParameters p;
 
@@ -178,35 +119,19 @@ void Nepomuk::WebExtractorSettings::update()
         p.setUCrit(cat->uCrit());
         p.setACrit(cat->aCrit());
         p.setPluginSelectStep(cat->pluginSelectionStep());
-        int scheme = decisionsModelScheme();
-        switch(scheme) {
-        case EnumDecisionsModelScheme::Auto : /* User */
-        case EnumDecisionsModelScheme::User : /* User */
-        case EnumDecisionsModelScheme::Redland : { /* Redland */
-            Soprano::BackendSettings settings;
-            settings << Soprano::BackendOptionStorageMemory;
-            p.setBackendName("redland");
-            p.setBackendSettings(settings);
-            break;
-        }
-        case EnumDecisionsModelScheme::Virtuoso: { /* Virtuoso */
-            p.setDecisionsModel(m_globalStorageModel);
-            break;
-        }
-        }
-
 
         NW::LaunchPolitics pol;
         switch(cat->pluginSelectionType()) {
-        case(Category::Stepwise) : {
-            pol = NW::StepWise;
-            break;
+            case(Category::Stepwise) : {
+                pol = NW::StepWise;
+                break;
+            }
+            case(Category::All) : {
+                pol = NW::All;
+                break;
+            }
         }
-        case(Category::All) : {
-            pol = NW::All;
-            break;
-        }
-        }
+
         p.setLaunchPolitics(pol);
         p.setMergePolitics(ND::Highest);
         this->m_parameters.insert(cat->name(), p);

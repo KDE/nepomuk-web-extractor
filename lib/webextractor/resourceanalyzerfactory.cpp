@@ -108,93 +108,23 @@ Nepomuk::WebExtractor::ResourceAnalyzerFactory::ResourceAnalyzerFactory(
     d->mergePolitics = extractParams.mergePolitics() ;
     d->ucrit = extractParams.uCrit() ;
     d->acrit = extractParams.aCrit() ;
-    d->autoManageOntologies = extractParams.autoManageOntologies();
-    // We need backend only if model for Decisions is not provided.
-    this->d->decisionsMainModel = extractParams.decisionsModel();
-    if(!this->d->decisionsMainModel) {
-        QString backendName = extractParams.backendName();
-        if(backendName.isEmpty()) {
-            d->backend = Soprano::discoverBackendByFeatures(Soprano::BackendFeatureStorageMemory);
-        } else { // Trying to found specified backend
-            d->backend = Soprano::discoverBackendByName(backendName);
-            // If not found, then trying to found default backend
-            if(!d->backend)
-                d->backend = Soprano::discoverBackendByFeatures(Soprano::BackendFeatureStorageMemory);
-        }
-
-        //kDebug() << "ACrit: " << d->acrit;
-        //kDebug() << "UCrit: " << d->ucrit;
-        d->backendSettings = extractParams.backendSettings();
-    } else {
-        // Model is provided. Check for ontologies.
-        // If autoManageOntologies is set, then we should
-        // load ontologies to the model
-        if(d->autoManageOntologies) {
-            // Init main ontology loader
-            this->d->decisionsMainModelOntologyLoader =
-                    new OntologyLoader(this->d->decisionsMainModel, this);
-            this->d->decisionsMainModelOntologyLoader->updateLocalOntologies(true);
-        }
-    }
-
-    //decisionsStorageModel = 0;
-    //decisionsResourceManager = 0;
-    this->d->autoDeleteModelData = extractParams.autoDeleteModelData();
     this->d->rsdManager = extractParams.resourceServiceDataManager();
 }
 
 NW::ResourceAnalyzerFactory::~ResourceAnalyzerFactory()
 {
-    delete d->decisionsMainModelOntologyLoader;
     delete d;
 }
 
 Nepomuk::WebExtractor::ResourceAnalyzer * Nepomuk::WebExtractor::ResourceAnalyzerFactory::newAnalyzer()
 {
     ND::DecisionFactory * fct = 0;
-    if(this->d->decisionsMainModel) {
         /*
          * DecisionFactory(
          * double ucrit,
          * double acrit,
-         * Soprano::Model * decisionsModel,
-         * bool autoDeleteModelData,
-         * Soprano::StorageModel * model, // Set this if DecisionFactory own the model
-         * Soprano::BackendSettings settings)
          */
-        fct = new ND::DecisionFactory(d->ucrit, d->acrit, d->decisionsMainModel, false, 0);
-    } else {
-        const Soprano::Backend * b = d->backend;
-        if(b) {
-            Nepomuk::ResourceManager * adrm = 0;
-            // Initialize model
-            Soprano::StorageModel * decisionsStorageModel = b->createModel(d->backendSettings);
-            if(!decisionsStorageModel) {
-                return 0;
-            }
-
-            // Initialize ResourceManager
-            //adrm = ResourceManager::createManagerForModel((Soprano::Model*)(decisionsStorageModel));
-
-            // Check the model
-            /*
-            #warning DISABLE THIS CODE! IT POLLUTES MODEL
-            Nepomuk::Tag t(QString("test_tag"),adrm);
-            t.setDescription("tag to test redland model");
-            kDebug() << "Tag successfuly generated: " <<t.resourceUri();
-            QUrl uu = adrm->generateUniqueUri("res");
-            */
-
-            // Load ontologies
-            OntologyLoader * loader = new OntologyLoader(decisionsStorageModel);
-            loader->updateLocalOntologies(true);
-            delete loader;
-
-            fct = new ND::DecisionFactory(d->ucrit, d->acrit, decisionsStorageModel, d->autoDeleteModelData, decisionsStorageModel, d->backendSettings);
-        } else {
-            return 0;
-        }
-    }
+    fct = new ND::DecisionFactory(d->ucrit, d->acrit);
 
     fct->setThreshold(d->ucrit);
     return new Nepomuk::WebExtractor::ResourceAnalyzer(
@@ -223,22 +153,3 @@ void Nepomuk::WebExtractor::ResourceAnalyzerFactory::deleteAnalyzer(Nepomuk::Web
     if(res) res->deleteLater();
 }
 
-const Soprano::Backend * NW::ResourceAnalyzerFactory::backend() const
-{
-    return d->backend;
-}
-
-Soprano::BackendSettings NW::ResourceAnalyzerFactory::backendSettings() const
-{
-    return d->backendSettings;
-}
-
-/*
-const Soprano::Backend * NW::ResourceAnalyzerFactory::usedBackend()
-{
-    //Soprano::BackendSettings settings;
-    //settings << Soprano::BackendOptionStorageMemory;
-    static const Soprano::Backend * backend = Soprano::discoverBackendByFeatures(Soprano::BackendFeatureStorageMemory);
-    return backend;
-}
-*/

@@ -89,8 +89,6 @@ qt4_add_dbus_adaptor(webexservice_SRCS  org.kde.nepomuk.WebExtractorService.xml 
 #service
 kde4_add_plugin(nepomukwebexservice ${webexservice_SRCS})
 
-#kcm
-add_subdirectory(kcm)
 
 
 

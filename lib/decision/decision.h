@@ -120,9 +120,9 @@ namespace Nepomuk {
                 /*! \brief This function will return the global log of the Decision
                  * It will join all logs of all PropertiesGroup in the Decision
                  * and return it
-                 * \note Disabled as part of unstable API
+                 * \note Unstable API
                  */
-                //Nepomuk::Sync::ChangeLog log() const;
+                Nepomuk::SimpleResourceGraph changes() const;
 
                 /*! This method will return Decision's metadata.
                  * It will accumulate all information about decision - 

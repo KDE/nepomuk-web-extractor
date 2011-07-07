@@ -59,6 +59,62 @@ void ChangeLogWidget::setLog(const Nepomuk::SimpleResourceGraph & log)
     QTextStream stream(&text);
 
     foreach( const Nepomuk::SimpleResource & resource, log.toList() )
+    {
+        // Print subject
+        QUrl subject = resource.uri();
+        if ( subject.scheme().startsWith("_") ) {
+            // It is blank node
+            stream << subject.host() << subject.path();
+        }
+        else {
+            stream << "<a HREF=\"" << subject << "\">" <<
+                   subject.host() <<
+                   subject.path() <<
+                   "</a>";
+        }
+
+        stream << "  ";
+
+        Nepomuk::PropertyHash properties = resource.properties();
+        Nepomuk::PropertyHash::const_iterator cit = properties.begin(),
+            cit_end = properties.end();
+
+        for(; cit != cit_end; ++cit)
+        {
+            stream << "&nbsp;&nbsp;&nbsp;";
+            // Property
+            QUrl property = cit.key();
+            stream << "<a HREF=\"" << property << "\">" <<
+                   property.fragment() <<
+                   "</a>";
+
+            stream << "  ";
+
+            // Value
+            if ( cit.value().type() == QVariant::Url ) {
+                QUrl value = cit.value().toUrl();
+
+                if ( value.scheme().startsWith("_") ) {
+                    // It is blank node
+                    stream << value.host() << value.path();
+                }
+                else {
+                    stream << "<a HREF=\"" << value << "\">" <<
+                           value.host() <<
+                           value.path() <<
+                           value.fragment() << 
+                           "</a>";
+                }
+            }
+            else {
+                stream << cit.value().toString();
+            }
+
+            stream << "<br><hr>";
+        }
+
+    }
+#if 0
     foreach(const Soprano::Statement & rec, resource.toStatementList()) {
 
         Soprano::Node subject = rec.subject();
@@ -101,6 +157,7 @@ void ChangeLogWidget::setLog(const Nepomuk::SimpleResourceGraph & log)
 
 
     }
+#endif
     //stream << log;
     d->ui->changeLogBrowser->setHtml(text);
 

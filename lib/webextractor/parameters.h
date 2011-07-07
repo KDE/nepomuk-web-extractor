@@ -75,11 +75,14 @@ namespace Nepomuk
                 bool hasAnyExecutive() const;
                 int executiveCount() const;
 
+                /*
+
                 QString backendName() const;
                 void setBackendName(const QString &);
 
                 Soprano::BackendSettings backendSettings() const;
                 void setBackendSettings(const Soprano::BackendSettings &);
+                */
 
                 /*! \brief Return true if backend->deleteModelData() will be called on the model of each ResourceAnalyzer
                  * Each new ResourceAnalyzer is given a model. This model can be generated for each ResourceAnalyzer or
@@ -88,8 +91,8 @@ namespace Nepomuk
                  * But if you use non-in-memory model, then some files will be generated. If you want this files to be automatically removed
                  * after ResourceAnalyzer is not necessary any more, then set this flag to true. Other way you will have to remove them by hand.
                  */
-                bool autoDeleteModelData() const;
-                void setAutoDeleteModelData(bool val);
+                //bool autoDeleteModelData() const;
+                //void setAutoDeleteModelData(bool val);
 
                 /*! \brief Enable automatic ontology management
                  * If enabled, then ontologies will be loaded and  updated automatically.
@@ -100,14 +103,14 @@ namespace Nepomuk
                  * If decisions storage model is generated automatically, then
                  * this option is always enabled
                  */
-                bool autoManageOntologies() const;
-                void setAutoManageOntologies(bool val);
+                //bool autoManageOntologies() const;
+                //void setAutoManageOntologies(bool val);
 
                 /*
                 bool forceModelStorageDir() const;
                 void setForceModelStorageDir();
                 */
-                Soprano::Model * decisionsModel() const;
+                //Soprano::Model * decisionsModel() const;
                 /*! \brief Instead of creating new model for each ResourceAnalyzer, the shared model for all of them can be used.
                  * To do this, you should provide a Model for Decisions. In this case,
                  * the backendSettings(), backendName(), autoDeleteModelData() parameters
@@ -120,7 +123,7 @@ namespace Nepomuk
                          *  choice later with setAutoManageOntologies() method.
                          *  \sa setAutoManageOntologies
                  */
-                void setDecisionsModel(Soprano::Model * decisionsModel, bool autoManageOntologies = true);
+                //void setDecisionsModel(Soprano::Model * decisionsModel, bool autoManageOntologies = true);
 
                 /*! \brief Set resource service data manager
                  * ResourceServiceData is responsible for storing information about examined Executive

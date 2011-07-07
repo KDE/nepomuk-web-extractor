@@ -80,7 +80,7 @@ Nepomuk::Resource  NW::ServiceDataBackend::resource() const
 }
 
 
-const QUrl & NW::ServiceDataBackend::uri() const
+QUrl NW::ServiceDataBackend::uri() const
 {
     return d->res.resourceUri();
 }

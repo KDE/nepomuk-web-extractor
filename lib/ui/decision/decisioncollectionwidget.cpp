@@ -44,6 +44,7 @@ void DecisionCollectionWidget::addDecision( const ND::Decision & d)
     QListWidgetItem * item = new QListWidgetItem();
     // Set data
     item->setData(DecisionRole,QVariant::fromValue<ND::Decision>(d));
+    item->setData(Qt::DisplayRole, this->count());
     
     // Add item
     this->addItem(item);

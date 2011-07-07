@@ -178,6 +178,7 @@ void NW::ExtractParameters::addExecutive(ExecutiveWrapper * pp)
     d->dataPPlugins.insert(pp->data(), pp);
 }
 
+/*
 QString NW::ExtractParameters::backendName() const
 {
     return d->backendName;
@@ -229,6 +230,8 @@ void NW::ExtractParameters::setDecisionsModel(Soprano::Model * model, bool autoM
     d->decisionsModel = model;
     d->autoManageOntologies = autoManageOntologies;
 }
+*/
+
 
 NW::ResourceServiceDataManager * NW::ExtractParameters::resourceServiceDataManager() const
 {
