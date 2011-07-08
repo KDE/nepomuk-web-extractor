@@ -51,7 +51,7 @@ QIcon DecisionWidgetDesignerPlugin::icon() const
 
 QString DecisionWidgetDesignerPlugin::includeFile() const
 {
-    return QString::fromLatin1("webextractor/decisionwidget.h");
+    return QString::fromLatin1("nepomuk/decision/decisionwidget.h");
 }
 
 QString DecisionWidgetDesignerPlugin::toolTip() const

@@ -71,8 +71,6 @@ LaunchPage::LaunchPage(const QString & uri, const QStringList & datapps, bool au
 	    this,
 	    SLOT(onCurrentDecisionChanged(const QListWidgetItem*,const QListWidgetItem*)));
     connect(this->applyDecisionButton, SIGNAL(clicked()), this, SLOT(onApplyDecision()));
-    connect(this->identifyDecisionButton, SIGNAL(clicked()), this, SLOT(onIdentifyDecision()));
-    connect(this->identifyMainButton, SIGNAL(clicked()), this, SLOT(onIdentifyMain()));
     connect(this->onlyMainCheckBox, SIGNAL(toggled(bool)), this, SLOT(updateIdentificationInfo()));
 
     // Init member variables
@@ -105,8 +103,10 @@ LaunchPage::LaunchPage(const QString & uri, const QStringList & datapps, bool au
         QTimer::singleShot(0, this, SLOT(startExtracting()));
     }
 
-    // Set buttons
+    // Set buttons and other stuff
     setButtonApply();
+    decisionProgressBar->setValue(0);
+
 }
     
 LaunchPage::~LaunchPage()
@@ -125,6 +125,10 @@ void LaunchPage::onApplyDecision()
             return;
     }
 
+    decisionProgressBar->setValue(0);
+    connect(req.data(),SIGNAL(percent(KJob*,unsigned long)),
+            this,SLOT(applyProgress(KJob*,unsigned long))
+           );
 
     Q_ASSERT(req);
 
@@ -584,6 +588,7 @@ void LaunchPage::extractingFinished()
 void LaunchPage::setButtonApply()
 {
     this->startButton->setGuiItem(KStandardGuiItem::Apply);
+    this->startButton->setText(i18n("Launch"));
     this->startButton->setToolTip("Start extracting");
 }
 
@@ -612,4 +617,9 @@ void LaunchPage::onCurrentDecisionChanged(const QListWidgetItem * current,const 
     this->decisionWidget->setDecision(des);
 
     //updateIdentificationInfo();
+}
+
+void LaunchPage::applyProgress( KJob *, unsigned long percent )
+{
+    decisionProgressBar->setValue(percent);
 }

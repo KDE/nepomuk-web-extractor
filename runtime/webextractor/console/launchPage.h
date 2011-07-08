@@ -53,6 +53,7 @@ class LaunchPage : public QWidget, public Ui_launchPage
         void startExtracting();
         void extractingFinished();
         void onApplyDecision();
+        void applyProgress( KJob *, unsigned long percent);
 
         //void updateIdentificationInfo();
         void updateDecisionsInfo();

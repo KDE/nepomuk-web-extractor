@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>514</width>
+    <width>518</width>
     <height>544</height>
    </rect>
   </property>
@@ -83,8 +83,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>357</width>
-               <height>138</height>
+               <width>295</width>
+               <height>91</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_3">
@@ -154,39 +154,6 @@ every iteration</string>
                 </item>
                </layout>
               </item>
-              <item row="3" column="0">
-               <layout class="QHBoxLayout" name="horizontalLayout_11">
-                <item>
-                 <widget class="QLabel" name="label_7">
-                  <property name="text">
-                   <string>Select backend to use:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QComboBox" name="backendComboBox">
-                  <property name="currentIndex">
-                   <number>1</number>
-                  </property>
-                  <item>
-                   <property name="text">
-                    <string>Redland</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Virtuoso</string>
-                   </property>
-                  </item>
-                  <item>
-                   <property name="text">
-                    <string>Main Nepomuk Storage</string>
-                   </property>
-                  </item>
-                 </widget>
-                </item>
-               </layout>
-              </item>
               <item row="1" column="1">
                <spacer name="horizontalSpacer">
                 <property name="orientation">
@@ -251,7 +218,7 @@ every iteration</string>
                 <x>10</x>
                 <y>30</y>
                 <width>333</width>
-                <height>23</height>
+                <height>24</height>
                </rect>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -274,7 +241,7 @@ every iteration</string>
              </attribute>
              <layout class="QVBoxLayout" name="verticalLayout">
               <item>
-               <widget class="Nepomuk::Utils::SearchWidget" name="resWidget"/>
+               <widget class="Nepomuk::Utils::SearchWidget" name="resWidget" native="true"/>
               </item>
               <item>
                <widget class="QCheckBox" name="useAllResourcesCheckBox">
@@ -432,7 +399,7 @@ every iteration</string>
           <string>Controls</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="1" column="0" colspan="3">
+          <item row="1" column="0" colspan="2">
            <widget class="QProgressBar" name="decisionProgressBar">
             <property name="value">
              <number>24</number>
@@ -443,20 +410,6 @@ every iteration</string>
            <widget class="KPushButton" name="applyDecisionButton">
             <property name="text">
              <string>Apply</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="KPushButton" name="identifyDecisionButton">
-            <property name="text">
-             <string>Identify</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="KPushButton" name="identifyMainButton">
-            <property name="text">
-             <string>Identify main</string>
             </property>
            </widget>
           </item>
@@ -473,7 +426,7 @@ every iteration</string>
   <customwidget>
    <class>DecisionWidget</class>
    <extends>QWidget</extends>
-   <header>decisionwidget.h</header>
+   <header>nepomuk/decision/decisionwidget.h</header>
   </customwidget>
   <customwidget>
    <class>KDoubleNumInput</class>
@@ -481,14 +434,14 @@ every iteration</string>
    <header>knuminput.h</header>
   </customwidget>
   <customwidget>
-   <class>KPushButton</class>
-   <extends>QPushButton</extends>
-   <header>kpushbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>KLineEdit</class>
    <extends>QLineEdit</extends>
    <header>klineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KPushButton</class>
+   <extends>QPushButton</extends>
+   <header>kpushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>KTabWidget</class>
@@ -499,7 +452,7 @@ every iteration</string>
   <customwidget>
    <class>Nepomuk::Utils::SearchWidget</class>
    <extends>QWidget</extends>
-   <header>nepomuk/searchwidget.h</header>
+   <header location="global">nepomuk/searchwidget.h</header>
   </customwidget>
   <customwidget>
    <class>DecisionCollectionWidget</class>
