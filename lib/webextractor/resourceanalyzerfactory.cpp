@@ -19,7 +19,6 @@
 
 #include "resourceanalyzerfactory.h"
 #include "resourceanalyzer.h"
-#include "ontologyloader.h"
 #include <KDebug>
 #include <Soprano/Global>
 #include <Nepomuk/Tag>
@@ -61,15 +60,6 @@ class NW::ResourceAnalyzerFactory::Private
         // ResourceManager is manager for model. It is not very necessary now, but
         // will be defenetely used in the future.
 
-        // Model for storing Decisions in memory
-        //Soprano::StorageModel * decisionsStorageModel;
-        // ResourceManager that manages this model. This pointer is non-null
-        // only if extractParams.manager() was non-null.
-        // ResourceManager * decisionsResourceManager;
-        Soprano::Model * decisionsMainModel;
-        OntologyLoader * decisionsMainModelOntologyLoader;
-        const Soprano::Backend * backend;
-        Soprano::BackendSettings backendSettings;
 	ResourceServiceDataManager * rsdManager;
 };
 
@@ -78,10 +68,6 @@ NW::ResourceAnalyzerFactory::Private::Private():
     launchPolitics(StepWise),
     mergePolitics(ND::Highest),
     step(10),
-    //decisionsResourceManager(0),
-    decisionsMainModel(0),
-    decisionsMainModelOntologyLoader(0),
-    backend(0),
     rsdManager(0)
 {
     ;

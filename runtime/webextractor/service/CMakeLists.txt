@@ -46,12 +46,6 @@ set( webexservice_SRCS
     #webextractor_plugin.cpp
     )
 
-soprano_add_ontology(webexservice_SRCS
-  ${webextractor_SOURCE_DIR}/libbackupsynclegacy/identification.trig
-  "backupsync"
-  "Nepomuk::Vocabulary"
-  "trig")
-
 FILE( GLOB 
     webexservice_categories_CFG
     config/categories/*rc
