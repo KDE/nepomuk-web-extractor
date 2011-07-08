@@ -33,7 +33,7 @@
 
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
+
 
 class ND::Decision::Private : public QSharedData
 {

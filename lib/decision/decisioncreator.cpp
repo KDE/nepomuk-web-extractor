@@ -20,19 +20,15 @@
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>
 #include <KDebug>
-#include "mergerequest.h"
-#include "changelog.h"
 
 #include "decision.h"
 #include "global.h"
-#include "changelogfiltermodel.h"
 #include "decisioncreator.h"
 #include "decisioncreator_p.h"
 #include "propertiesgroupcreator.h"
-#include "identsetmanager.h"
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
+
 
 
 

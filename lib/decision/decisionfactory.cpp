@@ -17,7 +17,6 @@
  */
 
 #include "decisionfactory.h"
-#include "identsetmanager.h"
 //#include "executive.h"
 #include "global.h"
 #include <Soprano/BackendSettings>

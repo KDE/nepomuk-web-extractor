@@ -20,16 +20,14 @@
 #include <QtCore/QSharedData>
 #include <Soprano/Model>
 #include <Nepomuk/ResourceManager>
-#include "changelog.h"
 
 #include "propertiesgroupcreator.h"
 #include "propertiesgroupcreator_p.h"
 #include "decisioncreator_p.h"
-#include "changelogfiltermodel.h"
 #include "global.h"
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
+
 
 
 ND::PropertiesGroupCreator::PropertiesGroupCreator( QWeakPointer<DecisionCreatorInternals> internals):

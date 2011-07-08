@@ -10,8 +10,6 @@ find_package(Nepomuk REQUIRED)
 include(KDE4Defaults)
 include(MacroLibrary)
 
-set( backupsynclegacy_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libbackupsynclegacy )
-
 ## Prepare variables for building metapackage
 set( BUILD_METAPACKAGE 1)
 
@@ -19,8 +17,6 @@ set( BUILD_METAPACKAGE 1)
 include_directories(
   ${NEPOMUK_INCLUDE_DIR}
   ${KDE4_INCLUDES}
-  ${CMAKE_CURRENT_SOURCE_DIR}/libbackupsynclegacy
-  ${CMAKE_CURRENT_BINARY_DIR}/libbackupsynclegacy
   )
 
 # First build libraries
@@ -41,6 +37,5 @@ set( LIBWEBEXTRACTORUI_INCLUDE_DIRS
     ${CMAKE_CURRENT_BINARY_DIR}/lib/ui/
     )
 
-add_subdirectory( libbackupsynclegacy )
 add_subdirectory( runtime )
 add_subdirectory( test )

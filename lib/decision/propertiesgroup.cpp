@@ -16,8 +16,6 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "changelog.h"
-
 #include "propertiesgroup.h"
 #include "global.h"
 
@@ -25,7 +23,6 @@
 
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
 
 class ND::PropertiesGroup::Private : public QSharedData
 {

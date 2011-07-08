@@ -17,15 +17,11 @@
  */
 
 
-#include "algorithm.h"
 #include <KDebug>
 #include "decisioncreator_p.h"
-#include "changelogfiltermodel.h"
-
-#include "identificationset.h"
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
+
 
 ND::DecisionCreatorInternals::DecisionCreatorInternals()
 {

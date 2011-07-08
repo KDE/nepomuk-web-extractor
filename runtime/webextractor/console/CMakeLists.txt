@@ -74,7 +74,6 @@ target_link_libraries( webexconsole
     ${KDE4_KDEUI_LIBRARY}
     ${KDE4_KUTILS_LIBRARY}
     nepomukutils
-    nepomuksynclegacy
     )
 
 install( TARGETS webexconsole ${INSTALL_TARGETS_DEFAULT_ARGS} )

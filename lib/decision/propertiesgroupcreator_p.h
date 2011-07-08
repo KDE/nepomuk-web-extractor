@@ -19,21 +19,16 @@
 #ifndef __properties_group_private_h_
 #define __properties_group_private_h_
 
-#include "changelog.h"
 #include <QString>
 #include <nepomuk/simpleresource.h>
 #include <nepomuk/simpleresourcegraph.h>
 
-namespace NS = Nepomuk::Sync;
+
 
 
 
 namespace Nepomuk {
     
-    namespace Sync {
-	class ChangeLogFilterModel;
-    }
-
     class ResourceManager;
     namespace Decision {
 	class PropertiesGroupCreatorPrivate 

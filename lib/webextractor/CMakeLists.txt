@@ -41,9 +41,6 @@ set(LIBWEBEXTRACTOR_INCLUDE_DIRS
 configure_file(LibWebextractorConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/LibWebextractorConfig.cmake @ONLY )
 configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h @ONLY )
 
-#build dependencies
-add_subdirectory(ontologyloader)
-
 include_directories(
   ${SOPRANO_INCLUDE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}
@@ -85,7 +82,6 @@ set( webextractor_SRCS
     #    resourceservicedata/nepomukservicedatabackend.cpp
     #    resourceservicedata/dummyservicedatabackend.cpp
     #    resourceservicedata/servicedatabackend.cpp
-    #    identsetmanager.cpp
     )
 
 set (WEBEXTRACTOR_HEADERS 
@@ -132,7 +128,6 @@ add_subdirectory(resourceservicedata)
 
 target_link_libraries( webextractor 
     ${LIBWEBEXTRACTOR_DEPENDENCIES}
-    ontologyloader
     rsd
     nepomuksynclegacy
     )

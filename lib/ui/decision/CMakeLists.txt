@@ -79,7 +79,6 @@ set_target_properties(nepomuk_decisionui PROPERTIES
 remove_definitions(-DMAKE_DECISIONUI_LIB)
 target_link_libraries( nepomuk_decisionui 
     ${LIBDECISIONUI_DEPENDENCIES}
-    nepomuksynclegacy
   )
 
 install(TARGETS nepomuk_decisionui
@@ -101,7 +100,6 @@ kde4_add_plugin( decisionwidgetdesignerplugin
 target_link_libraries( decisionwidgetdesignerplugin
         ${QT_LIBRARIES}
         ${KDE4_KIO_LIBS}
-        nepomuksynclegacy
         nepomuk_decisionui
         )
 

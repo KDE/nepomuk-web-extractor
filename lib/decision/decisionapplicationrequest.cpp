@@ -28,7 +28,7 @@
 #include <nepomuk/datamanagement.h>
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
+
 
 ND::DecisionApplicationRequest::DecisionApplicationRequest(const Decision & target, Soprano::Model * targetModel, QObject * parent):
     QObject(parent),

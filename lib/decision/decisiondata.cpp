@@ -27,6 +27,6 @@
 #include "identificationset.h"
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
+
 
 

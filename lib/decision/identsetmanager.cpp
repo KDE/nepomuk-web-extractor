@@ -24,7 +24,7 @@
 #include "identificationset.h"
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
+
 
 class ND::IdentificationSetManager::Private
 {

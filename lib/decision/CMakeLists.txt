@@ -10,7 +10,6 @@ include_directories(
     )
 
 set( decisions_SRCS 
-    identsetmanager.cpp
     decision.cpp
     decisionmetadata.cpp
     decisioncreator.cpp
@@ -33,7 +32,6 @@ set( decisions_HEADERS
     decisioncreator.h
     propertiesgroup.h
     propertiesgroupcreator.h
-    identsetmanager.h
     applyerror.h
     global.h
     )
@@ -49,7 +47,6 @@ set ( LIBNEPOMUK_DECISION_DEPENDENCIES
     ${QT_QTNETWORK_LIBRARY}
     ${QT_QTCORE_LIBRARY}
     ${QT_QTDBUS_LIBRARY}
-    nepomukgraph
     nepomukdatamanagement
     )
 
@@ -74,7 +71,6 @@ kde4_add_library( nepomuk_decision SHARED ${decisions_SRCS} )
 
 target_link_libraries( nepomuk_decision
     ${LIBNEPOMUK_DECISION_DEPENDENCIES}
-    nepomuksynclegacy
   )
 
 IF(UNIX AND NOT WIN32)

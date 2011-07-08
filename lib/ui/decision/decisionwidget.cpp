@@ -20,8 +20,6 @@
 #include "changelogwidget.h"
 #include "ui_decisionForm.h"
 
-#include "changelog.h"
-
 #include <kdebug.h>
 
 namespace NS = Nepomuk::Sync;

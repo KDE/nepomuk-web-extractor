@@ -31,8 +31,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/../libwebexsettings
   # some files in service use #include "libwebexsettings/XXX"
   ${CMAKE_CURRENT_SOURCE_DIR}/../libwebexsettings/../
-  ${backupsynclegacy_SOURCE_DIR}
-  ${backupsynclegacy_BINARY_DIR}
   )
 
 set( webexservice_SRCS 
@@ -46,16 +44,6 @@ set( webexservice_SRCS
     webextractor_settings.cpp
     #${webexsettings_SRCS}
     #webextractor_plugin.cpp
-
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/changelog.cpp
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/changelogrecord.cpp
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/identificationrequest.cpp
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/identificationrequest_p.cpp
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/identificationset.cpp
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/mergerequest.cpp
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/syncfile.cpp
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/simpleresource.cpp
-    ${webextractor_SOURCE_DIR}/libbackupsynclegacy/graphwrapper.cpp
     )
 
 soprano_add_ontology(webexservice_SRCS

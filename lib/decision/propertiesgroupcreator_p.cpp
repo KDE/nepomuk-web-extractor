@@ -19,10 +19,9 @@
 #include <Nepomuk/ResourceManager>
 
 #include "propertiesgroupcreator_p.h"
-#include "changelogfiltermodel.h"
 
 namespace ND = Nepomuk::Decision;
-namespace NS = Nepomuk::Sync;
+
 
 ND::PropertiesGroupCreatorPrivate::PropertiesGroupCreatorPrivate()
 {
