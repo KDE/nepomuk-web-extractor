@@ -9,8 +9,8 @@
  * before re-generating it.
  */
 
-#ifndef DECISIONMANAGEMENTSERVICEADAPTOR_H_1309734191
-#define DECISIONMANAGEMENTSERVICEADAPTOR_H_1309734191
+#ifndef DECISIONMANAGEMENTSERVICEADAPTOR_H_1310138089
+#define DECISIONMANAGEMENTSERVICEADAPTOR_H_1310138089
 
 #include <QtCore/QObject>
 #include <QtDBus/QtDBus>
@@ -38,9 +38,7 @@ class DecisionManagementAdaptor: public QDBusAbstractAdaptor
 "    </method>\n"
 "    <method name=\"addDecision\">\n"
 "      <arg direction=\"in\" type=\"ay\" name=\"decision\"/>\n"
-"      <arg direction=\"in\" type=\"as\" name=\"uriList\"/>\n"
 "      <annotation value=\"IdAndError\" name=\"com.trolltech.QtDBus.QtTypeName.Out0\"/>\n"
-"      <annotation value=\"Nepomuk::Decision::Decision\" name=\"com.trolltech.QtDBus.QtTypeName.In0\"/>\n"
 "      <arg direction=\"out\" type=\"(ii)\"/>\n"
 "    </method>\n"
 "    <!--\n"
@@ -72,7 +70,7 @@ public:
 
 public: // PROPERTIES
 public Q_SLOTS: // METHODS
-    IdAndError addDecision(const QByteArray &decision, const QStringList &uriList);
+    IdAndError addDecision(const QByteArray &decision);
     bool existsDecision(int id);
     IdList getDecisions(const QString &uri);
     int removeDecision(int id);

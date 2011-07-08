@@ -52,7 +52,7 @@ namespace Nepomuk {
 	     * \param uri List of resources uri this Decision connected to
 	     * \param decision Decision to add
 	     */
-	    IdAndError addDecision( const QByteArray & decision, const QList<QString> & uri);
+	    IdAndError addDecision(const QByteArray & decision);
 
             bool existsDecision(int id);
 

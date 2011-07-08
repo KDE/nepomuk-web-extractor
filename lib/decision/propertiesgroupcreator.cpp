@@ -106,6 +106,12 @@ void ND::PropertiesGroupCreator::setChanges( const SimpleResourceGraph & graph)
 }
 
 
+Nepomuk::SimpleResourceGraph ND::PropertiesGroupCreator::changes() const
+{
+    return d->changes;
+}
+
+
 /* Disabled as unstable 
 Nepomuk::SimpleResourceGraph ND::PropertiesGroupCreator::changes() const
 {

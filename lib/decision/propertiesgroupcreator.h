@@ -133,6 +133,7 @@ namespace Nepomuk
                 friend class DecisionCreatorInternals;
                 friend unsigned int qHash(const PropertiesGroupCreator &);
             protected:
+                SimpleResourceGraph changes() const;
                 PropertiesGroupCreator( QWeakPointer<DecisionCreatorInternals> data);
 		/*! \brief Return the collected data in form of PropertiesGroup
 		 */

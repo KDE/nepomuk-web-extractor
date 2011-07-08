@@ -43,6 +43,7 @@
 #include "datapppool.h"
 #include "categoriesmodel.h"
 #include "category.h"
+#include "client.h"
 
 namespace NQ = Nepomuk::Query;
 namespace NW = Nepomuk::WebExtractor;
@@ -71,6 +72,7 @@ LaunchPage::LaunchPage(const QString & uri, const QStringList & datapps, bool au
 	    this,
 	    SLOT(onCurrentDecisionChanged(const QListWidgetItem*,const QListWidgetItem*)));
     connect(this->applyDecisionButton, SIGNAL(clicked()), this, SLOT(onApplyDecision()));
+    connect(this->reviewDecisionButton, SIGNAL(clicked()), this, SLOT(onReviewDecision()));
     connect(this->onlyMainCheckBox, SIGNAL(toggled(bool)), this, SLOT(updateIdentificationInfo()));
 
     // Init member variables
@@ -622,4 +624,11 @@ void LaunchPage::onCurrentDecisionChanged(const QListWidgetItem * current,const 
 void LaunchPage::applyProgress( KJob *, unsigned long percent )
 {
     decisionProgressBar->setValue(percent);
+}
+
+void LaunchPage::onReviewDecision()
+{
+    Nepomuk::DecisionManagementClient::instance()->addDecision(
+            decisionListWidget->currentDecision()
+            );
 }

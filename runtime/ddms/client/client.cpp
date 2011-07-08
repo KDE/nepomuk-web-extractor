@@ -79,14 +79,14 @@ Nepomuk::DecisionManagementClient::instance()
 }
 
 IdProxy *
-Nepomuk::DecisionManagementClient::addDecision(const Decision::Decision &decision, const QStringList &uriList )
+Nepomuk::DecisionManagementClient::addDecision(const Decision::Decision &decision)
 {
     QByteArray result;
     QDataStream dstream(&result, QIODevice::WriteOnly );
     decision.save(dstream);
     return new IdProxy(
 	    this,
-	    d->interface->addDecision(result,uriList),
+	    d->interface->addDecision(result),
             this
 	    );
 }

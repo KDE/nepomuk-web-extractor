@@ -56,7 +56,7 @@ namespace Nepomuk {
              */
             IdListProxy * getDecisions( const QUrl &  uri);
 
-            IdProxy * addDecision(const Decision::Decision &decision, const QStringList &uriList );
+            IdProxy * addDecision(const Decision::Decision &decision );
             QDBusPendingCallWatcher * removeDecision(int id);
             /*! \brief Return true if object creation was successfull
              *

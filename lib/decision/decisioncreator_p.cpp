@@ -18,6 +18,9 @@
 
 
 #include <KDebug>
+#include <nepomuk/simpleresourcegraph.h>
+#include <nepomuk/simpleresource.h>
+
 #include "decisioncreator_p.h"
 
 namespace ND = Nepomuk::Decision;
@@ -54,6 +57,7 @@ ND::DecisionCreatorInternals::~DecisionCreatorInternals()
 ND::Decision ND::DecisionCreatorInternals::data()
 {
     Decision d = m_data;
+    QSet<QUrl> tR;
     // Add groups
     kDebug() << "Group creators count: " << groupCreators.size();
     foreach(const PropertiesGroupCreator & grp, groupCreators) {
@@ -61,6 +65,25 @@ ND::Decision ND::DecisionCreatorInternals::data()
 	Q_ASSERT(pg.isValid());
 	Q_ASSERT(pg.isEmpty() == grp.isEmpty());
 	d.addGroup(pg);
+        foreach(const SimpleResource & res, grp.changes().toSet() )
+        {
+            // Add resource uri if necessary
+            if (! res.uri().toString().startsWith("_:") ) {
+                tR.insert(res.uri());
+            }
+
+            foreach( const QVariant & value, res.properties() )
+            {
+                if ( value.type() == QVariant::Url ) {
+                    QUrl u = value.toUrl();
+                    if ( u.toString().startsWith("_:") ) {
+                        tR.insert( u );
+                    }
+                }
+            }
+        }
+
+        d.setTargetResources(tR);
     }
 
     // Set target resources

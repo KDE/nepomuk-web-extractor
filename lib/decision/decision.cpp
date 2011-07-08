@@ -30,6 +30,8 @@
 #include "global.h"
 
 #include <nepomuk/datamanagement.h>
+#include <nepomuk/simpleresource.h>
+#include <nepomuk/simpleresourcegraph.h>
 
 
 namespace ND = Nepomuk::Decision;
@@ -141,7 +143,7 @@ bool ND::Decision::isValid() const
 {
     if (isDirty()) {
 	kDebug() << "State is dirty. Rechecking";
-        d->cachedValidness = true;
+        d->cachedValidness = !(targetResources().isEmpty());
 	markCleanValidness();
     }
 
@@ -337,6 +339,33 @@ void ND::Decision::setDescription( const QString & description)
 
 QSet<QUrl> ND::Decision::targetResources() const
 {
+#if 0
+    if ( isDirtyTargetResources() ) {
+	const_cast<ND::Decision*>(this)->d.detach();
+        d->targetResources.clear();
+        foreach(const PropertiesGroup & group, d->groups)
+        {
+            foreach(const SimpleResource & res, group.changes().toSet() )
+            {
+                // Add resource uri if necessary
+                if (! res.uri().toString().startsWith("_:") ) {
+                    d->targetResources.insert(res.uri());
+                }
+
+                foreach( const QVariant & value, res.properties() )
+                {
+                    if ( value.type() == QVariant::Url ) {
+                        QUrl u = value.toUrl();
+                        if ( u.toString().startsWith("_:") ) {
+                            d->targetResources.insert( u );
+                        }
+                    }
+                }
+            }
+        }
+        markCleanTargetResources();
+    }
+#endif
     return d->targetResources;
 }
 

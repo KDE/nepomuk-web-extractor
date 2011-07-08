@@ -1,3 +1,4 @@
+project(ddms_client)
 set( ddms_client_SRCS
     client.cpp
     respond_proxies.cpp

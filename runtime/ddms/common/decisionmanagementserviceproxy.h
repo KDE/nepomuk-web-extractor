@@ -8,8 +8,8 @@
  * Do not edit! All changes made to it will be lost.
  */
 
-#ifndef DECISIONMANAGEMENTSERVICEPROXY_H_1309734191
-#define DECISIONMANAGEMENTSERVICEPROXY_H_1309734191
+#ifndef DECISIONMANAGEMENTSERVICEPROXY_H_1310138090
+#define DECISIONMANAGEMENTSERVICEPROXY_H_1310138090
 
 #include <QtCore/QObject>
 #include <QtCore/QByteArray>
@@ -37,10 +37,10 @@ public:
     ~OrgKdeNepomukDecisionManagementInterface();
 
 public Q_SLOTS: // METHODS
-    inline QDBusPendingReply<IdAndError> addDecision(const QByteArray &decision, const QStringList &uriList)
+    inline QDBusPendingReply<IdAndError> addDecision(const QByteArray &decision)
     {
         QList<QVariant> argumentList;
-        argumentList << qVariantFromValue(decision) << qVariantFromValue(uriList);
+        argumentList << qVariantFromValue(decision);
         return asyncCallWithArgumentList(QLatin1String("addDecision"), argumentList);
     }
 

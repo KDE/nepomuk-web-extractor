@@ -33,10 +33,10 @@ DecisionManagementAdaptor::~DecisionManagementAdaptor()
     // destructor
 }
 
-IdAndError DecisionManagementAdaptor::addDecision(const QByteArray &decision, const QStringList &uriList)
+IdAndError DecisionManagementAdaptor::addDecision(const QByteArray &decision)
 {
     // handle method call org.kde.nepomuk.DecisionManagement.addDecision
-    return parent()->addDecision(decision, uriList);
+    return parent()->addDecision(decision);
 }
 
 bool DecisionManagementAdaptor::existsDecision(int id)

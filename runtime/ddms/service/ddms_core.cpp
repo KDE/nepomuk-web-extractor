@@ -25,6 +25,7 @@
 #include <QVariant>
 #include <QUrl>
 #include <QFile>
+#include <QSet>
 #include <QFileInfo>
 #include <QDir>
 #include <QtDebug>
@@ -72,7 +73,7 @@ class Nepomuk::DecisionStorage::Private
          * On fail, return NULL string
          * \return Filename or empty string, if failed
          */
-        QString requestFileName(const QList<QString> & resources, const DecisionMetadata & metadata, int * id = 0);
+        QString requestFileName(const QSet<QUrl> & resources, const DecisionMetadata & metadata, int * id = 0);
         
         /*! \brief Prepare database for usage
          * Create necessary tables.
@@ -131,7 +132,7 @@ Nepomuk::DecisionStorage::DecisionStorage(
 }
 
 QString 
-Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resources, const DecisionMetadata & metadata, int * idAnswer)
+Nepomuk::DecisionStorage::Private::requestFileName( const QSet<QUrl> & resources, const DecisionMetadata & metadata, int * idAnswer)
 {
     Q_ASSERT(valid);
     qDebug() << "CALL: " << __func__;
@@ -152,7 +153,7 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resou
     QFile file;
     bool success = true;
     int id = -1;
-    QList<QString>::const_iterator it;
+    QSet<QUrl>::const_iterator it;
     QHash<QString,int>::const_iterator author_it;
     QVariant lastId;
 
@@ -188,7 +189,7 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QList<QString> & resou
     for( it = resources.begin(); it != resources.end(); ++it )
     {
         insertResUrlQuery.prepare(insertResUrlQueryString);
-        insertResUrlQuery.bindValue(":res",*it);
+        insertResUrlQuery.bindValue(":res",it->toString());
         insertResUrlQuery.bindValue(":id",id);
         insertResUrlQuery.exec();
         if (!insertResUrlQuery.isActive()) {
@@ -572,11 +573,12 @@ bool Nepomuk::DecisionStorage::Private::removeFromFolder(ID id)
 }
 
 int Nepomuk::DecisionStorage::addDecision( const Decision::Decision & decision,
-        const QList<QString> & uri,
         int * id)
 {
     if (!d->valid)
         return Error::SystemError ;
+
+    QSet<QUrl> uri = decision.targetResources();
 
     // Stage 1 - accquire filename
     QString filename = d->requestFileName(uri,decision.metadata(),id);

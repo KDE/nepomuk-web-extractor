@@ -31,6 +31,7 @@ include_directories(
   #libwebexsettingsui path
   ${libwebexsettingsui_BINARY_DIR}
   ${libwebexsettingsui_SOURCE_DIR}
+  ${ddms_client_SOURCE_DIR}
   ${NEPOMUK_INCLUDE_DIR}
   ${NEPOMUK_INCLUDE_DIR}/nepomuk
   ${CMAKE_CURRENT_BINARY_DIR}
@@ -74,6 +75,7 @@ target_link_libraries( webexconsole
     ${KDE4_KDEUI_LIBRARY}
     ${KDE4_KUTILS_LIBRARY}
     nepomukutils
+    ddms_client
     )
 
 install( TARGETS webexconsole ${INSTALL_TARGETS_DEFAULT_ARGS} )

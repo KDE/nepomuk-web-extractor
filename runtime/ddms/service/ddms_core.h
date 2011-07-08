@@ -50,7 +50,7 @@ namespace Nepomuk {
 	     * if failed
 	     * \return error code ( NoError is succeed )
 	     */
-	    int  addDecision( const Decision::Decision & decision, const QList<QString> & uri, int * id );
+	    int  addDecision( const Decision::Decision & decision, int * id );
 
 	    /*! \brief Return list of ID of the decisions, related to the resource
 	     */

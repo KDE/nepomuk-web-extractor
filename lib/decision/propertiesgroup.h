@@ -67,7 +67,7 @@ namespace Nepomuk
                 friend QDataStream & operator>>(QDataStream &, Nepomuk::Decision::PropertiesGroup & );
 	    private:
                 /*! \brief This function will return the log of all chanegs
-                 * \note Disabled as API is unstable
+                 * \note Private as API is unstable
                  */
                 SimpleResourceGraph changes() const;
                 friend class Decision;

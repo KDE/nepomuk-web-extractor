@@ -1,6 +1,3 @@
-project(ddmsservice)
-
-
 add_subdirectory(common)
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}/common

@@ -96,7 +96,7 @@ int Nepomuk::DecisionManagementService::removeDecision(int id)
 }
 
 IdAndError Nepomuk::DecisionManagementService::addDecision( 
-        const QByteArray & decision, const QList<QString> & uri)
+        const QByteArray & decision)
 {
     // Load decision from byte array
     QDataStream dstream(decision);
@@ -104,7 +104,7 @@ IdAndError Nepomuk::DecisionManagementService::addDecision(
 
     qDebug() << "CALL: " << __func__; 
     int id = -1;
-    int error =  m_storage->addDecision(dec,uri,&id);
+    int error =  m_storage->addDecision(dec,&id);
     IdAndError result;
     result.first = id;
     result.second = error;
