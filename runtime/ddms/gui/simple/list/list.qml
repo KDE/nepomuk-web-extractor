@@ -9,7 +9,7 @@ anchors.fill : parent
 ListModel {
     id : model1
     ListElement {
-        description : "Fake desc 1"
+        description : "Very very vvvvvvvvvvvvvvvvvvvvvvvvvveeeeeeeeeeeeeeeeeeeeeeeerrrrrrrrrrrrrrrrrrrrrrryyyyyyyyyyyyyyyyy long fFake desc 1"
     }
 
     ListElement {
@@ -20,9 +20,12 @@ ListModel {
 Component {
     id: decisionDelegate
     Item {
-         width:250; height: 50;
+         width:ListView.view.width; height: 50;
     Text {
-            text : "Descrpition:" + description
+        id : decisionDelegateText
+        text : "Descrpition:" + description
+        anchors.fill : parent
+        wrapMode: Text.Wrap
      }
     MouseArea {
         anchors.fill: parent
