@@ -697,7 +697,7 @@ DecisionMetadata Nepomuk::DecisionStorage::decisionMetadata(int  id, int & error
     // Now read metadata from the index
     QSqlQuery readMetaQuery(d->db);
     readMetaQuery.prepare(
-            QString("SELECT (rank,description) FROM "META_TABLE_NAME" WHERE id = %1").arg(id));
+            QString("SELECT rank,description FROM "META_TABLE_NAME" WHERE id = %1").arg(id));
     readMetaQuery.exec();
     if (!readMetaQuery.isActive() ) {
         qDebug() << "Can't execute select metadata query. Error is " <<
@@ -710,7 +710,7 @@ DecisionMetadata Nepomuk::DecisionStorage::decisionMetadata(int  id, int & error
 
     QSqlQuery readAuthorsQuery(d->db);
     readAuthorsQuery.prepare(
-        QString("SELECT (author,version) FROM "AUTHOR_TABLE_NAME" WHERE id = %1").arg(id)
+        QString("SELECT author,version FROM "AUTHOR_TABLE_NAME" WHERE id = %1").arg(id)
         );
     readAuthorsQuery.exec();
     if (!readAuthorsQuery.isActive() ) {
@@ -723,8 +723,6 @@ DecisionMetadata Nepomuk::DecisionStorage::decisionMetadata(int  id, int & error
         int version = readAuthorsQuery.value(1).toInt();
         answer.authorsData[name] = version;
     }
-    // Now read metadata from the file
-    answer.description = "Fake description of the Decision " + QString::number(id);
 
     return answer;
 }
