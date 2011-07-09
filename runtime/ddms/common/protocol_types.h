@@ -51,7 +51,7 @@ DDMS_COMMON_EXPORT const QDBusArgument &operator>>( const QDBusArgument &argumen
 
 class Error {
     public:
-       enum {SystemError = -1, NoError = 0, NoSuchDecision = 1, DatabaseError };
+       enum {SystemError = -1, NoError = 0, NoSuchDecision = 1, DatabaseError, DBusError };
 };
 
 class DDMS_COMMON_EXPORT IdList : public QList<int>

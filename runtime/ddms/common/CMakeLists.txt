@@ -1,5 +1,6 @@
 set( ddms_common_SRCS
     protocol_types.cpp
+    common_types.cpp
     )
 
 add_definitions(-DMAKE_DDMS_COMMON_LIB)

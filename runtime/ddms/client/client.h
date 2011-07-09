@@ -69,8 +69,10 @@ namespace Nepomuk {
             bool existsDecision(int id) const;
         private:
             friend class DecisionProxy;
+            friend class DecisionProxyData;
 
             QSharedPointer<DecisionProxyData> getDecisionData(int id, bool checkExist);
+            DecisionMetadata getDecisionMetadata(int id, int & error);
             class Private;
             Private * d;
     };

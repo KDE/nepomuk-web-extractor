@@ -9,8 +9,8 @@
  * before re-generating it.
  */
 
-#ifndef DECISIONMANAGEMENTSERVICEADAPTOR_H_1310138089
-#define DECISIONMANAGEMENTSERVICEADAPTOR_H_1310138089
+#ifndef DECISIONMANAGEMENTSERVICEADAPTOR_H_1310141726
+#define DECISIONMANAGEMENTSERVICEADAPTOR_H_1310141726
 
 #include <QtCore/QObject>
 #include <QtDBus/QtDBus>
@@ -59,6 +59,11 @@ class DecisionManagementAdaptor: public QDBusAbstractAdaptor
 "      <arg direction=\"in\" type=\"i\" name=\"id\"/>\n"
 "      <arg direction=\"out\" type=\"b\"/>\n"
 "    </method>\n"
+"    <method name=\"decisionMetadata\">\n"
+"      <annotation value=\"MetadataAndError\" name=\"com.trolltech.QtDBus.QtTypeName.Out0\"/>\n"
+"      <arg direction=\"in\" type=\"i\" name=\"id\"/>\n"
+"      <arg direction=\"out\" type=\"(i(s))\"/>\n"
+"    </method>\n"
 "  </interface>\n"
         "")
 public:
@@ -71,6 +76,7 @@ public:
 public: // PROPERTIES
 public Q_SLOTS: // METHODS
     IdAndError addDecision(const QByteArray &decision);
+    MetadataAndError decisionMetadata(int id);
     bool existsDecision(int id);
     IdList getDecisions(const QString &uri);
     int removeDecision(int id);

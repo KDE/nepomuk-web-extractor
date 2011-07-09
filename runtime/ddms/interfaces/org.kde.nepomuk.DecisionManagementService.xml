@@ -28,5 +28,10 @@
 	<arg name="id" type="i" direction="in" />
 	<arg type="b" direction="out" />
     </method>
+    <method name="decisionMetadata">
+	<annotation name="com.trolltech.QtDBus.QtTypeName.Out0" value="MetadataAndError"/>
+	<arg name="id" type="i" direction="in" />
+	<arg type="(i(s))" direction="out" />
+    </method>
   </interface>
 </node>

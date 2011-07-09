@@ -30,6 +30,7 @@ namespace Nepomuk {
     class DecisionManagementClient;
     class DDMS_CLIENT_EXPORT DecisionModel  : public QAbstractListModel
     {
+        Q_OBJECT;
         public:
             enum Roles { Description, Proxy };
             DecisionModel(DecisionManagementClient * client);

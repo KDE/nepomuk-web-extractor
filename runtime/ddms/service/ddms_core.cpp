@@ -186,8 +186,10 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QSet<QUrl> & resources
 
     // Stage 2.0 - add record to the resources table
     success = true;
+    qDebug() << "Total resources: " << resources.size();
     for( it = resources.begin(); it != resources.end(); ++it )
     {
+        qDebug() << "Inserting resource: " << *it;
         insertResUrlQuery.prepare(insertResUrlQueryString);
         insertResUrlQuery.bindValue(":res",it->toString());
         insertResUrlQuery.bindValue(":id",id);
@@ -206,6 +208,7 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QSet<QUrl> & resources
         goto FAIL;
 
     // Stage 2.1 - add record to metadata table
+    qDebug() << "Metadata. Rank: " << metadata.rank << "Description: " << metadata.description;
     insertMetadataQuery.prepare(insertMetaQueryString);
     insertMetadataQuery.bindValue(":description",metadata.description);
     insertMetadataQuery.bindValue(":rank",metadata.rank);
@@ -217,12 +220,14 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QSet<QUrl> & resources
     insertMetadataQuery.finish();
 
     // Stage 2.2 - add record to authors table
+    qDebug() << "Total authors: " << metadata.authorsData.size();
     success = false;
     for( author_it = metadata.authorsData.begin();
             author_it != metadata.authorsData.end();
             ++author_it
        )
     {
+        qDebug() << "Inserting author: " << author_it.key();
         insertAuthorQuery.prepare(insertAuthorQueryString);
         insertAuthorQuery.bindValue(":id",id);
         insertAuthorQuery.bindValue(":name",author_it.key());
@@ -241,8 +246,8 @@ Nepomuk::DecisionStorage::Private::requestFileName( const QSet<QUrl> & resources
     
 
     // Stage 3 - create file in the specified folder
-    filename = QString::number(id);
-    file.setFileName(pathFolder + '/' + filename );
+    filename = pathFolder + '/' + QString::number(id);
+    file.setFileName(filename );
     file.open(QIODevice::WriteOnly);
     file.close();
 
@@ -447,7 +452,7 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
     }
     else {
         // Create table
-        createResTable.prepare("CREATE TABLE "RES_TABLE_NAME"( id INTEGER, resource TEXT,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFFERED)");
+        createResTable.prepare("CREATE TABLE "RES_TABLE_NAME"( id INTEGER, resource TEXT,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFERRED)");
         createResTable.exec();
         if (!createResTable.isActive()) {
             qDebug() << "Can't create resources table. Error: " << 
@@ -475,7 +480,7 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
     }
     else {
         // Create table
-        createMetaTable.prepare("CREATE TABLE "META_TABLE_NAME"( id INTEGER PRIMARY KEY, rank DOUBLE, description  TEXT,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFFERED)");
+        createMetaTable.prepare("CREATE TABLE "META_TABLE_NAME"( id INTEGER PRIMARY KEY, rank DOUBLE, description  TEXT,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFERRED)");
         createMetaTable.exec();
         if (!createMetaTable.isActive()) {
             qDebug() << "Can't create metadata table. Error: " << 
@@ -504,7 +509,7 @@ Nepomuk::DecisionStorage::Private::prepareDatabase()
     }
     else {
         // Create table
-        createAuthorTable.prepare("CREATE TABLE "AUTHOR_TABLE_NAME"( id INTEGER, name TEXT, version INTEGER,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFFERED)");
+        createAuthorTable.prepare("CREATE TABLE "AUTHOR_TABLE_NAME"( id INTEGER, name TEXT, version INTEGER,  FOREIGN KEY(id) REFERENCES id(id) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY  DEFERRED)");
         createAuthorTable.exec();
         if (!createAuthorTable.isActive()) {
             qDebug() << "Can't create authors table. Error: " << 
@@ -578,6 +583,8 @@ int Nepomuk::DecisionStorage::addDecision( const Decision::Decision & decision,
     if (!d->valid)
         return Error::SystemError ;
 
+    qDebug() << decision;
+
     QSet<QUrl> uri = decision.targetResources();
 
     // Stage 1 - accquire filename
@@ -596,6 +603,9 @@ int Nepomuk::DecisionStorage::addDecision( const Decision::Decision & decision,
    // Open file
    QFile file(filename);
    file.open(QIODevice::WriteOnly);
+   QDataStream stream(&file);
+
+   stream << decision;
 
    file.close();
    return Error::NoError;
@@ -621,13 +631,15 @@ Nepomuk::DecisionStorage::removeDecision(ID id)
 
 QList<int> Nepomuk::DecisionStorage::queryDecisions(const QUrl & resource)
 {
-    QSqlQuery selectQuery(
-            QString("SELECT id FROM "RES_TABLE_NAME" WHERE resource = ") + resource.toString(),
-            d->db
-            );
+    QSqlQuery selectQuery(d->db);
+    QString queryString  = 
+            QString("SELECT id FROM "RES_TABLE_NAME" WHERE resource = \"%1\"").arg(resource.toString());
+    //qDebug() << "Query string: " << queryString;
+
+    selectQuery.prepare(queryString);
     selectQuery.exec();
     if (!selectQuery.isActive() ) {
-        qWarning() << "Can not execute SELECT query to database";
+        qWarning() << "Can not execute SELECT query to database. (" << selectQuery.lastError().text() << ").";
         return QList<int>();
     }
 
@@ -711,6 +723,8 @@ DecisionMetadata Nepomuk::DecisionStorage::decisionMetadata(int  id, int & error
         int version = readAuthorsQuery.value(1).toInt();
         answer.authorsData[name] = version;
     }
+    // Now read metadata from the file
+    answer.description = "Fake description of the Decision " + QString::number(id);
 
     return answer;
 }

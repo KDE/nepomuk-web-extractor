@@ -1,16 +1,45 @@
 import QtQuick 1.0
 
 Rectangle {
-    width: 360
-    height: 360
-    Text {
-        anchors.centerIn: parent
-        text: "Hello World"
+
+width : 250
+height : 500
+anchors.fill : parent
+
+ListModel {
+    id : model1
+    ListElement {
+        description : "Fake desc 1"
     }
-    MouseArea {
+
+    ListElement {
+        description : "Fake desc 2"
+    }
+}
+
+ListView {
+    model : model1
+    anchors.fill : parent
+    delegate : Text {
+        text : "Descrpition:" + description
+    }
+    //delegate : ListDelegate {}
+    highlight: Rectangle { color : "lightsteelblue"; radius : 5 }
+    focus : true
+}
+
+}
+
+/*ListView {
+    model: MainModel
+    delegate : Rectangle {
+        border.color: "black"
         anchors.fill: parent
-        onClicked: {
-            Qt.quit();
+        Text {
+            anchors.fill: parent
+            text : "Descrpition:" + description
         }
     }
 }
+*/
+

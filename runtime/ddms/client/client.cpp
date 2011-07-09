@@ -19,6 +19,7 @@
 
 #include "client.h"
 #include "respond_proxies.h"
+#include "protocol_types.h"
 #include "decision_proxy.h"
 #include "decision_proxy_data.h"
 #include "decisionmanagementserviceproxy.h"
@@ -140,6 +141,24 @@ Nepomuk::DecisionManagementClient::getDecisionData(int id, bool checkExist)
         return fit.value();
     }
 
+}
+
+DecisionMetadata 
+Nepomuk::DecisionManagementClient::getDecisionMetadata(int id, int & error )
+{
+    QDBusReply<MetadataAndError> reply = client->decisionMetadata(id);
+
+    if ( reply.isValid() ) {
+        MetadataAndError md = reply.value();
+        error = md.error;
+        return md.metadata;
+    }
+    else {
+        qDebug() << "DO SOMETHING HERE - DBUS FAILED";
+        error = Error::DBusError;
+    }
+
+    return DecisionMetadata();
 }
 
 // vim:sw=4 ts=8 expandtab

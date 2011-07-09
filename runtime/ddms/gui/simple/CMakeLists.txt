@@ -24,12 +24,16 @@ kde4_add_executable( nepomuk_decision_manager
 
 target_link_libraries(
     nepomuk_decision_manager
+    ${KDE4_NEPOMUK_LIBS}
+    ${KDE4_KDECORE_LIBS}
     ${KDE4_KDEUI_LIBRARY}
-    ${KDE4_KDECORE_LIBRARY}
+    ${KDE4_KIO_LIBRARY}
+    ${KDE4_KUTILS_LIBRARY}
     ${QT_QTCORE_LIBRARY}
     ${QT_QTGUI_LIBRARY}
     ${QT_QTDECLARATIVE_LIBRARY}
     ddms_client
+    nepomukutils
     )
 
 install( TARGETS nepomuk_decision_manager

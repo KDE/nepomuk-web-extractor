@@ -39,6 +39,12 @@ IdAndError DecisionManagementAdaptor::addDecision(const QByteArray &decision)
     return parent()->addDecision(decision);
 }
 
+MetadataAndError DecisionManagementAdaptor::decisionMetadata(int id)
+{
+    // handle method call org.kde.nepomuk.DecisionManagement.decisionMetadata
+    return parent()->decisionMetadata(id);
+}
+
 bool DecisionManagementAdaptor::existsDecision(int id)
 {
     // handle method call org.kde.nepomuk.DecisionManagement.existsDecision

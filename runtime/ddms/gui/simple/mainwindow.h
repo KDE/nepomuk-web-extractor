@@ -30,6 +30,7 @@ namespace Nepomuk {
 
 class MainWindow : public KXmlGuiWindow, public Ui_MainWindow
 {
+    Q_OBJECT;
     public:
         MainWindow(Nepomuk::DecisionManagementClient * client, QWidget * parent = 0);
     private:

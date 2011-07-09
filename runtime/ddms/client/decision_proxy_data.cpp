@@ -18,6 +18,7 @@
 
 #include "decision_proxy_data.h"
 #include "client.h"
+#include "protocol_types.h"
 
 #include <QtDebug>
 
@@ -39,8 +40,13 @@ void DecisionProxyData::loadMetadata()
 {
     if (m_metadataLoaded)
         return;
+    if (!valid)
+        return;
 
-    // client->request metadata
+    int error;
+    DecisionMetadata md =  client->getDecisionMetadata(m_id,error);
+    description = md.description;
+
     m_metadataLoaded = true;
 }
 
