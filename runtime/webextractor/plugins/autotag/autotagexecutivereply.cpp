@@ -60,6 +60,8 @@ Nepomuk::AutotagReply::AutotagReply(AutotagExecutive * parent, const Decision::D
     // Take tag name from the parent
     QString tagName = parent->m_tag;
 
+    QString tagDescription = parent->m_description;
+
     // Check that file name math regexp
     // Take the filename
     QString filename = res.property(Nepomuk::Vocabulary::NFO::fileName()).toString();
@@ -72,8 +74,11 @@ Nepomuk::AutotagReply::AutotagReply(AutotagExecutive * parent, const Decision::D
         Nepomuk::SimpleResource resChanges(res.resourceUri());
         Nepomuk::SimpleResource tag;
         tag.addType(Soprano::Vocabulary::NAO::Tag());
-        tag.addProperty(Soprano::Vocabulary::NAO::description(),QString("What on the hell this tag for?"));
-        resChanges.addProperty(Soprano::Vocabulary::NAO::hasTag(),tag);
+        if ( !tagDescription.isEmpty() ) {
+            tag.addProperty(Soprano::Vocabulary::NAO::description(), tagDescription);
+        }
+        tag.addProperty(Soprano::Vocabulary::NAO::prefLabel(), tagName);
+        resChanges.addProperty(Soprano::Vocabulary::NAO::hasTag(), tag);
 
         changes.insert(resChanges);
         changes.insert(tag);

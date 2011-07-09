@@ -26,6 +26,7 @@
 
 #define AUTOTAG_CONFIG_GROUP "autotag"
 #define AUTOTAG_CONFIG_TAG_KEY "tag"
+#define AUTOTAG_CONFIG_DESCRIPTION_KEY "description"
 #define AUTOTAG_CONFIG_REGEXP_KEY "regexp"
 
 

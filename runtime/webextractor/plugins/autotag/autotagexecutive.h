@@ -36,13 +36,15 @@ namespace Nepomuk
             AutotagExecutive(
                 int pluginVersion,
                 const QRegExp & regexp,
-                const QString & tag
+                const QString & tag,
+                const QString & description
             );
             ~AutotagExecutive();
             friend class AutotagReply;
         private:
             QRegExp m_regexp;
             QString m_tag;
+            QString m_description;
     };
 }
 

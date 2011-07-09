@@ -28,11 +28,13 @@
 Nepomuk::AutotagExecutive::AutotagExecutive(
     int pluginVersion,
     const QRegExp & regexp,
-    const QString & tag
+    const QString & tag,
+    const QString & description
 ):
     Executive(pluginVersion),
     m_regexp(regexp),
-    m_tag(tag)
+    m_tag(tag),
+    m_description(description)
 {
 }
 

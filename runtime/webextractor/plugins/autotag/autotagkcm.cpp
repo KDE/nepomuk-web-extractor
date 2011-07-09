@@ -60,11 +60,13 @@ void Nepomuk::AutotagKCM::load()
     // Read params
     QString regexpString = grp.readEntry(AUTOTAG_CONFIG_REGEXP_KEY, QString());
     QString tag = grp.readEntry(AUTOTAG_CONFIG_TAG_KEY, QString());
+    QString tagDescription = grp.readEntry(AUTOTAG_CONFIG_DESCRIPTION_KEY, QString());
 
     // Set them in config
     disconnectAll();
     this->d->ui->regexpLineEdit->setText(regexpString);
     this->d->ui->tagLineEdit->setText(tag);
+    this->d->ui->descriptionTextEdit->setPlainText(tagDescription);
     connectAll();
      
 }
@@ -80,9 +82,11 @@ void Nepomuk::AutotagKCM::save()
     // Read params
     QString regexpString = d->ui->regexpLineEdit->text();
     QString tag = d->ui->tagLineEdit->text();
+    QString description = d->ui->descriptionTextEdit->toPlainText();
 
     grp.writeEntry(AUTOTAG_CONFIG_REGEXP_KEY, regexpString);
     grp.writeEntry(AUTOTAG_CONFIG_TAG_KEY, tag);
+    grp.writeEntry(AUTOTAG_CONFIG_DESCRIPTION_KEY,description);
 
     cfg.sync();
 }
@@ -104,8 +108,10 @@ void Nepomuk::AutotagKCM::defaults()
     disconnectAll();
     grp.writeEntry(AUTOTAG_CONFIG_REGEXP_KEY, regexpString);
     grp.writeEntry(AUTOTAG_CONFIG_TAG_KEY, tag);
+    grp.writeEntry(AUTOTAG_CONFIG_DESCRIPTION_KEY,QString());
     this->d->ui->regexpLineEdit->setText(regexpString);
     this->d->ui->tagLineEdit->setText(tag);
+    this->d->ui->descriptionTextEdit->setPlainText(QString());
     connectAll();
 
     cfg.sync();
@@ -115,12 +121,14 @@ void Nepomuk::AutotagKCM::connectAll()
 {
     connect( this->d->ui->regexpLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT( changed() ));
     connect( this->d->ui->tagLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT( changed() ));
+    connect( this->d->ui->descriptionTextEdit, SIGNAL(textChanged()), this, SLOT( changed() ));
 }
 
 void Nepomuk::AutotagKCM::disconnectAll()
 {
     disconnect( this->d->ui->regexpLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT( changed() ));
     disconnect( this->d->ui->tagLineEdit, SIGNAL(textChanged(const QString &)), this, SLOT( changed() ));
+    disconnect( this->d->ui->descriptionTextEdit, SIGNAL(textChanged()), this, SLOT( changed() ));
 }
 
 Nepomuk::AutotagKCM::~AutotagKCM()

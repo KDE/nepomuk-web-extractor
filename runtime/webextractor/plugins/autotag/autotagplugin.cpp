@@ -50,11 +50,13 @@ Nepomuk::WebExtractor::Executive * Nepomuk::AutotagPlugin::getExecutive(const KC
 
     QString tag = grp.readEntry(AUTOTAG_CONFIG_TAG_KEY, QString());
 
+    QString tagDescription = grp.readEntry(AUTOTAG_CONFIG_DESCRIPTION_KEY, QString());
+
     kDebug() << "Read config file. Tag: " << tag << " Regexp: " << regexpString;
 
     QRegExp regexp(regexpString);
 
-    return new AutotagExecutive(version(), regexp, tag);
+    return new AutotagExecutive(version(), regexp, tag, tagDescription);
 }
 
 
