@@ -1,0 +1,18 @@
+== INSTALLATION ==
+
+Create build directory anywhere
+> mkdir build_dir
+
+Cd into this dircetory and run cmake
+> cd build_dir
+> ccmake <path/to/source/dir>
+
+Configure and generated makefiles
+
+Now, you HAVE TO first install lib subfolder, and only then - 
+runtime
+
+cd lib; make install; cd ../
+cd runtime; make install; cd ../
+
+Otherwise, webexconsole wouldn't build
