@@ -21,8 +21,8 @@ find_package(Nepomuk REQUIRED)
 #raw
 # check for required packages
 if(BUILD_METAPACKAGE)
-    # if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-    set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
+    # if BUILD_METAPACKAGE is defined, we are compiling the meta-package.
+    # LIBWEBEXTRACTOR_LIBRARIES will be provied by the upper level CMakeLists.txt file
 else(BUILD_METAPACKAGE)
     find_package(LibWebextractor REQUIRED)
     message( STATUS "Found Libwebextractor. IncDir: ${LIBWEBEXTRACTOR_INCLUDE_DIRS}" )
