@@ -39,7 +39,7 @@ namespace Nepomuk
                 return m_seriesCache;
             }
 
-            WebExtractor::ExecutiveReply* requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res);
+            WebExtractor::ExecutiveReply* requestDecisions(const Nepomuk::Decision::DecisionFactory * factory, const Nepomuk::Resource & res);
 
         private:
             TVShowFilenameAnalyzer m_filenameAnalyzer;

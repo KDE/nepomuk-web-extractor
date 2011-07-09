@@ -23,6 +23,7 @@
 #include "tvshowfilenameanalyzer.h"
 
 #include <QtCore/QList>
+#include <QtCore/QSet>
 
 #include <tvdb/series.h>
 
@@ -34,7 +35,7 @@ namespace Nepomuk  {
         Q_OBJECT
 
     public:
-        TvdbReply(TvdbExecutive* parent, const WebExtractor::DecisionFactory* factory, const Nepomuk::Resource& res, const QString& name, int season, int episode );
+        TvdbReply(TvdbExecutive* parent, const Nepomuk::Decision::DecisionFactory* factory, const Nepomuk::Resource& res, QList<TVShowFilenameAnalyzer::AnalysisResult> candidates );
 
         virtual void abort();
         virtual bool isValid() const;
@@ -43,10 +44,12 @@ namespace Nepomuk  {
         void slotRequestDone( int id, const QList<Tvdb::Series>& );
 
     private:
-        int m_seriesCacheId;
-        const QString m_name;
-        const int m_season;
-        const int m_episode;
+        QHash<int, TVShowFilenameAnalyzer::AnalysisResult> m_seriesCacheIdSet;
+        QList<Nepomuk::Decision::DecisionCreator> m_cachedDecisions;
+        int launched;
+
+        void rankAndSubmit();
+
     };
 }
 

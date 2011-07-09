@@ -33,14 +33,26 @@ Nepomuk::TvdbExecutive::TvdbExecutive(int pluginVersion)
 }
 
 
-Nepomuk::WebExtractor::ExecutiveReply* Nepomuk::TvdbExecutive::requestDecisions(const WebExtractor::DecisionFactory* factory, const Nepomuk::Resource & res)
+Nepomuk::WebExtractor::ExecutiveReply* Nepomuk::TvdbExecutive::requestDecisions(const Nepomuk::Decision::DecisionFactory* factory, const Nepomuk::Resource & res)
 {
     if(res.isFile()) {
         const KUrl url = res.toFile().url();
-        TVShowFilenameAnalyzer::AnalysisResult result = m_filenameAnalyzer.analyzeFilename(url.toLocalFile());
-        if(result.isValid()) {
-            return new TvdbReply(this, factory, res, result.name, result.season, result.episode);
-        } else {
+        QList<TVShowFilenameAnalyzer::AnalysisResult> result = m_filenameAnalyzer.analyzeFilename(url.toLocalFile());
+        bool hasValid = false;
+        if(result.size() > 0) {
+            foreach( const TVShowFilenameAnalyzer::AnalysisResult c, result)
+            {
+                if ( c.isValid() ) {
+                    hasValid = true;
+                    break;
+                }
+            }
+        }
+
+        if ( hasValid ) {
+            return new TvdbReply(this, factory, res, result);
+        }
+        else {
             kDebug() << res.resourceUri() << "failed to analyze the filename - no tv show file?";
         }
     } else {

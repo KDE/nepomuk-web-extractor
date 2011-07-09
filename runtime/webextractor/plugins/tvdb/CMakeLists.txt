@@ -8,11 +8,6 @@ if ( LibTvdb_FOUND )
 
     # check for required packages
     if(WEBEXTRACTOR_VERSION_STRING)
-        # if WEBEXTRACTOR_VERSION_STRING is defined, we are compiling the meta-package
-        set(LIBWEBEXTRACTOR_INCLUDE_DIRS
-            ../libwebextractor/include
-            ${CMAKE_CURRENT_BINARY_DIR}/../libwebextractor/include)
-        set(LIBWEBEXTRACTOR_LIBRARIES webextractor)
     else(WEBEXTRACTOR_VERSION_STRING)
         find_package(LibWebextractor REQUIRED)
     endif(WEBEXTRACTOR_VERSION_STRING)
@@ -58,8 +53,10 @@ if ( LibTvdb_FOUND )
         webexplugin
         ${NEPOMUK_LIBRARIES}
         ${KDE4_NEPOMUK_LIBS}
-        ${QT_LIBRARIES}
         ${LIBTVDB_LIBRARIES}
+        webextractor
+        nepomuk_decision
+        nepomukdatamanagement
         )
 
     install(

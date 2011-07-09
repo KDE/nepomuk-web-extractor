@@ -51,7 +51,7 @@ public:
         int episode;
     };
 
-    AnalysisResult analyzeFilename( const QString& name );
+    QList<AnalysisResult> analyzeFilename( const QString& name );
 
 private:
     QList<QRegExp> m_filenameRegExps;

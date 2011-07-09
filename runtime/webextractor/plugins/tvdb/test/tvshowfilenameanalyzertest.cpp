@@ -108,7 +108,10 @@ void TVShowFilenameAnalyzerTest::testAnalyzeFilename()
     QFETCH( int, episode );
 
     TVShowFilenameAnalyzer tva;
-    TVShowFilenameAnalyzer::AnalysisResult result = tva.analyzeFilename( filename );
+
+    QList<TVShowFilenameAnalyzer::AnalysisResult> resultList = tva.analyzeFilename( filename );
+    QVERIFY( resultList.size() > 0 );
+    TVShowFilenameAnalyzer::AnalysisResult result = resultList[0];
     QVERIFY( result.isValid() );
     QCOMPARE( result.name, name );
     QCOMPARE( result.season, season );

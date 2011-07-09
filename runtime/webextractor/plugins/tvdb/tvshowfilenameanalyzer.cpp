@@ -66,7 +66,7 @@ TVShowFilenameAnalyzer::~TVShowFilenameAnalyzer()
 }
 
 
-TVShowFilenameAnalyzer::AnalysisResult TVShowFilenameAnalyzer::analyzeFilename( const QString& path )
+QList<TVShowFilenameAnalyzer::AnalysisResult> TVShowFilenameAnalyzer::analyzeFilename( const QString& path )
 {
     QMutexLocker lock( &m_mutex );
 
@@ -78,6 +78,7 @@ TVShowFilenameAnalyzer::AnalysisResult TVShowFilenameAnalyzer::analyzeFilename( 
 
     kDebug() << name;
 
+    QList<AnalysisResult> answer;
     // 2. run the base name through all regular expressions we have
     for ( int i = 0; i < m_filenameRegExps.count(); ++i ) {
         QRegExp& exp = m_filenameRegExps[i];
@@ -96,9 +97,9 @@ TVShowFilenameAnalyzer::AnalysisResult TVShowFilenameAnalyzer::analyzeFilename( 
                 result.name.truncate( result.name.length()-1 );
             result.name = result.name.simplified();
 
-            return result;
+            answer <<  result;
         }
     }
 
-    return AnalysisResult();
+    return answer;
 }
