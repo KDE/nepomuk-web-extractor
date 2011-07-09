@@ -113,6 +113,18 @@ Nepomuk::SimpleResourceGraph ND::PropertiesGroup::changes() const
     return d->changes;
 }
 
+bool ND::PropertiesGroup::operator==( const PropertiesGroup & rhs) const
+{
+    if ( this == &rhs)
+        return true;
+
+    if ( this->d == rhs.d)
+        return true;
+
+    return ( d->rank == rhs.d->rank ) and ( d->description == rhs.d->description ) and ( d->changes == rhs.d->changes );
+}
+
+
 QDataStream & ND::operator<<(QDataStream & stream, const ND::PropertiesGroup & pg)
 {
     stream << pg.d->description << pg.d->rank << pg.d->changes; 
@@ -122,5 +134,12 @@ QDataStream & ND::operator<<(QDataStream & stream, const ND::PropertiesGroup & p
 QDataStream & ND::operator>>(QDataStream & stream, ND::PropertiesGroup & pg )
 {
     stream >> pg.d->description >> pg.d->rank >> pg.d->changes; 
+    return stream;
+}
+QDebug ND::operator<<(QDebug stream, const Nepomuk::Decision::PropertiesGroup & pg)
+{
+    stream << "Rank: " << pg.d->rank;
+    stream << "Description: " << pg.d->description;
+    stream << "Changes: " << pg.d->changes;
     return stream;
 }

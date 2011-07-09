@@ -34,8 +34,8 @@ namespace Nepomuk
             public:
                 DebugExecutive();
                 virtual ExecutiveReply * requestDecisions(const Decision::DecisionFactory * factory, const Nepomuk::Resource & res);
-                static QString  name();
-                static int version();
+                QString  name() const;
+                int version() const;
         };
 
         class WEBEXTRACTOR_EXPORT DebugExecutiveReply : public ExecutiveReply

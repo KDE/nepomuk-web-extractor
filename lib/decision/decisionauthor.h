@@ -23,7 +23,13 @@
 namespace Nepomuk {
     namespace Decision {
         class DecisionAuthor 
-        {};
+        {
+            public:
+                virtual QString name() const = 0;
+                virtual int version() const = 0;
+                virtual ~DecisionAuthor() {;}
+        };
+
     }
 }
 

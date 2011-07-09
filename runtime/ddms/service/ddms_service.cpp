@@ -100,7 +100,8 @@ IdAndError Nepomuk::DecisionManagementService::addDecision(
 {
     // Load decision from byte array
     QDataStream dstream(decision);
-    Decision::Decision dec = Decision::Decision::load(dstream);
+    Decision::Decision dec;
+    dstream >> dec;
 
     qDebug() << "CALL: " << __func__; 
     int id = -1;

@@ -19,6 +19,8 @@ include_directories(
   ${KDE4_INCLUDES}
   )
 
+enable_testing()
+
 # First build libraries
 add_subdirectory( lib)
 # Then extracto all necessary config variables from libraries

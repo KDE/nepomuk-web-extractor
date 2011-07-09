@@ -21,7 +21,6 @@
 
 #include <QtGlobal>
 
-#include <KJob>
 
 #include "decisioncollectionwidget.h"
 

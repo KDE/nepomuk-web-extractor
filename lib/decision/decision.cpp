@@ -263,34 +263,20 @@ QString ND::Decision::description() const
 
 /* ==== Storage section ==== */
 
-void ND::Decision::save( QIODevice * device ) const
+QDataStream & Nepomuk::Decision::operator<<( QDataStream & stream, const Decision & decision)
 {
-    QDataStream stream(device);
-    this->save(stream);
+    stream << decision.d->rank << decision.d->description << 
+      decision.d->timeStamp << decision.d->authorsData << 
+      decision.d->targetResources << decision.d->groups;
+    return stream;
 }
 
-ND::Decision ND::Decision::load( QIODevice * device ) 
+QDataStream & Nepomuk::Decision::operator>>( QDataStream & stream, Decision & answer)
 {
-    QDataStream stream(device);
-    return load(stream);
-}
-
-void ND::Decision::save( QDataStream & stream)const
-{
-    stream << d->rank << d->description << 
-      d->timeStamp << d->authorsData << 
-      d->groups;
-
-}
-
-
-ND::Decision ND::Decision::load( QDataStream & stream )
-{
-    Decision answer;
     stream >> answer.d->rank >> answer.d->description >> 
       answer.d->timeStamp >> answer.d->authorsData >> 
-      answer.d->groups;
-    return Decision();
+      answer.d->targetResources >> answer.d->groups;
+    return stream;
 }
 
 /* ==== Editing section ==== */
@@ -373,6 +359,12 @@ void ND::Decision::setTargetResources( const QSet<QUrl> & targetResources)
 {
     d->targetResources = targetResources;
 }
+
+void ND::Decision::setAuthorsData( const QHash<QString, int> authorsData )
+{
+    d->authorsData = authorsData;
+}
+
 
 void ND::Decision::cleanUnused()
 {
@@ -468,5 +460,46 @@ bool ND::Decision::isDirtyEmptyness() const
 
 bool ND::Decision::isDirty() const
 {
-    return d > 0;
+    return d->dirty > 0;
+}
+
+QDebug Nepomuk::Decision::operator<<( QDebug dbg, const Decision & decision)
+{
+    dbg << "Rank: " << decision.rank();
+    dbg << "Description: " << decision.description();
+    dbg << "Target resources: " << decision.targetResources();
+    dbg << "Changes: " << decision.changes();
+    dbg << "Authors: " << decision.metadata().authorsData;
+    return dbg;
+}
+
+bool Nepomuk::Decision::Decision::operator==( const Nepomuk::Decision::Decision & rhs) const
+{
+    if ( this == &rhs ) {
+        return true;
+    }
+
+    if ( this->d == rhs.d ) {
+        return true;
+    }
+
+    bool simple_answer =  ( d->rank == rhs.d->rank ) and ( d->description == rhs.d->description ) and ( d->authorsData == rhs.d->authorsData ) and ( d->targetResources == rhs.d->targetResources ) and ( d->groups.size() == rhs.d->groups.size() );
+   if ( !simple_answer ) {
+       return false;
+   }
+
+   // Now check that all properties groups are the same ( order shouldn't matter )
+   QList<PropertiesGroup> groups_copy = d->groups;
+   while( groups_copy.size() > 0 )
+   {
+       if ( rhs.d->groups.contains(groups_copy[groups_copy.size()-1]) ) {
+           // Remove from the list
+           groups_copy.removeLast();
+       }
+       else {
+           // Groups are not the same
+           return false;
+       }
+   }
+   return true;
 }

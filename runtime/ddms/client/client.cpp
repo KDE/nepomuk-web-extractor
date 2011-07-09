@@ -83,8 +83,10 @@ IdProxy *
 Nepomuk::DecisionManagementClient::addDecision(const Decision::Decision &decision)
 {
     QByteArray result;
+    qDebug() << decision;
     QDataStream dstream(&result, QIODevice::WriteOnly );
-    decision.save(dstream);
+    dstream << decision;
+    
     return new IdProxy(
 	    this,
 	    d->interface->addDecision(result),
@@ -143,10 +145,10 @@ Nepomuk::DecisionManagementClient::getDecisionData(int id, bool checkExist)
 
 }
 
-DecisionMetadata 
+Nepomuk::Decision::DecisionMetadata 
 Nepomuk::DecisionManagementClient::getDecisionMetadata(int id, int & error )
 {
-    QDBusReply<MetadataAndError> reply = client->decisionMetadata(id);
+    QDBusReply<MetadataAndError> reply = d->interface->decisionMetadata(id);
 
     if ( reply.isValid() ) {
         MetadataAndError md = reply.value();
@@ -158,7 +160,7 @@ Nepomuk::DecisionManagementClient::getDecisionMetadata(int id, int & error )
         error = Error::DBusError;
     }
 
-    return DecisionMetadata();
+    return Nepomuk::Decision::DecisionMetadata();
 }
 
 // vim:sw=4 ts=8 expandtab

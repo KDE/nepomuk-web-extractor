@@ -28,6 +28,14 @@ namespace Nepomuk {
     class DecisionModel;
 }
 
+namespace Nepomuk {
+    namespace Utils {
+        class SearchWidget;
+    }
+}
+
+class KDialog;
+
 class MainWindow : public KXmlGuiWindow, public Ui_MainWindow
 {
     Q_OBJECT;
@@ -36,9 +44,13 @@ class MainWindow : public KXmlGuiWindow, public Ui_MainWindow
     private:
         Nepomuk::DecisionManagementClient * m_client;
         Nepomuk::DecisionModel * m_model;
+        KDialog * selectUrlDialog;
+        Nepomuk::Utils::SearchWidget * m_dialogWidget;
+
 
     private Q_SLOTS:
-        void onUrlSelected( const KUrl & );
+        void onUrlSelected();
+        void onUrlLineSelected();
 };
 
 #endif

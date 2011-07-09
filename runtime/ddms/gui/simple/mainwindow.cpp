@@ -22,6 +22,11 @@
 
 #include <QtCore/QtDebug>
 #include <QDeclarativeContext>
+#include <KDebug>
+#include <KStandardGuiItem>
+#include <KDialog>
+#include <nepomuk/searchwidget.h>
+#include <Nepomuk/Resource>
 
 
 MainWindow::MainWindow(
@@ -37,15 +42,41 @@ MainWindow::MainWindow(
     this->m_client = client;
     this->m_model = new Nepomuk::DecisionModel(m_client);
     QDeclarativeContext * ctx = this->mainView->rootContext();
-    ctx->setContextProperty("MainModel",m_model);
+    ctx->setContextProperty("mainModel",m_model);
     mainView->setSource(QUrl("qrc:/qml/list/list.qml"));
+    selectUrlDialog = new KDialog(this);
+    selectUrlDialog->setCaption(i18n("Select Nepomuk Resource"));
+    selectUrlDialog->setButtons( KDialog::Ok | KDialog::Cancel);
+    m_dialogWidget = new Nepomuk::Utils::SearchWidget();
+    selectUrlDialog->setMainWidget( m_dialogWidget );
 
-    connect(this->kurlrequester,SIGNAL(urlSelected(const KUrl & )),
-            this, SLOT(onUrlSelected(const KUrl &))
+    connect(selectUrlDialog, SIGNAL(okClicked() ),
+            this, SLOT(onUrlSelected())
            );
+
+    connect(urlLineEdit, SIGNAL(editingFinished()),
+            this, SLOT(onUrlLineSelected())
+           );
+
+    selectUrlButton->setGuiItem(KStandardGuiItem::open());
+    connect(selectUrlButton, SIGNAL(clicked()),
+            selectUrlDialog, SLOT(show())
+           );
+
+
 }
 
-void MainWindow::onUrlSelected( const KUrl & url)
+void MainWindow::onUrlSelected()
 {
+    QUrl url = m_dialogWidget->currentResource().resourceUri();
+    urlLineEdit->setText(url.toString());
+    kDebug() << "Url selected: " << url;
+    this->m_model->setUri(url);
+}
+
+void MainWindow::onUrlLineSelected()
+{
+    QUrl url = QUrl(urlLineEdit->text());
+    kDebug() << "Url selected: " << url;
     this->m_model->setUri(url);
 }

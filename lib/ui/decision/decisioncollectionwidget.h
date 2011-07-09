@@ -28,8 +28,7 @@
 #include <decision/decisionapplicationrequest.h>
 
 #include "decisionui_export.h"
-
-class KJob;
+#include <KJob>
 
 
 namespace Soprano {

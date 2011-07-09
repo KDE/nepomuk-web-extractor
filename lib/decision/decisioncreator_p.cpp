@@ -22,6 +22,7 @@
 #include <nepomuk/simpleresource.h>
 
 #include "decisioncreator_p.h"
+#include "decisionauthor.h"
 
 namespace ND = Nepomuk::Decision;
 
@@ -76,17 +77,26 @@ ND::Decision ND::DecisionCreatorInternals::data()
             {
                 if ( value.type() == QVariant::Url ) {
                     QUrl u = value.toUrl();
-                    if ( u.toString().startsWith("_:") ) {
+                    if ( !u.toString().startsWith("_:") ) {
                         tR.insert( u );
                     }
                 }
             }
         }
 
-        d.setTargetResources(tR);
     }
 
     // Set target resources
+    d.setTargetResources(tR);
+
+    // Set authors
+    QHash<QString,int> tA;
+    foreach( const DecisionAuthor * author, authorsData )
+    {
+        tA.insert(author->name(),author->version());
+    }
+    d.setAuthorsData(tA);
+
 
 
     Q_ASSERT(d.isValid());

@@ -134,6 +134,8 @@ namespace Nepomuk {
                  */
                 DecisionMetadata metadata() const;
 
+                bool operator==( const Decision & ) const;
+
                 /* ==== Application section ==== */
 
                 /*! \brief Return application request, that will perform identification for Decision
@@ -181,13 +183,7 @@ namespace Nepomuk {
 
                 void setTargetResources( const QSet<QUrl> & targetResources );
 
-                /* ===== Storage section ======= */
-
-            public:
-                static Decision load( QIODevice * device );
-                static Decision load( QDataStream & stream );
-                void save(QIODevice * device) const;
-                void save(QDataStream & stream) const;
+                void setAuthorsData( const QHash<QString, int> authorsData );
 
 
             private:
@@ -198,6 +194,8 @@ namespace Nepomuk {
                 friend class DecisionCreatorInternals;
                 friend class DecisionCreator;
                 friend class DecisionApplicationRequest;
+                friend QDataStream & operator<<( QDataStream &, const Decision &);
+                friend QDataStream & operator>>( QDataStream &, Decision &);
 
                 void markDirtyLog();
                 void markCleanLog() const;
@@ -217,6 +215,9 @@ namespace Nepomuk {
                 class Private;
                 QSharedDataPointer<Private> d;
         };
+        DECISION_EXPORT QDataStream & operator<<( QDataStream &, const Decision &);
+        DECISION_EXPORT QDataStream & operator>>( QDataStream &, Decision &);
+        DECISION_EXPORT QDebug operator<<( QDebug dbg, const Decision & );
     }
 }
 Q_DECLARE_METATYPE(Nepomuk::Decision::Decision);

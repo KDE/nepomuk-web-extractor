@@ -28,6 +28,8 @@
 #include <QDBusConnection>
 #include <QDBusPendingCallWatcher>
 
+#include <decision/decisionmetadata.h>
+
 namespace Nepomuk {
     class IdProxy;
     class IdListProxy;
@@ -72,7 +74,7 @@ namespace Nepomuk {
             friend class DecisionProxyData;
 
             QSharedPointer<DecisionProxyData> getDecisionData(int id, bool checkExist);
-            DecisionMetadata getDecisionMetadata(int id, int & error);
+            Nepomuk::Decision::DecisionMetadata getDecisionMetadata(int id, int & error);
             class Private;
             Private * d;
     };

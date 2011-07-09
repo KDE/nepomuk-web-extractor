@@ -23,6 +23,7 @@
 #include <QtDebug>
 
 using namespace Nepomuk;
+using namespace Nepomuk::Decision;
 
 DecisionProxyData::DecisionProxyData(DecisionManagementClient * client,int id, bool checkExist):
     valid(false),
@@ -44,7 +45,7 @@ void DecisionProxyData::loadMetadata()
         return;
 
     int error;
-    DecisionMetadata md =  client->getDecisionMetadata(m_id,error);
+    DecisionMetadata md =  m_client->getDecisionMetadata(m_id,error);
     description = md.description;
 
     m_metadataLoaded = true;

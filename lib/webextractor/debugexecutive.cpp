@@ -25,16 +25,15 @@
 namespace NW = Nepomuk::WebExtractor;
 namespace ND = Nepomuk::Decision;
 
-QString NW::DebugExecutive::name()
+QString NW::DebugExecutive::name() const
 {
     static QString name = QString("debug");
     return name;
 }
 
-int  NW::DebugExecutive::version()
+int  NW::DebugExecutive::version() const
 {
-    //static QString version = QString("0.0.1");
-    return 0.1;
+    return 1;
 }
 
 NW::DebugExecutive::DebugExecutive():

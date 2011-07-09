@@ -23,7 +23,8 @@
 namespace ND = Nepomuk::Decision;
 
 
-ND::PropertiesGroupCreatorPrivate::PropertiesGroupCreatorPrivate()
+ND::PropertiesGroupCreatorPrivate::PropertiesGroupCreatorPrivate():
+    rank(0)
 {
 }
 

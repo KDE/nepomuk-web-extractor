@@ -22,6 +22,7 @@
 #include <QSharedDataPointer>
 #include <QSharedPointer>
 #include <QString>
+#include <QDebug>
 #include "decision_export.h"
 
 #include <nepomuk/simpleresourcegraph.h>
@@ -59,12 +60,15 @@ namespace Nepomuk
 		 */
 		bool isEmpty() const;
 
+                bool operator==( const PropertiesGroup & ) const;
+
 		/* ==== Editing section ==== */
 		void setRank(double rank);
 		void setDescription( const QString & description );
 		void setChanges( const Nepomuk::SimpleResourceGraph & changes);
                 friend QDataStream & operator<<(QDataStream &, const Nepomuk::Decision::PropertiesGroup & );
                 friend QDataStream & operator>>(QDataStream &, Nepomuk::Decision::PropertiesGroup & );
+                friend QDebug operator<<(QDebug , const Nepomuk::Decision::PropertiesGroup & );
 	    private:
                 /*! \brief This function will return the log of all chanegs
                  * \note Private as API is unstable
@@ -81,6 +85,7 @@ namespace Nepomuk
 	};
         DECISION_EXPORT QDataStream & operator<<(QDataStream &, const Nepomuk::Decision::PropertiesGroup & );
         DECISION_EXPORT QDataStream & operator>>(QDataStream &, Nepomuk::Decision::PropertiesGroup & );
+        DECISION_EXPORT QDebug operator<<(QDebug stream, const Nepomuk::Decision::PropertiesGroup &);
     }
 }
 

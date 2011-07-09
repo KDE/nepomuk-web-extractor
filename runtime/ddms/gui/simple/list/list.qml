@@ -17,12 +17,25 @@ ListModel {
     }
 }
 
-ListView {
-    model : model1
-    anchors.fill : parent
-    delegate : Text {
-        text : "Descrpition:" + description
+Component {
+    id: decisionDelegate
+    Item {
+         width:250; height: 50;
+    Text {
+            text : "Descrpition:" + description
+     }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: ListView.view.currentIndex = index
     }
+    }
+}
+
+ListView {
+    //model : model1
+    model: mainModel
+    anchors.fill : parent
+    delegate :decisionDelegate
     //delegate : ListDelegate {}
     highlight: Rectangle { color : "lightsteelblue"; radius : 5 }
     focus : true
