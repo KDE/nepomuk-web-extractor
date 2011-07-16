@@ -88,7 +88,7 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
             // 2. create the new decision
             Nepomuk::Decision::DecisionCreator d = newDecision();
 
-            // 3. create the series resource
+            // 3. create the series resource and add data to it
             SimpleResource mainResource(resource().resourceUri());
             SimpleResource tvSeries;
             NMM::TVSeries tvSeriesWrapper(&tvSeries);
@@ -119,13 +119,18 @@ void Nepomuk::TvdbReply::slotRequestDone( int id, const QList<Tvdb::Series>& res
             proxyRes.setSynopsis( series[m_season][m_episode].overview() );
             */
 
-            // 5. calculate the probability of the match the dumb way
+            // 6. Form a changes list
+            SimpleResourceGraph changes;
+            changes << mainResource << tvSeries;
+            d.setChanges(changes);
+
+            // 7. calculate the probability of the match the dumb way
             d.setRank( TvdbPlugin::calculateRankTheDumbWay( c_name, series.name() ) );
 
-            // 6. add the decision to the temporary pool
+            // 8. add the decision to the temporary pool
             m_cachedDecisions <<  d ;
 
-            // 7. Decrease counter
+            // 9. Decrease counter
             launched--;
 
             if ( launched == 0 ) 
@@ -140,6 +145,7 @@ void Nepomuk::TvdbReply::rankAndSubmit()
         foreach( const Nepomuk::Decision::DecisionCreator & creator, m_cachedDecisions)
         {
             // Here must be reranking code. But it is omited for now
+            addDecision(creator);
         }
     }
 
