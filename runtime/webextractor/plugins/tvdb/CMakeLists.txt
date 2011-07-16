@@ -34,8 +34,12 @@ if ( LibTvdb_FOUND )
         seriescache.cpp
         )
 
-    nepomuk_add_ontology_classes(tvdb_plugin_SRCS
-      ONTOLOGIES ${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nie/nmm.trig)
+    nepomuk_add_simpleresource_classes(tvdb_plugin_HEADERS
+        ONTOLOGIES 
+        ${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nie/nmm.trig 
+        ${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nie/nie.trig
+        ${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nepomuk/nao.trig
+        )
 
     set (TVDB_PLUGIN_VERSION 0.1)
     set (TVDB_PLUGIN_INTERNAL_VERSION 0.1)
