@@ -110,16 +110,22 @@ bool DataPPPage::isDataPP( const QModelIndex & index)
 void DataPPPage::loadDataPP(const QString  & id)
 {
 
-    //kDebug() << "Load DataPP. Id: " << id;
+    kDebug() << "Load DataPP. Id: " << id << "KCM? :" << !m_currentKcm.isNull();
 
     // Load KCM
     if (m_currentKcm) {
+        kDebug() << "Disconnectind old kcm";
         disconnect(m_currentKcm.data(),SIGNAL(changed(bool)),this,SLOT(dataPPSettingsChanged(bool))); 
         this->kcmScrollAreaWidgetContents->layout()->removeWidget(m_currentKcm.data());
+        m_currentKcm.data()->hide();
+        this->kcmScrollAreaWidgetContents->show();
     }
+
+
     WebExtractorPluginKCM::Ptr kcm = DataPPPool::dataPPById(id)->kcm();
     if ( kcm ) {
             this->kcmAreaLayout->insertWidget(1,kcm.data());
+            kcm.data()->show();
             connect(kcm.data(), SIGNAL(changed(bool)), this, SLOT(dataPPSettingsChanged(bool)));
     }
     else {
