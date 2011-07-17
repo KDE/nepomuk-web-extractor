@@ -67,7 +67,7 @@ def check_generate(namespace,git_enabled):
 		exit()
 
 	if version is None:
-		namespace['version'] = 0.1
+		namespace['version'] = 1
 
 	if namespace['kcm'] is None:
 		namespace['kcm'] = False
@@ -99,6 +99,10 @@ def check_generate(namespace,git_enabled):
 
 		if mail is None or len(mail) == 0:
 			namespace['mail'] = ""
+
+	# Get year
+	year = Popen(["date", "+%Y"], stdout=PIPE).communicate()[0].rstrip("\n \t")
+	namespace["year"] = year
 
 
 
