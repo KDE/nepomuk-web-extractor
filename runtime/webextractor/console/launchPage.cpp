@@ -135,7 +135,7 @@ void LaunchPage::onApplyDecision()
     Q_ASSERT(req);
 
     if(!req->exec())
-        KMessageBox::sorry(this, "Applying Decision failed");
+        KMessageBox::sorry(this, i18n("Applying Decision failed"));
 
     //updateIdentificationInfo();
 }
@@ -273,9 +273,9 @@ void LaunchPage::startExtracting()
         // TODO Aborting code works incorrectly.
         int answer = KMessageBox::questionYesNo(
                          this,
-                         "Application is currently analyzing another resource. \
-		Do you want to abort?",
-                         "Abort?"
+                         i18n("Application is currently analyzing another resource. \
+		Do you want to abort?"),
+                         i18n("Abort?")
                      );
         if(answer == KMessageBox::Yes) {
             QMetaObject::invokeMethod(this->m_currentAnalyzer, "abort", Qt::QueuedConnection);
@@ -297,7 +297,7 @@ void LaunchPage::startExtracting()
                         // that we have necessary uri
                         QString uriString = uriLineEdit->text();
                         if(uriString.isEmpty()) {
-                            KMessageBox::sorry(this, "Please provied an uri to extract metadata for");
+                            KMessageBox::sorry(this, i18n("Please provide an URI to extract metadata for"));
                             return;
                         }
 
@@ -310,7 +310,7 @@ void LaunchPage::startExtracting()
                         // Check that there is a Resource with this uri
                         res = Nepomuk::Resource(uri);
                         if(!res.exists()) {
-                            KMessageBox::sorry(this, "There is no resource with uri you give me. Sorry");
+                            KMessageBox::sorry(this, i18n("There is no resource with URI you give me. Sorry"));
                             return;
                         }
                         desiredType = LaunchPage::Single;
@@ -322,7 +322,7 @@ void LaunchPage::startExtracting()
                                  // Get selection
                                  QList<Nepomuk::Resource> sr = resWidget->selectedResources();
                                  if (sr.isEmpty()) {
-                                     KMessageBox::sorry(this,"You forget to select resources");
+                                     KMessageBox::sorry(this, i18n("You forget to select resources"));
                                      return;
                                  }
 
@@ -338,7 +338,7 @@ void LaunchPage::startExtracting()
                                 // put them to queue and set desiredType to Set
                                 QModelIndexList selection = categoryView->selectionModel()->selectedIndexes();
                                 if ( selection.isEmpty() ) {
-                                    KMessageBox::sorry(this, "You forget to select a category to launch");
+                                    KMessageBox::sorry(this, i18n("You forgot to select a category to launch"));
                                     return;
                                 }
                                 QModelIndex selectedIndex = selection[0];
@@ -347,7 +347,7 @@ void LaunchPage::startExtracting()
                                         selectedIndex,
                                         CategoriesModel::CategoryRole).value<Category*>();
                                 if (!cat) {
-                                    KMessageBox::sorry(this, "Something wrong happens. Application can not retrieve category that you have selected");
+                                    KMessageBox::sorry(this, i18n("Something wrong happened. Application can not retrieve category that you have selected"));
                                     return;
                                 }
                                 NQ::Query query = cat->query();
@@ -372,13 +372,13 @@ void LaunchPage::startExtracting()
                                 
                                 // Check
                                 if (m_toAnalyze.isEmpty() ) {
-                                    KMessageBox::sorry(this, "There is no suitable resource in category");
+                                    KMessageBox::sorry(this, i18n("There is no suitable resource in category"));
                                     return;
                                 }
                                 break;
                              }
         default : {
-                        KMessageBox::sorry(this, "Unknown selection method");
+                        KMessageBox::sorry(this, i18n("Unknown selection method"));
                         return;
                          break;
                      }
@@ -424,7 +424,7 @@ void LaunchPage::startExtracting()
 
     if(!hasAny) {
         // Warn user
-        KMessageBox::sorry(this, "You forget to select DataPP. Or the DataPP you have selected are all invalid.\n  If you have selected category, then sorry - this feature is not supported yet");
+        KMessageBox::sorry(this, i18n("You forgot to select DataPP, or all the selected DataPP are invalid.\nIf you have selected a category, then sorry, this feature is not supported yet"));
         return;
     }
 
@@ -591,13 +591,13 @@ void LaunchPage::setButtonApply()
 {
     this->startButton->setGuiItem(KStandardGuiItem::Apply);
     this->startButton->setText(i18n("Launch"));
-    this->startButton->setToolTip("Start extracting");
+    this->startButton->setToolTip(i18n("Start extracting"));
 }
 
 void LaunchPage::setButtonAbort()
 {
     this->startButton->setGuiItem(KStandardGuiItem::Discard);
-    this->startButton->setToolTip("Abort extracting");
+    this->startButton->setToolTip(i18n("Abort extracting"));
 }
 
 void LaunchPage::onCurrentDecisionChanged(const QListWidgetItem * current,const QListWidgetItem * previous)

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>518</width>
+    <width>599</width>
     <height>544</height>
    </rect>
   </property>
@@ -83,8 +83,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>295</width>
-               <height>91</height>
+               <width>366</width>
+               <height>113</height>
               </rect>
              </property>
              <layout class="QGridLayout" name="gridLayout_3">
@@ -147,7 +147,7 @@
                 <item>
                  <widget class="QCheckBox" name="checkBox">
                   <property name="text">
-                   <string>break on
+                   <string>Break on
 every iteration</string>
                   </property>
                  </widget>
@@ -266,7 +266,7 @@ every iteration</string>
                  <bool>false</bool>
                 </property>
                 <property name="text">
-                 <string>take only </string>
+                 <string>Take only </string>
                 </property>
                 <property name="checked">
                  <bool>true</bool>
@@ -355,7 +355,7 @@ every iteration</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="DecisionWidget" name="decisionWidget"/>
+            <widget class="DecisionWidget" name="decisionWidget" native="true"/>
            </item>
           </layout>
          </widget>
@@ -416,7 +416,7 @@ every iteration</string>
           <item row="0" column="1">
            <widget class="KPushButton" name="reviewDecisionButton">
             <property name="text">
-             <string>Send to reviewboard</string>
+             <string>Send to Reviewboard</string>
             </property>
            </widget>
           </item>
@@ -431,24 +431,19 @@ every iteration</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DecisionWidget</class>
-   <extends>QWidget</extends>
-   <header>nepomuk/decision/decisionwidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>KDoubleNumInput</class>
    <extends>QWidget</extends>
    <header>knuminput.h</header>
   </customwidget>
   <customwidget>
-   <class>KLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>klineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>KPushButton</class>
    <extends>QPushButton</extends>
    <header>kpushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>KLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>klineedit.h</header>
   </customwidget>
   <customwidget>
    <class>KTabWidget</class>
@@ -459,7 +454,12 @@ every iteration</string>
   <customwidget>
    <class>Nepomuk::Utils::SearchWidget</class>
    <extends>QWidget</extends>
-   <header location="global">nepomuk/searchwidget.h</header>
+   <header>nepomuk/searchwidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DecisionWidget</class>
+   <extends>QWidget</extends>
+   <header>nepomuk/decision/decisionwidget.h</header>
   </customwidget>
   <customwidget>
    <class>DecisionCollectionWidget</class>
