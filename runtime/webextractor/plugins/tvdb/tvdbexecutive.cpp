@@ -25,11 +25,17 @@
 
 #include <Nepomuk/File>
 
+#include "nfo.h"
 
 Nepomuk::TvdbExecutive::TvdbExecutive(int pluginVersion)
     : Executive(pluginVersion)
 {
     m_seriesCache = new SeriesCache(this);
+
+    // set filter
+    addTypeFilter(Nepomuk::Vocabulary::NFO::Video(),SubclassMatch,true);
+    addTypeFilter(Nepomuk::Vocabulary::NFO::Audio(),SubclassMatch,true);
+    addTypeFilter(Nepomuk::Vocabulary::NFO::PlainTextDocument(),SubclassMatch,true);
 }
 
 

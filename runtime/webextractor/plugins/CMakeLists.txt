@@ -17,3 +17,4 @@ set( LIBWEBEXTRACTOR_LIBRARIES
 add_subdirectory(autotag)
 #add_subdirectory(test)
 add_subdirectory(tvdb)
+#add_subdirectory(echoprint)

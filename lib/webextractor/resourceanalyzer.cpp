@@ -386,7 +386,7 @@ bool Nepomuk::WebExtractor/*::ResourceAnalyzer*/::ResourceAnalyzer::launchNext()
         //kDebug() << "Datappwrapper: " << uintptr_t(dpp) << " Executive: " << uintptr_t(dpp->data());
 
         // launch
-        ExecutiveReply * repl = dpp->requestDecisions(d->m_fact, d->m_res);
+        ExecutiveReply * repl = dpp->decisions(d->m_fact, d->m_res);
         // ATTENTION! repl object is executed in another thread!
         //repl->setParent(this);
 

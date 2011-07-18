@@ -24,7 +24,6 @@
 
 #include "autotagexecutivereply.h"
 
-
 Nepomuk::AutotagExecutive::AutotagExecutive(
     int pluginVersion,
     const QRegExp & regexp,

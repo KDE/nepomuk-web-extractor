@@ -41,6 +41,8 @@ if ( LibTvdb_FOUND )
         ${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nepomuk/nao.trig
         )
 
+    soprano_add_ontology(tvdb_plugin_SRCS "${SHAREDDESKTOPONTOLOGIES_ROOT_DIR}/nie/nfo.trig" "NFO" "Nepomuk::Vocabulary" "trig")
+
     set (TVDB_PLUGIN_VERSION 0.1)
     set (TVDB_PLUGIN_INTERNAL_VERSION 0.1)
 

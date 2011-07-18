@@ -60,9 +60,9 @@ NW::ExecutiveWrapper::~ExecutiveWrapper()
     ;
 }
 
-NW::ExecutiveReply * NW::ExecutiveWrapper::ExecutiveWrapper::requestDecisions(const ND::DecisionFactory * factory, const Nepomuk::Resource & res) const
+NW::ExecutiveReply * NW::ExecutiveWrapper::ExecutiveWrapper::decisions(const ND::DecisionFactory * factory, const Nepomuk::Resource & res) const
 {
-    ExecutiveReply * answer = d->data->requestDecisions(factory, res);
+    ExecutiveReply * answer = d->data->decisions(factory, res);
     /*
     if (!answer)
     return answer;

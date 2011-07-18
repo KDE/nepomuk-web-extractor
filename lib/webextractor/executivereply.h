@@ -60,7 +60,21 @@ namespace Nepomuk
 
                     /*! \brief This error is set if reply has exceeded it's time
                      */
-                    TimeExceeded
+                    TimeExceeded,
+
+                    /*! \brief This error is set if datasource of plugin was unavailable
+                     * E.g. remote server doesn't respond to requests or necessary 
+                     * application doesn't found
+                     */
+                    DataSourceUnavailable,
+
+                    /*! \brief If something goes wrong inside plugin, then this error will be set
+                     * E.g. some necessary application suddenly failed, or remote server
+                     * report an error and so on
+                     */
+                    DataSourceError
+
+
 
                 };
 

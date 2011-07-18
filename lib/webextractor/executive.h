@@ -34,13 +34,21 @@ namespace Nepomuk
     namespace WebExtractor
     {
         class ExecutiveWrapper;
-        /*! \brief MUST be reentrant and thread safe
+        /*! \brief Main object that perform actions. MUST be reentrant and thread safe
+         * This is the class that responsible for extractin information. 
+         * This class supply name and version, and provide method requestDecisions() 
+         * that return a pointer to ExecutiveReply. 
          */
         class WEBEXTRACTOR_EXPORT Executive : public QObject, public Decision::DecisionAuthor
         {
                 Q_OBJECT;
             public:
-                virtual ExecutiveReply * requestDecisions(const Decision::DecisionFactory * factory, const Nepomuk::Resource & res) = 0;
+                /*! \brief Make some tests and call virtual method requestDecisions
+                 * This method will first test given resources with filters set up by
+                 * subclass. If filters failed, then 0 will be return imidiatelly.
+                 * Otherwise requestDecisions will be called and it's answer returned
+                 */
+                ExecutiveReply * decisions(const Decision::DecisionFactory * factory, const Nepomuk::Resource & res);
                 //virtual ExecutiveReply * requestDecisions(const DecisionFactory * factory, const Nepomuk::Resource & res, QObject * target, const char * finishedSlot, const char * errorSlot) = 0;
                 virtual ~Executive();
                 Executive(
@@ -51,6 +59,7 @@ namespace Nepomuk
                  */
                 int  version() const;
                 /*! \brief Return name of this Executive
+                 * Name of the executive is set by application using it
                  */
                 QString name() const;
                 // Force uncopyable
@@ -58,6 +67,22 @@ namespace Nepomuk
                 Executive(const Executive &);
                 const Executive& operator=(const Executive&);
 
+
+                enum FilterClassType { ExactMatch = 0, SubclassMatch = 1, SubclassOrExactMatch = 2, Match_MAX = 2 };
+            protected:
+                virtual ExecutiveReply * requestDecisions(const Decision::DecisionFactory * factory, const Nepomuk::Resource & res) = 0;
+
+                /* ====== Filtering section ======= */
+                /*! \brief Return true if this executive can extract information for given resource
+                 * First, assigned filters are used. Then user-supplied filter is executed
+                 */
+                bool canProcess(const Nepomuk::Resource & res) const;
+                void addTypeFilter( const QUrl & typeUrl, FilterClassType matchType, bool allowed );
+                /*! \brief Default rule
+                 * If no previous filter works, then resource will be allowed/rejected 
+                 * depenging of the default filter
+                 */
+                void setDefaultFilter(bool allowed);
 
 
                 friend class ExecutiveWrapper;

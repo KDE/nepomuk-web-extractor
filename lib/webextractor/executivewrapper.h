@@ -44,7 +44,7 @@ namespace Nepomuk
                 ExecutiveWrapper(const ExecutiveWrapper &);
                 ExecutiveWrapper & operator=(const ExecutiveWrapper &);
                 ~ExecutiveWrapper();
-                ExecutiveReply * requestDecisions(const Decision::DecisionFactory * factory, const Nepomuk::Resource & res)const;
+                ExecutiveReply * decisions(const Decision::DecisionFactory * factory, const Nepomuk::Resource & res)const;
                 Executive * data() const;
                 double rank() const;
                 double coff() const;
