@@ -77,7 +77,7 @@ void MainWindow::slotNewDecisions(const Nepomuk::Decision::DecisionList &decisio
     foreach(const Nepomuk::Decision::Decision & d, decisions) {
         // Add record to list widget
         QListWidgetItem * item = new QListWidgetItem();
-        item->setData(Qt::DisplayRole, "There is no Decision::uri memeber any more");
+        item->setData(Qt::DisplayRole, i18n("There is no Decision::uri member any more"));
         item->setData(DecisionRole, QVariant::fromValue(d));
         m_decisionWidget->addItem(item);
     }
