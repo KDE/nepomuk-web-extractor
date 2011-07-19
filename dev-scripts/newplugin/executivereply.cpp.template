@@ -45,6 +45,12 @@ Nepomuk::${classname}::${classname}(${name}Executive * parent, const WebExtracto
     ExecutiveReply((Nepomuk::WebExtractor::Executive*)(parent))
 #end if
 {
+    // In this method you may start extracting changes and submiting them. If you
+    // finish everything right in constructor, then you may call finish() method ( if
+    // you subclassed SimpleExecutiveReply) or should invoke finished() signal with
+    // connection type == Queued. This is IMPORTANT!
+    // For tutorial on extracting changes see tecbase.kde.org or SimpleResourceExecutive
+    // documentation
 }
 
 bool Nepomuk::${classname}::isValid() const

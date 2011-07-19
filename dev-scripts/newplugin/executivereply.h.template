@@ -37,11 +37,15 @@
 
 
 namespace Nepomuk  {
-    namespace WebExtractor {
+    namespace Decision {
         class DecisionFactory;
     }
     class ${name}Executive;
     class Resource;
+    // Usually ( if you don't choose another design ) this
+    // is the class where all extracting stuff is done.
+    // Source file provides more explanation and advices. Or look
+    // for tutorials
 #if $use_simple
     class $classname : public WebExtractor::SimpleExecutiveReply
 #else
@@ -50,9 +54,18 @@ namespace Nepomuk  {
     {
     Q_OBJECT
     public:
-        ${classname}(${name}Executive * parent, const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res );
+        ${classname}(${name}Executive * parent, const Decision::DecisionFactory * factory, const Nepomuk::Resource & res );
+                // Abort your execution.
                 virtual void abort() ;
+                // It is up to you to decide is reply is valid or not.
+                // If it is not, it will be rejected. 
                 virtual bool isValid() const ;
+                // If you subclassed 'SimpleExecutiveReply', you will
+                // have a method called 'decisions() that you should 
+                // not reimplement as it provides nice functions.
+                // If you didn't subclass SimpleExecutiveReply, then
+                // you have to implement this method. It must returl 
+                // list of all Decisions you have created
 #if not $use_simple
                 virtual WebExtractor::DecisionList decisions() const;
 #end if

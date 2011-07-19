@@ -35,11 +35,42 @@
 Nepomuk::${classname}::${classname}( int pluginVersion )
     : Executive(pluginVersion)
 {
+    // So, this is your constructor. What can you do here?
+    // First, everything defined here is accessible in your
+    // Reply class. So, you may create here a network infrastructure 
+    // if you plugin use network(e.g. shared QNetworkAccessManager)
+    //  BUT: be aware: Reply instances are created
+    // in different threads. So, EVERYTHING in here that is used by Reply class 
+    // MUST be thread-safe.
+
+    // Add type filters. 
+    // Type filters allow you to automatically reject resources with incorrect types.
+    // This way you may avoid typecheging in requestDecisions() method.
+    // to add type filter call
+    // addTypeFilter(<type url>, < match type>, <allowed> )
+    // Filters are operated as iptables. If resource type matches rule with allowed 
+    // == true, then resource has passed. If matches the rule with allowed==false
+    // then rejected. Default rule can be set with setDefaultFilter(<allowed>)
+    // Match type is enum( see correct names in Executive class documentation) : 
+    // Exact - exactly of given type
+    // Subclass - matches subclass of given type
+    // ExactOrSubclass - matches if subclass or given type or is the given type
 }
 
 
-Nepomuk::WebExtractor::ExecutiveReply * Nepomuk::${classname}::requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res)
+Nepomuk::WebExtractor::ExecutiveReply * Nepomuk::${classname}::requestDecisions(const Decision::DecisionFactory * factory, const Nepomuk::Resource & res)
 {
+    // If you have passed necessary options and inherited SimpleExecutive, then you
+    // are lucky - the Reply class was already generated for you. Otherwise you have
+    // to write it by yourself.
+    // In both cases what shoud you do here:
+    // 1. check some conditions - more complex type checks that are allowed by type
+    // filters, checks that some property do exist and so on
+    // 2. Check some enviroment if you want - like file is readable, network do exist
+    //    , user have necessary permisions
+    // If all checks succeded - then create new instance of Reply class and return it
+    // Otherwise return NULL. Please do not create a special Reply instance for error
+    // situations - just return NULL.
 
 #if $use_simple
     return new ${name}Reply(this, factory, res ); 

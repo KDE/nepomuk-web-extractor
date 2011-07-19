@@ -35,7 +35,9 @@ namespace Nepomuk {
     {
     Q_OBJECT
     public:
-        WebExtractor::ExecutiveReply * requestDecisions(const WebExtractor::DecisionFactory * factory, const Nepomuk::Resource & res) ;
+        // Main function your should impement. See source code file
+        // for more inforamtion. Or tutorials on *.kde.org
+        WebExtractor::ExecutiveReply * requestDecisions(const Decision::DecisionFactory * factory, const Nepomuk::Resource & res) ;
         ${classname}( int pluginVersion );
         ~${classname}();
         friend class ${name}Reply;

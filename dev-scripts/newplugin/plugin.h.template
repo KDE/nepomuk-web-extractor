@@ -29,6 +29,9 @@
 
 namespace Nepomuk
 {
+    // Actually, plugin is a factory for real plugins, called Executive.
+    // In method getExecutive you should parse config file and return a new executive
+    // Function version() is service function. No need to change it.
     class ${name}Plugin : public WebExtractorPlugin
     {
 	Q_OBJECT

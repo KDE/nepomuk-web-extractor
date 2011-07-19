@@ -38,6 +38,11 @@ K_EXPORT_PLUGIN(${name}PluginFactory("webex${name.lower()}plugin"))
 Nepomuk::${classname}::${classname}(QObject* parent, const QList<QVariant>&):
     WebExtractorPlugin(parent)
 {
+    // Usually there is nothing to do here. You may put here something that is common
+    // for ALL executives.
+    // Usually, infrastructure for network access is NOT what should be put here -
+    // for this use your Executive subclass
+    // So, if in doubts - dont put anything here
 }
 
 int Nepomuk::${classname}::version()
@@ -48,6 +53,15 @@ int Nepomuk::${classname}::version()
 Nepomuk::WebExtractor::Executive * Nepomuk::${classname}::getExecutive(const KConfigGroup &  configFile)
 {
     kError() << "ATTENTION! Reimplement this! ";
+    // In this function you should parse your config file, read necessary parameters
+    // create new  Executive with this parameters and return.
+    // in included file "${name.lower()}plugin_config.h" there is a define
+    // with name ${name.upper()}_CONFIG_GROUP. It is the name of config group
+    // you should use:
+    // KConfigGroup grp = configFile.group(${name.upper()}_CONFIG_GROUP)
+    // read settings from grp.
+    // Be aware that in given configFile there are not only your settings, but 
+    // also some system settings too
     return new ${name}Executive(version()/* add your parameters here */);
 }
 
