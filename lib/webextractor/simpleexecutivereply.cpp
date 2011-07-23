@@ -54,10 +54,9 @@ void  NW::SimpleExecutiveReply::realFinish()
     // If there is an error, them first emit error signal, then finished signal
     Q_D(SimpleExecutiveReply);
     if(d->m_error == NoError) {
-        emit finished();
-        return;
+        emitFinished();
     } else {
-        emit ExecutiveReply::error(d->m_error);
+        emitError();
         return;
     }
 

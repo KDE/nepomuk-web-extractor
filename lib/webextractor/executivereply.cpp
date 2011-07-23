@@ -21,6 +21,8 @@
 #include "executivereply_p.h"
 #include "global.h"
 
+#include <QtCore/QtDebug>
+
 namespace NW = Nepomuk::WebExtractor;
 
 NW::ExecutiveReply::ExecutiveReply(
@@ -43,6 +45,7 @@ void NW::ExecutiveReply::init(Executive * parent)
     Q_CHECK_PTR(parent);
     d->m_parent = parent;
     d->m_error = NoError;
+    d->m_finished = false;
     d->m_timer.setInterval(defaultExecutiveTimeout());
     d->m_timer.setSingleShot(true);
     d->m_timer.start();
@@ -70,6 +73,46 @@ NW::ExecutiveReply::Error NW::ExecutiveReply::error() const
 {
     Q_D(const ExecutiveReply);
     return d->m_error;
+}
+
+void NW::ExecutiveReply::emitFinished()
+{
+    Q_D(ExecutiveReply);
+    if (d->m_finished) {
+        // Error! Somehow signal is again emited
+        kError() << "ExecutiveReply emited final signal once more time. Ignored.";
+        Q_ASSERT(false);
+        return;
+    }
+    d->m_finished = true;
+    emit finished();
+}
+
+void NW::ExecutiveReply::emitError()
+{
+    Q_D(ExecutiveReply);
+    if (d->m_finished) {
+        // Error! Somehow signal is again emited
+        kError() << "ExecutiveReply emited final signal once more time. Ignored.";
+        Q_ASSERT(false);
+        return;
+    }
+    d->m_finished = true;
+    emit error(d->m_error);
+}
+
+void NW::ExecutiveReply::emitError(ExecutiveReply::Error errorCode)
+{
+    Q_D(ExecutiveReply);
+    if (d->m_finished) {
+        // Error! Somehow signal is again emited
+        kError() << "ExecutiveReply emited final signal once more time. Ignored.";
+        Q_ASSERT(false);
+        return;
+    }
+    d->m_finished = true;
+    setError(errorCode);
+    emit error(d->m_error);
 }
 
 NW::Executive * NW::ExecutiveReply::parentExecutive() const

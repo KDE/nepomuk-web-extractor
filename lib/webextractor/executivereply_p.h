@@ -33,10 +33,17 @@ namespace Nepomuk
                 // This is timer that will abort ExecutiveReply
                 // execution when
                 QTimer m_timer;
+                // This flag is used to prevent reporting about
+                // finishing serevral times
+                bool m_finished;
                 ExecutiveReply::Error m_error;
                 virtual ~ExecutiveReplyPrivate() {
                     ;
                 }
+                ExecutiveReplyPrivate():
+                    m_parent(0),
+                    m_finished(false)
+                    {}
         };
     }
 }
