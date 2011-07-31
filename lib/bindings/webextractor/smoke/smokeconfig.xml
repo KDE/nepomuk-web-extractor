@@ -1,0 +1,31 @@
+<config>
+    <moduleName>webextractor</moduleName>
+    <parts>1</parts>
+    <parentModules>
+        <module>qtcore</module>
+    </parentModules>
+    <scalarTypes>
+        <!-- QString is a class, but represented as a scalar (#) in munged names -->
+        <typeName>QString</typeName>
+    </scalarTypes>
+    <voidpTypes>
+        <!-- both are classes, but they are represented as Smoke::t_voidp -->
+        <typeName>QStringList</typeName>
+        <typeName>QString</typeName>
+    </voidpTypes>
+    <exclude>
+        <!-- private stuff -->
+        <signature>.*::d</signature>
+        <signature>.*::d_ptr</signature>
+        <signature>.*::q_ptr</signature>
+        <signature>.*::q</signature>
+        <signature>.*QDebug.*</signature>
+        <signature>.*Q3.*</signature>
+    </exclude>
+    <classList>
+        <class>Executive</class>
+        <class>SimpleExecutive</class>
+        <class>ExecutiveReply</class>
+        <class>SimpleExecutiveReply</class>
+    </classList>
+</config>

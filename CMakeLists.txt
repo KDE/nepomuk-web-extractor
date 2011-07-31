@@ -40,4 +40,5 @@ set( LIBWEBEXTRACTORUI_INCLUDE_DIRS
     )
 
 add_subdirectory( runtime )
+
 add_subdirectory( test )
