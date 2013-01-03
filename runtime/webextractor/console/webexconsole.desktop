@@ -3,6 +3,7 @@ Exec=webexconsole
 Type=Application
 Categories=Qt;KDE;System;
 Name=WebExtractorConsole
+Name[bs]=WebExtractorConsole
 Name[es]=Consola de extracción web
 Name[et]=Veebiekstraktori konsool
 Name[fr]=WebExtractorConsole
