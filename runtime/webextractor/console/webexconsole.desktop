@@ -21,6 +21,7 @@ Name[uk]=Консоль видобування інтернет-даних
 Name[x-test]=xxWebExtractorConsolexx
 Name[zh_TW]=網頁展開主控台
 GenericName=Web Extractor Console
+GenericName[de]=Konsole für Web-Extractor
 GenericName[es]=Consola de extracción web
 GenericName[et]=Veebiekstraktori konsool
 GenericName[fr]=Console de l'extracteur Web

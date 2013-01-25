@@ -2,6 +2,7 @@
 Type=ServiceType
 X-KDE-ServiceType=Nepomuk/WebExtractorPlugin
 Name=Web Extractor Plugin
+Name[de]=Web-Extractormodul
 Name[es]=Complemento de extracción web
 Name[et]=Veebiekstraktori plugin
 Name[fr]=Module externe de l'extracteur Web
