@@ -2,29 +2,6 @@
 Type=ServiceType
 X-KDE-ServiceType=Nepomuk/WebExtractorPlugin
 Name=Web Extractor Plugin
-Name[bs]=Web Extractor priključak
-Name[de]=Web-Extractormodul
-Name[es]=Complemento de extracción web
-Name[et]=Veebiekstraktori plugin
-Name[fi]=Web Extractor -liitännäinen
-Name[fr]=Module externe de l'extracteur Web
-Name[ga]=Breiseán Scríobaire Gréasáin
-Name[gl]=Complemento de extracción de web
-Name[hu]=Web beolvasó bővítmény
-Name[km]=កម្មវិធី​ជំនួយ​របស់​កម្មវិធី​ស្រង់ចេញ​តាមបណ្ដាញ
-Name[ko]=웹 추출기 플러그인
-Name[mr]=वेब एक्र्टेक्टर प्लगइन
-Name[nds]=Nett-Ruttrecker-Moduul
-Name[nl]=Plugin voor webextractie
-Name[pl]=Wtyczka wydobywania z sieci
-Name[pt]='Plugin' de Extracção da Web
-Name[pt_BR]=Plugin do extrator da Web
-Name[sk]=Plugin Web Extractor
-Name[sv]=Insticksprogram för webbextrahering
-Name[tr]=Web Dışa Aktarım Eklentisi
-Name[uk]=Додаток видобування інтернет-даних
-Name[x-test]=xxWeb Extractor Pluginxx
-Name[zh_TW]=網頁展開器外掛程式
 
 [PropertyDef::X-WebExtractor-Name]
 Type=QString
